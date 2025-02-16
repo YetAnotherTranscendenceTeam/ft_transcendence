@@ -73,7 +73,7 @@ export default function router(fastify, opts, done) {
           RETURNING *
         `
           )
-          .get(account.id, intra_user_id);
+          .get(account.account_id, intra_user_id);
       })();
       return reply.status(201).send(result);
     } catch (err) {
@@ -85,6 +85,7 @@ export default function router(fastify, opts, done) {
           message: `This email is already associated with an account`,
         });
       }
+      console.error(err);
       throw err;
     }
   });

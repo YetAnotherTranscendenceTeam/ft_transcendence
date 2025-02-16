@@ -3,10 +3,10 @@ import crypto from "crypto";
 
 const baseUrl = "http://127.0.0.1:7002";
 
-describe("fortytwo-auth", () => {
+describe("password-auth", () => {
   it("no body", async () => {
     const response = await request(baseUrl)
-      .post("/password")
+      .post("/fortytwo")
       .expect(400)
       .expect("Content-Type", /json/);
 
@@ -20,7 +20,7 @@ describe("fortytwo-auth", () => {
 
   it("no email", async () => {
     const response = await request(baseUrl)
-      .post("/password")
+      .post("/fortytwo")
       .send({
         username: "testuser",
         password: "testpassword",
@@ -36,9 +36,9 @@ describe("fortytwo-auth", () => {
     });
   });
 
-  it("no hash", async () => {
+  it("no intra_user_id", async () => {
     const response = await request(baseUrl)
-      .post("/password")
+      .post("/fortytwo")
       .send({
         email: "",
       })
@@ -49,35 +49,16 @@ describe("fortytwo-auth", () => {
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
       error: "Bad Request",
-      message: "body must have required property 'hash'",
+      message: "body must have required property 'intra_user_id'",
     });
   });
 
-  it("no salt", async () => {
+  it("bad email format 1", async () => {
     const response = await request(baseUrl)
-      .post("/password")
+      .post("/fortytwo")
       .send({
         email: "",
-        hash: "",
-      })
-      .expect(400)
-      .expect("Content-Type", /json/);
-
-    expect(response.body).toEqual({
-      statusCode: 400,
-      code: "FST_ERR_VALIDATION",
-      error: "Bad Request",
-      message: "body must have required property 'salt'",
-    });
-  });
-
-  it("bad email format", async () => {
-    const response = await request(baseUrl)
-      .post("/password")
-      .send({
-        email: "",
-        hash: "",
-        salt: "",
+        intra_user_id: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -90,13 +71,12 @@ describe("fortytwo-auth", () => {
     });
   });
 
-  it("bad hash 1", async () => {
+  it("bad email format 2", async () => {
     const response = await request(baseUrl)
-      .post("/password")
+      .post("/fortytwo")
       .send({
-        email: "test@test.com",
-        hash: "",
-        salt: "",
+        email: "fklfkfjskl",
+        intra_user_id: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -105,17 +85,16 @@ describe("fortytwo-auth", () => {
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
       error: "Bad Request",
-      message: "body/hash must NOT have fewer than 128 characters",
+      message: 'body/email must match format "email"',
     });
   });
 
-  it("bad hash 2", async () => {
+  it("bad intra_user_id 1 ", async () => {
     const response = await request(baseUrl)
-      .post("/password")
+      .post("/fortytwo")
       .send({
         email: "test@test.com",
-        hash: "02b1d478517f93d8cee16fa22e15437d58a7629b7aae6916b192f803b4014d74cceabf00e88cb8c8b89de277f75cda6379e7f0576a32ca2f0802d4e77650f68f!",
-        salt: "",
+        intra_user_id: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -124,17 +103,16 @@ describe("fortytwo-auth", () => {
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
       error: "Bad Request",
-      message: "body/hash must NOT have more than 128 characters",
+      message: "body/intra_user_id must be integer",
     });
   });
 
-  it("bad salt 1", async () => {
+  it("bad intra_user_id 1 ", async () => {
     const response = await request(baseUrl)
-      .post("/password")
+      .post("/fortytwo")
       .send({
         email: "test@test.com",
-        hash: "02b1d478517f93d8cee16fa22e15437d58a7629b7aae6916b192f803b4014d74cceabf00e88cb8c8b89de277f75cda6379e7f0576a32ca2f0802d4e77650f68f",
-        salt: "",
+        intra_user_id: "not-a-number",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -143,26 +121,7 @@ describe("fortytwo-auth", () => {
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
       error: "Bad Request",
-      message: "body/salt must NOT have fewer than 64 characters",
-    });
-  });
-
-  it("bad salt 2", async () => {
-    const response = await request(baseUrl)
-      .post("/password")
-      .send({
-        email: "test@test.com",
-        hash: "02b1d478517f93d8cee16fa22e15437d58a7629b7aae6916b192f803b4014d74cceabf00e88cb8c8b89de277f75cda6379e7f0576a32ca2f0802d4e77650f68f",
-        salt: "c77568641c27c0ec939d5e48e1ce673e2101d4ab187e5151e2feb27828e46365!",
-      })
-      .expect(400)
-      .expect("Content-Type", /json/);
-
-    expect(response.body).toEqual({
-      statusCode: 400,
-      code: "FST_ERR_VALIDATION",
-      error: "Bad Request",
-      message: "body/salt must NOT have more than 64 characters",
+      message: "body/intra_user_id must be integer",
     });
   });
 
@@ -174,19 +133,17 @@ describe("fortytwo-auth", () => {
       email: `password.test.js-${crypto
         .randomBytes(10)
         .toString("hex")}@jest.com`,
-      hash: crypto.randomBytes(64).toString("hex"),
-      salt: crypto.randomBytes(32).toString("hex"),
+      intra_user_id: Math.floor(Math.random() * 2000000),
     });
   }
 
   accounts.forEach((acc, i) => {
     it(`account creation ${i + 1}`, async () => {
       const response = await request(baseUrl)
-        .post("/password")
+        .post("/fortytwo")
         .send({
           email: accounts[i].email,
-          hash: accounts[i].hash,
-          salt: accounts[i].salt,
+          intra_user_id: accounts[i].intra_user_id,
         })
         .expect(201)
         .expect("Content-Type", /json/);
@@ -197,11 +154,10 @@ describe("fortytwo-auth", () => {
 
     it(`email already used  ${i + 1}`, async () => {
       const response = await request(baseUrl)
-        .post("/password")
+        .post("/fortytwo")
         .send({
           email: accounts[i].email,
-          hash: accounts[i].hash,
-          salt: accounts[i].salt,
+          intra_user_id: accounts[i].intra_user_id,
         })
         .expect(409)
         .expect("Content-Type", /json/);
@@ -224,20 +180,19 @@ describe("fortytwo-auth", () => {
         .expect("Content-Type", /json/);
 
       expect(response.body.account_id).toBe(accounts[rand].account_id);
-      expect(response.body.auth_method).toBe("password_auth");
+      expect(response.body.auth_method).toBe("fortytwo_auth");
       expect(response.body.email).toBe(accounts[rand].email);
     });
 
     it(`get random password entry ${i + 1}`, async () => {
       const response = await request(baseUrl)
-        .get(`/password/${accounts[rand].email}`)
+        .get(`/fortytwo/${accounts[rand].intra_user_id}`)
         .expect(200)
         .expect("Content-Type", /json/);
 
       expect(response.body.account_id).toBe(accounts[rand].account_id);
       expect(response.body.email).toBe(accounts[rand].email);
-      expect(response.body.hash).toBe(accounts[rand].hash);
-      expect(response.body.salt).toBe(accounts[rand].salt);
+      expect(response.body.intra_user_id).toBe(accounts[rand].intra_user_id);
     });
   }
 

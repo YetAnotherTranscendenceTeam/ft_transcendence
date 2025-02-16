@@ -49,7 +49,7 @@ db.exec(`
 db.exec(`
   CREATE TABLE IF NOT EXISTS fortytwo_auth (
     account_id INTEGER PRIMARY KEY,
-    intra_user_id TEXT UNIQUE NOT NULL,
+    intra_user_id INTEGER UNIQUE NOT NULL,
     FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
   )
 `);

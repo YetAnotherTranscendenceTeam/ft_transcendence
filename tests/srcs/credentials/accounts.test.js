@@ -1,7 +1,7 @@
 import request from "supertest";
 import crypto from "crypto";
 
-const baseUrl = "http://localhost:7002";
+const baseUrl = "http://127.0.0.1:7002";
 
 describe("GET /:email", () => {
   it("bad email", async () => {
