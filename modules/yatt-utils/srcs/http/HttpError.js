@@ -1,73 +1,70 @@
 export default class HttpError {
-  constructor(statusCode, error, message = null, code = `HTTP_ERROR_${statusCode}`) {
+  constructor(
+    statusCode,
+    error,
+    message = null,
+    code = `HTTP_ERROR_${statusCode}`
+  ) {
     this.statusCode = statusCode;
-    this.code = code
+    this.code = code;
     this.error = error;
     this.message = message;
   }
-  
-  BadRequest = BadRequest;
-  Unauthorized = Unauthorized;
-  Forbidden = Forbidden;
-  Conflict = Conflict;
-  TooManyRequests = TooManyRequests;
-  BadGateway = BadGateway;
-  ServiceUnavailable = ServiceUnavailable;
 
   json() {
     return {
       statusCode: this.statusCode,
       code: this.code,
       error: this.error,
-      message: this.message
-    }
+      message: this.message,
+    };
   }
 
   send(reply) {
     reply.code(this.statusCode).send(this.json());
   }
-}
 
-class BadRequest extends HttpError {
-  constructor(message = httpErrMessages.get(400)) {
-    super(400, 'Bad Request', message);
-  }
-}
+  // Preset specific http
+  static BadRequest = class BadRequest extends HttpError {
+    constructor(message = httpErrMessages.get(400)) {
+      super(400, "Bad Request", message);
+    }
+  };
 
-class Unauthorized extends HttpError {
-  constructor(message = httpErrMessages.get(401)) {
-    super(401, 'Unauthorized', message);
-  }
-}
+  static Unauthorized = class Unauthorized extends HttpError {
+    constructor(message = httpErrMessages.get(401)) {
+      super(401, "Unauthorized", message);
+    }
+  };
 
-class Forbidden extends HttpError {
-  constructor(message = httpErrMessages.get(403)) {
-    super(403, 'Forbidden', message);
-  }
-}
+  static Forbidden = class Forbidden extends HttpError {
+    constructor(message = httpErrMessages.get(403)) {
+      super(403, "Forbidden", message);
+    }
+  };
 
-class Conflict extends HttpError {
-  constructor(message = httpErrMessages.get(409)) {
-    super(409, 'Conflict', message);
-  }
-}
+  static Conflict = class Conflict extends HttpError {
+    constructor(message = httpErrMessages.get(409)) {
+      super(409, "Conflict", message);
+    }
+  };
 
-class TooManyRequests extends HttpError {
-  constructor(message = httpErrMessages.get(429)) {
-    super(429, 'Too Many Requests', message);
-  }
-}
+  static TooManyRequests = class TooManyRequests extends HttpError {
+    constructor(message = httpErrMessages.get(429)) {
+      super(429, "Too Many Requests", message);
+    }
+  };
 
-class BadGateway extends HttpError {
-  constructor(message = httpErrMessages.get(502)) {
-    super(502, 'Bad Gateway', message);
-  }
-}
-
-class ServiceUnavailable extends HttpError {
-  constructor(message = httpErrMessages.get(503)) {
-    super(503, 'Service Unavailable', message);
-  }
+  static BadGateway = class BadGateway extends HttpError {
+    constructor(message = httpErrMessages.get(502)) {
+      super(502, "Bad Gateway", message);
+    }
+  };
+  static ServiceUnavailable = class ServiceUnavailable extends HttpError {
+    constructor(message = httpErrMessages.get(503)) {
+      super(503, "Service Unavailable", message);
+    }
+  };
 }
 
 export const httpErrMessages = new Map();
@@ -75,6 +72,6 @@ httpErrMessages.set(400, "The server cannot process the request due to a client 
 httpErrMessages.set(401, "Authentication is required and has failed or has not been provided");
 httpErrMessages.set(403, "The server understood the request but refuses to authorize it");
 httpErrMessages.set(409, "The request could not be completed due to a conflict with the current state of the target resource");
-httpErrMessages.set(429, "You're doing that too often! Try again later.")
+httpErrMessages.set(429, "You're doing that too often! Try again later.");
 httpErrMessages.set(502, "The server received an invalid response from an upstream server");
 httpErrMessages.set(503, "The server cannot handle the request right now");
