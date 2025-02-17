@@ -1,5 +1,5 @@
 export class HttpError {
-  constructor(statusCode, error, message = null) {
+  constructor(statusCode, error, message = null, code = `HTTP_ERROR_${this.statusCode}`) {
     this.statusCode = statusCode;
     this.error = error;
     this.message = message;
@@ -8,7 +8,7 @@ export class HttpError {
   json() {
     return {
       statusCode: this.statusCode,
-      code: `HTTP_ERROR_${this.statusCode}`,
+      code: this.code,
       error: this.error,
       message: this.message
     }

@@ -2,7 +2,9 @@
   "dependencies": {
     "@fastify/formbody": "^8.0.2",
     "fastify": "^5.2.1",
-    "ft_fetch": "file:../../modules/ft_fetch"
+    "ft_fetch": "file:../../modules/ft_fetch",
+    "yatt-utils": "file:../../modules/yatt-utils"
+
   },
   "type": "module"
 }

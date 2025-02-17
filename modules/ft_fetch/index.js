@@ -14,8 +14,9 @@ export default async function ft_fetch(url, options) {
 }
 
 export class HttpError {
-  constructor(statusCode, error, message = null) {
+  constructor(statusCode, error, message = null, code = `HTTP_ERROR_${statusCode})`) {
     this.statusCode = statusCode;
+    this.code = code
     this.error = error;
     this.message = message;
   }

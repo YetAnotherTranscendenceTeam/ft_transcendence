@@ -4,25 +4,25 @@
 
 - credentials
 
-`https://localhost:7002`
+`http://localhost:7002/api-docs`
 
 
 - registration
 
-`https://localhost:4012`
+`http://localhost:4012/api-docs`
 
 
 - password-auth
 
-`https://localhost:4022`
+`http://localhost:4022/api-docs`
 
 
 - google-auth
 
-`https://localhost:4032`
+`http://localhost:4032/api-docs`
 
 
 - fortytwo-auth
 
-`https://localhost:4042`
+`http://localhost:4042/api-docs`
 
