@@ -1,6 +1,4 @@
-import hashPassword from "../crypt.js";
-import ft_fetch, { HttpError } from "ft_fetch";
-import YATT, { properties } from "yatt-utils";
+import YATT, { HttpError, properties } from "yatt-utils";
 
 export default function routes(fastify, opts, done) {
   let schema = {
@@ -48,10 +46,10 @@ export default function routes(fastify, opts, done) {
   fastify.post("/", { schema }, async function handler(request, reply) {
     const { email, password } = request.body;
 
-    const hash = await hashPassword(password);
+    const hash = await YATT.crypto.hashPassword(password, pepper);
     // Add account to database
     try {
-      const newAccount = await ft_fetch(`http://credentials:3000/password`, {
+      const newAccount = await YATT.fetch(`http://credentials:3000/password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -85,12 +83,18 @@ export default function routes(fastify, opts, done) {
             message: `This email is already associated with an account`,
           });
         }
+        // console.error(err);
         return err.send(reply);
       }
-      console.err(err);
+      // console.error(err);
       throw err;
     }
   });
-
   done();
+}
+
+const pepper = process.env.PASSWORD_PEPPER
+if (!pepper) {
+  console.error("Missing environment variable: PASSWORD_PEPPER");
+  process.exit(1);
 }

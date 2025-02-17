@@ -1,11 +1,5 @@
 import crypto from "crypto";
 
-const pepper = process.env.PASSWORD_PEPPER
-if (!pepper) {
-  console.error("Missing environment variable: PASSWORD_PEPPER");
-  process.exit(1);
-}
-
 /**
  * Salt generation
  * @returns {string} A random salt
@@ -19,7 +13,7 @@ function generateSalt() {
  * @param {string} password - The password to hash
  * @returns {{hash: string, salt: string}} The resuling hash and it's associated salt
  */
-export default async function hashPassword(password) {
+export async function hashPassword(password, pepper) {
   const salt = generateSalt();
   const derivedKey = await new Promise((resolve, reject) => {
     crypto.scrypt(password + pepper, salt, 64, (err, derivedKey) => {
@@ -32,4 +26,20 @@ export default async function hashPassword(password) {
     hash: derivedKey.toString("hex"),
     salt: salt,
   };
+}
+
+/**
+ * Compare a password to a hash+salt pair
+ * @param {string} password - The password
+ * @param {string} hash - The hash to compare
+ * @param {string} salt - The salt used to generate the hash
+ * @returns {bool} True if the password match the hash, false if it does not
+ */
+export async function verifyPassword(password, hash, salt, pepper) {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password + pepper, salt, 64, (err, derivedKey) => {
+      if (err) reject(err);
+      resolve(hash === derivedKey.toString("hex"));
+    });
+  });
 }

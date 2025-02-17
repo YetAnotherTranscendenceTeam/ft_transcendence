@@ -1,5 +1,4 @@
 import request from "supertest";
-import crypto from "crypto";
 import { properties } from "../../../modules/yatt-utils/srcs";
 
 const baseUrl = "http://127.0.0.1:4022";

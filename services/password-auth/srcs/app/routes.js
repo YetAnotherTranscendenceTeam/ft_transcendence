@@ -2,13 +2,13 @@
 
 import schema from "../shema.js";
 import verifyPassword from "../verifyPassword.js";
-import ft_fetch, { HttpError, UnauthorizedError } from "ft_fetch";
+import YATT, { HttpError } from "yatt-utils"
 
 export default function passwordRoutes(fastify, opts, done) {
   fastify.post("/", { schema }, async function handler(request, reply) {
     const { email, password } = request.body;
     try {
-      const account = await ft_fetch(
+      const account = await YATT.fetch(
         `http://credentials:3000/password/${email}`
       );
       if (await verifyPassword(password, account.hash, account.salt)) {
@@ -30,8 +30,8 @@ export default function passwordRoutes(fastify, opts, done) {
       }
       throw err;
     }
-    new UnauthorizedError().send(reply);
+    new HttpError.Unauthorized().send(reply);
   });
-
   done();
 }
+
