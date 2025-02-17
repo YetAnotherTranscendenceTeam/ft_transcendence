@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
@@ -7,8 +7,8 @@ import YATT from "yatt-utils";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
-  
-  if (process.env.ENV !== 'production') {
+
+  if (process.env.ENV !== "production") {
     YATT.setUpSwagger(app, {
       info: {
         title: "Credentials Service",
@@ -16,14 +16,14 @@ export default function build(opts = {}) {
         version: "1.0.0",
       },
       servers: [
+        { url: "http://localhost:7002", description: "Development network" },
         { url: "http://credentials:3000", description: "Containers network" },
-        { url: "http://localhost:7002", description: "Development network" }
       ],
     });
   }
 
   app.register(fastifyFormbody);
-  
+
   app.register(router);
 
   app.get("/ping", async function (request, reply) {

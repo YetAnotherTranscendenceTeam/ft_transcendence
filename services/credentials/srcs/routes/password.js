@@ -1,53 +1,76 @@
-'use strict';
+"use strict";
 
 import db from "../app/database.js";
-import { properties } from "yatt-utils";
+import { objects, properties } from "yatt-utils";
 
 export default function router(fastify, opts, done) {
-  let schema;
-
-  schema = {
+  let schema = {
+    tags: ["Password credentials"],
+    description: "Get all password based credentials",
     querystring: {
-      type: 'object',
+      type: "object",
       properties: {
         limit: properties.limit,
         offset: properties.offset,
-      }
+      },
     },
     response: {
       200: {
-        type: 'array',
+        type: "array",
         items: {
-          type: 'object',
+          type: "object",
           properties: {
-            // id: { type: 'integer' },
-            // username: { type: 'string' },
-            // email: { type: 'string', format: 'email' },
-            // password_hash: { type: 'string' },
-            // created_at: {  },
-            // updated_at: { type: 'string', format: 'date-time' }
+            account_id: properties.account_id,
+            hash: properties.hash,
+            salt: properties.salt,
           },
-          required: ['id', 'username', 'email', 'password_hash', 'created_at', 'updated_at']
-        }
-      }
-    }
+          required: ["account_id", "hash", "salt"],
+        },
+      },
+    },
   };
-  // Get password_auth table entries
-  fastify.get("/", async function handler(request, reply) {
-    const { limit, offset } = request.query;
 
-    // Cap limit to 100
-    const safeLimit = Math.min(Math.max(parseInt(limit, 10) || 30, 10), 100);
-    // Prevent negative offset
-    const safeOffset = Math.max(parseInt(offset, 10) || 0, 0);
+  fastify.get("/", { schema }, async function handler(request, reply) {
+    const { limit, offset } = request.query;
 
     return db
       .prepare(`SELECT * FROM password_auth LIMIT ? OFFSET ?`)
-      .all(safeLimit, safeOffset);
+      .all(limit, offset);
   });
 
-  // Get the password based account associated to an email
-  fastify.get("/:email", async function handler(request, reply) {
+  schema = {
+    tags: ["Password credentials"],
+    description:
+      "Get the password credentials associated with an email address",
+    params: {
+      type: "object",
+      required: ["email"],
+      properties: {
+        email: properties.email,
+      },
+    },
+    response: {
+      200: {
+        description:
+          "The account credentials associtated with an email address",
+        type: "object",
+        properties: {
+          account_id: properties.account_id,
+          email: properties.email,
+          hash: properties.hash,
+          salt: properties.salt,
+        },
+        required: ["account_id", "email", "hash", "salt"],
+      },
+      404: {
+        description: "Account not found",
+        type: "object",
+        properties: objects.errorBody,
+      },
+    },
+  };
+
+  fastify.get("/:email", { schema }, async function handler(request, reply) {
     const { email } = request.params;
 
     const account = db
@@ -64,13 +87,14 @@ export default function router(fastify, opts, done) {
       .get(email);
 
     if (!account) {
-      reply.status(404).send({ error: "Account not found" });
+      reply.status(404).send(accountNotFound);
     }
     return account;
   });
 
-  // Create an email/password based account
   schema = {
+    tags: ["Password credentials"],
+    description: "Create a new account with password credentials",
     body: {
       type: "object",
       properties: {
@@ -80,8 +104,27 @@ export default function router(fastify, opts, done) {
       },
       required: ["email", "hash", "salt"],
     },
+    response: {
+      201: {
+        description:
+          "Successfully created new account with password credentials",
+        type: "object",
+        properties: {
+          account_id: properties.account_id,
+          hash: properties.hash,
+          salt: properties.salt,
+        },
+        required: ["account_id", "hash", "salt"],
+      },
+      409: {
+        description: "Email address is already associated with an account",
+        type: "object",
+        properties: objects.errorBody,
+        required: ["statusCode", "code", "error", "message"],
+      },
+    },
   };
-  
+
   fastify.post("/", { schema }, async function handler(request, reply) {
     const { email, hash, salt } = request.body;
 
@@ -110,12 +153,7 @@ export default function router(fastify, opts, done) {
       return reply.status(201).send(result);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
-        return reply.code(409).send({
-          statusCode: 409,
-          code: "AUTH_EMAIL_IN_USE",
-          error: "Email Already In Use",
-          message: `This email is already associated with an account`,
-        });
+        return reply.code(409).send(emailInUse);
       }
       console.error(err);
       throw err;
@@ -124,3 +162,17 @@ export default function router(fastify, opts, done) {
 
   done();
 }
+
+const accountNotFound = {
+  statusCode: 404,
+  code: "ACCOUNT_NOT_FOUND",
+  error: "Account Not Found",
+  message: "The requested account does not exist",
+};
+
+const emailInUse = {
+  statusCode: 409,
+  code: "AUTH_EMAIL_IN_USE",
+  error: "Email Already In Use",
+  message: `This email is already associated with an account`,
+};

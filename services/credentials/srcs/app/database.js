@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
 import Database from "better-sqlite3";
 const db = new Database("/database/credentials.sqlite");
 
-db.pragma('foreign_keys = ON');
-db.pragma('journal_mode = WAL');
+db.pragma("foreign_keys = ON");
+db.pragma("journal_mode = WAL");
 
-// Accounts 
+// Accounts
 db.exec(`
   CREATE TABLE IF NOT EXISTS accounts (
     account_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,7 +24,7 @@ db.exec(`
   BEGIN
     UPDATE accounts SET updated_at = CURRENT_TIMESTAMP WHERE account_id = OLD.account_id;
   END;
-`)
+`);
 
 // Password authentication
 db.exec(`
