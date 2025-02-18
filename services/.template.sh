@@ -27,4 +27,20 @@ find "$template_dir" -type f | while read -r file; do
     envsubst < "$file" > "$new_dir/${file#$template_dir/}"
 done
 
+COMPOSE="$SERVICE:
+    build:
+      context: services/$SERVICE/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/$SERVICE/srcs:/services/$SERVICE/srcs
+      - ./modules/:/modules:ro
+    # environment:
+    ports:
+      - "127.0.0.1:[PLACEHOLDER]:3000"
+    # networks:"
+
 echo "Created $new_dir service directory"
+echo $COMPOSE | xclip -selection clipboard
+echo ">>> docker-compose configuration copied to clipboard"
+echo
+echo "$COMPOSE"

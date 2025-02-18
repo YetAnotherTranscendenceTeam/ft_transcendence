@@ -203,7 +203,9 @@ describe("POST /", () => {
 
   accounts.forEach((acc, i) => {
     it(`delete account ${i + 1}`, async () => {
-      await request(credentialsUrl).delete(`/${accounts[i].account_id}`).expect(204);
+      await request(credentialsUrl)
+        .delete(`/${accounts[i].account_id}`)
+        .expect(204);
     });
   });
 
