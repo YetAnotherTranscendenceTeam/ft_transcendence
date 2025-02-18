@@ -3,15 +3,17 @@ import Card from "../../ui/Card";
 import "./auth.css"
 import Button from "../../ui/Button";
 import LoginForm from "./LoginForm";
+import RemoteAuthButtons from "./RemoteAuthButtons";
 
 export default function AuthCard() {
 
-	const [selected, setSelected] = Babact.useState(null);
+	const [selected, setSelected] = Babact.useState('login');
 
 	return <Card className='auth-card'>
-			<LoginForm isOpened={selected === 'login'} />
-			{/* <LoginForm isOpened={selected === 'register'} /> */}
-
+			<div className={`auth-card-body ${selected ? 'open' : ''} flex flex-col gap-4 w-full`}>
+				<RemoteAuthButtons />
+				{selected === 'login' && <LoginForm isOpened={selected === 'login'} />}
+			</div>
 
 			<div className='flex w-full justify-around items-center gap-4'>
 				{ 
