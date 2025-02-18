@@ -14,7 +14,7 @@ export function createElement(
         tag,
         props: {
             ...props,
-            children: nchildren.map((child) : IElement => {
+            children: nchildren.filter(child => (child != '' && child)).map((child) : IElement => {
                 return typeof child === 'object' ? child as IElement : createTextElement(child);
             })
         }

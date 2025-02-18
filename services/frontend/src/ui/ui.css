@@ -1,0 +1,96 @@
+/* ================================== */
+/* ============ Button ============== */
+/* ================================== */
+
+
+.button {
+	background-color: var(--bg-2);
+	color: var(--fg-1);
+	padding: 8px 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+	cursor: pointer;
+	gap: 8px;
+	font-size: small;
+	transition: 0.3s;
+}
+
+.button:hover {
+	background-color: var(--bg-3);
+}
+
+.button-primary {
+	background-color: var(--primary-color);
+	color: var(--fg-1);
+}
+
+.button-primary:hover {
+	background-color: var(--primary-color);
+	filter: saturate(2);
+}
+
+/* ================================== */
+/* ============= Card =============== */
+/* ================================== */
+
+.card {
+	background-color: color-mix(in srgb, var(--bg-1), transparent 30%);
+	backdrop-filter: blur(16px);
+	color: var(--fg-1);
+	border-radius: 4px;
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+}
+
+.card::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 2px;
+	height: 100%;
+	box-shadow: var(--shadow);
+	background: var(--primary-color);
+	background: linear-gradient(0deg, var(--primary-color-60) 0%, var(--primary-color) 10%, var(--primary-color) 90%, var(--primary-color-60) 100%);
+}
+
+/* ================================== */
+/* ============ Avatar ============== */
+/* ================================== */
+
+.avatar {
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 48px;
+}
+
+.avatar img {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	object-fit: cover;
+	position: absolute;
+}
+
+.avatar p {
+	position: absolute;
+	color: var(--fg-1);
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+.avatar span {
+	position: absolute;
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+	width: 25%;
+	bottom: 0;
+	right: 0;
+}

@@ -1,1 +1,79 @@
-@import "tailwindcss";
+:root {
+	--primary-color: #ff7b00;
+	--secondary-color: #6c757d;
+	--success-color: #28a745;
+	--info-color: #17a2b8;
+	--warning-color: #ffc107;
+	--danger-color: #dc3545;
+	--fg-1: #f8f9fa;
+	--fg-2: #dcdee0;
+	--fg-3: #c7cbcf;
+	--fg-4: #a5aaaf;
+	--fg-5: #71767a;
+	--bg-1: #343a40;
+	--bg-2: #495057;
+	--bg-3: #6c757d;
+	--bg-4: #868e96;
+	--bg-5: #adb5bd;
+	--primary-color-80: color-mix(in srgb, var(--primary-color), transparent 80%);
+	--primary-color-60: color-mix(in srgb, var(--primary-color), transparent 60%);
+	--primary-color-40: color-mix(in srgb, var(--primary-color), transparent 40%);
+	--primary-color-20: color-mix(in srgb, var(--primary-color), transparent 20%);
+	--shadow: 0px 0px 16px 4px var(--primary-color);
+}
+
+.flex {
+	display: flex;
+}
+
+.flex-col {
+	flex-direction: column;
+}
+
+.flex-row {
+	flex-direction: row;
+}
+
+.items-center {
+	align-items: center;
+}
+
+.justify-center {
+	justify-content: center;
+}
+
+.justify-between {
+	justify-content: space-between;
+}
+
+.justify-around {
+	justify-content: space-around;
+}
+
+.gap-1 {
+	gap: 0.25rem;
+}
+
+.gap-2 {
+	gap: 0.5rem;
+}
+
+.gap-4 {
+	gap: 1rem;
+}
+
+.gap-8 {
+	gap: 2rem;
+}
+
+.w-full {
+	width: 100%;
+}
+
+.h-full {
+	height: 100%;
+}
+
+body {
+	font-family: "Ubuntu", serif;
+}

@@ -1,0 +1,15 @@
+.profile-card {
+	position: absolute;
+	bottom: 24px;
+	right: 24px;
+	min-width: 300px;
+}
+
+.profile-card-header h1 {
+	font-weight: bold;
+}
+
+.profile-card-header h2 {
+	color: var(--fg-3);
+	font-size: 90%;
+}

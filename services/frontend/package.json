@@ -1,14 +1,10 @@
 {
   "type": "module",
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.0.6",
-    "autoprefixer": "^10.4.20",
     "babact": "file:../../modules/babact",
     "babact-router-dom": "file:../../modules/babact-router-dom",
     "copy-webpack-plugin": "^12.0.2",
     "path": "^0.12.7",
-    "postcss": "^8.5.2",
-    "tailwindcss": "^4.0.6",
     "ts-loader": "^9.5.2",
     "typescript": "^5.7.3",
     "webpack": "^5.98.0",
@@ -23,7 +19,6 @@
   },
   "dependencies": {
     "css-loader": "^7.1.2",
-    "postcss-loader": "^8.1.1",
     "style-loader": "^4.0.0"
   }
 }

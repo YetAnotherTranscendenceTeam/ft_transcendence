@@ -15,7 +15,10 @@ export function createDom(fiber: IFiber) : NodeElement {
                 dom.addEventListener(eventType, fiber.props[name]);
             }
             else {
-				dom[name] = fiber.props[name];
+				if (name.startsWith('data-') && fiber.tag !== SpecialElementTag.TEXT_ELEMENT)
+					(dom as HTMLElement).setAttribute(name, fiber.props[name]);
+				else
+					dom[name] = fiber.props[name];
             }
 		}
 	);
