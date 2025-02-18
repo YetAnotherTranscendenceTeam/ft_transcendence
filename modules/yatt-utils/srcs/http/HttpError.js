@@ -24,6 +24,10 @@ export default class HttpError {
     reply.code(this.statusCode).send(this.json());
   }
 
+  redirect(reply, url) {
+    reply.redirect(`${url}?${new URLSearchParams(this.json()).toString()}`)
+  }
+
   // Preset specific http
   static BadRequest = class BadRequest extends HttpError {
     constructor(message = httpErrMessages.get(400)) {

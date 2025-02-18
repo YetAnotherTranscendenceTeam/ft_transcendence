@@ -1,6 +1,6 @@
 "use strict";
 
-import { client_id, client_secret, redirect_uri } from "../app/env.js";
+import { client_id, client_secret, frontend_url, redirect_uri } from "../app/env.js";
 import YATT, { HttpError } from "yatt-utils";
 
 export default function routes(fastify, opts, done) {
@@ -8,21 +8,21 @@ export default function routes(fastify, opts, done) {
     "/callback",
     {
       schema: callbackSchema,
-      onRequest: async (request, reply) => {
-        try {
-          await request.jwtVerify({ onlyCookie: true });
-        } catch (err) {
-          if (err.code == "FST_JWT_NO_AUTHORIZATION_IN_HEADER") return;
-          if (err.code === "FST_JWT_AUTHORIZATION_TOKEN_INVALID") {
-            reply.clearCookie("access_token", { path: "/" });
-            throw new HttpError.Unauthorized("Invalid authorization token");
-          }
-          return;
-        }
-        throw new HttpError.BadRequest(
-          "You are already authenticated with an active session"
-        );
-      },
+      // onRequest: async (request, reply) => {
+      //   try {
+      //     await request.jwtVerify({ onlyCookie: true });
+      //   } catch (err) {
+      //     if (err.code == "FST_JWT_NO_AUTHORIZATION_IN_HEADER") return;
+      //     if (err.code === "FST_JWT_AUTHORIZATION_TOKEN_INVALID") {
+      //       reply.clearCookie("access_token", { path: "/" });
+      //       throw new HttpError.Unauthorized("Invalid authorization token");
+      //     }
+      //     return;
+      //   }
+      //   throw new HttpError.BadRequest(
+      //     "You are already authenticated with an active session"
+      //   );
+      // },
     },
     async function handler(request, reply) {
       const { code } = request.query;
@@ -43,8 +43,9 @@ export default function routes(fastify, opts, done) {
         }
       } catch (err) {
         if (err instanceof HttpError) {
-          return err.send(reply);
+          return err.redirect(reply, `${frontend_url}/fortytwo`);
         }
+        console.error(err);
         throw err;
       }
     }
@@ -69,6 +70,7 @@ async function getIntraUser(code) {
     if (err instanceof HttpError && err.statusCode == 429) {
       throw new HttpError.ServiceUnavailable();
     }
+    console.error(err);
     throw err;
   }
 }
@@ -88,7 +90,7 @@ async function generateUserToken(code) {
     }),
   });
   if (!token || !token.access_token) {
-    throw new HttpError.BadGatewayError();
+    throw new HttpError.BadGateway();
   }
   return token.access_token;
 }
@@ -102,10 +104,17 @@ async function setJWT(fastify, reply, id) {
     sameSite: "strict",
     path: "/",
   });
-  return reply.send({
-    token,
-    expire_at: new Date(decoded.exp * 1000).toISOString(),
+  reply.setCookie("refresh_token", "pas encore fait", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "/",
   });
+  reply.redirect(
+    `${frontend_url}/fortytwo?token=${token}&expire_at=${new Date(
+      decoded.exp * 1000
+    ).toISOString()}`
+  );
 }
 
 async function createAccount(fastify, reply, user) {

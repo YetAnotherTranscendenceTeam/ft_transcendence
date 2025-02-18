@@ -71,6 +71,7 @@ services:
       - API42_CLIENT_ID=${API42_CLIENT_ID}
       - API42_SECRET=${API42_SECRET}
       - API42_REDIRECT_URI=${API42_REDIRECT_URI}
+      - FRONTEND_URL=${FRONTEND_URL}
     ports:
       - "127.0.0.1:4042:3000"
     networks:
