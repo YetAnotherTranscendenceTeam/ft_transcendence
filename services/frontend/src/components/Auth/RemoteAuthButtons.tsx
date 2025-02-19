@@ -1,5 +1,4 @@
 import Babact from "babact"
-import Button from "../../ui/Button";
 import FortyTwoAuthButton from "./FortyTwoAuthButton";
 import GoogleAuthButton from "./GoogleAuthButton";
 

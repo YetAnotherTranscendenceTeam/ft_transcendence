@@ -12,16 +12,17 @@ export default function AuthCard() {
 
 	const [selected, setSelected] = Babact.useState('login');
 	
-	const { fields, submitForm } = useForm();
+	const { fields, submitForm, checkValidity } = useForm();
 
-	const loginDisabled = selected && (!fields['login-email'] || !fields['login-password']);
-	const registerDisable = selected && (!fields['register-email'] || !fields['register-password'] || !fields['register-confirm-password'] || fields['register-password'] !== fields['register-confirm-password']);
+	const loginDisabled = selected && !checkValidity(['login-email', 'login-password']);
+	const registerDisabled = selected && !checkValidity(['register-email', 'register-password', 'register-confirm-password']);
 
 	return <Card className='auth-card'>
 			<div className={`auth-card-body ${selected ? 'open' : ''} flex flex-col gap-4 w-full`}>
 				<RemoteAuthButtons />
 				<Separator>or</Separator>
-				{selected === 'login' ? <LoginForm/> : <RegisterForm/>}
+				{ selected === 'login' && <LoginForm/>}
+				{ selected === 'register' && <RegisterForm/>}
 			</div>
 
 			<div className='auth-card-footer flex w-full justify-around items-center gap-4'>
@@ -51,7 +52,7 @@ export default function AuthCard() {
 					(!selected || selected === 'register') &&
 					<Button
 						className={`auth-card-register ${selected === 'register' ? 'button-primary' : ''}`}
-						disabled={registerDisable}
+						disabled={registerDisabled}
 						onClick={
 							!selected ? () => setSelected('register') :
 							() =>  submitForm('/register/', {

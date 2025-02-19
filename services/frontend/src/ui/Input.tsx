@@ -7,6 +7,7 @@ export default function Input({
 		errorMsg,
 		onInput,
 		fieldName,
+		matchingField,
 		...props 
 	}: {
 		label?: string,
@@ -14,11 +15,12 @@ export default function Input({
 		errorMsg?: string,
 		onInput?: Function
 		fieldName?: string
+		matchingField?: string
 		[key: string]: any
 	}) {
 
 	const [isValid, setIsValid] = Babact.useState(true);
-	const { setField, deleteField } = useForm();
+	const { setField, deleteField, fields } = useForm();
 
 	const handleChange = (e: any) => {
 		if (onInput) onInput(e.target.value);
@@ -28,7 +30,7 @@ export default function Input({
 				setIsValid(false);
 			}
 		}
-		else if (!isValid) {
+		else if (!isValid && (e.target.value === fields[matchingField] || !matchingField)) {
 			if (fieldName) setField(fieldName, e.target.value);
 			setIsValid(true);
 		}

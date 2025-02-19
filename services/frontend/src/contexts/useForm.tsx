@@ -25,6 +25,16 @@ export const FormProvider = ({ children } : {children?: any}) => {
 		setFields({});
 	}
 
+	const checkValidity = (fieldsName) => {
+		for (let name of fieldsName) {
+			const field = fields[name];
+			if (!field) {
+				return false;
+			}
+		};
+		return true;
+	}
+
 	const submitForm = async (endpoint, params) => {
 		try {
 			await fetch(`${config.API_URL}${endpoint}`, {
@@ -48,6 +58,7 @@ export const FormProvider = ({ children } : {children?: any}) => {
 		deleteField,
 		clearFields,
 		submitForm,
+		checkValidity,
 		fields
 	  }}>
 		{children}

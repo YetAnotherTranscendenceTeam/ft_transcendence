@@ -3,7 +3,7 @@ import Input from "../../ui/Input";
 import config from "../../config";
 
 export default function RegisterForm() {
-
+	
 	return <div className={`auth-card-form flex flex-col gap-2`}>
 			<Input
 				label="Email"
@@ -27,6 +27,7 @@ export default function RegisterForm() {
 				required
 				errorMsg="Invalid Password"
 				fieldName="register-confirm-password"
+				matchingField="register-password"
 			/>
 	</div>	
 }

@@ -37,6 +37,7 @@
 }
 
 
+
 .fortytwo-auth-button {
 	background-color: white;
 	color: #3c4043;
@@ -45,7 +46,8 @@
 	border: 1px solid #dadce0;
 	border-radius: 4px;
 	cursor: pointer;
-	font-weight: 500;
+	font-weight: 400;
+	font-size: 14px;
 }
 
 .fortytwo-auth-button p{
@@ -65,3 +67,4 @@
 .auth-card-form {
 	margin-bottom: 1rem;
 }
+
