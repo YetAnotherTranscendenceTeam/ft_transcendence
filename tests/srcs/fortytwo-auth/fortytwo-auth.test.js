@@ -35,7 +35,7 @@ describe("fortytwo-auth tests", () => {
     });
   });
 
-  it("callback no code", async () => {
+  it("callback invalid code", async () => {
     const response = await request(baseUrl)
       .get("/callback")
       .query({ code: "notavalidcode" })
