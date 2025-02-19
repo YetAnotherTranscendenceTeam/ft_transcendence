@@ -13,13 +13,19 @@
 	border-radius: 4px;
 	cursor: pointer;
 	gap: 8px;
-	font-size: small;
+	font-size: medium;
 	transition: 0.3s;
 }
 
 .button:hover {
 	background-color: var(--bg-3);
 }
+
+.button.disabled, .button.disabled:hover{
+	background-color: var(--bg-2);
+	cursor: not-allowed;
+}
+
 
 .button-primary {
 	background-color: var(--primary-color);
@@ -29,6 +35,11 @@
 .button-primary:hover {
 	background-color: var(--primary-color);
 	filter: saturate(2);
+}
+
+.button-primary.disabled, .button-primary.disabled:hover{
+	background-color: var(--primary-color-20);
+	filter: saturate(1);
 }
 
 /* ================================== */
@@ -93,4 +104,73 @@
 	width: 25%;
 	bottom: 0;
 	right: 0;
+}
+
+/* ================================== */
+/* =========== Separator ============ */
+/* ================================== */
+
+.separator-container {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.separator-container .separator {
+	flex: 1;
+}
+
+.separator {
+	border-bottom: 1px solid var(--fg-3);
+}
+
+/* ================================== */
+/* ============= Input ============== */
+/* ================================== */
+
+.input-container {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.input-container input {
+	background-color: transparent;
+	padding: 8px;
+	color: var(--fg-1);
+	border: 1px solid var(--bg-3);
+	transition: 0.2s;
+	border-radius: 4px;
+}
+
+.input-container input:focus {
+	border: 1px solid var(--fg-3);
+}
+
+.input-container input::placeholder {
+	color: var(--fg-4);
+}
+
+.input-container input.invalid {
+	border: 1px solid var(--danger-color);
+}
+
+.input-container label {
+	font-size: medium;
+	font-weight: 500;
+	color: var(--fg-1);
+}
+
+.input-container label span {
+	font-size: small;
+	color: var(--danger-color);
+	vertical-align: super;
+	margin-left: 2px;
+}
+
+.input-error {
+	text-align: left;
+	color: var(--danger-color);
+	font-size: small;
+	height: 13px;
 }

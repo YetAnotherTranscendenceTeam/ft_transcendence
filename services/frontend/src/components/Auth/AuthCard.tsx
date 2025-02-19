@@ -4,23 +4,30 @@ import "./auth.css"
 import Button from "../../ui/Button";
 import LoginForm from "./LoginForm";
 import RemoteAuthButtons from "./RemoteAuthButtons";
+import Separator from "../../ui/Separator";
+import { useForm } from "../../contexts/useForm";
+import RegisterForm from "./RegisterForm";
 
 export default function AuthCard() {
 
 	const [selected, setSelected] = Babact.useState('login');
+	
+	const { fields, submitForm } = useForm();
 
 	return <Card className='auth-card'>
 			<div className={`auth-card-body ${selected ? 'open' : ''} flex flex-col gap-4 w-full`}>
 				<RemoteAuthButtons />
-				{selected === 'login' && <LoginForm isOpened={selected === 'login'} />}
+				<Separator>or</Separator>
+				{selected === 'login' ? <LoginForm/> : <RegisterForm/>}
 			</div>
 
-			<div className='flex w-full justify-around items-center gap-4'>
+			<div className='auth-card-footer flex w-full justify-around items-center gap-4'>
 				{ 
 					(!selected || selected === 'login') &&
-					<Button	
+					<Button
 						className="auth-card-login button-primary"
-						onClick={() => setSelected('login')}
+						disabled={selected && (!fields['login-email'] || !fields['login-password'])}
+						onClick={ !selected ? () => setSelected('login') : () =>  submitForm(['login-email', 'login-password']) }
 					>
 						Login <i className="fa-solid fa-arrow-right-to-bracket"></i>
 					</Button>
@@ -31,8 +38,9 @@ export default function AuthCard() {
 				{
 					(!selected || selected === 'register') &&
 					<Button
-					className={`auth-card-register ${selected === 'register' ? 'button-primary' : ''}`}
-					onClick={() => setSelected('register')}
+						className={`auth-card-register ${selected === 'register' ? 'button-primary' : ''}`}
+						disabled={selected && (!fields['register-email'] || !fields['register-password'] || !fields['register-confirm-password'] || fields['register-password'] !== fields['register-confirm-password'])}
+						onClick={ !selected ? () => setSelected('register') : () =>  submitForm(['register-email', 'register-password', 'register-confirm-password']) }
 					>
 						Register <i className="fa-regular fa-address-card"></i>
 					</Button>

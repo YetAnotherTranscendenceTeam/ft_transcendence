@@ -10,7 +10,7 @@ export default function GoogleAuthButton() {
 		(window as any).handleCredential = handleCredential;
 	}, []);
 
-	return <div>
+	return <div className='w-full'>
 		<script src="https://accounts.google.com/gsi/client" async></script>
 		<div id="g_id_onload"
 			data-client_id="9744497548-ecens5hjhfugrc0l4a3nl9bqc3qr08dh.apps.googleusercontent.com"
@@ -26,6 +26,8 @@ export default function GoogleAuthButton() {
 			data-text="sign_in_with"
 			data-shape="rectangular"
 			data-logo_alignment="left"
+			data-locale="en"
+			data-width="300"
 			>
 		</div>
 	</div>

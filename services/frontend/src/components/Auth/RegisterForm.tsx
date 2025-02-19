@@ -1,7 +1,7 @@
 import Babact from "babact";
 import Input from "../../ui/Input";
 
-export default function LoginForm() {
+export default function RegisterForm() {
 
 	return <div className={`auth-card-form flex flex-col gap-2`}>
 			<Input
@@ -9,7 +9,7 @@ export default function LoginForm() {
 				type="email"
 				errorMsg="Invalid Email"
 				required
-				fieldName="login-email"
+				fieldName="register-email"
 				// onValid={(value) => setField('login-email', value)}
 				// onInvalid={() => deleteField('login-email')}
 			/>
@@ -19,7 +19,17 @@ export default function LoginForm() {
 				pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
 				required
 				errorMsg="Invalid Password"
-				fieldName="login-password"
+				fieldName="register-password"
+				// onValid={(value) => setField('login-password', value)}
+				// onInvalid={() => deleteField('login-password')}
+			/>
+			<Input
+				label="Confirm Password"
+				type="password"
+				pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+				required
+				errorMsg="Invalid Password"
+				fieldName="register-confirm-password"
 				// onValid={(value) => setField('login-password', value)}
 				// onInvalid={() => deleteField('login-password')}
 			/>
