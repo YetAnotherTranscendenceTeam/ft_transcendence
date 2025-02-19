@@ -28,7 +28,8 @@ export default function router(fastify, opts, done) {
           access_token: properties.access_token,
           refresh_token: properties.access_token,
           expire_at: properties.expire_at
-        }
+        },
+        required: ['access_token', 'refresh_token', 'expire_at']
       },
     },
   };
@@ -40,9 +41,9 @@ export default function router(fastify, opts, done) {
       const { account_id } = request.params;
 
       reply.send({
-        acess_token: fastify.jwt.sign({ account_id }, { expiresIn: '15m' }),
+        access_token: fastify.jwt.sign({ account_id }, { expiresIn: '15m' }),
         refresh_token: fastify.jwt.sign({ account_id }, { expiresIn: '7d' }),
-        expire_at: 15,
+        expire_at: Date.now().toString(),
       });
     }
   );

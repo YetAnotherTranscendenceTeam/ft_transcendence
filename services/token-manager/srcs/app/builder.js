@@ -4,9 +4,10 @@ import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
 import router from "./router.js";
 import YATT from "yatt-utils";
-import cors from "@fastify/cors"
+import cors from "@fastify/cors";
 import bearerAuth from "@fastify/bearer-auth";
-import { token_manager_secret } from "./env.js";
+import { token_manager_secret, jwt_secret } from "./env.js";
+import jwt from "@fastify/jwt";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -35,8 +36,10 @@ export default function build(opts = {}) {
   }
 
   const keys = new Set([token_manager_secret]);
-  app.register(bearerAuth, { keys, addHook: false })
-
+  app.register(bearerAuth, { keys, addHook: false });
+  app.register(jwt, {
+    secret: jwt_secret,
+  });
   app.register(fastifyFormbody);
   app.register(router);
 
