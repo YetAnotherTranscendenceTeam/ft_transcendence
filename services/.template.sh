@@ -40,7 +40,7 @@ COMPOSE="$SERVICE:
     # networks:"
 
 echo "Created $new_dir service directory"
-echo $COMPOSE | xclip -selection clipboard
+echo "$COMPOSE" | xclip -selection clipboard
 echo ">>> docker-compose configuration copied to clipboard"
 echo
 echo "$COMPOSE"
