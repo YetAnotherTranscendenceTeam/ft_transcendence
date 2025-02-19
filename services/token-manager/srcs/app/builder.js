@@ -5,6 +5,8 @@ import fastifyFormbody from "@fastify/formbody";
 import router from "./router.js";
 import YATT from "yatt-utils";
 import cors from "@fastify/cors"
+import bearerAuth from "@fastify/bearer-auth";
+import { token_manager_secret } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -19,21 +21,23 @@ export default function build(opts = {}) {
 
     YATT.setUpSwagger(app, {
       info: {
-        title: "[PLACEHOLDER]",
+        title: "Token manager",
         description: "[PLACEHOLDER]",
         version: "1.0.0",
       },
       servers: [
-        { url: "http://localhost:[PLACEHOLDER]", description: "Development network" },
-        { url: "http://${SERVICE}:3000", description: "Containers network" },
+        { url: "http://localhost:4002", description: "Development network" },
+        { url: "http://token-manager:3000", description: "Containers network" },
       ],
     });
   } else {
     // TODO: Setup cors for production
   }
 
-  app.register(fastifyFormbody);
+  const keys = new Set([token_manager_secret]);
+  app.register(bearerAuth, { keys, addHook: false })
 
+  app.register(fastifyFormbody);
   app.register(router);
 
   app.get("/ping", async function (request, reply) {

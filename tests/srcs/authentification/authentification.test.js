@@ -1,7 +1,10 @@
 import request from "supertest";
 import { properties } from "../../../modules/yatt-utils/srcs";
+import crypto from "crypto";
 
 const baseUrl = "http://127.0.0.1:4022";
+const registerUrL = "http://127.0.0.1:4012";
+const credentialsUrl = "http://127.0.0.1:7002";
 
 describe("POST /", () => {
   it("root", async () => {
@@ -44,7 +47,7 @@ describe("POST /", () => {
     const response = await request(baseUrl)
       .post("/")
       .send({
-        email: ""
+        email: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -89,7 +92,7 @@ describe("POST /", () => {
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
       error: "Bad Request",
-      message: "body/email must match format \"email\"",
+      message: 'body/email must match format "email"',
     });
   });
 
@@ -127,5 +130,58 @@ describe("POST /", () => {
       error: "Bad Request",
       message: `body/password must NOT have more than ${properties.password.maxLength} characters`,
     });
+  });
+
+  const dummy = {
+    account_id: null,
+    email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
+    password: crypto.randomBytes(4).toString("hex"),
+  };
+
+  it("create dummy account", async () => {
+    const response = await request(registerUrL)
+      .post("/")
+      .send({
+        email: dummy.email,
+        password: dummy.password,
+      })
+      .expect(201)
+      .expect("Content-Type", /json/);
+    dummy.account_id = response.body.account.account_id;
+  });
+
+  it("auth using password", async () => {
+    const response = await request(baseUrl)
+      .post("/")
+      .send({
+        email: dummy.email,
+        password: dummy.password,
+      })
+      .expect(200)
+      .expect("Content-Type", /json/);
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        access_token: expect.any(String),
+        expire_at: expect.any(String),
+      })
+    );
+  });
+
+  it("auth using password", async () => {
+    const response = await request(baseUrl)
+      .post("/")
+      .send({
+        email: dummy.email,
+        password: dummy.password + 5,
+      })
+      .expect(401)
+      .expect("Content-Type", /json/);
+  });
+
+  it("remove dummy account", async () => {
+    const response = await request(credentialsUrl)
+      .delete(`/${dummy.account_id}`)
+      .expect(204);
   });
 });

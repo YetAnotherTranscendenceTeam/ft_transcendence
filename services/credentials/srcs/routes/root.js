@@ -94,8 +94,8 @@ export default function router(fastify, opts, done) {
   });
 
   schema = {
-    tags: ["Accounts"],
     description: "Delete the account associated with an id",
+    tags: ["Accounts"],
     params: {
       type: "object",
       required: ["account_id"],
@@ -105,13 +105,13 @@ export default function router(fastify, opts, done) {
     },
     response: {
       204: {
-        type: "null",
         description: "Account successfully deleted",
+        type: "null",
       },
       404: {
+        description: "Account not found",
         type: "object",
         properties: objects.errorBody,
-        description: "Account not found",
       },
     },
   };

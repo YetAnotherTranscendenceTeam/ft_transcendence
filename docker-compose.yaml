@@ -1,11 +1,12 @@
 services:
   nginx:
-    image: nginx:1.26.3-alpine
+    build: services/nginx/
+    # image: nginx:1.26.3-alpine
     volumes:
       - ./services/nginx:/etc/nginx/templates:ro
     ports:
-      - "8080:80"
-      - "7979:79"
+      - "8080:8080"
+      - "7979:7979"
     networks:
       - frontend
     environment:
@@ -26,6 +27,21 @@ services:
       - "127.0.0.1:7002:3000"
     networks:
       - credentials
+
+  token-manager:
+    build:
+      context: services/token-manager/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/token-manager/srcs:/services/token-manager/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+    ports:
+      - 127.0.0.1:4002:3000
+    networks:
+      - tokens
+
 
   registration:
     build:
@@ -57,6 +73,7 @@ services:
     networks:
       - credentials
       - frontend
+      - tokens
   
   fortytwo-auth:
     build:
@@ -77,6 +94,7 @@ services:
     networks:
       - credentials
       - frontend
+      - tokens
 
   # profiles-api:
   #   build:
@@ -90,18 +108,6 @@ services:
   #   networks:
   #     - credentials
 
-  # swagger:
-  #   build:
-  #     context: services/swagger/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./services/swagger/srcs:/services/swagger/srcs
-  #     - ./modules/:/modules:ro
-  #   ports:
-  #     - "127.0.0.1:3000:3000"
-  #   networks:
-  #     - credentials
-  #     - frontend
 
 networks:
   frontend:
@@ -109,6 +115,8 @@ networks:
   credentials:
     driver: bridge
   profiles:
+    driver: bridge
+  tokens:
     driver: bridge
 
 secrets:

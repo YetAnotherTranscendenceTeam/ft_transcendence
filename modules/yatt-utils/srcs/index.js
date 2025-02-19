@@ -6,6 +6,7 @@ import HttpErrorClass from "./http/HttpError.js";
 import reponseBodyObjects from "./schemas/objects/reponse-body.js";
 
 import credentialsProperties from "./schemas/properties/credentials.js";
+import tokenProperties from "./schemas/properties/jwt.js";
 import responseBodyProperties from "./schemas/properties/reponse-body.js";
 import sqlProperties from "./schemas/properties/sql.js";
 import setUpSwagger from "./swagger/setup.js";
@@ -26,7 +27,8 @@ export const HttpError = HttpErrorClass;
 export const properties = {
     ...credentialsProperties,
     ...sqlProperties,
-    ...responseBodyProperties
+    ...responseBodyProperties,
+    ...tokenProperties
 }
 
 export const objects = {

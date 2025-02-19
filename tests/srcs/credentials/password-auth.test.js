@@ -3,7 +3,7 @@ import crypto from "crypto";
 
 const baseUrl = "http://127.0.0.1:7002";
 
-describe("fortytwo-auth", () => {
+describe("PASSWORD ACCOUNTS", () => {
   it("no body", async () => {
     const response = await request(baseUrl)
       .post("/password")

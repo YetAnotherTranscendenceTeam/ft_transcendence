@@ -27,6 +27,8 @@ find "$template_dir" -type f | while read -r file; do
     envsubst < "$file" > "$new_dir/${file#$template_dir/}"
 done
 
+cd $new_dir && mpm install
+
 COMPOSE="$SERVICE:
     build:
       context: services/$SERVICE/
