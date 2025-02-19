@@ -14,6 +14,9 @@ export default function AuthCard() {
 	
 	const { fields, submitForm } = useForm();
 
+	const loginDisabled = selected && (!fields['login-email'] || !fields['login-password']);
+	const registerDisable = selected && (!fields['register-email'] || !fields['register-password'] || !fields['register-confirm-password'] || fields['register-password'] !== fields['register-confirm-password']);
+
 	return <Card className='auth-card'>
 			<div className={`auth-card-body ${selected ? 'open' : ''} flex flex-col gap-4 w-full`}>
 				<RemoteAuthButtons />
@@ -22,12 +25,20 @@ export default function AuthCard() {
 			</div>
 
 			<div className='auth-card-footer flex w-full justify-around items-center gap-4'>
+
+				{/* Login Button */}
 				{ 
 					(!selected || selected === 'login') &&
 					<Button
 						className="auth-card-login button-primary"
-						disabled={selected && (!fields['login-email'] || !fields['login-password'])}
-						onClick={ !selected ? () => setSelected('login') : () =>  submitForm(['login-email', 'login-password']) }
+						disabled={loginDisabled}
+						onClick={
+							!selected ? () => setSelected('login') : 
+							() =>  submitForm('/auth/', {
+								email: fields['login-email'],
+								password: fields['login-password']
+							})
+						}
 					>
 						Login <i className="fa-solid fa-arrow-right-to-bracket"></i>
 					</Button>
@@ -35,16 +46,25 @@ export default function AuthCard() {
 
 				{!selected && <p>or</p>}
 
+				{/* Register Button */}
 				{
 					(!selected || selected === 'register') &&
 					<Button
 						className={`auth-card-register ${selected === 'register' ? 'button-primary' : ''}`}
-						disabled={selected && (!fields['register-email'] || !fields['register-password'] || !fields['register-confirm-password'] || fields['register-password'] !== fields['register-confirm-password'])}
-						onClick={ !selected ? () => setSelected('register') : () =>  submitForm(['register-email', 'register-password', 'register-confirm-password']) }
+						disabled={registerDisable}
+						onClick={
+							!selected ? () => setSelected('register') :
+							() =>  submitForm('/register/', {
+								email: fields['register-email'],
+								password: fields['register-password']
+							})
+						}
 					>
 						Register <i className="fa-regular fa-address-card"></i>
 					</Button>
 				}
+
+				{/* Cancel Button */}
 				{
 					selected &&
 					<Button

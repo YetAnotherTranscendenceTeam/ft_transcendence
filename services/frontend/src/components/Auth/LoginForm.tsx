@@ -1,5 +1,6 @@
 import Babact from "babact";
 import Input from "../../ui/Input";
+import config from "../../config";
 
 export default function LoginForm() {
 
@@ -10,18 +11,14 @@ export default function LoginForm() {
 				errorMsg="Invalid Email"
 				required
 				fieldName="login-email"
-				// onValid={(value) => setField('login-email', value)}
-				// onInvalid={() => deleteField('login-email')}
 			/>
 			<Input
 				label="Password"
 				type="password"
-				pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
+				pattern={config.PASSWORD_REGEX}
 				required
 				errorMsg="Invalid Password"
 				fieldName="login-password"
-				// onValid={(value) => setField('login-password', value)}
-				// onInvalid={() => deleteField('login-password')}
 			/>
 	</div>	
 }

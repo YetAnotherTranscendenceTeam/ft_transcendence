@@ -1,4 +1,5 @@
 import Babact from "babact";
+import config from "../config";
 
 const FormContext = Babact.createContext();
 
@@ -24,18 +25,22 @@ export const FormProvider = ({ children } : {children?: any}) => {
 		setFields({});
 	}
 
-	const submitForm = async (params) => {
-		fetch('https://z1r6p4:7979/api/auth', {
-			method: 'POST',
-			headers: {
-				credentials: 'include',
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify(fields)
-		})
-		params.map(deleteField);
+	const submitForm = async (endpoint, params) => {
+		try {
+			await fetch(`${config.API_URL}${endpoint}`, {
+				method: 'POST',
+				headers: {
+					credentials: 'include',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(params)
+			})
+		} catch (e) {
+			//console.error(e);
+		}
+		// params.map(deleteField);
 	}
-  
+
 	return (
 	  <FormContext.Provider value={{
 		setField,
