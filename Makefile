@@ -1,17 +1,18 @@
 
-SERVICES = \
+override SERVICES = \
 	credentials \
 	fortytwo-auth \
 	password-auth \
 	registration \
+	token-manager \
 
-MODULES = \
+override MODULES = \
 	yatt-utils
 
 SERVICES_DEPS = $(patsubst %, services/%/node_modules, $(SERVICES))
 MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(MODULES))
 
-SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
+override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
 all: $(SERVICES_DEPS) $(MODULES_DEPS) $(SSL_CERTIFICATE)
 

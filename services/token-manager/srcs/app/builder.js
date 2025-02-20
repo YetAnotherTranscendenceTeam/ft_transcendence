@@ -3,7 +3,7 @@
 import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
 import router from "./router.js";
-import YATT from "yatt-utils";
+import YATT, { HttpError } from "yatt-utils";
 import cors from "@fastify/cors";
 import bearerAuth from "@fastify/bearer-auth";
 import { token_manager_secret, jwt_secret } from "./env.js";
@@ -36,7 +36,30 @@ export default function build(opts = {}) {
   }
 
   const keys = new Set([token_manager_secret]);
-  app.register(bearerAuth, { keys, addHook: false });
+  app.register(bearerAuth, {
+    keys,
+    addHook: false,
+    errorResponse: (err) => {
+      return new HttpError.Unauthorized().json();
+    },
+  });
+
+
+  // const serviceAuthorization = (token, request) => {
+  //   if (request.url == "/api-docs") return true;
+
+  //   console.log("Token received:", token);
+  //   // faire des trucs avec du code
+  //   return false;
+  // };
+
+  // app.register(bearerAuth, {
+  //   auth: serviceAuthorization,
+  //   errorResponse: (err) => {
+  //     return new HttpError.Unauthorized().json();
+  //   },
+  // });
+
   app.register(jwt, {
     secret: jwt_secret,
   });
