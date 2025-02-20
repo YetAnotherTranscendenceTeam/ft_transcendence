@@ -4,7 +4,7 @@ const credentialsProperties = {
   account_id: {
     type: "integer",
     minimum: 1,
-    description: "The account id",
+    description: "The account unique id",
   },
 
   auth_method: {

@@ -1,12 +1,14 @@
 "use strict";
 
+import { token_manager_secret } from "../app/env.js";
 import verifyPassword from "../verifyPassword.js";
 import YATT, { HttpError, objects, properties } from "yatt-utils";
 
 export default function passwordRoutes(fastify, opts, done) {
   let schema = {
     summary: "Authenticate using password",
-    description: "",
+    description:
+      "Check that the `account_id` accounts exists, and that `password` matches the account credentials. If both of theses parameters are valid, a JWT token is generated",
     tags: ["Authentication"],
     body: {
       type: "object",
@@ -39,21 +41,22 @@ export default function passwordRoutes(fastify, opts, done) {
         `http://credentials:3000/password/${email}`
       );
       if (await verifyPassword(password, account.hash, account.salt)) {
-        const token = fastify.jwt.sign(
-          { id: account.id },
-          { expiresIn: "15m" }
+        const auth = await YATT.fetch(
+          `http://token-manager:3000/token/${account.account_id}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token_manager_secret}`,
+            },
+          }
         );
-        const decoded = fastify.jwt.decode(token);
-        reply.setCookie("access_token", token, {
+        reply.setCookie("refresh_token", auth.refresh_token, {
           httpOnly: true,
           secure: true,
           sameSite: "strict",
-          path: "/",
+          path: "/api/refresh-token",
         });
-        return reply.send({
-          access_token: token,
-          expire_at: new Date(decoded.exp * 1000).toISOString(),
-        });
+        return reply.send(auth);
       }
     } catch (err) {
       if (err instanceof HttpError && err.statusCode !== 404) {

@@ -44,4 +44,9 @@ server {
         rewrite ^/api/auth/fortytwo/(.*)$ /$1 break;
         proxy_pass http://fortytwo-auth:3000;
     }
+
+    location = /api/token/refresh {
+        rewrite ^/api/token/refresh$ /refresh break;
+        proxy_pass http://token-manager:3000;
+    }
 }

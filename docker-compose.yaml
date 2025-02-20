@@ -1,9 +1,6 @@
 services:
   nginx:
     build: services/nginx/
-    # image: nginx:1.26.3-alpine
-    volumes:
-      - ./services/nginx:/etc/nginx/templates:ro
     ports:
       - "8080:8080"
       - "7979:7979"
@@ -41,8 +38,8 @@ services:
     ports:
       - 127.0.0.1:4002:3000
     networks:
+      - frontend
       - tokens
-
 
   registration:
     build:
@@ -68,7 +65,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
-      - JWT_SECRET=$(JWT_SECRET)
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
       - "127.0.0.1:4022:3000"
     networks:

@@ -1,16 +1,9 @@
 "use strict";
 
-const jwt_secret = process.env.JWT_SECRET;
-if (!jwt_secret) {
-  console.error("Missing environment variable: JWT_SECRET");
-  process.exit(1);
-}
-
 import Fastify from "fastify";
 import fastifyCookie from "@fastify/cookie";
-import fastifyJWT from "@fastify/jwt";
 import fastifyFormbody from "@fastify/formbody";
-import routes from "./routes.js";
+import router from "./router.js";
 import YATT from "yatt-utils";
 import cors from "@fastify/cors";
 
@@ -38,25 +31,15 @@ export default function build(opts = {}) {
         },
       ],
     });
-
-    app.get("/swagger.json", async (_, reply) => {
-      return reply.send(app.swagger());
-    });
   } else {
     //SETUP CORS FOR PRODUCTION
   }
 
-  app.register(fastifyCookie, {
-    secret: "my-secret", // Optional: for signing cookies
-  });
-
-  app.register(fastifyJWT, {
-    secret: jwt_secret,
-  });
+  app.register(fastifyCookie);
 
   app.register(fastifyFormbody);
 
-  app.register(routes);
+  app.register(router);
 
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
