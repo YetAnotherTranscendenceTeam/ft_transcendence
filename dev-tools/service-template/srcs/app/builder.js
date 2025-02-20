@@ -1,16 +1,17 @@
 "use strict";
 
 import Fastify from "fastify";
-import fastifyFormbody from "@fastify/formbody";
-import router from "./router.js";
-import YATT, { HttpError } from "yatt-utils";
 import cors from "@fastify/cors";
-import bearerAuth from "@fastify/bearer-auth";
-import { token_manager_secret, jwt_secret } from "./env.js";
 import jwt from "@fastify/jwt";
+import bearerAuth from "@fastify/bearer-auth";
+import formbody from "@fastify/formbody";
+import router from "./router.js";
+import YATT from "yatt-utils";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
+
+  const routeWhitelist = ["/ping"];
 
   if (process.env.ENV !== "production") {
     // DEVELOPEMENT configuration
@@ -22,34 +23,52 @@ export default function build(opts = {}) {
 
     YATT.setUpSwagger(app, {
       info: {
-        title: "Token manager",
+        title: "[PLACEHOLDER]",
         description: "[PLACEHOLDER]",
         version: "1.0.0",
       },
       servers: [
-        { url: "http://localhost:4002", description: "Development network" },
-        { url: "http://token-manager:3000", description: "Containers network" },
+        {
+          url: "http://localhost:[PLACEHOLDER]",
+          description: "Development network",
+        },
+        { url: "http://${SERVICE}:3000", description: "Containers network" },
       ],
     });
+
+    routeWhitelist.push("/api-docs");
+    routeWhitelist.push("/api-docs/json"); 
+    
   } else {
     // PRODUCTION configuration
     // TODO: Setup cors
   }
 
-  const keys = new Set([token_manager_secret]);
+  const serviceAuthorization = (token, request) => {
+    if (routeWhitelist.includes(request.url)) {
+      return true;
+    }
+
+    try {
+      const decoded = app.jwt.verify(token);
+      request.account_id = decoded.account_id;
+    } catch (err) {
+      return false;
+    }
+    return true;
+  };
+
   app.register(bearerAuth, {
-    keys,
-    addHook: false,
+    auth: serviceAuthorization,
+    addHook: true,
     errorResponse: (err) => {
       return new HttpError.Unauthorized().json();
     },
   });
 
-  app.register(jwt, {
-    secret: jwt_secret,
-  });
+  app.register(jwt, { secret: jwt_secret });
 
-  app.register(fastifyFormbody);
+  app.register(formbody);
 
   app.register(router);
 

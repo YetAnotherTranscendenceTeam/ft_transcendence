@@ -13,7 +13,7 @@ const start = async () => {
   const payload = { account_id: process.argv[2] };
 
   console.log("generating jwt:", payload);
-  console.log(app.jwt.sign(payload));
+  console.log(app.jwt.sign(payload, { expiresIn: '7d' }));
 };
 
 start().catch(console.error);

@@ -26,3 +26,6 @@
 
 `http://localhost:4042/api-docs`
 
+- token-manager
+
+`http://localhost:4012/api-docs`

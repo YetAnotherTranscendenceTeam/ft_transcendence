@@ -5,7 +5,7 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-template_dir=".template"
+template_dir="./service-template"
 new_dir="$1"
 export SERVICE=$new_dir
 
