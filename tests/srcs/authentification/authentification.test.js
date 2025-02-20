@@ -168,7 +168,7 @@ describe("POST /", () => {
     );
   });
 
-  it("auth using password", async () => {
+  it("bad password", async () => {
     const response = await request(baseUrl)
       .post("/")
       .send({
