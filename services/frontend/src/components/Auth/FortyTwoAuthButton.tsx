@@ -16,7 +16,6 @@ export default function FortyTwoAuthButton({isOpen}) {
 
 	Babact.useEffect(() => {
 		if (isOpen) {
-			console.log('adding event listener');
 			window.addEventListener('message', handleMessage);
 			return () => {
 				window.removeEventListener('message', handleMessage);
