@@ -1,6 +1,6 @@
 import Babact from "babact";
 
-export default function FortyTwoAuthButton() {
+export default function FortyTwoAuthButton({isOpen}) {
 
 	const handleMessage = (event) => {
 		if (event.origin !== window.location.origin) return;
@@ -15,11 +15,14 @@ export default function FortyTwoAuthButton() {
 	};
 
 	Babact.useEffect(() => {
-		window.addEventListener('message', handleMessage);
-		return () => {
-			window.removeEventListener('message', handleMessage);
+		if (isOpen) {
+			console.log('adding event listener');
+			window.addEventListener('message', handleMessage);
+			return () => {
+				window.removeEventListener('message', handleMessage);
+			}
 		}
-	}, []);
+	}, [isOpen]);
 
 	return <a onClick={openPopup} className='fortytwo-auth-button flex items-center'>
 		<img src='/assets/images/fortytwo-logo.png'/>

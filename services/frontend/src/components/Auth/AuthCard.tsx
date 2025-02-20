@@ -18,11 +18,15 @@ export default function AuthCard() {
 	const registerDisabled = selected && !checkValidity(['register-email', 'register-password', 'register-confirm-password']);
 
 	return <Card className='auth-card'>
-			<div className={`auth-card-body ${selected ? 'open' : ''} flex flex-col gap-4 w-full`}>
-				<RemoteAuthButtons />
+			<div className={`auth-card-body ${selected === 'login' ? 'open' : ''} flex flex-col gap-4 w-full`}>
+				<RemoteAuthButtons isOpen={selected === 'login'} />
 				<Separator>or</Separator>
-				{ selected === 'login' && <LoginForm/>}
-				{ selected === 'register' && <RegisterForm/>}
+				<LoginForm/>
+			</div>
+			<div className={`auth-card-body ${selected === 'register' ? 'open' : ''} flex flex-col gap-4 w-full`}>
+				<RemoteAuthButtons isOpen={selected === 'register'}/>
+				<Separator>or</Separator>
+				<RegisterForm/>
 			</div>
 
 			<div className='auth-card-footer flex w-full justify-around items-center gap-4'>
