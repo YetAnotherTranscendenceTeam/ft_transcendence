@@ -8,17 +8,17 @@ export default function LoginForm() {
 			<Input
 				label="Email"
 				type="email"
-				errorMsg="Invalid Email"
+				error="Invalid Email"
 				required
-				fieldName="login-email"
+				field="login-email"
 			/>
 			<Input
 				label="Password"
 				type="password"
 				pattern={config.PASSWORD_REGEX}
 				required
-				errorMsg="Invalid Password"
-				fieldName="login-password"
+				error="Invalid Password"
+				field="login-password"
 			/>
 	</div>	
 }

@@ -1,6 +1,7 @@
 import Babact from "babact";
 import Input from "../../ui/Input";
 import config from "../../config";
+import Checkbox from "../../ui/Checkbox";
 
 export default function RegisterForm() {
 	
@@ -8,26 +9,31 @@ export default function RegisterForm() {
 			<Input
 				label="Email"
 				type="email"
-				errorMsg="Invalid Email"
+				error="Invalid Email"
 				required
-				fieldName="register-email"
+				field="register-email"
 			/>
 			<Input
 				label="Password"
 				type="password"
 				pattern={config.PASSWORD_REGEX}
 				required
-				errorMsg="Invalid Password"
-				fieldName="register-password"
+				error="Invalid Password"
+				field="register-password"
 			/>
 			<Input
 				label="Confirm Password"
 				type="password"
 				pattern={config.PASSWORD_REGEX}
 				required
-				errorMsg="Invalid Password"
-				fieldName="register-confirm-password"
-				matchingField="register-password"
+				error="Invalid Password"
+				field="register-confirm-password"
+				matching="register-password"
+			/>
+			<Checkbox
+				label="I agree to the terms and conditions"
+				field="register-terms"
+				required
 			/>
 	</div>	
 }

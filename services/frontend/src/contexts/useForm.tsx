@@ -1,18 +1,32 @@
 import Babact from "babact";
-import config from "../config";
 
-const FormContext = Babact.createContext();
+const FormContext = Babact.createContext({});
 
-export const FormProvider = ({ children } : {children?: any}) => {
+export const FormProvider = ({ formFields = {}, children } : {formFields?: any, children?: any}) => {
 
-	const [fields, setFields] = Babact.useState({});
+	const initFields = (fields) => fields.reduce((acc, field) => {
+		const required = field.endsWith('*');
+		field = required ? field.slice(0, -1) : field;
+		acc[field] = {
+			value: '',
+			isValid: true,
+			required
+		};
+		return acc;
+	}, {});
 
-	const setField = (name, value) => {
-		setFields({...fields, [name]: value});
+	const [fields, setFields] = Babact.useState(initFields(formFields));
+
+	const updateField = (name, value) => {
+		const newFields = {...fields};
+		newFields[name].value = value;
+		setFields(newFields);
 	}
 
-	const getField = (name) => {
-		return fields[name];
+	const updateFieldValidity = (name, isValid) => {
+		const newFields = {...fields};
+		newFields[name].isValid = isValid;
+		setFields(newFields);
 	}
 
 	const deleteField = (name) => {
@@ -22,47 +36,32 @@ export const FormProvider = ({ children } : {children?: any}) => {
 	}
 
 	const clearFields = () => {
-		setFields({});
+		setFields(initFields(formFields));
 	}
 
 	const checkValidity = (fieldsName) => {
 		for (let name of fieldsName) {
-			const field = fields[name];
-			if (!field) {
+			const fieldValidity = fields[name]?.isValid && (fields[name]?.value || !fields[name]?.required);
+			if (!fieldValidity) {
 				return false;
 			}
 		};
 		return true;
 	}
 
-	const submitForm = async (endpoint, params) => {
-		try {
-			await fetch(`${config.API_URL}${endpoint}`, {
-				method: 'POST',
-				headers: {
-					credentials: 'include',
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(params)
-			})
-		} catch (e) {
-			//console.error(e);
-		}
-		// params.map(deleteField);
-	}
-
 	return (
-	  <FormContext.Provider value={{
-		setField,
-		getField,
-		deleteField,
-		clearFields,
-		submitForm,
-		checkValidity,
-		fields
-	  }}>
-		{children}
-	  </FormContext.Provider>
+		<FormContext.Provider
+			value={{
+				updateField,
+				updateFieldValidity,
+				deleteField,
+				clearFields,
+				checkValidity,
+				fields
+			}}
+		>
+			{children}
+		</FormContext.Provider>
 	);
 };
 

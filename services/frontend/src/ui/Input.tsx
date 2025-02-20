@@ -3,46 +3,49 @@ import { useForm } from "../contexts/useForm";
 
 export default function Input({ 
 		label,
+		field,
 		type = 'text',
-		errorMsg,
+		error,
 		onInput,
-		fieldName,
-		matchingField,
+		matching,
 		...props 
 	}: {
 		label?: string,
+		field: string
 		type?: string,
-		errorMsg?: string,
+		error?: string,
 		onInput?: Function
-		fieldName?: string
-		matchingField?: string
+		matching?: string
 		[key: string]: any
 	}) {
 
-	const [isValid, setIsValid] = Babact.useState(true);
-	const { setField, deleteField, fields } = useForm();
+	const { updateField, updateFieldValidity, fields } = useForm();
 
 	const handleChange = (e: any) => {
-		if (onInput) onInput(e.target.value);
-		if (!e.target.checkValidity()) {
-			if (isValid) {
-				if (fieldName) deleteField(fieldName);
-				setIsValid(false);
-			}
-		}
-		else if (!isValid && (e.target.value === fields[matchingField] || !matchingField)) {
-			if (fieldName) setField(fieldName, e.target.value);
-			setIsValid(true);
-		}
-
+		if (onInput)
+			onInput(e);
+		updateField(field, e.target.value);
+		const isValid = e.target.checkValidity() && (e.target.value === fields[matching]?.value || !matching)
+		if (isValid !== fields[field].isValid)
+			updateFieldValidity(field, isValid);
 	}
-	
+
+	const isFieldValid = fields[field]?.isValid;
+
 	return <div className='input-container'>
-		{label && <label>
-			{label}
-			{props.required && <span>*</span>}
-		</label>}
-		<input type={type} onInput={handleChange} className={!isValid ? 'invalid' : ''} {...props}/>
-		<p className='input-error'>{!isValid && errorMsg}</p>
+		{label &&
+			<label>
+				{label}
+				{props.required && <span>*</span>}
+			</label>
+		}
+		<input
+			type={type}
+			value={fields[field].value}
+			onInput={handleChange}
+			className={!isFieldValid ? 'invalid' : ''}
+			{...props}
+		/>
+		{error && <p className='input-error'>{!isFieldValid && error}</p>}
 	</div>
 }

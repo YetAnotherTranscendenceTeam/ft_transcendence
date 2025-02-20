@@ -6,7 +6,7 @@ import { FormProvider } from "../contexts/useForm"
 export default function Home() {
 	return <div>
 		{/* <ProfileCard/> */}
-		<FormProvider>
+		<FormProvider formFields={['login-email*', 'login-password*', 'register-email*', 'register-password*', 'register-confirm-password*', 'register-terms*']}>
 			<AuthCard/>
 		</FormProvider>
 	</div>
