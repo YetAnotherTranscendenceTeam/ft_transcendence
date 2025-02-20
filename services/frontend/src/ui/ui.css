@@ -242,3 +242,49 @@
 	border-width: 0 1px 1px 0;
 	transform: rotate(45deg);
 }
+
+/* ================================== */
+/* ============= Toast ============== */
+/* ================================== */
+
+.toaster {
+	position: fixed;
+	top: 0;
+	right: 0;
+	min-width: 300px;
+	max-width: 400px;
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	padding: 16px;
+	align-items: center;
+	height: 200px;
+	background-color: tomato;
+}
+
+.toast {
+	background-color: var(--bg-1);
+	color: var(--fg-1);
+	padding: 16px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	max-height: 0;
+	overflow: hidden;
+	animation: slideIn 0.5s ease-in-out;
+}
+
+
+
+@keyframes slideIn {
+	from {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
