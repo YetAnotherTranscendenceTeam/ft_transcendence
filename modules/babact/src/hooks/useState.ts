@@ -6,15 +6,18 @@ export default function useState(initial?: any) {
 		BabactState.wipFiber.alternate.hooks &&
 		BabactState.wipFiber.alternate.hooks[BabactState.hookIndex];
 
-    const hook = {
+    let hook = {
         state: oldHook ? oldHook.state : initial,
         queue: [] as any[],
     };
+    if (oldHook)
+        hook = oldHook;
 
-    const actions = oldHook ? oldHook.queue : [];
+    const actions = hook.queue;
     actions.forEach(action => {
         hook.state = action instanceof Function ? action(hook.state) : action;
     });
+    actions.length = 0;
 
     const setState = (action: any) => {
         hook.queue.push(action);

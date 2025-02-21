@@ -6,7 +6,7 @@ import { EffectTag, IFiber } from "./Fiber";
 
 export function commitRoot() {
 	BabactState.deletions.forEach(commitWork);
-	commitWork(BabactState.wipRoot.child)
+	commitWork(BabactState.wipRoot.child);
 	BabactState.currentRoot = BabactState.wipRoot;
 	BabactState.wipRoot = null;
 
