@@ -7,10 +7,6 @@ export const UiProvider = ({ children } : {children?: any}) => {
 
 	const [toaster, setToaster] = Babact.useState([]);
 
-	Babact.useEffect(() => {
-		console.log(toaster);
-	}, [toaster]);
-
 	return (
 		<UiContext.Provider
 			value={{

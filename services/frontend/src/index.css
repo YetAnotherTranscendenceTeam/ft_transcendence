@@ -1,8 +1,8 @@
 :root {
 	--primary-color: #ff7b00;
 	--secondary-color: #6c757d;
-	--success-color: #28a745;
-	--info-color: #17a2b8;
+	--success-color: #51dd72;
+	--info-color: #72b8f1;
 	--warning-color: #ffc107;
 	--danger-color: #dc3545;
 	--fg-1: #f8f9fa;
@@ -15,11 +15,35 @@
 	--bg-3: #6c757d;
 	--bg-4: #868e96;
 	--bg-5: #adb5bd;
+	--shadow: 0px 0px 16px 4px var(--primary-color);
+}
+
+:root {
 	--primary-color-80: color-mix(in srgb, var(--primary-color), transparent 80%);
 	--primary-color-60: color-mix(in srgb, var(--primary-color), transparent 60%);
 	--primary-color-40: color-mix(in srgb, var(--primary-color), transparent 40%);
 	--primary-color-20: color-mix(in srgb, var(--primary-color), transparent 20%);
-	--shadow: 0px 0px 16px 4px var(--primary-color);
+	--primary-color-10: color-mix(in srgb, var(--primary-color), transparent 10%);
+	--danger-color-80: color-mix(in srgb, var(--danger-color), transparent 80%);
+	--danger-color-60: color-mix(in srgb, var(--danger-color), transparent 60%);
+	--danger-color-40: color-mix(in srgb, var(--danger-color), transparent 40%);
+	--danger-color-20: color-mix(in srgb, var(--danger-color), transparent 20%);
+	--danger-color-10: color-mix(in srgb, var(--danger-color), transparent 10%);
+	--warning-color-80: color-mix(in srgb, var(--warning-color), transparent 80%);
+	--warning-color-60: color-mix(in srgb, var(--warning-color), transparent 60%);
+	--warning-color-40: color-mix(in srgb, var(--warning-color), transparent 40%);
+	--warning-color-20: color-mix(in srgb, var(--warning-color), transparent 20%);
+	--warning-color-10: color-mix(in srgb, var(--warning-color), transparent 10%);
+	--info-color-80: color-mix(in srgb, var(--info-color), transparent 80%);
+	--info-color-60: color-mix(in srgb, var(--info-color), transparent 60%);
+	--info-color-40: color-mix(in srgb, var(--info-color), transparent 40%);
+	--info-color-20: color-mix(in srgb, var(--info-color), transparent 20%);
+	--info-color-10: color-mix(in srgb, var(--info-color), transparent 10%);
+	--success-color-80: color-mix(in srgb, var(--success-color), transparent 80%);
+	--success-color-60: color-mix(in srgb, var(--success-color), transparent 60%);
+	--success-color-40: color-mix(in srgb, var(--success-color), transparent 40%);
+	--success-color-20: color-mix(in srgb, var(--success-color), transparent 20%);
+	--success-color-10: color-mix(in srgb, var(--success-color), transparent 10%);
 }
 
 .flex {

@@ -1,16 +1,18 @@
 import Babact from "babact";
+import Card from "./Card";
 
-export default function Toast({ 
+export default function Toast({
 		message,
 		type = 'info',
 		...props 
 	}: {
 		message: string,
-		type?: 'info' | 'success' | 'error'
+		type?: 'info' | 'success' | 'error',
 		[key: string]: any
 	}) {
 
-	return <div className={`toast ${type}`}>
+
+	return <Card className={`toast bottom ${type}`} {...props}>
 		{message}
-	</div>
+	</Card>
 }
