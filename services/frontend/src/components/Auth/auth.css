@@ -20,12 +20,6 @@
 	flex: 3;
 }
 
-.auth-card-cancel {
-	aspect-ratio: 1/1;
-}
-
-
-
 .auth-card-body {
 	max-height: 0;
 	transition: max-height 0.4s ease-in-out;

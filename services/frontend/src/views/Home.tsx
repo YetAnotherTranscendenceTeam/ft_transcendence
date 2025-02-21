@@ -4,10 +4,13 @@ import AuthCard from "../components/Auth/AuthCard"
 import { FormProvider } from "../contexts/useForm"
 import useToast from "../hooks/useToast"
 import Button from "../ui/Button"
+import Modal from "../ui/Modal"
 
 export default function Home() {
 
 	const { createToast, removeToast } = useToast()
+
+	const [isOpen, setIsOpen] = Babact.useState(false)
 
 	return <div>
 		{/* <ProfileCard/> */}
@@ -47,5 +50,11 @@ export default function Home() {
 		>
 			Success
 		</button>
+		<Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className='' overlay={false} closeButton>
+			<p>Modal</p>
+			<p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eum possimus consequuntur in. Ab quasi, beatae voluptatibus cumque consequatur commodi fugiat? Quidem assumenda iure at? Amet culpa quidem veritatis sint exercitationem.</p>
+			<Button onClick={() => setIsOpen(false)}>Close</Button>
+		</Modal>
+		<Button onClick={() => setIsOpen(true)}>Open Modal</Button>
 	</div>
 }

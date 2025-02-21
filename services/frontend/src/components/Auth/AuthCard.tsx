@@ -67,8 +67,8 @@ export default function AuthCard() {
 				{
 					selected &&
 					<Button
-					className="auth-card-cancel"
-					onClick={() => setSelected(null)}
+						className="icon"
+						onClick={() => setSelected(null)}
 					>
 						<i className="fa-solid fa-xmark"></i>
 					</Button>
