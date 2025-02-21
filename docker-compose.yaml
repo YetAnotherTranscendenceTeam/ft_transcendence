@@ -94,6 +94,19 @@ services:
       - frontend
       - tokens
 
+  lobbies:
+    build:
+      context: services/lobbies/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/lobbies/srcs:/services/lobbies/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "127.0.0.1:4043:3000"
+    # networks:
+
   # profiles-api:
   #   build:
   #     context: services/profiles-api/
