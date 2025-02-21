@@ -13,7 +13,8 @@ export default function useToast() {
 		const id = Date.now();
 		if (typeof message === 'function') message = message(id);
 		setToaster(toaster => ([...toaster, { id, message, type, timeout }]));
-		setTimeout(() => removeToast(id), timeout);
+		if (timeout)
+			setTimeout(() => removeToast(id), timeout);
 	}
 
 	return {createToast, removeToast};

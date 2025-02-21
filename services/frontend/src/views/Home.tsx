@@ -21,10 +21,10 @@ export default function Home() {
 			onClick={() => {
 				createToast((id) => (
 					<div className='flex justify-between items-center'>
-						<p><b>lcott et</b> has request you to join</p>
+						<p><b>lcottet</b> has request you to join</p>
 						<Button onClick={() => removeToast(id)}>Join</Button>
 					</div>
-				), 'info', 6000)
+				), 'info', 0)
 			}}
 		>
 			Info
@@ -50,11 +50,11 @@ export default function Home() {
 		>
 			Success
 		</button>
-		<Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className='' overlay={false} closeButton>
+		<Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className='' closeButton>
 			<p>Modal</p>
 			<p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eum possimus consequuntur in. Ab quasi, beatae voluptatibus cumque consequatur commodi fugiat? Quidem assumenda iure at? Amet culpa quidem veritatis sint exercitationem.</p>
 			<Button onClick={() => setIsOpen(false)}>Close</Button>
 		</Modal>
-		<Button onClick={() => setIsOpen(true)}>Open Modal</Button>
+		<button onClick={() => setIsOpen(true)}>Modal</button>
 	</div>
 }
