@@ -16,9 +16,9 @@ export default function LoginForm({
 		onClose: () => void
 	}) {
 
-	return <Form formFields={['login-email*', 'login-password*']}>
+	return <Form formFields={['login-email*', 'login-password*']} className="gap-0">
 			<div
-				className={`auth-card-form flex flex-col gap-4 ${isOpen ? 'open' : ''}`}
+				className={`auth-card-form flex flex-col gap-4 ${isOpen ? 'open' : 'closed'}`}
 			>
 				<GoogleAuthButton />
 				<FortyTwoAuthButton isOpen={isOpen}/>

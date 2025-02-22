@@ -15,9 +15,7 @@ export default function Home() {
 
 	return <div>
 		{/* <ProfileCard/> */}
-		<Form formFields={['login-email*', 'login-password*', 'register-email*', 'register-password*', 'register-confirm-password*', 'register-terms*']}>
 			<AuthCard/>
-		</Form>
 		<button
 			onClick={() => {
 				createToast((id) => (

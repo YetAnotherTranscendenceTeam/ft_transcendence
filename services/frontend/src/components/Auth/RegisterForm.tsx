@@ -18,10 +18,11 @@ export default function RegisterForm({
 	}) {
 
 	return <Form
+		className="gap-0"
 		formFields={['register-email*', 'register-password*', 'register-confirm-password*', 'register-terms*']}
 	>
 		<div
-			className={`auth-card-form flex flex-col gap-4 ${isOpen ? 'open' : ''}`}
+			className={`auth-card-form flex flex-col gap-4 ${isOpen ? 'open' : 'closed'}`}
 		>
 			<GoogleAuthButton />
 			<FortyTwoAuthButton isOpen={isOpen}/>

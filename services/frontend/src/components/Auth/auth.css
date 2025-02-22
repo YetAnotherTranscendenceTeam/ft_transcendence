@@ -21,10 +21,17 @@
 	max-height: 0;
 	transition: max-height 0.4s ease-in-out;
 	overflow: hidden;
+	transition: max-height 0.4s ease-in-out, padding-bottom 0.2s ease-in-out 0.2s;
 }
+
 
 .auth-card-form.open {
 	max-height: 60vh;
+	padding-bottom: 1rem;
+}
+
+.auth-card-form.closed {
+	padding: 0;
 }
 
 
