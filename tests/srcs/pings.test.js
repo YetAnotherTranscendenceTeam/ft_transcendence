@@ -18,4 +18,7 @@ describe("pings", () => {
   it("ping token-manager", async () => {
     const response = await request(`${host}:4002`).get("/ping").expect(204);
   });
+  it("ping db-profiles", async () => {
+    const response = await request(`${host}:7001`).get("/ping").expect(204);
+  });
 });

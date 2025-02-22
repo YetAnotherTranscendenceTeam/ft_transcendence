@@ -6,12 +6,10 @@ import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
 import router from "./router.js";
-import YATT from "yatt-utils";
+import YATT, { HttpError } from "yatt-utils";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
-
-  const routeWhitelist = ["/ping"];
 
   if (process.env.ENV !== "production") {
     // DEVELOPEMENT configuration
@@ -35,22 +33,15 @@ export default function build(opts = {}) {
         { url: "http://${SERVICE}:3000", description: "Containers network" },
       ],
     });
-
-    routeWhitelist.push("/api-docs");
-    routeWhitelist.push("/api-docs/json"); 
-    
   } else {
     // PRODUCTION configuration
     // TODO: Setup cors
   }
 
   const serviceAuthorization = (token, request) => {
-    if (routeWhitelist.includes(request.url)) {
-      return true;
-    }
-
     try {
       const decoded = app.jwt.verify(token);
+      request.token = token;
       request.account_id = decoded.account_id;
     } catch (err) {
       return false;

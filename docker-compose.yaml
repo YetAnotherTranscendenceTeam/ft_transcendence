@@ -6,6 +6,7 @@ services:
       - "7979:7979"
     networks:
       - frontend
+      - db-profiles
     environment:
       - NGINX_HOST=localhost
     secrets:
@@ -17,9 +18,9 @@ services:
       context: services/credentials/
       dockerfile: Dockerfile.dev
     volumes:
-      - ./sqlite:/database
       - ./services/credentials/srcs:/services/credentials/srcs
       - ./modules/:/modules:ro
+      - ./sqlite:/database
     ports:
       - "127.0.0.1:7002:3000"
     networks:
@@ -32,6 +33,7 @@ services:
     volumes:
       - ./services/token-manager/srcs:/services/token-manager/srcs
       - ./modules/:/modules:ro
+      - ./sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -94,25 +96,28 @@ services:
       - frontend
       - tokens
 
-  # profiles-api:
-  #   build:
-  #     context: services/profiles-api/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./sqlite:/database
-  #     - ./services/profiles-api/srcs:/run/srcs
-  #   ports:
-  #     - "127.0.0.1:3003:3000"
-  #   networks:
-  #     - credentials
-
+  db-profiles:
+    build:
+      context: services/db-profiles/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/db-profiles/srcs:/services/db-profiles/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - CDN_URL=${CDN_URL}
+    ports:
+      - 127.0.0.1:7001:3000
+    networks:
+      - db-profiles
 
 networks:
   frontend:
     driver: bridge
   credentials:
     driver: bridge
-  profiles:
+  db-profiles:
     driver: bridge
   tokens:
     driver: bridge

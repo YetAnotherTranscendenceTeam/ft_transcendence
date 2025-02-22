@@ -59,11 +59,18 @@ export default class HttpError {
     }
   };
 
+  static NotImplemented = class NotImplemented extends HttpError {
+    constructor(message = httpErrMessages.get(501)) {
+      super(501, "Not Implemented", message);
+    }
+  };
+
   static BadGateway = class BadGateway extends HttpError {
     constructor(message = httpErrMessages.get(502)) {
       super(502, "Bad Gateway", message);
     }
   };
+
   static ServiceUnavailable = class ServiceUnavailable extends HttpError {
     constructor(message = httpErrMessages.get(503)) {
       super(503, "Service Unavailable", message);
@@ -77,5 +84,6 @@ httpErrMessages.set(401, "Authentication is required and has failed or has not b
 httpErrMessages.set(403, "The server understood the request but refuses to authorize it");
 httpErrMessages.set(409, "The request could not be completed due to a conflict with the current state of the target resource");
 httpErrMessages.set(429, "You're doing that too often! Try again later.");
+httpErrMessages.set(501, "The server does not support the functionality required to fulfill the request");
 httpErrMessages.set(502, "The server received an invalid response from an upstream server");
 httpErrMessages.set(503, "The server cannot handle the request right now");

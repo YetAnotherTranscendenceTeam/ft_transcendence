@@ -7,6 +7,7 @@ import reponseBodyObjects from "./schemas/objects/reponse-body.js";
 
 import credentialsProperties from "./schemas/properties/credentials.js";
 import tokenProperties from "./schemas/properties/jwt.js";
+import profilesProperties from "./schemas/properties/profiles.js";
 import responseBodyProperties from "./schemas/properties/reponse-body.js";
 import sqlProperties from "./schemas/properties/sql.js";
 import setUpSwagger from "./swagger/setup.js";
@@ -28,7 +29,8 @@ export const properties = {
     ...credentialsProperties,
     ...sqlProperties,
     ...responseBodyProperties,
-    ...tokenProperties
+    ...tokenProperties,
+    ...profilesProperties
 }
 
 export const objects = {
