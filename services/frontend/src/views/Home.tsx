@@ -5,12 +5,13 @@ import { FormProvider } from "../contexts/useForm"
 import useToast from "../hooks/useToast"
 import Button from "../ui/Button"
 import Modal from "../ui/Modal"
+import ConfirmProfileModal from "../components/Profile/ConfirmProfileModal"
 
 export default function Home() {
 
 	const { createToast, removeToast } = useToast()
 
-	const [isOpen, setIsOpen] = Babact.useState(false)
+	const [isOpen, setIsOpen] = Babact.useState(true)
 
 	return <div>
 		{/* <ProfileCard/> */}
@@ -50,11 +51,7 @@ export default function Home() {
 		>
 			Success
 		</button>
-		<Modal isOpen={isOpen} onClose={() => setIsOpen(false)} className='' closeButton>
-			<p>Modal</p>
-			<p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Eum possimus consequuntur in. Ab quasi, beatae voluptatibus cumque consequatur commodi fugiat? Quidem assumenda iure at? Amet culpa quidem veritatis sint exercitationem.</p>
-			<Button onClick={() => setIsOpen(false)}>Close</Button>
-		</Modal>
+		<ConfirmProfileModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
 		<button onClick={() => setIsOpen(true)}>Modal</button>
 	</div>
 }

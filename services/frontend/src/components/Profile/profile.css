@@ -13,3 +13,13 @@
 	color: var(--fg-3);
 	font-size: 90%;
 }
+
+
+.confirm-profile-modal {
+	width: 400px;
+}
+
+.confirm-profile-modal h1 {
+	font-weight: bold;
+	font-size: large;
+}

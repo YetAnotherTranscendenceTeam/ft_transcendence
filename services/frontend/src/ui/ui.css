@@ -342,7 +342,6 @@
 
 .modal-content {
 	max-width: 60%;
-	max-height: 80%;
 	animation: fadeIn 0.2s ease-in-out;
 }
 
@@ -360,4 +359,64 @@
 	top: 8px;
 	right: 8px;
 	cursor: pointer;
+}
+
+/* ================================== */
+/* ========= ImageSelector ========== */
+/* ================================== */
+
+.image-selector {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.image-selector label {
+	font-weight: 500;
+}
+
+.image-selector label span {
+	font-size: small;
+	color: var(--danger-color);
+	vertical-align: super;
+	margin-left: 2px;
+}
+
+.image-selector-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+	grid-gap: 8px;
+}
+
+.image-selector-container img, .image-selector-container label {
+	object-fit: cover;
+	width: 100%;
+	aspect-ratio: 1/1;
+	border-radius: 8px;
+	cursor: pointer;
+	background-color: var(--bg-2);
+}
+
+.image-selector-container img:hover {
+	outline: 2px solid var(--fg-3);
+}
+
+.image-selector-container img.selected {
+	outline: 2px solid var(--primary-color);
+}
+
+.image-selector-container label input[type="file"] {
+	display: none;
+}
+
+.image-selector-container label {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: x-large;
+	background-color: var(--bg-2);
+}
+
+.image-selector-container label:hover {
+	background-color: var(--bg-3);
 }

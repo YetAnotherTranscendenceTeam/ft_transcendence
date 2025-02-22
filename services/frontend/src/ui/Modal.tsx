@@ -1,6 +1,5 @@
 import Babact from "babact";
 import Card from "./Card";
-import useEffect from "babact/dist/hooks/useEffect";
 import Button from "./Button";
 
 export default function Modal({
