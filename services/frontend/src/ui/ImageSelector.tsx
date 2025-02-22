@@ -12,12 +12,15 @@ export default function ImageSelector({
 		images,
 		onChange,
 		required,
+		onImageRemove,
 		...props
 	}: {
 		label: string,
 		field: string,
 		images: Image[],
 		onChange: (value: string) => void,
+		required?: boolean,
+		onImageRemove?: (url: string) => void,
 		[key: string]: any
 	}) {
 
@@ -43,17 +46,18 @@ export default function ImageSelector({
 		<div className='image-selector-container'>
 			{
 				images.map((image: Image, i: number) => (
-					<div>
+					<div className='image-selector-item'>
 						<img
 							src={image.url} alt={`image-${i}`}
 							className={fields[field].value === image.url ? 'selected' : ''}
 							onClick={() => handleImageClick(image.url)}
 						/>
+						{image.isRemovable && <i className="fa-solid fa-trash" onClick={() => onImageRemove(image.url)}/>}
 					</div>
 				))
 			}
 			<label>
-				<input type="file" onChange={handleFileChange} />
+				<input type="file" onChange={handleFileChange} accept='image/*' />
 				<i className="fa-solid fa-plus"></i>
 			</label>
 		</div>

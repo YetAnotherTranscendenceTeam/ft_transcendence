@@ -27,12 +27,25 @@ export default function ConfirmProfileModal({ isOpen, onClose, ...props}) {
 		setImages(newImages);
 	}
 
+	const handleImageRemove = (url) => {
+		console.log(url);
+		const newImages = images.filter(image => image.url !== url);
+		setImages(newImages);
+	}
+
 	return <Modal className="confirm-profile-modal gap-4 left" isOpen={isOpen} onClose={onClose} {...props}>
 		<h1>Almost There!</h1>
 		<Form formFields={['profile-username*', 'profile-picture*']}>
 			<Input field='profile-username' label='Username' required/>
 
-			<ImageSelector label='Profile Picture' images={images} onChange={handleFileChange} field="profile-picture" required/>
+			<ImageSelector
+				label='Profile Picture'
+				images={images}
+				onChange={handleFileChange}
+				field="profile-picture"
+				required
+				onImageRemove={handleImageRemove}
+			/>
 
 			<div className="flex justify-end">
 				<Submit fields={['profile-username', 'profile-picture']}>
