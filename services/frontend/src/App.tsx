@@ -2,7 +2,7 @@ import Babact from "babact";
 import { Route, Router, Routes } from "babact-router-dom";
 import LoginView from "./views/LoginView";
 import SigninView from "./views/SigninView";
-import Babylon from "./components/Babylon";
+import Babylon from "./components/Babylon/Babylon";
 import Home from "./views/Home";
 import FortytwoView from "./views/FortytwoView";
 import { UiProvider } from "./contexts/useUi";

@@ -18,6 +18,8 @@
     "tsc": "tsc"
   },
   "dependencies": {
+    "@babylonjs/core": "^7.50.0",
+    "@babylonjs/inspector": "^7.50.0",
     "css-loader": "^7.1.2",
     "style-loader": "^4.0.0"
   }
