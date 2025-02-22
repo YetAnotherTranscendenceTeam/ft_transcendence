@@ -1,9 +1,10 @@
 import Babact from "babact";
 import Modal from "../../ui/Modal";
-import { FormProvider } from "../../contexts/useForm";
+import { Form } from "../../contexts/useForm";
 import Input from "../../ui/Input";
 import './profile.css';
 import ImageSelector from "../../ui/ImageSelector";
+import Submit from "../../ui/Submit";
 
 export default function ConfirmProfileModal({ isOpen, onClose, ...props}) {
 
@@ -26,29 +27,19 @@ export default function ConfirmProfileModal({ isOpen, onClose, ...props}) {
 		setImages(newImages);
 	}
 
-	return <Modal className="confirm-profile-modal gap-4" isOpen={isOpen} onClose={onClose} {...props}>
-		<h1>Your profile needs a few more details...</h1>
-		<FormProvider formFields={['profile-username*', 'profile-picture*']}>
+	return <Modal className="confirm-profile-modal gap-4 left" isOpen={isOpen} onClose={onClose} {...props}>
+		<h1>Almost There!</h1>
+		<Form formFields={['profile-username*', 'profile-picture*']}>
 			<Input field='profile-username' label='Username' required/>
 
 			<ImageSelector label='Profile Picture' images={images} onChange={handleFileChange} field="profile-picture" required/>
-			{/* <div className='profile-picture flex flex-col gap-1'>
-				<label htmlFor="profile-picture">Profile picture</label>
-				<div className='confirm-profile-pictures'>
-					{
-						images.map((image, i) => <img
-							src={image} alt={`profile-${i}`}
-							onClick={() => setSelectedImage(i)}
-							className={selectedImage === i ? 'selected' : ''}
-						/>)
-					}
-					<label id="profile-picture">
-						<input type="file" id="profile-picture" name="profile-picture" onChange={handleFileChange} />
-						<i className="fa-solid fa-plus"></i>
-					</label>
-				</div>
-			</div> */}
-		</FormProvider>
+
+			<div className="flex justify-end">
+				<Submit fields={['profile-username', 'profile-picture']}>
+					Save Profile <i className="fa-solid fa-user-check"></i>
+				</Submit>
+			</div>
+		</Form>
 	</Modal>
 
 }

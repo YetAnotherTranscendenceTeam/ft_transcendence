@@ -4,10 +4,10 @@
 	right: 24px;
 	min-width: 300px;
 	font-size: medium;
-	transition: 0.4s;
+	transition: height 0.4s;
 }
 
-.auth-card-login {
+.auth-card-login, .auth-card-register {
 	flex: 3;
 }
 
@@ -16,17 +16,14 @@
 	flex: 1;
 }
 
-.auth-card-register {
-	flex: 3;
-}
 
-.auth-card-body {
+.auth-card-form {
 	max-height: 0;
 	transition: max-height 0.4s ease-in-out;
 	overflow: hidden;
 }
 
-.auth-card-body.open {
+.auth-card-form.open {
 	max-height: 60vh;
 }
 
@@ -57,8 +54,8 @@
 	width: 20px;
 	height: 20px;
 }
-
+/* 
 .auth-card-form {
 	margin-bottom: 1rem;
-}
+} */
 

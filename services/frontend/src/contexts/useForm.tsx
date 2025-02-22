@@ -2,7 +2,7 @@ import Babact from "babact";
 
 const FormContext = Babact.createContext({});
 
-export const FormProvider = ({ formFields = {}, children } : {formFields?: any, children?: any}) => {
+export const Form = ({ formFields = {}, className, children } : {formFields?: any, className?: string, children?: any}) => {
 
 	const initFields = (fields) => fields.reduce((acc, field) => {
 		const required = field.endsWith('*');
@@ -60,7 +60,9 @@ export const FormProvider = ({ formFields = {}, children } : {formFields?: any, 
 				fields
 			}}
 		>
-			{children}
+			<form className={`flex flex-col gap-4 ${className || ''}`}>
+				{children}
+			</form>
 		</FormContext.Provider>
 	);
 };

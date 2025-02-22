@@ -1,7 +1,7 @@
 import Babact from "babact"
 import ProfileCard from "../components/Profile/ProfileCard"
 import AuthCard from "../components/Auth/AuthCard"
-import { FormProvider } from "../contexts/useForm"
+import { Form } from "../contexts/useForm"
 import useToast from "../hooks/useToast"
 import Button from "../ui/Button"
 import Modal from "../ui/Modal"
@@ -11,13 +11,13 @@ export default function Home() {
 
 	const { createToast, removeToast } = useToast()
 
-	const [isOpen, setIsOpen] = Babact.useState(true)
+	const [isOpen, setIsOpen] = Babact.useState(false)
 
 	return <div>
 		{/* <ProfileCard/> */}
-		<FormProvider formFields={['login-email*', 'login-password*', 'register-email*', 'register-password*', 'register-confirm-password*', 'register-terms*']}>
+		<Form formFields={['login-email*', 'login-password*', 'register-email*', 'register-password*', 'register-confirm-password*', 'register-terms*']}>
 			<AuthCard/>
-		</FormProvider>
+		</Form>
 		<button
 			onClick={() => {
 				createToast((id) => (

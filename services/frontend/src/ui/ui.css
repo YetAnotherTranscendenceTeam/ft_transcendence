@@ -17,6 +17,10 @@
 	transition: 0.3s;
 }
 
+.button i {
+	font-size: 90%;
+}
+
 .button:hover {
 	background-color: var(--bg-3);
 }
@@ -32,17 +36,17 @@
 	width: 16px;
 }
 
-.button-primary {
+.button.primary {
 	background-color: var(--primary-color);
 	color: var(--fg-1);
 }
 
-.button-primary:hover {
+.button.primary:hover {
 	background-color: var(--primary-color);
 	filter: saturate(2);
 }
 
-.button-primary.disabled, .button-primary.disabled:hover{
+.button.primary.disabled, .button.primary.disabled:hover{
 	background-color: var(--primary-color-40);
 	filter: saturate(1);
 }
@@ -373,6 +377,7 @@
 
 .image-selector label {
 	font-weight: 500;
+	font-size: medium;
 }
 
 .image-selector label span {

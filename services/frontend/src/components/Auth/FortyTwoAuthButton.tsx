@@ -1,6 +1,11 @@
 import Babact from "babact";
+import config from "../../config";
 
-export default function FortyTwoAuthButton({isOpen}) {
+export default function FortyTwoAuthButton({
+		isOpen = false
+	}: {
+		isOpen: boolean
+	}) {
 
 	const handleMessage = (event) => {
 		if (event.origin !== window.location.origin) return;
@@ -11,7 +16,7 @@ export default function FortyTwoAuthButton({isOpen}) {
 	};
 
 	const openPopup = () => {
-		window.open('https://z1r3p1:7979/api/auth/fortytwo/', '_blank', "popup; width=600; height=600");
+		window.open(`${config.API_URL}/auth/fortytwo/`, '_blank', "popup; width=600; height=600");
 	};
 
 	Babact.useEffect(() => {
