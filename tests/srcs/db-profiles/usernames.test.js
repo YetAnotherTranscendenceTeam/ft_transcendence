@@ -1,5 +1,6 @@
 import request from "supertest";
 import crypto from "crypto";
+import { Console } from "console";
 
 const profilesURL = "http://127.0.0.1:7001"
 
@@ -14,10 +15,31 @@ describe("/usernames/:username", () => {
       .post("/")
       .send({
         account_id: dummyProfile.account_id,
-        username: dummyProfile.username,
       })
       .expect(201)
       .expect("Content-Type", /json/);
+  })
+
+  it("get by username", async () => {
+    const response = await request(profilesURL)
+      .get(`/usernames/${dummyProfile.username}`)
+      .expect(404)
+      .expect("Content-Type", /json/);
+  })
+
+  it("patch profile username", async () => {
+    const response = await request(profilesURL)
+      .patch(`/${dummyProfile.account_id}`)
+      .send({
+        username: dummyProfile.username,
+      })
+      .expect(200)
+      .expect("Content-Type", /json/);
+    // console.error(response.body)
+    expect(response.body.account_id).toEqual(dummyProfile.account_id);
+    expect(response.body.username).toEqual(dummyProfile.username);
+    expect(response.body.avatar).toEqual(null);
+    expect(response.body.created_at).toEqual(response.body.updated_at);
   })
 
   it("get by username", async () => {
@@ -28,6 +50,47 @@ describe("/usernames/:username", () => {
 
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
     expect(response.body.username).toEqual(dummyProfile.username);
+    expect(response.body.avatar).toEqual("");
+    expect(response.body.created_at).toEqual(response.body.updated_at);
+  })
+
+  it("patch profile username", async () => {
+    const response = await request(profilesURL)
+      .patch(`/${dummyProfile.account_id}`)
+      .send({
+        username: dummyProfile.username.slice(5),
+      })
+      .expect(200)
+      .expect("Content-Type", /json/);
+    // console.error(response.body)
+    expect(response.body.account_id).toEqual(dummyProfile.account_id);
+    expect(response.body.username).toEqual(dummyProfile.username.slice(5));
+    expect(response.body.avatar).toEqual(null);
+    expect(response.body.created_at).toEqual(response.body.updated_at);
+  })
+
+  it("get by old username", async () => {
+    const response = await request(profilesURL)
+      .get(`/usernames/${dummyProfile.username}`)
+      .expect(404)
+      .expect("Content-Type", /json/);
+
+    expect(response.body).toEqual({
+      statusCode: 404,
+      code: 'ACCOUNT_NOT_FOUND',
+      error: 'Account Not Found',
+      message: 'The requested account does not exist'
+    })
+  })
+
+  it("get by username", async () => {
+    const response = await request(profilesURL)
+      .get(`/usernames/${dummyProfile.username.slice(5)}`)
+      .expect(200)
+      .expect("Content-Type", /json/);
+
+    expect(response.body.account_id).toEqual(dummyProfile.account_id);
+    expect(response.body.username).toEqual(dummyProfile.username.slice(5));
     expect(response.body.avatar).toEqual("");
     expect(response.body.created_at).toEqual(response.body.updated_at);
   })

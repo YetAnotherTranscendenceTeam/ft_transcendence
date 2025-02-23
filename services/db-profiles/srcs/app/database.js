@@ -3,13 +3,12 @@
 import Database from "better-sqlite3";
 const db = new Database("/database/profiles.sqlite");
 
-db.pragma("foreign_keys = ON");
 db.pragma("journal_mode = WAL");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS profiles (
     account_id INTEGER PRIMARY KEY,
-    username TEXT UNIQUE,
+    username TEXT UNIQUE DEFAULT NULL,
     avatar TEXT DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

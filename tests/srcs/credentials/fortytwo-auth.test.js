@@ -3,7 +3,7 @@ import crypto from "crypto";
 
 const baseUrl = "http://127.0.0.1:7002";
 
-describe("password-auth", () => {
+describe("fortytwo-auth", () => {
   it("no body", async () => {
     const response = await request(baseUrl)
       .post("/fortytwo")
@@ -59,6 +59,8 @@ describe("password-auth", () => {
       .send({
         email: "",
         intra_user_id: "",
+        username: "",
+        avatar: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -77,6 +79,8 @@ describe("password-auth", () => {
       .send({
         email: "fklfkfjskl",
         intra_user_id: "",
+        username: "",
+        avatar: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -89,12 +93,14 @@ describe("password-auth", () => {
     });
   });
 
-  it("bad intra_user_id 1 ", async () => {
+  it("bad intra_user_id 1", async () => {
     const response = await request(baseUrl)
       .post("/fortytwo")
       .send({
         email: "test@test.com",
         intra_user_id: "",
+        username: "",
+        avatar: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -107,12 +113,14 @@ describe("password-auth", () => {
     });
   });
 
-  it("bad intra_user_id 1 ", async () => {
+  it("bad intra_user_id 2", async () => {
     const response = await request(baseUrl)
       .post("/fortytwo")
       .send({
         email: "test@test.com",
         intra_user_id: "not-a-number",
+        username: "",
+        avatar: "",
       })
       .expect(400)
       .expect("Content-Type", /json/);
@@ -134,6 +142,8 @@ describe("password-auth", () => {
         .randomBytes(10)
         .toString("hex")}@jest.com`,
       intra_user_id: Math.floor(Math.random() * 2000000),
+      username: crypto.randomBytes(4).toString('hex'),
+      avatar: `https://${crypto.randomBytes(4).toString('hex')}.uri`
     });
   }
 
@@ -144,6 +154,8 @@ describe("password-auth", () => {
         .send({
           email: accounts[i].email,
           intra_user_id: accounts[i].intra_user_id,
+          username: accounts[i].username,
+          avatar: accounts[i].avatar,
         })
         .expect(201)
         .expect("Content-Type", /json/);
@@ -158,6 +170,8 @@ describe("password-auth", () => {
         .send({
           email: accounts[i].email,
           intra_user_id: accounts[i].intra_user_id,
+          username: accounts[i].username,
+          avatar: accounts[i].avatar,
         })
         .expect(409)
         .expect("Content-Type", /json/);

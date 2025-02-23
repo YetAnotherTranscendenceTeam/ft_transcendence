@@ -41,11 +41,13 @@ export default function router(fastify, opts, done) {
     async function handler(request, reply) {
       const { account_id } = request.params;
 
-      const profile = db.prepare("SELECT * FROM profiles WHERE account_id = ?").get(account_id);
-      if (profile) {
-        reply.send(profile);
+      const profile = db
+        .prepare("SELECT * FROM profiles WHERE account_id = ?")
+        .get(account_id);
+      if (!profile) {
+        reply.code(404).send(objects.accountNotFound);
       } else {
-        reply.code(404).send(accountNotFound);
+        reply.send(profile);
       }
     }
   );
@@ -57,64 +59,51 @@ export default function router(fastify, opts, done) {
     body: {
       type: "object",
       properties: {
-        account_id: properties.account_id,
-        username: properties.username,
-        avatar: properties.avatar,
+        account_id: properties.account_id
       },
-      required: ["account_id", "username",],
+      required: ["account_id"],
+      additionalProperties: false
     },
     response: {
       500: {
-        description: "[PLACEHOLDER]",
-      },
-    },
+        description: "[PLACEHOLDER]"
+      }
+    }
   };
 
   fastify.post("/", { schema }, async function handler(request, reply) {
-    const { account_id, username, avatar } = request.body;
+    const { account_id } = request.body;
 
     try {
       const profile = db
-        .prepare(
-          `
-        INSERT INTO profiles (account_id, username, avatar)
-        VALUES (?, ?, ?)
-        RETURNING *`
-        )
-        .get(account_id, username, avatar);
+        .prepare("INSERT INTO profiles (account_id) VALUES (?) RETURNING *")
+        .get(account_id);
       reply.code(201).send(profile);
     } catch (err) {
-      if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
-        return new HttpError(
-          409,
-          "Conflict",
-          "Username already taken",
-          "USERNAME_IN_USE"
-        ).send(reply);
-      }
       if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
         return new HttpError.Conflict().send(reply);
       }
+      throw err;
     }
-  }
-  );
+  });
 
   schema = {
     tags: ["Profiles"],
     summary: "Delete a profile",
-    description: "Delete the profile associated with an account_id",
+    description: "Delete the profile associated with an account ID",
     params: {
       type: "object",
       properties: {
-        account_id: properties.account_id,
+        account_id: properties.account_id
       },
       required: ["account_id"],
+      additionalProperties: false,
     },
     response: {
       204: {
-        description: "[PLACEHOLDER]",
-      },
-    },
+        description: "[PLACEHOLDER]"
+      }
+    }
   };
 
   fastify.delete(
@@ -123,9 +112,11 @@ export default function router(fastify, opts, done) {
     async function handler(request, reply) {
       const { account_id } = request.params;
 
-      const result = db.prepare(`DELETE FROM profiles WHERE account_id = ?`).run(account_id);
+      const result = db
+        .prepare(`DELETE FROM profiles WHERE account_id = ?`)
+        .run(account_id);
       if (!result.changes) {
-        reply.code(404).send(accountNotFound);
+        reply.code(404).send(objects.accountNotFound);
       } else {
         reply.code(204).send();
       }
@@ -135,38 +126,60 @@ export default function router(fastify, opts, done) {
   schema = {
     tags: ["Profiles"],
     summary: "Modify a profile",
-    description: "Modify the profile associated with an account_id",
+    description: "Modify the profile associated with an account ID",
     params: {
       type: "object",
       properties: {
-        account_id: properties.account_id,
+        account_id: properties.account_id
       },
       required: ["account_id"],
+      additionalProperties: false
+    },
+    body: {
+      type: "object",
+      properties: {
+        username: properties.username,
+        avatar: properties.avatar
+      },
+      additionalProperties: false
     },
     response: {
       204: {
-        description: "[PLACEHOLDER]",
-      },
-    },
+        description: "[PLACEHOLDER]"
+      }
+    }
   };
 
   fastify.patch(
     "/:account_id",
     { schema },
     async function handler(request, reply) {
-      console.log("debug! PATCH"); //DEBUG
       const { account_id } = request.params;
+      const { setClause, params } = patchBodyToSql(request.body);
 
-      new HttpError.NotImplemented().send(reply);
+      const update = db
+        .prepare(
+          `
+        UPDATE profiles
+        SET ${setClause}
+        WHERE account_id = ?
+        RETURNING *;
+      `
+        )
+        .get(...params, account_id);
+
+      reply.send(update);
     }
   );
 
   done();
 }
 
-const accountNotFound = {
-  statusCode: 404,
-  code: "ACCOUNT_NOT_FOUND",
-  error: "Account Not Found",
-  message: "The requested account does not exist",
-};
+function patchBodyToSql(body) {
+  return {
+    setClause: Object.keys(body)
+      .map((key) => `${key} = ?`)
+      .join(", "),
+    params: Object.values(body)
+  };
+}

@@ -88,7 +88,7 @@ export default function router(fastify, opts, done) {
       .get(email);
 
     if (!account) {
-      reply.status(404).send(accountNotFound);
+      reply.status(404).send(objects.accountNotFound);
     }
     return account;
   });
@@ -126,7 +126,7 @@ export default function router(fastify, opts, done) {
         .prepare(`DELETE FROM accounts WHERE account_id = (?)`)
         .run(account_id);
       if (!result.changes) {
-        reply.code(404).send(accountNotFound);
+        reply.code(404).send(objects.accountNotFound); 
       } else {
         reply.code(204).send();
       }
@@ -135,10 +135,3 @@ export default function router(fastify, opts, done) {
 
   done();
 }
-
-const accountNotFound = {
-  statusCode: 404,
-  code: "ACCOUNT_NOT_FOUND",
-  error: "Account Not Found",
-  message: "The requested account does not exist",
-};

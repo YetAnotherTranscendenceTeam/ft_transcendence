@@ -2,6 +2,7 @@
 
 import { objects, properties } from "yatt-utils";
 import db from "../app/database.js";
+import { createProfile } from "../utils/createProfile.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -34,7 +35,7 @@ export default function router(fastify, opts, done) {
 
     return db
       .prepare(`SELECT * FROM fortytwo_auth LIMIT ? OFFSET ?`)
-      .all(safeLimit, safeOffset);
+      .all(limit, offset);
   });
 
   schema = {
@@ -87,9 +88,10 @@ export default function router(fastify, opts, done) {
         .get(intra_user_id);
 
       if (!account) {
-        reply.status(404).send(accountNotFound);
+        reply.status(404).send(objects.accountNotFound);
+      } else {
+        reply.send(account);
       }
-      return account;
     }
   );
 
@@ -129,35 +131,24 @@ export default function router(fastify, opts, done) {
 
     try {
       const result = db.transaction(() => {
-        const account = db
-          .prepare(
-            `
+        const account = db.prepare(`
           INSERT INTO accounts (email, auth_method)
           VALUES (?, 'fortytwo_auth')
           RETURNING account_id
-        `
-          )
-          .get(email);
+        `).get(email);
 
-        return db
-          .prepare(
-            `
+        const insert = db.prepare(`
           INSERT INTO fortytwo_auth (account_id, intra_user_id)
           VALUES (?, ?)
           RETURNING *
-        `
-          )
-          .get(account.account_id, intra_user_id);
+        `).get(account.account_id, intra_user_id);
+        return insert;
       })();
+      await createProfile(result.account_id);
       return reply.status(201).send(result);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
-        return reply.code(409).send({
-          statusCode: 409,
-          code: "AUTH_EMAIL_IN_USE",
-          error: "Email Already In Use",
-          message: `This email is already associated with an account`,
-        });
+        return reply.code(409).send(objects.emailInUse);
       }
       console.error(err);
       throw err;

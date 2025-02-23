@@ -27,7 +27,7 @@ describe("/usernames/:username", () => {
       .expect("Content-Type", /json/);
 
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
-    expect(response.body.username).toEqual(dummyProfile.username);
+    expect(response.body.username).toEqual("");
     expect(response.body.avatar).toEqual("");
     expect(response.body.created_at).toEqual(response.body.updated_at);
   })

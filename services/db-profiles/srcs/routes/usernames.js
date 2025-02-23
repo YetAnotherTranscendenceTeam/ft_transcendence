@@ -35,26 +35,16 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.get(
-    "/usernames/:username",
-    { schema },
-    async function handler(request, reply) {
-      const { username } = request.params;
+  fastify.get("/usernames/:username", { schema }, async function handler(request, reply) {
+    const { username } = request.params;
 
-      const profile = db.prepare("SELECT * FROM profiles WHERE username = ?").get(username);
-      if (profile) {
-        reply.send(profile);
-      } else {
-        reply.code(404).send(accountNotFound);
-      }
+    const profile = db.prepare("SELECT * FROM profiles WHERE username = ?").get(username);
+    if (!profile) {
+      reply.code(404).send(objects.accountNotFound);
+    } else {
+      reply.send(profile);
     }
-  );
+  });
+
   done();
 }
-
-const accountNotFound = {
-  statusCode: 404,
-  code: "ACCOUNT_NOT_FOUND",
-  error: "Account Not Found",
-  message: "The requested account does not exist",
-};

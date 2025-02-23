@@ -2,6 +2,7 @@
 
 import db from "../app/database.js";
 import { objects, properties } from "yatt-utils";
+import { createProfile } from "../utils/createProfile.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -87,9 +88,10 @@ export default function router(fastify, opts, done) {
       .get(email);
 
     if (!account) {
-      reply.status(404).send(accountNotFound);
+      reply.status(404).send(objects.accountNotFound);
+    } else {
+      reply.send(account);
     }
-    return account;
   });
 
   schema = {
@@ -150,10 +152,11 @@ export default function router(fastify, opts, done) {
           )
           .get(account.account_id, hash, salt);
       })();
+      await createProfile(result.account_id);
       return reply.status(201).send(result);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
-        return reply.code(409).send(emailInUse);
+        return reply.code(409).send(objects.emailInUse);
       }
       console.error(err);
       throw err;
@@ -162,17 +165,3 @@ export default function router(fastify, opts, done) {
 
   done();
 }
-
-const accountNotFound = {
-  statusCode: 404,
-  code: "ACCOUNT_NOT_FOUND",
-  error: "Account Not Found",
-  message: "The requested account does not exist",
-};
-
-const emailInUse = {
-  statusCode: 409,
-  code: "AUTH_EMAIL_IN_USE",
-  error: "Email Already In Use",
-  message: `This email is already associated with an account`,
-};
