@@ -30,21 +30,21 @@ export default function Home() {
 		</button>
 		<button
 			onClick={() => {
-				createToast('this is an error', 'danger', 6000)
+				createToast('this is an error', 'danger', 2000)
 			}}
 		>
 			Error
 		</button>
 		<button
 			onClick={() => {
-				createToast('this is a warning', 'warning', 6000)
+				createToast('this is a warning', 'warning', 5000)
 			}}
 		>
 			Warning
 		</button>
 		<button
 			onClick={() => {
-				createToast('this is a success', 'success', 6000)
+				createToast('this is a success', 'success', 200)
 			}}
 		>
 			Success

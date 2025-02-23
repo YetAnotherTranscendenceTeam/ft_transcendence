@@ -309,9 +309,31 @@
 .toast {
 	background-color: color-mix(in srgb, var(--bg-3), transparent 30%);
 	opacity: 0;
+	animation:
+		slideIn 0.5s ease-in-out forwards,
+		fadeOut 500ms ease-in-out forwards var(--timeout);
+	max-height: 80vh;
+}
+
+.toast.sticky {
 	animation: slideIn 0.5s ease-in-out forwards;
 }
 
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		max-height: 80vh;
+		opacity: 0;
+		padding: 16px;
+	}
+	100% {
+		opacity: 0;
+		max-height: 0;
+		padding: 0;
+	}
+}
 
 @keyframes slideIn {
 	from {

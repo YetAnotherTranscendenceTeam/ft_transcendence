@@ -16,7 +16,7 @@ export const UiProvider = ({ children } : {children?: any}) => {
 		>
 			<div className='toaster'>
 				{toaster.map((toast: any) => {
-					return <Toast {...toast} />
+					return <Toast {...toast} key={toast.id}/>
 				})}
 			</div>
 			{children}
