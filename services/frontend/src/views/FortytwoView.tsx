@@ -11,9 +11,6 @@ export default function FortytwoView() {
 	else {
 		window.opener.postMessage({ statusCode }, window.location.origin);
 	}
-
-	//return <div>Fortytwo</div>;
-	//setTimeout(() => window.close(), 500);
 	window.close();
 	return null;
 }

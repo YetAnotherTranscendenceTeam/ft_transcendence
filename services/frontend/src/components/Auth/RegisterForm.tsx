@@ -19,7 +19,7 @@ export default function RegisterForm({
 	}) {
 
 
-	const {ft_fetch} = useFetch();
+	const {ft_fetch, isLoading} = useFetch();
 
 	const handleSubmit = async (fields, clear) => {
 		const { 'register-email': email, 'register-password': password } = fields;
@@ -90,6 +90,7 @@ export default function RegisterForm({
 			isOpen &&
 			<div className="flex items-center justify-between">
 				<Submit
+					loading={isLoading}
 					fields={['register-email', 'register-password', 'register-confirm-password', 'register-terms']}
 					onSubmit={handleSubmit}
 				>
