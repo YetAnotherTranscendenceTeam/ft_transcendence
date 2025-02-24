@@ -2,6 +2,7 @@
 import { IFiber, EffectTag, FiberProps } from './Fiber'
 import BabactState from './BabactState'
 import { IElement } from './Element';
+
 export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
     let oldFiber: IFiber = wipFiber.alternate && wipFiber.alternate.child;
     let prevSibling: IFiber = null;
@@ -14,7 +15,6 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
         oldFiber = oldFiber.sibling;
         oldFiberIndex++;
     }
-
     for (let i = 0; i < elements.length; i++) {
         const element = elements[i];
         const key = element?.props.key || i;

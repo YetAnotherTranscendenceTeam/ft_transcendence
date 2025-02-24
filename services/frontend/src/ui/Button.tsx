@@ -1,4 +1,5 @@
 import Babact from "babact"
+import Spinner from "./Spinner"
 
 export default function Button({
 		children,
@@ -21,6 +22,10 @@ export default function Button({
 		onClick={(e) => (!disabled && onClick) && onClick(e)}
 		{...props}
 	>
-		{loading ? <div className="loader"></div> : children}
+		{
+			!loading
+			? (children)
+			: (<><Spinner/> Loading...</>)
+		}
 	</a>
 }

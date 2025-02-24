@@ -6,6 +6,7 @@ import useToast from "../hooks/useToast"
 import Button from "../ui/Button"
 import Modal from "../ui/Modal"
 import ConfirmProfileModal from "../components/Profile/ConfirmProfileModal"
+import Spinner from "../ui/Spinner"
 
 export default function Home() {
 

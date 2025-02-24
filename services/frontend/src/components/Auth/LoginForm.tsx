@@ -17,7 +17,7 @@ export default function LoginForm({
 		onClose: () => void
 	}) {
 
-	const {ft_fetch, isLoading } = useFetch();
+	const { ft_fetch, isLoading } = useFetch();
 
 	const handleSubmit = async (fields, clear) => {
 		const { 'login-email': email, 'login-password': password } = fields;
@@ -73,7 +73,7 @@ export default function LoginForm({
 					<Submit
 						fields={['login-email', 'login-password']}
 						onSubmit={handleSubmit}
-						isLoading={isLoading}
+						loading={isLoading}
 					>
 						Login <i className="fa-solid fa-arrow-right-to-bracket"></i>
 					</Submit>
