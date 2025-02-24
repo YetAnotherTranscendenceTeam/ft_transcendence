@@ -1,12 +1,12 @@
 services:
   nginx:
-    image: nginx:1.26.3-alpine
-    volumes:
-      - ./services/nginx:/etc/nginx/templates:ro
+    build: services/nginx/
     ports:
-      - "8080:443"
+      - "8080:8080"
+      - "7979:7979"
     networks:
-      - proxy
+      - frontend
+      - db-profiles
     environment:
       - NGINX_HOST=localhost
     secrets:
@@ -24,20 +24,38 @@ services:
     ports:
       - "127.0.0.1:4242:8080"
     networks:
-      - proxy
+      - frontend
 
   credentials:
     build:
       context: services/credentials/
       dockerfile: Dockerfile.dev
     volumes:
-      - ./sqlite:/database
       - ./services/credentials/srcs:/services/credentials/srcs
       - ./modules/:/modules:ro
+      - ./sqlite:/database
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:7002:3000"
     networks:
       - credentials
+      - db-profiles
+
+  token-manager:
+    build:
+      context: services/token-manager/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/token-manager/srcs:/services/token-manager/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+    ports:
+      - 127.0.0.1:4002:3000
+    networks:
+      - frontend
+      - tokens
 
   registration:
     build:
@@ -49,26 +67,28 @@ services:
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     ports:
-      - "127.0.0.1:3001:3000"
+      - "127.0.0.1:4012:3000"
     networks:
       - credentials
-      - proxy
-
-  # password-auth:
-  #   build:
-  #     context: services/password-auth/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./services/password-auth/srcs:/services/password-auth/srcs
-  #   environment:
-  #     - PASSWORD_PEPPER=${PASSWORD_PEPPER}
-  #     - JWT_SECRET=$(JWT_SECRET)
-  #   ports:
-  #     - "127.0.0.1:3002:3000"
-  #   networks:
-  #     - credentials
-  #     - proxy
-
+      - frontend
+    
+  password-auth:
+    build:
+      context: services/password-auth/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/password-auth/srcs:/services/password-auth/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+    ports:
+      - "127.0.0.1:4022:3000"
+    networks:
+      - credentials
+      - frontend
+      - tokens
+  
   fortytwo-auth:
     build:
       context: services/fortytwo-auth/
@@ -82,30 +102,39 @@ services:
       - API42_CLIENT_ID=${API42_CLIENT_ID}
       - API42_SECRET=${API42_SECRET}
       - API42_REDIRECT_URI=${API42_REDIRECT_URI}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
-      - "127.0.0.1:3042:3000"
+      - "127.0.0.1:4042:3000"
     networks:
       - credentials
-      - proxy
+      - frontend
+      - tokens
+      - db-profiles
 
-  # profiles-api:
-  #   build:
-  #     context: services/profiles-api/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./sqlite:/database
-  #     - ./services/profiles-api/srcs:/run/srcs
-  #   ports:
-  #     - "127.0.0.1:3003:3000"
-  #   networks:
-  #     - credentials
+  db-profiles:
+    build:
+      context: services/db-profiles/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/db-profiles/srcs:/services/db-profiles/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - 127.0.0.1:7001:3000
+    networks:
+      - db-profiles
 
 networks:
-  proxy:
+  frontend:
     driver: bridge
   credentials:
     driver: bridge
-  profiles:
+  db-profiles:
+    driver: bridge
+  tokens:
     driver: bridge
 
 secrets:

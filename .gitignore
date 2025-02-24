@@ -133,4 +133,5 @@ dist
 # Misc
 secrets/
 sqlite/
+services/nginx/package-lock.json
 .DS_Store
