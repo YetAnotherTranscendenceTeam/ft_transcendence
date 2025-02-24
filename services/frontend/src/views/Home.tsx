@@ -12,7 +12,7 @@ export default function Home() {
 
 	const [isOpen, setIsOpen] = Babact.useState(false)
 
-	return <div>
+	return <div style='pointer-events: initial;'>
 		{/* <ProfileCard/> */}
 		<FormProvider formFields={['login-email*', 'login-password*', 'register-email*', 'register-password*', 'register-confirm-password*', 'register-terms*']}>
 			<AuthCard/>

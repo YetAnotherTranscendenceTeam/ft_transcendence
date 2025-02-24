@@ -11,7 +11,7 @@ export default function App() {
 	return <Router>
 		<UiProvider>
 		<Babylon />
-		<div style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;">
+		<div style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; pointer-events: none;">
 			<Routes>
 				<Route path="/login" element={<LoginView />} />
 				<Route path="/signin" element={<SigninView />} />
