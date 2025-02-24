@@ -1,4 +1,4 @@
-import YATT, { HttpError, properties } from "yatt-utils";
+import YATT, { HttpError, objects, properties } from "yatt-utils";
 import { token_manager_secret } from "../app/env.js";
 
 export default function routes(fastify, opts, done) {
@@ -13,7 +13,7 @@ export default function routes(fastify, opts, done) {
       additionalProperties: false,
     },
     response: {
-      200: {
+      201: {
         description: "Successfull account creation",
         type: "object",
         properties: {
@@ -62,12 +62,7 @@ export default function routes(fastify, opts, done) {
     } catch (err) {
       if (err instanceof HttpError) {
         if (err.statusCode == 409) {
-          return reply.code(409).send({
-            statusCode: 409,
-            code: "AUTH_EMAIL_IN_USE",
-            error: "Email Already In Use",
-            message: `This email is already associated with an account`,
-          });
+          return reply.code(409).send(objects.emailInUse);
         }
         // console.error(err);
         return err.send(reply);
@@ -100,6 +95,5 @@ async function authenticate(reply, account_id) {
     path: "/api/refresh-token",
   });
   delete auth.refresh_token;
-  reply.send(auth);
-  console.log("AUTH: ", { account_id });
+  reply.code(201).send(auth);
 }

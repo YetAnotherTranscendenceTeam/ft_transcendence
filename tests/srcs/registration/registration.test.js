@@ -1,9 +1,21 @@
 import request from "supertest";
 import crypto from "crypto";
 import { properties } from "../../../modules/yatt-utils/srcs";
+import Fastify from "fastify";
+import jwt from "@fastify/jwt"
+
+const app = Fastify();
+app.register(jwt, {
+  secret: process.env.JWT_SECRET
+})
+
 
 const baseUrl = "http://127.0.0.1:4012";
 const credentialsUrl = "http://127.0.0.1:7002";
+
+beforeAll(async () => {
+  await app.ready();
+});
 
 describe("POST /", () => {
   it("root", async () => {
@@ -154,7 +166,7 @@ describe("POST /", () => {
         .expect(201)
         .expect("Content-Type", /json/);
 
-      accounts[i].account_id = response.body.account.account_id;
+      accounts[i].account_id = app.jwt.decode(response.body.access_token).account_id;
       expect(response.body);
     });
 

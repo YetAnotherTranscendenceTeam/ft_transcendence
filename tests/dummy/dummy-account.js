@@ -2,6 +2,13 @@
 
 import crypto from "crypto";
 import request from "supertest";
+import Fastify from "fastify";
+import jwt from "@fastify/jwt"
+
+const app = Fastify();
+app.register(jwt, {
+  secret: process.env.JWT_SECRET
+})
 
 const registerUrL = "http://127.0.0.1:4012";
 const credentialsUrl = "http://127.0.0.1:7002"
@@ -10,6 +17,10 @@ const authUrl = "http://127.0.0.1:4022"
 export const users = [];
 
 const USER_COUNT = 10;
+
+beforeAll(async () => {
+  await app.ready();
+});
 
 afterAll(async () => {
   for (const user of users) {
@@ -36,7 +47,9 @@ for (let i = 0; i < USER_COUNT; i++) {
       })
       .expect(201)
       .expect("Content-Type", /json/);
-    dummy.account_id = response.body.account.account_id;
+    
+    dummy.jwt = response.body.access_token;
+    dummy.account_id = app.jwt.decode(response.body.access_token).account_id;
   });
 
   it("auth using password", async () => {

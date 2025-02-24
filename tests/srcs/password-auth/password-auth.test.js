@@ -1,6 +1,17 @@
 import request from "supertest";
 import { properties } from "../../../modules/yatt-utils/srcs";
 import crypto from "crypto";
+import Fastify from "fastify";
+import jwt from "@fastify/jwt"
+
+const app = Fastify();
+app.register(jwt, {
+  secret: process.env.JWT_SECRET
+})
+
+beforeAll(async () => {
+  await app.ready();
+});
 
 const baseUrl = "http://127.0.0.1:4022";
 const registerUrL = "http://127.0.0.1:4012";
@@ -147,7 +158,13 @@ describe("POST /", () => {
       })
       .expect(201)
       .expect("Content-Type", /json/);
-    dummy.account_id = response.body.account.account_id;
+    
+    expect(response.body).toEqual({
+      access_token: expect.any(String),
+      expire_at: expect.any(String)
+    });
+
+    dummy.account_id = app.jwt.decode(response.body.access_token).account_id;
   });
 
   it("auth using password", async () => {
