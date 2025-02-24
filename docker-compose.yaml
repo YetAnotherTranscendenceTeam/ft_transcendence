@@ -66,6 +66,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
       - "127.0.0.1:4012:3000"
     networks:

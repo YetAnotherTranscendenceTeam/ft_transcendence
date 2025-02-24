@@ -59,10 +59,11 @@ export default function passwordRoutes(fastify, opts, done) {
         return reply.send(auth);
       }
     } catch (err) {
-      if (err instanceof HttpError && err.statusCode !== 404) {
-        return err.send(reply);
+      if (err instanceof HttpError) {
+        if (err.statusCode !== 404) return err.send(reply);
+      } else {
+        throw err;
       }
-      throw err;
     }
     new HttpError.Unauthorized().send(reply);
   });

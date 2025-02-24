@@ -8,6 +8,7 @@ import Button from "../../ui/Button";
 import GoogleAuthButton from "./GoogleAuthButton";
 import FortyTwoAuthButton from "./FortyTwoAuthButton";
 import Separator from "../../ui/Separator";
+import useFetch from "../../hooks/useFetch";
 
 export default function RegisterForm({
 		isOpen = false,
@@ -16,6 +17,33 @@ export default function RegisterForm({
 		isOpen: boolean,
 		onClose: () => void
 	}) {
+
+
+	const {ft_fetch} = useFetch();
+
+	const handleSubmit = async (fields, clear) => {
+		const { 'register-email': email, 'register-password': password } = fields;
+
+		const response = await ft_fetch(`${config.API_URL}/register/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ email: email.value, password: password.value })
+			}, {
+				show_error: true,
+				error_messages: {
+					409: 'Email already in use',
+				}
+			}
+		);
+		if (response) {
+			const { access_token, expire_at } = response;
+			console.log(access_token, expire_at);
+			clear();
+			onClose();
+		}
+	}
 
 	return <Form
 		className="gap-0"
@@ -60,7 +88,10 @@ export default function RegisterForm({
 		{
 			isOpen &&
 			<div className="flex items-center justify-between">
-				<Submit fields={['register-email', 'register-password', 'register-confirm-password', 'register-terms']}>
+				<Submit
+					fields={['register-email', 'register-password', 'register-confirm-password', 'register-terms']}
+					onSubmit={handleSubmit}
+				>
 					Register <i className="fa-solid fa-user-plus"></i>
 				</Submit>
 				<Button className='icon' onClick={onClose}>

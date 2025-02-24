@@ -1,6 +1,7 @@
 "use strict";
 
 import Fastify from "fastify";
+import fastifyCookie from "@fastify/cookie";
 import fastifyFormbody from "@fastify/formbody";
 import router from "./router.js";
 import YATT from "yatt-utils";
@@ -12,7 +13,7 @@ export default function build(opts = {}) {
   app.register(cors, {
     origin: true,
     methods: ['GET', 'POST'], // Allowed HTTP methods
-    credentials: true, // Allow credentials (cookies, authentication)
+    // credentials: true, // Allow credentials (cookies, authentication)
   });
 
   if (process.env.ENV !== "production") {
@@ -29,6 +30,7 @@ export default function build(opts = {}) {
     });
   }
 
+  app.register(fastifyCookie);
   app.register(fastifyFormbody);
 
   app.register(router);

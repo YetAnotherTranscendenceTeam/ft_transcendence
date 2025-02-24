@@ -1,4 +1,5 @@
 import YATT, { HttpError, properties } from "yatt-utils";
+import { token_manager_secret } from "../app/env.js";
 
 export default function routes(fastify, opts, done) {
   let schema = {
@@ -16,18 +17,10 @@ export default function routes(fastify, opts, done) {
         description: "Successfull account creation",
         type: "object",
         properties: {
-          code: properties.code,
-          message: properties.message,
-          account: {
-            type: "object",
-            properties: {
-              account_id: properties.account_id,
-              email: properties.email,
-            },
-            required: ["account_id", "email"],
-          },
+          access_token: properties.access_token,
+          expire_at: properties.expire_at,
         },
-        required: ["code", "message", "account"],
+        required: ["access_token", "expire_at"],
       },
       409: {
         description: "Email address is already associated with an account",
@@ -65,14 +58,7 @@ export default function routes(fastify, opts, done) {
         email: email,
         "auth-method": "password",
       });
-      reply.code(201).send({
-        code: "REGISTER_SUCCESS",
-        message: "You account has successfully been created",
-        account: {
-          account_id: newAccount.account_id,
-          email: email,
-        },
-      });
+      return authenticate(reply, newAccount.account_id);
     } catch (err) {
       if (err instanceof HttpError) {
         if (err.statusCode == 409) {
@@ -97,4 +83,23 @@ const pepper = process.env.PASSWORD_PEPPER
 if (!pepper) {
   console.error("Missing environment variable: PASSWORD_PEPPER");
   process.exit(1);
+}
+
+async function authenticate(reply, account_id) {
+  const auth = await YATT.fetch(`http://token-manager:3000/token/${account_id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token_manager_secret}`,
+      },
+    }
+  );
+  reply.setCookie("refresh_token", auth.refresh_token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+    path: "/api/refresh-token",
+  });
+  delete auth.refresh_token;
+  reply.send(auth);
+  console.log("AUTH: ", { account_id });
 }
