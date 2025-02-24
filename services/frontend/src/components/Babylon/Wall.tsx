@@ -27,6 +27,7 @@ export default class Wall {
 		console.log("Texture loaded successfully.", container);
 		// return container.materials[0] as StandardMaterial;
 		this._material = container.materials[0] as StandardMaterial;
+		this._material.backFaceCulling = true;
 	}
 
 	private createWallModel = (name : string, position : BABYLON.Vector2, size : BABYLON.Vector2, color : Color3) => {
