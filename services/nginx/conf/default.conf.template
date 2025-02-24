@@ -32,35 +32,40 @@ server {
         return 404;
     }
 
-    location /api/register/ {
-        rewrite ^/api/register/(.*)$ /$1 break;
+    location /register/ {
+        rewrite ^/register/(.*)$ /$1 break;
         proxy_pass http://registration:3000;
     }
 
-    location /api/auth/ {
+    location /auth/ {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        rewrite ^/api/auth/(.*)$ /$1 break;
+        rewrite ^/auth/(.*)$ /$1 break;
 
         proxy_pass http://password-auth:3000;
     }
 
-    location /api/auth/fortytwo/ {
-        rewrite ^/api/auth/fortytwo/(.*)$ /$1 break;
+    location /auth/fortytwo/ {
+        rewrite ^/auth/fortytwo/(.*)$ /$1 break;
         proxy_pass http://fortytwo-auth:3000;
     }
 
-    # location /api/profiles/ {
-    #     rewrite ^/api/profiles/(.*)$ /$1 break;
-    #     proxy_pass http://profiles:3000;
-    # }
-
-    location = /api/token/refresh {
-        rewrite ^/api/token/refresh$ /refresh break;
+    location = /token/refresh {
+        rewrite ^/token/refresh$ /refresh break;
         proxy_pass http://token-manager:3000;
+    }
+
+    location /users/ {
+        rewrite ^/users/(.*)$ /$1 break;
+        proxy_pass http://users:3000;
+    }
+
+    location = /me {
+        rewrite ^/me$ /me break;
+        proxy_pass http://users:3000;
     }
 }
 

@@ -22,16 +22,13 @@ export default function build(opts = {}) {
 
     YATT.setUpSwagger(app, {
       info: {
-        title: "[PLACEHOLDER]",
-        description: "[PLACEHOLDER]",
+        title: "Users",
+        description: "Serves public data about users",
         version: "1.0.0",
       },
       servers: [
-        {
-          url: "http://localhost:[PLACEHOLDER]",
-          description: "Development network",
-        },
-        { url: "http://${SERVICE}:3000", description: "Containers network" },
+        { url: "http://localhost:4003", description: "Development network" },
+        { url: "http://users:3000", description: "Containers network" },
       ],
     });
   } else {
@@ -44,6 +41,8 @@ export default function build(opts = {}) {
       const decoded = app.jwt.verify(token);
       request.token = token;
       request.account_id = decoded.account_id;
+      console.log("DANS LE truc qui auth: ", decoded.account_id);
+      console.log('sdfsdfsd:', request.account_id);
     } catch (err) {
       return false;
     }

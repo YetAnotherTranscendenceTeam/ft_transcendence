@@ -149,7 +149,7 @@ async function authenticate(reply, account_id) {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    path: "/api/refresh-token",
+    path: "/refresh-token",
   });
   //TODO: fix expire_at
   reply.redirect(`${frontend_url}/fortytwo?token=${auth.access_token}&expire_at=${new Date().toISOString()}`);

@@ -92,7 +92,7 @@ async function authenticate(reply, account_id) {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    path: "/api/refresh-token",
+    path: "/refresh-token",
   });
   delete auth.refresh_token;
   reply.code(201).send(auth);
