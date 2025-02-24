@@ -21,6 +21,7 @@
     "@babylonjs/core": "^7.50.0",
     "@babylonjs/inspector": "^7.50.0",
     "@babylonjs/loaders": "^7.50.0",
+    "@babylonjs/materials": "^7.50.0",
     "css-loader": "^7.1.2",
     "style-loader": "^4.0.0"
   }
