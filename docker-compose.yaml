@@ -130,6 +130,21 @@ services:
     networks:
       - db-profiles
 
+  users:
+    build:
+      context: services/users/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/users/srcs:/services/users/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - 127.0.0.1:4003:3000
+    networks:
+     - frontend
+     - db-profiles
+
 networks:
   frontend:
     driver: bridge

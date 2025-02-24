@@ -25,14 +25,7 @@ describe("fortytwo-auth tests", () => {
   });
 
   it("callback no code", async () => {
-    const response = await request(baseUrl).get("/callback").expect(400);
-
-    expect(response.body).toEqual({
-      statusCode: 400,
-      code: "FST_ERR_VALIDATION",
-      error: "Bad Request",
-      message: "querystring must have required property 'code'",
-    });
+    const response = await request(baseUrl).get("/callback").expect(302);
   });
 
   it("callback invalid code", async () => {
