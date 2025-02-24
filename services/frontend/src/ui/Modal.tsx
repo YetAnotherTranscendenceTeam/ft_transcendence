@@ -34,7 +34,6 @@ export default function Modal({
 	}
 	
 	const handleEscape = (e: any) => {
-		console.log(e.key);
 		if (e.key === 'Escape') onClose();
 	}
 	

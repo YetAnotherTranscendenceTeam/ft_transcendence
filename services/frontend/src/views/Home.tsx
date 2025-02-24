@@ -49,7 +49,7 @@ export default function Home() {
 		>
 			Success
 		</button>
-		<ConfirmProfileModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
+		<ConfirmProfileModal isOpen={isOpen} onClose={() => setIsOpen(false)} closeOnEscape />
 		<button onClick={() => setIsOpen(true)}>Modal</button>
 	</div>
 }

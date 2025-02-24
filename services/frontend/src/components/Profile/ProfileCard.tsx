@@ -3,9 +3,14 @@ import Card from "../../ui/Card";
 import "./profile.css";
 import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
+import Separator from "../../ui/Separator";
+import SocialManager from "./SocialManager";
 
 export default function ProfileCard({ ...props }) {
-	return (<Card className={`profile-card`} {...props}>
+
+	const [isOpen, setIsOpen] = Babact.useState(false) 
+
+	return <Card className={`profile-card left flex flex-col gap-4`} {...props}>
 		<div className='profile-card-header flex items-center gap-2 justify-between'>
 			<div className='flex flex-row items-center gap-2'>
 				<Avatar src="https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG" name="bwisniew"/>
@@ -15,10 +20,17 @@ export default function ProfileCard({ ...props }) {
 				</div>
 			</div>
 			<div className='flex flex-row items-center gap-2'>
-				<Button>
-					Open <i className="fa-solid fa-up-right-and-down-left-from-center"></i>
+				<Button onClick={() => setIsOpen(!isOpen)}>
+					{	!isOpen 
+						? <>Open <i className="fa-solid fa-up-right-and-down-left-from-center"></i></>
+						: <>Close <i className="fa-solid fa-down-left-and-up-right-to-center"></i></>
+					}
 				</Button>
 			</div>
 		</div>
-	</Card>);
+		<div className={`profile-card-body flex flex-col gap-4 w-full ${isOpen ? 'open' : ''}`}>
+			<Separator/>
+			<SocialManager />
+		</div>
+	</Card>;
 }

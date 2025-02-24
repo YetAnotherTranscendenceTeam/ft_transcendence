@@ -47,9 +47,9 @@ export default function ConfirmProfileModal({ isOpen, onClose, ...props}) {
 				onImageRemove={handleImageRemove}
 			/>
 
-			<div className="flex justify-end">
+			<div className="confirm-profile-modal-footer flex justify-end">
 				<Submit fields={['profile-username', 'profile-picture']}>
-					Save Profile <i className="fa-solid fa-user-check"></i>
+					Confirm my profile <i className="fa-solid fa-user-check"></i>
 				</Submit>
 			</div>
 		</Form>

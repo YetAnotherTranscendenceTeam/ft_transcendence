@@ -14,6 +14,43 @@
 	font-size: 90%;
 }
 
+.profile-card-body {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.3s ease;
+}
+
+.profile-card-body.open {
+	max-height: 50vh;
+}
+
+
+
+/* Social Manager */
+
+.social-manager {
+	min-height: 50vh;
+}
+
+.social-manager-tabbar {
+	font-size: small;
+	border-radius: 8px 8px 0 0;
+	background-color: var(--bg-2);
+	overflow: hidden;
+}
+
+.social-manager-tabbar .button {
+	font-size: small;
+	border-radius: 0;
+	flex: 1;
+}
+
+.social-manager-tabbar .button.selected {
+	background-color: var(--bg-3);
+}
+
+
+/* Confirm Card */
 
 .confirm-profile-modal {
 	width: 400px;
@@ -23,4 +60,8 @@
 	font-weight: bold;
 	font-size: x-large;
 	margin-bottom: 32px;
+}
+
+.confirm-profile-modal-footer {
+	margin-top: 4rem;
 }
