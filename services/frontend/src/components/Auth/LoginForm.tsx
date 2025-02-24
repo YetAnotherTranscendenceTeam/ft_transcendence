@@ -8,6 +8,7 @@ import Separator from "../../ui/Separator";
 import Submit from "../../ui/Submit";
 import Button from "../../ui/Button";
 import useFetch from "../../hooks/useFetch";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function LoginForm({
 		isOpen = false,
@@ -18,6 +19,7 @@ export default function LoginForm({
 	}) {
 
 	const { ft_fetch, isLoading } = useFetch();
+	const { auth } = useAuth();
 
 	const handleSubmit = async (fields, clear) => {
 		const { 'login-email': email, 'login-password': password } = fields;
@@ -38,9 +40,9 @@ export default function LoginForm({
 
 		if (response) {
 			const { access_token, expire_at } = response;
-			console.log(access_token, expire_at);
 			clear();
 			onClose();
+			auth(access_token, expire_at);
 		}
 		else {
 			clear(['login-password']);

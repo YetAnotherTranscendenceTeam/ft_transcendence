@@ -1,6 +1,7 @@
 import Babact from "babact";
 import config from "../../config";
 import useToast from "../../hooks/useToast";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function FortyTwoAuthButton({
 		isOpen = false
@@ -9,13 +10,14 @@ export default function FortyTwoAuthButton({
 	}) {
 
 	const { createToast } = useToast();
+	const { auth } = useAuth();
 
 	const handleMessage = (event) => {
 		if (event.origin !== window.location.origin) return;
 
 		const { token, expire_at } = event.data;
 		if (token)
-			console.log(token, expire_at);
+			auth(token, expire_at);
 		else {
 			createToast('Authentication failed', 'danger', 7000);
 		}
@@ -29,9 +31,9 @@ export default function FortyTwoAuthButton({
 	Babact.useEffect(() => {
 		if (isOpen) {
 			window.addEventListener('message', handleMessage);
-			return () => {
-				window.removeEventListener('message', handleMessage);
-			}
+		}
+		return () => {
+			window.removeEventListener('message', handleMessage);
 		}
 	}, [isOpen]);
 

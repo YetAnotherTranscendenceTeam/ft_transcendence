@@ -7,16 +7,19 @@ import Button from "../ui/Button"
 import Modal from "../ui/Modal"
 import ConfirmProfileModal from "../components/Profile/ConfirmProfileModal"
 import Spinner from "../ui/Spinner"
+import { useAuth } from "../contexts/useAuth"
 
 export default function Home() {
 
 	const { createToast, removeToast } = useToast()
 
 	const [isOpen, setIsOpen] = Babact.useState(false)
+	const { me } = useAuth()
 
 	return <div>
-		{/* <ProfileCard/> */}
-			<AuthCard/>
+		{
+			me ? <ProfileCard me={me}/> : <AuthCard/>
+		}
 		<button
 			onClick={() => {
 				createToast((id) => (

@@ -9,6 +9,7 @@ import GoogleAuthButton from "./GoogleAuthButton";
 import FortyTwoAuthButton from "./FortyTwoAuthButton";
 import Separator from "../../ui/Separator";
 import useFetch from "../../hooks/useFetch";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function RegisterForm({
 		isOpen = false,
@@ -20,6 +21,7 @@ export default function RegisterForm({
 
 
 	const {ft_fetch, isLoading} = useFetch();
+	const {auth} = useAuth();
 
 	const handleSubmit = async (fields, clear) => {
 		const { 'register-email': email, 'register-password': password } = fields;
@@ -40,9 +42,9 @@ export default function RegisterForm({
 		);
 		if (response) {
 			const { access_token, expire_at } = response;
-			console.log(access_token, expire_at);
 			clear();
 			onClose();
+			auth(access_token, expire_at);
 		}
 	}
 

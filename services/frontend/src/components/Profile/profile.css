@@ -2,7 +2,7 @@
 	position: absolute;
 	bottom: 24px;
 	right: 24px;
-	min-width: 300px;
+	width: 300px;
 }
 
 .profile-card-header h1 {
@@ -29,12 +29,12 @@
 /* Social Manager */
 
 .social-manager {
-	min-height: 50vh;
+	height: 100%;
 }
 
 .social-manager-tabbar {
 	font-size: small;
-	border-radius: 8px 8px 0 0;
+	border-radius: 8px;
 	background-color: var(--bg-2);
 	overflow: hidden;
 }
@@ -46,9 +46,72 @@
 }
 
 .social-manager-tabbar .button.selected {
+	background-color: var(--bg-4);
+}
+
+.social-manager-tab {
+	overflow-y: auto;
+	max-height: 40vh;
+	overflow-x: hidden;
+	max-width: 0;
+	width: 100%;
+	transition: max-width 0.3s ease;
+	padding: 1rem 0;
+	box-sizing: border-box;
+}
+
+
+.social-manager-tab.open {
+	max-width: 100%;
+}
+
+.social-manager-tab::-webkit-scrollbar {
+	width: 4px;
+}
+
+.social-manager-tab::-webkit-scrollbar-thumb {
+	background-color: var(--primary-color);
+	border-radius: 2px;
+}
+
+.social-manager-tab::-webkit-scrollbar-track {
+	background-color: transparent;
+	margin: 8px;
+}
+
+.social-manager-follow-card {
+	padding: 0.5rem 1rem;
+	box-sizing: border-box;
+	font-size: small;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.social-manager-follow-card:hover {
 	background-color: var(--bg-3);
 }
 
+.social-manager-follow-card h1 {
+	font-weight: bold;
+}
+
+.social-manager-follow-card h2 {
+	color: var(--fg-3);
+}
+
+
+.social-manager-follow-card .button {
+	font-size: medium;
+	display: none;
+}
+
+.social-manager-follow-card:hover .button {
+	display: block;
+}
+
+.social-manager-follow-card .button:hover {
+	background-color: var(--danger-color);
+}
 
 /* Confirm Card */
 

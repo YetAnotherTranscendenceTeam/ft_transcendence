@@ -29,6 +29,6 @@ export default function Avatar({className = '', src, name, status, ...props}: {c
 	return <div className={`avatar ${className}`} style={`background-color: ${stringToColour(name)};`} {...props}>
 		<p>{initials}</p>
 		{loading ? null : <img src={src} alt="avatar"/>}
-		<span style={`background-color: green;`} />
+		<span style={`background-color: var(--success-color);`} />
 	</div>
 }
