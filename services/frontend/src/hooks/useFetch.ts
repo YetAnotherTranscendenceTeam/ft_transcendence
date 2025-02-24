@@ -8,7 +8,7 @@ export default function useFetch() {
 
 	const ft_fetch = async (
 		url: string,
-		fetch_options: Object,
+		fetch_options?: RequestInit,
 		option: {
 			show_error?: boolean
 			success_message?: string,
@@ -16,8 +16,15 @@ export default function useFetch() {
 		} = {}
 	) => {
 		setIsLoading(true);
+		const token = localStorage.getItem('access_token');
 		try {
-			const response = await fetch(url, fetch_options);
+			const response = await fetch(url, {
+				...fetch_options,
+				headers: {
+					...fetch_options.headers,
+					'Authorization': `Bearer ${token}`
+				}
+			});
 			if (response.ok) {
 				const data = await response.json();
 				if (option.success_message)

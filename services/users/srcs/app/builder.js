@@ -41,8 +41,6 @@ export default function build(opts = {}) {
       const decoded = app.jwt.verify(token);
       request.token = token;
       request.account_id = decoded.account_id;
-      console.log("DANS LE truc qui auth: ", decoded.account_id);
-      console.log('sdfsdfsd:', request.account_id);
     } catch (err) {
       return false;
     }

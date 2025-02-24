@@ -5,12 +5,11 @@ import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
 import Separator from "../../ui/Separator";
 import SocialManager from "./SocialManager";
-import { Profile, useAuth } from "../../contexts/useAuth";
+import { Profile } from "../../contexts/useAuth";
 
 export default function ProfileCard({ me, ...props } : { me: Profile, [key: string]: any }) {
 
-	const [isOpen, setIsOpen] = Babact.useState(false)
-	const { logout } = useAuth();
+	const [isOpen, setIsOpen] = Babact.useState(false);
 
 	return <Card className={`profile-card left flex flex-col gap-4`} {...props}>
 		<div className='profile-card-header flex items-center gap-2 justify-between'>
@@ -18,7 +17,7 @@ export default function ProfileCard({ me, ...props } : { me: Profile, [key: stri
 				<Avatar src={me.avatar} name={me.username}/>
 				<div className='flex flex-col gap-1'>
 					<h1>{me.username}</h1>
-					<h2>{me.elo ? me.elo : 0} Elo</h2>
+					<h2>{me.elo ? me.elo : '0'} Elo</h2>
 				</div>
 			</div>
 			<div className='flex flex-row items-center gap-2'>
