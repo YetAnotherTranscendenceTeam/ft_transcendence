@@ -18,8 +18,9 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	const { ft_fetch } = useFetch();
 
 	const fetch_me = async () => {
+		if (!localStorage.getItem('access_token'))
+			return;
 		const response = await ft_fetch(`${config.API_URL}/me`, {});
-		console.log('fetch_me', response);
 		if (response)
 			setMe(response);
 		else
@@ -27,7 +28,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	};
 
 	const auth = async (token, expire_at) => {
-		console.log('auth', token, expire_at);
 		localStorage.setItem('access_token', token);
 		localStorage.setItem('expire_at', expire_at);
 		fetch_me();
@@ -39,6 +39,10 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		localStorage.removeItem('expire_at');
 	};
 
+	const refresh = () => {
+		fetch_me();
+	};
+
 	Babact.useEffect(() => {
 		fetch_me();
 	}, []);
@@ -46,7 +50,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	return (
 		<AuthContext.Provider
 			value={{
-				me, auth, logout
+				me, auth, logout, refresh
 			}}
 		>
 			{children}

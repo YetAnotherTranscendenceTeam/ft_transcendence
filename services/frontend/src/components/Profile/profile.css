@@ -17,11 +17,16 @@
 .profile-card-body {
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.3s ease;
+	padding-top: 0;
+	transition:
+		max-height 0.3s ease,
+		padding-top 0.3s ease;
+	;
 }
 
 .profile-card-body.open {
 	max-height: 50vh;
+	padding-top: 1rem;
 }
 
 
@@ -29,7 +34,6 @@
 /* Social Manager */
 
 .social-manager {
-	height: 100%;
 }
 
 .social-manager-tabbar {
@@ -52,17 +56,21 @@
 .social-manager-tab {
 	overflow-y: auto;
 	max-height: 40vh;
+	min-height: 30vh;
 	overflow-x: hidden;
-	max-width: 0;
+	/* max-width: 0; */
 	width: 100%;
-	transition: max-width 0.3s ease;
+	transition: transform 0.3s ease;
 	padding: 1rem 0;
 	box-sizing: border-box;
+	transform: translateX(100%);
+
 }
 
 
 .social-manager-tab.open {
-	max-width: 100%;
+	/* max-width: 100%; */
+	transform: translateX(0);
 }
 
 .social-manager-tab::-webkit-scrollbar {
@@ -111,6 +119,10 @@
 
 .social-manager-follow-card .button:hover {
 	background-color: var(--danger-color);
+}
+
+.social-manager-tab-center {
+	height: 30vh;
 }
 
 /* Confirm Card */

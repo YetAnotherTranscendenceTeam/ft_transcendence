@@ -8,157 +8,11 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	const [selected, setSelected] = Babact.useState('follow');
 
 	const follows: Profile[]= [
-		{
-			username: 'bwisniew',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'lcottet',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/lecottet.jpg'
-		},
-		{
-			username: 'jgigault',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-		{
-			username: 'ibertran',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/jgigault.jpg'
-		},
-
+		// {
+		// 	username: 'bwisniew',
+		// 	elo: 1200,
+		// 	avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
+		// },
 	]
 
 	return <div className={`social-manager ${className}`} {...props}>
@@ -166,13 +20,13 @@ export default function SocialManager({ className = '', children, ...props }: { 
 			<Button className={`ghost ${selected === 'follow' ? 'selected' : ''}`} onClick={() => setSelected('follow')}>
 				<i className="fa-solid fa-user-group"></i> Follow
 			</Button>
-			<Button className={`ghost ${selected === 'friend' ? 'selected' : ''}`} onClick={() => setSelected('friend')}>
+			<Button className={`ghost ${selected === 'add' ? 'selected' : ''}`} onClick={() => setSelected('add')}>
 				<i className="fa-solid fa-user-plus"></i> Add
 			</Button>
 		</div>
 		<div className={`social-manager-tab flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
 			{
-				follows.map((follow) => <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
+				follows.length ? follows.map((follow) => <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
 					<div className='flex flex-row items-center gap-2'>
 						<Avatar src={follow.avatar} name={follow.username}/>
 						<div className=' flex flex-col gap-1'>
@@ -186,6 +40,12 @@ export default function SocialManager({ className = '', children, ...props }: { 
 						</Button>
 					</div>
 				</div>)
+				: <div className='social-manager-tab-center flex flex-col w-full items-center justify-center h-full gap-4'>
+					No follows yet
+					<Button className="primary" onClick={() => setSelected('add')}>
+						Add one now <i className="fa-solid fa-plus"></i>
+					</Button>
+				</div>
 			}
 		</div>
 	</div>

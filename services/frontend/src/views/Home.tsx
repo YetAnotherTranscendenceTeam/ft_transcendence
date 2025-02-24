@@ -1,12 +1,9 @@
 import Babact from "babact"
 import ProfileCard from "../components/Profile/ProfileCard"
 import AuthCard from "../components/Auth/AuthCard"
-import { Form } from "../contexts/useForm"
 import useToast from "../hooks/useToast"
 import Button from "../ui/Button"
-import Modal from "../ui/Modal"
 import ConfirmProfileModal from "../components/Profile/ConfirmProfileModal"
-import Spinner from "../ui/Spinner"
 import { useAuth } from "../contexts/useAuth"
 
 export default function Home() {

@@ -14,11 +14,10 @@ export default function FortyTwoAuthButton({
 
 	const handleMessage = (event) => {
 		if (event.origin !== window.location.origin) return;
-
-		const { token, expire_at } = event.data;
+		const { token, expire_at, statusCode } = event.data;
 		if (token)
 			auth(token, expire_at);
-		else {
+		else if (statusCode === 401) {
 			createToast('Authentication failed', 'danger', 7000);
 		}
 

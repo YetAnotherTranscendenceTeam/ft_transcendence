@@ -13,6 +13,7 @@ export default function ImageSelector({
 		onChange,
 		required,
 		onImageRemove,
+		defaultValue,
 		...props
 	}: {
 		label: string,
@@ -21,6 +22,7 @@ export default function ImageSelector({
 		onChange: (value: string) => void,
 		required?: boolean,
 		onImageRemove?: (url: string) => void,
+		defaultValue?: string,
 		[key: string]: any
 	}) {
 
@@ -37,6 +39,11 @@ export default function ImageSelector({
 		updateField(field, url);
 		updateFieldValidity(field, true);
 	}
+
+	Babact.useEffect(() => {
+		if (defaultValue)
+			updateField(field, defaultValue);
+	}, []);
 
 	return <div className='image-selector' {...props}>
 		<label>
