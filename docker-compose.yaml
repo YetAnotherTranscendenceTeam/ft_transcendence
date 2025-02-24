@@ -21,6 +21,8 @@ services:
       - ./services/frontend/src:/services/frontend/src
       - ./services/frontend/public:/services/frontend/public
       - ./modules/:/modules:ro
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
     ports:
       - "127.0.0.1:4242:8080"
     networks:

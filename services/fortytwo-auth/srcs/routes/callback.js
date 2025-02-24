@@ -19,7 +19,6 @@ export default function routes(fastify, opts, done) {
     tags: ["Authentication"],
     query: {
       type: "object",
-      required: ["code"],
       properties: {
         code: { type: "string", description: "OAuth authorization code" },
       },
@@ -37,6 +36,9 @@ export default function routes(fastify, opts, done) {
   fastify.get("/callback", { schema }, async function handler(request, reply) {
     const { code } = request.query;
 
+    if (!code) {
+      return new HttpError.Unauthorized().redirect(reply, `${frontend_url}/fortytwo`)
+    }
     try {
       const user = await getIntraUser(code);
       try {

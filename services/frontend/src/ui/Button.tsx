@@ -17,15 +17,21 @@ export default function Button({
 		[key: string]: any
 	}) {
 	
+	if (!loading)
+		return <a
+			className={`button ${className ? className : ''} ${disabled ? 'disabled' : ''}`}
+			onClick={(e) => (!disabled && onClick) && onClick(e)}
+			{...props}
+		>
+			{children}
+		</a>
+
 	return <a
-		className={`button ${className ? className : ''} ${disabled || loading ? 'disabled' : ''}`}
-		onClick={(e) => (!disabled && onClick) && onClick(e)}
-		{...props}
+		className={`button ${className ? className : ''} disabled`}
 	>
-		{
-			!loading
-			? (children)
-			: (<><Spinner/> Loading...</>)
-		}
+		<Spinner/>
+		Loading...
 	</a>
+		
+	
 }

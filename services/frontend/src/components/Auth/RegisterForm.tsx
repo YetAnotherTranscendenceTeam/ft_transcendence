@@ -61,6 +61,7 @@ export default function RegisterForm({
 				error="Invalid Email"
 				required
 				field="register-email"
+				pattern={config.EMAIL_REGEX}
 				/>
 			<Input
 				label="Password"

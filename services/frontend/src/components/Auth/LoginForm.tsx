@@ -31,7 +31,7 @@ export default function LoginForm({
 		}, {
 			show_error: true,
 			error_messages: {
-				401: 'Invalid Credentials',
+				401: 'Invalid email or password',
 			}
 		});
 
@@ -40,6 +40,9 @@ export default function LoginForm({
 			console.log(access_token, expire_at);
 			clear();
 			onClose();
+		}
+		else {
+			clear(['login-password']);
 		}
 	}
 
@@ -53,10 +56,11 @@ export default function LoginForm({
 
 				<Input
 					label="Email"
-					type="email"
 					error="Invalid Email"
 					required
 					field="login-email"
+					type="text"
+					pattern='[a-zA-Z0-9._+\-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'
 				/>
 				<Input
 					label="Password"

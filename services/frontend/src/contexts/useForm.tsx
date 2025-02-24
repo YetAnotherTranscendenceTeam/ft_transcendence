@@ -35,8 +35,20 @@ export const Form = ({ formFields = {}, className, children } : {formFields?: an
 		setFields(newFields);
 	}
 
-	const clearFields = () => {
-		setFields(initFields(formFields));
+	const clearFields = (fieldsName = []) => {
+		if (fieldsName.length === 0)
+			setFields(initFields(formFields));
+		else {
+			const newFields = {...fields};
+			const initialFields = initFields(formFields);
+			for (let name of fieldsName) {
+				console.log(name);
+				newFields[name] = initialFields[name];
+				//newFields[name].isValid = newFields[name].required;
+			}
+			console.log(newFields);
+			setFields(newFields);
+		}
 	}
 
 	const checkValidity = (fieldsName) => {
