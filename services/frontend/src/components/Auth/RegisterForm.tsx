@@ -34,6 +34,7 @@ export default function RegisterForm({
 				show_error: true,
 				error_messages: {
 					409: 'Email already in use',
+					400: 'Invalid email'
 				}
 			}
 		);
@@ -60,8 +61,7 @@ export default function RegisterForm({
 				type="email"
 				error="Invalid Email"
 				required
-				field="register-email"
-				pattern={config.EMAIL_REGEX}
+				field="register-email"	
 				/>
 			<Input
 				label="Password"

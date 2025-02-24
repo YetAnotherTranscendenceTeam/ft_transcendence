@@ -32,6 +32,7 @@ export default function LoginForm({
 			show_error: true,
 			error_messages: {
 				401: 'Invalid email or password',
+				400: 'Invalid email'
 			}
 		});
 
@@ -59,8 +60,7 @@ export default function LoginForm({
 					error="Invalid Email"
 					required
 					field="login-email"
-					type="text"
-					pattern='[a-zA-Z0-9._+\-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}'
+					type="email"
 				/>
 				<Input
 					label="Password"
