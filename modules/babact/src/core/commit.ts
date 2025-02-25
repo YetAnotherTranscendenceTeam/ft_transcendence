@@ -84,6 +84,8 @@ function updateDom(dom: HTMLElement, prevProps: ElementProps, nextProps: Element
 }
 
 function commitDeletion(fiber: IFiber, domParent: HTMLElement | Text) {
+	if (!fiber)
+		return;
 	removeEffect(fiber);
 	if (fiber.dom) {
 		domParent.removeChild(fiber.dom);
