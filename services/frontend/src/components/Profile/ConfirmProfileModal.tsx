@@ -8,10 +8,11 @@ import Submit from "../../ui/Submit";
 import useFetch from "../../hooks/useFetch";
 import config from "../../config";
 import { useAuth } from "../../contexts/useAuth";
+import Button from "../../ui/Button";
 
 export default function ConfirmProfileModal({ ...props}) {
 
-	const { refresh, me } = useAuth();
+	const { refresh, me, logout } = useAuth();
 
 	const [images, setImages] = Babact.useState([
 		{ url: 'https://i.pravatar.cc/150?img=1', isRemovable: false },
@@ -23,6 +24,16 @@ export default function ConfirmProfileModal({ ...props}) {
 		{ url: 'https://i.pravatar.cc/150?img=7', isRemovable: false },
 		{ url: 'https://i.pravatar.cc/150?img=8', isRemovable: false },
 		{ url: 'https://i.pravatar.cc/150?img=9', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=10', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=11', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=12', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=13', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=14', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=15', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=16', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=17', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=18', isRemovable: false },
+		{ url: 'https://i.pravatar.cc/150?img=19', isRemovable: false },
 	]);
 
 	const { ft_fetch , isLoading } = useFetch();
@@ -75,9 +86,12 @@ export default function ConfirmProfileModal({ ...props}) {
 				defaultValue={me.avatar}
 			/>
 
-			<div className="confirm-profile-modal-footer flex justify-end">
-				<Submit fields={['profile-username', 'profile-picture']} onSubmit={handleSubmit}>
-					Confirm my profile <i className="fa-solid fa-user-check"></i>
+			<div className="confirm-profile-modal-footer flex justify-end gap-2">
+				<Button className="danger" onClick={() => logout()}>
+					Logout <i className="fa-solid fa-arrow-right-from-bracket"></i>
+				</Button>
+				<Submit fields={['profile-username', 'profile-picture']} onSubmit={handleSubmit} loading={isLoading}>
+					Confirm <i className="fa-solid fa-user-check"></i>
 				</Submit>
 			</div>
 		</Form>

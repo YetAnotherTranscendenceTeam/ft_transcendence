@@ -38,6 +38,6 @@ export default function FortyTwoAuthButton({
 
 	return <a onClick={openPopup} className='fortytwo-auth-button flex items-center'>
 		<img src='/assets/images/fortytwo-logo.png'/>
-		<p>Login with 42intra</p>
+		<p>Sign in with 42intra</p>
 	</a>
 }

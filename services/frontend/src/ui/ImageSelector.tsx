@@ -50,7 +50,7 @@ export default function ImageSelector({
 			{label}
 			{required && <span>*</span>}
 		</label>
-		<div className='image-selector-container'>
+		<div className='image-selector-container scrollbar'>
 			{
 				images.map((image: Image, i: number) => (
 					<div className='image-selector-item'>

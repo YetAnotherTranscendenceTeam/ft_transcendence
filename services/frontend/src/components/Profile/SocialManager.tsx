@@ -24,12 +24,12 @@ export default function SocialManager({ className = '', children, ...props }: { 
 				<i className="fa-solid fa-user-plus"></i> Add
 			</Button>
 		</div>
-		<div className={`social-manager-tab flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
+		<div className={`social-manager-tab scrollbar flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
 			{
 				follows.length ? follows.map((follow) => <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
 					<div className='flex flex-row items-center gap-2'>
 						<Avatar src={follow.avatar} name={follow.username}/>
-						<div className=' flex flex-col gap-1'>
+						<div className='flex flex-col gap-1'>
 							<h1>{follow.username}</h1>
 							<h2>{follow.elo} Elo</h2>
 						</div>
