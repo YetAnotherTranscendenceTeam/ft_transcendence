@@ -116,11 +116,9 @@ body {
 
 /* Scroll Bar */
 
-/* .scrollbar {
-	scrollbar-width: thin;
-	scrollbar-color: var(--primary-color) transparent;
-} */
-
+.scrallbar {
+	overflow-y: auto;
+}
 
 .scrollbar::-webkit-scrollbar {
 	width: 4px;

@@ -17,10 +17,6 @@
 	transition: 0.3s;
 }
 
-.button i {
-	font-size: 90%;
-}
-
 .button:hover {
 	background-color: var(--bg-3);
 }
@@ -77,6 +73,21 @@
 
 .button.danger.disabled, .button.danger.disabled:hover{
 	background-color: var(--danger-color-40);
+	filter: saturate(1);
+}
+
+.button.success {
+	background-color: var(--success-color);
+	color: var(--fg-1);
+}
+
+.button.success:hover {
+	background-color: var(--success-color);
+	filter: saturate(2);
+}
+
+.button.success.disabled, .button.success.disabled:hover{
+	background-color: var(--success-color-40);
 	filter: saturate(1);
 }
 
