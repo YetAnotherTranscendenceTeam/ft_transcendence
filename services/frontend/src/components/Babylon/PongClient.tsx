@@ -6,7 +6,8 @@ import Ball from "./Ball";
 import Wall from "./Wall";
 import createDefaultScene from "./DefaultScene";
 import createGameScene from "./GameScene";
-import createGroundScene from "./GroundScene";
+// import createGroundScene from "./GroundScene";
+import HavokPhysics from "@babylonjs/havok";
 
 enum SceneState {
 	MENU,
@@ -31,9 +32,9 @@ export default class PongClient {
 		this._scene[SceneState.PLAYING] = createDefaultScene(this._canvas, this._engine);
 		this._scene[SceneState.GAME_OVER] = createDefaultScene(this._canvas, this._engine);
 		this._scene[SceneState.TEST] = createGameScene(this._canvas, this._engine);
-		this._scene[SceneState.GROUND_DEV] = createGroundScene(this._canvas, this._engine);
-		
-		this._activeScene = SceneState.GROUND_DEV;
+		this._scene[SceneState.GROUND_DEV] = createDefaultScene(this._canvas, this._engine);
+
+		this._activeScene = SceneState.TEST;
 
 		// event listeners
 		window.addEventListener("keydown", this.handleKeyDown);
@@ -41,6 +42,12 @@ export default class PongClient {
 
 		this._engine.runRenderLoop(this.loop);
 		
+	}
+
+	public static initializeHavoPhysics = async () => {
+		globalThis.HK = await HavokPhysics();
+		// const hk : HavokPlugin = new HavokPlugin();
+		// this._scene.enablePhysics(new Vector3(0, 0, 0), hk);
 	}
 
 	private loop = () => {

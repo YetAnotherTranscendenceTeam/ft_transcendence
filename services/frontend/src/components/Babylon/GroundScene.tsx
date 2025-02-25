@@ -1,7 +1,37 @@
 import "@babylonjs/inspector";
-// import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, Color3, Color4, HemisphericLight, DirectionalLight, MeshBuilder, StandardMaterial } from "@babylonjs/core";
+// import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, Color3, Color4, HemisphericLight, DirectionalLight, MeshBuilder, StandardMaterial, Texture, DynamicTexture } from "@babylonjs/core";
+// import { FurMaterial } from "@babylonjs/materials";
 import * as BABYLON from "@babylonjs/core";
 import { CustomMaterial } from "@babylonjs/materials";
+
+// export default function createGroundScene(canvas: HTMLCanvasElement, engine: Engine) : Scene {
+// 	const scene: Scene = new Scene(engine);
+
+// 	const cameraTopDown: ArcRotateCamera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 5, Vector3.Zero(), scene);
+// 	const cameraPlayerLeft: ArcRotateCamera = new ArcRotateCamera("CameraPlayerLeft", -Math.PI, Math.PI / 4, 5, Vector3.Zero(), scene);
+// 	const cameraPlayerRight: ArcRotateCamera = new ArcRotateCamera("CameraPlayerRight", 0, Math.PI / 4, 5, Vector3.Zero(), scene);
+// 	cameraTopDown.attachControl(canvas, true);
+// 	cameraTopDown.lowerRadiusLimit = 1.5;
+// 	cameraTopDown.upperRadiusLimit = 10;
+// 	cameraTopDown.wheelPrecision = 50;
+// 	// const light1: DirectionalLight = new DirectionalLight("light1", new Vector3(1, -1, 0), scene);
+// 	var light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
+
+// 	const ground = MeshBuilder.CreateGround("ground", {width: 4, height: 4}, scene);
+// 	ground.position = new Vector3(0, 0, 0);
+	
+// 	const furMaterial = new FurMaterial("groundMaterial", scene);
+// 	furMaterial.highLevelFur = false;
+// 	furMaterial.furLength = 1;
+// 	furMaterial.furAngle = 0;
+// 	furMaterial.diffuseTexture = new Texture("https://raw.githubusercontent.com/Pryme8/Playground_Dump/master/GrassLayers/GrassLayering_LayerBaseColor.png", scene);
+
+// 	ground.material = furMaterial;
+
+// 	return scene;
+// }
+
+
 
 export default function createGroundScene(canvas: HTMLCanvasElement, engine: BABYLON.Engine) : BABYLON.Scene {
 	// const scene: Scene = new Scene(engine);
@@ -65,7 +95,7 @@ export default function createGroundScene(canvas: HTMLCanvasElement, engine: BAB
 	// maskCtx.strokeText('42', 512, 400)
 	// maskCtx.fillText('42', 512, 400)       
 	// growthMask.update()
-	const growthMask = new BABYLON.Texture('/assets/images/growth_map.png', scene);
+	const growthMask = new BABYLON.Texture('/assets/images/gradient.png', scene);
 
 	const paintMask = new BABYLON.DynamicTexture('paintMask', {width:1024, height:1024}, scene)
 	const paintCtx= paintMask.getContext()
@@ -187,7 +217,7 @@ export default function createGroundScene(canvas: HTMLCanvasElement, engine: BAB
 					worldPos.xz += vWindSpeed;                           
 					`
 				)
-				console.log(layerWeight)
+				console.log('layerWeight', layerWeight)
 
 				mat.Fragment_Definitions(`
 					varying vec2 vWindSpeed;
@@ -202,7 +232,7 @@ export default function createGroundScene(canvas: HTMLCanvasElement, engine: BAB
 				mat.Fragment_Custom_Alpha(`       
 					float growthV =  texture(growthMask, ((vPositionW.xz  + growthMaskScaleHalf) / growthMaskScale) + (vWindSpeed * 0.025)).r;             
 					alpha *= growthV;
-					//alpha = (vPositionW.x  + growthMaskScaleHalf) / growthMaskScale;
+					// alpha = (vPositionW.x  + growthMaskScaleHalf) / growthMaskScale;
 				`)
 
 				opacityTexture.getAlphaFromRGB = true
@@ -211,7 +241,7 @@ export default function createGroundScene(canvas: HTMLCanvasElement, engine: BAB
 					createLayerMaterial()
 				}else{
 					createLayerMeshes()
-				}
+				}layerMaterials.length
 			}
 		}
 
@@ -269,7 +299,7 @@ export default function createGroundScene(canvas: HTMLCanvasElement, engine: BAB
 	let time = 0
 	const startTimeBinding = ()=>{            
 		scene.onReadyObservable.addOnce(()=>{
-			console.log(layerMaterials.length)
+			console.log('layerMaterials.length', layerMaterials.length)
 			scene.onBeforeRenderObservable.add(()=>{
 				time += engine.getDeltaTime() * 0.001                   
 				layerMaterials.forEach((mat, index)=>{
@@ -286,8 +316,4 @@ export default function createGroundScene(canvas: HTMLCanvasElement, engine: BAB
 	createLayerMaterial()
 
 	return scene;
-
-
-
-	// return scene;
 }
