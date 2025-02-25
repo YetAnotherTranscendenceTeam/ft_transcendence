@@ -1,15 +1,27 @@
 "use strict";
 
-import { HttpError, objects } from "yatt-utils";
+import { HttpError, objects, properties } from "yatt-utils";
 import getInfos from "../utils/getInfos.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
     tags: ["Users"],
-    description: "[PLACEHOLDER]",
+    description: "Get all public informations about a user",
     response: {
-      500: {
-        description: "[PLACEHOLDER]",
+      200: {
+        type: "object",
+        properties: {
+          account_id: properties.account_id,
+          username: properties.username,
+          avatar: properties.avatar,
+          created_at: properties.created_at,
+          updated_at: properties.updated_at,
+        }
+      },
+      404: {
+        description: "Account not found",
+        type: "object",
+        properties: objects.errorBody,
       },
     },
   };

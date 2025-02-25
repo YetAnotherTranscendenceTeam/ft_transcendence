@@ -13,6 +13,7 @@ app.register(jwt, {
 const registerUrL = "http://127.0.0.1:4012";
 const credentialsUrl = "http://127.0.0.1:7002"
 const authUrl = "http://127.0.0.1:4022"
+const dbprofilesUrL = "http://127.0.0.1:7001"
 
 export const users = [];
 
@@ -36,6 +37,8 @@ for (let i = 0; i < USER_COUNT; i++) {
     jwt: null,
     email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
     password: crypto.randomBytes(4).toString("hex"),
+    username: crypto.randomBytes(4).toString("hex"),
+    avatar: `https://${crypto.randomBytes(8).toString("hex")}.com`,
   };
 
   it("create dummy account", async () => {
@@ -47,7 +50,7 @@ for (let i = 0; i < USER_COUNT; i++) {
       })
       .expect(201)
       .expect("Content-Type", /json/);
-    
+
     dummy.jwt = response.body.access_token;
     dummy.account_id = app.jwt.decode(response.body.access_token).account_id;
   });
@@ -70,6 +73,27 @@ for (let i = 0; i < USER_COUNT; i++) {
       })
     );
   });
+
+  it("patch profile", async () => {
+    const response = await request(dbprofilesUrL)
+      .patch(`/${dummy.account_id}`)
+      .send({
+        username: dummy.username,
+        avatar: dummy.avatar,
+      })
+      .set('Authorization', `Bearer ${dummy.jwt}`)
+      .expect(200)
+      .expect("Content-Type", /json/);
+
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        account_id: dummy.account_id,
+        avatar: dummy.avatar,
+        username: dummy.username,
+      })
+    );
+  });
+
   users.push(dummy);
 }
 
