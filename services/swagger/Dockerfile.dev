@@ -1,0 +1,11 @@
+FROM node:23.7-alpine3.20
+
+WORKDIR /services/swagger/
+COPY package*.json .
+
+RUN npm install -g nodemon
+RUN npm install
+
+ENTRYPOINT [ "nodemon", "--watch", "/modules", "--watch", "./srcs", "--watch", "/documentation/", "-e", "yaml" , "srcs/index.js" ]
+
+EXPOSE 3000

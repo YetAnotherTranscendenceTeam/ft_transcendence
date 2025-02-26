@@ -10,25 +10,11 @@ import {
 import YATT, { HttpError } from "yatt-utils";
 
 export default function routes(fastify, opts, done) {
-  let schema = {
-    summary: "Process 42 API OAuth callback and set JWT",
-    description:
-      "Redirect to frontend 42 API authentication page. On success url query parameters include \
-      an `access_token` and it's associated `expire_at` timestamp. It also sets a `refresh_token` cookie. \
-      On error, the query parameters include a `statusCode`, `code`, `error` and `message`",
-    tags: ["Authentication"],
+  const schema = {
     query: {
       type: "object",
       properties: {
-        code: { type: "string", description: "OAuth authorization code" },
-      },
-    },
-    response: {
-      302: {
-        description: "Redirect to frontend with JWT",
-        headers: {
-          Location: { type: "string", format: "uri" },
-        },
+        code: { type: "string" },
       },
     },
   };
@@ -149,9 +135,8 @@ async function authenticate(reply, account_id) {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    path: "/refresh-token",
+    path: "/refresh",
   });
-  //TODO: fix expire_at
-  reply.redirect(`${frontend_url}/fortytwo?token=${auth.access_token}&expire_at=${new Date().toISOString()}`);
+  reply.redirect(`${frontend_url}/fortytwo?token=${auth.access_token}&expire_at=${auth.expire_at}`);
   console.log("AUTH: ", { account_id });
 }

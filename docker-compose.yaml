@@ -7,6 +7,8 @@ services:
     networks:
       - frontend
       - db-profiles
+      - settings
+      - swagger
     environment:
       - NGINX_HOST=localhost
     secrets:
@@ -145,6 +147,36 @@ services:
      - frontend
      - db-profiles
 
+  settings:
+    build:
+      context: services/settings/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/settings/srcs:/services/settings/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - 127.0.0.1:4004:3000
+    networks:
+      - settings
+
+  swagger:
+    build:
+      context: services/swagger/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./documentation/:/documentation/:ro
+      - ./services/swagger/srcs:/services/swagger/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    ports:
+      - 42000:3000
+    networks:
+      - swagger
+
+
 networks:
   frontend:
     driver: bridge
@@ -153,6 +185,10 @@ networks:
   db-profiles:
     driver: bridge
   tokens:
+    driver: bridge
+  settings:
+    driver: bridge
+  swagger:
     driver: bridge
 
 secrets:

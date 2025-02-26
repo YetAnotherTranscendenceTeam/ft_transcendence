@@ -1,3 +1,5 @@
+"use strict";
+
 export const client_id = process.env.API42_CLIENT_ID;
 if (!client_id) {
     console.error("Missing environment variable: API42_CLIENT_ID");

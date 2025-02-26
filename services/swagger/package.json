@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@fastify/cors": "^10.1.0",
+    "@fastify/jwt": "^9.0.4",
+    "@fastify/swagger": "^9.4.2",
+    "@fastify/swagger-ui": "^5.2.2",
+    "fastify": "^5.2.1",
+    "yatt-utils": "file:../../modules/yatt-utils"
+  },
+  "type": "module"
+}

@@ -1,5 +1,5 @@
 import YATT, { HttpError, objects, properties } from "yatt-utils";
-import { token_manager_secret } from "../app/env.js";
+import { pepper, token_manager_secret } from "../app/env.js";
 
 export default function routes(fastify, opts, done) {
   let schema = {
@@ -11,28 +11,6 @@ export default function routes(fastify, opts, done) {
       },
       required: ["email", "password"],
       additionalProperties: false,
-    },
-    response: {
-      201: {
-        description: "Successfull account creation",
-        type: "object",
-        properties: {
-          access_token: properties.access_token,
-          expire_at: properties.expire_at,
-        },
-        required: ["access_token", "expire_at"],
-      },
-      409: {
-        description: "Email address is already associated with an account",
-        type: "object",
-        properties: {
-          statusCode: properties.statusCode,
-          code: properties.code,
-          error: properties.error,
-          message: properties.message,
-        },
-        required: ["statusCode", "code", "error", "message"],
-      },
     },
   };
 
@@ -71,13 +49,8 @@ export default function routes(fastify, opts, done) {
       throw err;
     }
   });
-  done();
-}
 
-const pepper = process.env.PASSWORD_PEPPER
-if (!pepper) {
-  console.error("Missing environment variable: PASSWORD_PEPPER");
-  process.exit(1);
+  done();
 }
 
 async function authenticate(reply, account_id) {
@@ -92,7 +65,7 @@ async function authenticate(reply, account_id) {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    path: "/refresh-token",
+    path: "/refresh",
   });
   delete auth.refresh_token;
   reply.code(201).send(auth);
