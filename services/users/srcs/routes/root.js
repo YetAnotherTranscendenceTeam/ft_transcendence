@@ -8,15 +8,16 @@ export default function router(fastify, opts, done) {
     params: {
       type: "object",
       properties: {
-        intra_user_id: properties.intra_user_id,
+        account_id: properties.account_id,
       },
-      required: ["intra_user_id"],
+      required: ["account_id"],
       additionalProperties: false,
     },
   };
 
   fastify.get("/:account_id", { schema }, async function handler(request, reply) {
     const { account_id } = request.params;
+    console.error(account_id);
 
     try {
       const user = await getInfos(account_id);
