@@ -2,10 +2,10 @@ import request from "supertest";
 
 const baseUrl = "http://127.0.0.1:7002";
 
-describe("GET /:email", () => {
-  it("bad email", async () => {
+describe("GET /:account_id", () => {
+  it("bad account_id", async () => {
     const response = await request(baseUrl)
-      .get('/not-an-email')
+      .get('/not-an-account_id')
       .expect(400)
       .expect("Content-Type", /json/);
 
@@ -13,13 +13,13 @@ describe("GET /:email", () => {
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
       error: "Bad Request",
-      message: "params/email must match format \"email\"",
+      message: "params/account_id must be integer",
     });
   });
 
   it("nonexisting", async () => {
     const response = await request(baseUrl)
-      .get('/doesnoexist@email.com')
+      .get('/999999999')
       .expect(404)
       .expect("Content-Type", /json/);
 
@@ -47,7 +47,7 @@ describe("DELETE /:id", () => {
 
   it("nonexisting", async () => {
     const response = await request(baseUrl)
-      .get('/doesnoexist@email.com')
+      .get('/9999999')
       .expect(404)
       .expect("Content-Type", /json/);
 

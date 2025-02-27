@@ -189,7 +189,7 @@ describe("fortytwo-auth", () => {
     const rand = Math.floor(Math.random() * accounts.length);
     it(`get random account entry ${i + 1}`, async () => {
       const response = await request(baseUrl)
-        .get(`/${accounts[rand].email}`)
+        .get(`/${accounts[rand].account_id}`)
         .expect(200)
         .expect("Content-Type", /json/);
 
@@ -219,7 +219,7 @@ describe("fortytwo-auth", () => {
   accounts.forEach((acc, i) => {
     it(`check deletion ${i + 1}`, async () => {
       const response = await request(baseUrl)
-        .get(`/${accounts[i].email}`)
+        .get(`/${accounts[i].account_id}`)
         .expect(404)
         .expect("Content-Type", /json/);
 

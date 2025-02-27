@@ -45,6 +45,7 @@ describe("USERS", () => {
         username: dummy.username,
       })
     );
+    expect(response.body.credentials).toEqual(undefined);
   });
 
   it("invalid account_id", async () => {
@@ -72,6 +73,11 @@ describe("USERS", () => {
         account_id: dummy.account_id,
         avatar: dummy.avatar,
         username: dummy.username,
+        credentials: expect.objectContaining({
+            account_id: dummy.account_id,
+            auth_method: 'password_auth',
+            email: dummy.email,
+        })
       })
     );
   });

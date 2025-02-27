@@ -193,7 +193,7 @@ describe("POST /", () => {
     const rand = Math.floor(Math.random() * accounts.length);
     it(`get random account entry ${i + 1}`, async () => {
       const response = await request(credentialsUrl)
-        .get(`/${accounts[rand].email}`)
+        .get(`/${accounts[rand].account_id}`)
         .expect(200)
         .expect("Content-Type", /json/);
 
@@ -224,7 +224,7 @@ describe("POST /", () => {
   accounts.forEach((acc, i) => {
     it(`check deletion ${i + 1}`, async () => {
       const response = await request(credentialsUrl)
-        .get(`/${accounts[i].email}`)
+        .get(`/${accounts[i].account_id}`)
         .expect(404)
         .expect("Content-Type", /json/);
 
