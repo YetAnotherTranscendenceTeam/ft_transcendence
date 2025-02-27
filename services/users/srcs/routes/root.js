@@ -4,25 +4,14 @@ import { HttpError, objects, properties } from "yatt-utils";
 import getInfos from "../utils/getInfos.js";
 
 export default function router(fastify, opts, done) {
-  let schema = {
-    tags: ["Users"],
-    description: "Get all public informations about a user",
-    response: {
-      200: {
-        type: "object",
-        properties: {
-          account_id: properties.account_id,
-          username: properties.username,
-          avatar: properties.avatar,
-          created_at: properties.created_at,
-          updated_at: properties.updated_at,
-        }
+  const schema = {
+    params: {
+      type: "object",
+      properties: {
+        intra_user_id: properties.intra_user_id,
       },
-      404: {
-        description: "Account not found",
-        type: "object",
-        properties: objects.errorBody,
-      },
+      required: ["intra_user_id"],
+      additionalProperties: false,
     },
   };
 
@@ -48,4 +37,3 @@ export default function router(fastify, opts, done) {
 
   done();
 }
-

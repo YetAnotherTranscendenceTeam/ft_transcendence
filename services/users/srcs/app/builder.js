@@ -6,7 +6,7 @@ import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
 import router from "./router.js";
-import YATT, { HttpError } from "yatt-utils";
+import { HttpError } from "yatt-utils";
 import { jwt_secret } from "./env.js";
 
 export default function build(opts = {}) {
@@ -18,18 +18,6 @@ export default function build(opts = {}) {
       origin: true,
       methods: ["GET", "POST", "PATH", "DELETE"], // Allowed HTTP methods
       credentials: true, // Allow credentials (cookies, authentication)
-    });
-
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Users",
-        description: "Serves public data about users",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4003", description: "Development network" },
-        { url: "http://users:3000", description: "Containers network" },
-      ],
     });
   } else {
     // PRODUCTION configuration
@@ -56,9 +44,7 @@ export default function build(opts = {}) {
   });
 
   app.register(jwt, { secret: jwt_secret });
-
   app.register(formbody);
-
   app.register(router);
 
   app.get("/ping", async function (request, reply) {
