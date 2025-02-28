@@ -273,6 +273,13 @@
 	height: 13px;
 }
 
+.input-help {
+	text-align: left;
+	color: var(--fg-4);
+	font-size: small;
+	
+}
+
 
 /* ================================== */
 /* ============ Checkbox ============ */
@@ -514,4 +521,45 @@
 	100% {
 		transform: rotate(360deg);
 	}
+}
+
+
+/* ================================== */
+/* ============ PopHover ============ */
+/* ================================== */
+
+.pop-hover-container {
+	position: relative;
+}
+
+.pop-hover {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: var(--bg-1);
+	color: var(--fg-1);
+	border-radius: 4px;
+	padding: 8px;
+	max-width: 200px;
+	min-width: 100px;
+	display: none;
+	z-index: 1000;
+	opacity: 0;
+	transform: opacity 0.3s;
+}
+
+.pop-hover::after {
+	content: '';
+	position: absolute;
+	top: -16px;
+	left: 50%;
+	transform: translateX(-50%);
+	border: 8px solid transparent;
+	border-bottom-color: var(--bg-1);
+}
+
+.pop-hover-container:hover .pop-hover {
+	display: block;
+	opacity: 1;
 }

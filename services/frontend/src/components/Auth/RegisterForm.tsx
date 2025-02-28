@@ -58,6 +58,7 @@ export default function RegisterForm({
 			<GoogleAuthButton />
 			<FortyTwoAuthButton isOpen={isOpen}/>
 			<Separator>or</Separator>
+			<h1>Create a new account</h1>
 			<Input
 				label="Email"
 				type="email"

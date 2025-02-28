@@ -18,7 +18,7 @@ export default function App() {
 						<Route path="/login" element={<LoginView />} />
 						<Route path="/signin" element={<SigninView />} />
 						<Route path="/fortytwo" element={<FortytwoView/>} />
-						<Route path="/" element={<Home />} />
+						<Route path="/*" element={<Home />} />
 					</Routes>
 				</div>
 			</AuthProvider>

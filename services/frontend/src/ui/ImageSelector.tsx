@@ -19,7 +19,7 @@ export default function ImageSelector({
 		label: string,
 		field: string,
 		images: Image[],
-		onChange: (value: string) => void,
+		onChange?: (value: string) => void,
 		required?: boolean,
 		onImageRemove?: (url: string) => void,
 		defaultValue?: string,

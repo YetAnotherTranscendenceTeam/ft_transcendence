@@ -112,11 +112,12 @@
 
 body {
 	font-family: "Ubuntu", serif;
+	overflow: hidden;
 }
 
 /* Scroll Bar */
 
-.scrallbar {
+.scrollbar {
 	overflow-y: auto;
 }
 

@@ -9,6 +9,7 @@ export default function Input({
 		onInput,
 		matching,
 		defaultValue,
+		help,
 		...props 
 	}: {
 		label?: string,
@@ -18,6 +19,7 @@ export default function Input({
 		onInput?: Function,
 		matching?: string,
 		defaultValue?: string,
+		help?: string,
 		[key: string]: any
 	}) {
 
@@ -54,5 +56,6 @@ export default function Input({
 			{...props}
 		/>
 		{error && <p className='input-error'>{!isFieldValid && error}</p>}
+		{help && <p className='input-help'>{help}</p>}
 	</div>
 }
