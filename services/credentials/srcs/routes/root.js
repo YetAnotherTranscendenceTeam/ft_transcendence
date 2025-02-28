@@ -49,17 +49,13 @@ export default function router(fastify, opts, done) {
 
   schema = {
     tags: ["Accounts"],
-    description: "Get the account associated with an email address",
+    description: "Get the account associated with an account_id",
     params: {
       type: "object",
-      required: ["email"],
       properties: {
-        email: {
-          type: "string",
-          format: "email",
-          description: "The email address of the account to retrieve",
-        },
+        account_id: properties.account_id,
       },
+      required: ["account_id"],
     },
     response: {
       200: {
@@ -80,12 +76,12 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.get("/:email", { schema }, async function handler(request, reply) {
-    const { email } = request.params;
+  fastify.get("/:account_id", { schema }, async function handler(request, reply) {
+    const { account_id } = request.params;
 
     const account = db
-      .prepare(`SELECT * FROM accounts WHERE email = ?`)
-      .get(email);
+      .prepare(`SELECT * FROM accounts WHERE account_id = ?`)
+      .get(account_id);
 
     if (!account) {
       reply.status(404).send(objects.accountNotFound);
