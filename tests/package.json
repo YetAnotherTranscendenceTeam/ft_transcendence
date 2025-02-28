@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "node --env-file=../.env --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "action": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "action": "sleep 10 && node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "type": "module",
   "dependencies": {
