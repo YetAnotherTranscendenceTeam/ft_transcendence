@@ -1,0 +1,46 @@
+.settings {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: calc(100vh - 32px);
+	width: 400px;
+	transition: opacity 0.5s, transform 0.5s;
+	border-radius: 0;
+	opacity: 0;
+	transform: translateX(-100%);
+	padding: 16px 32px;
+}
+
+.menu-container .settings {
+	padding-left: 96px;
+}
+
+.settings.open {
+	opacity: 1;
+	transform: translateX(0);
+}
+
+.settings-content {
+	position: relative;
+	height: 100%;
+	overflow-y: auto;
+}
+
+.settings-content::-webkit-scrollbar {
+	display: none;
+}
+
+.settings h1 {
+	font-size: x-large;
+	font-weight: bold;
+
+}
+
+.settings-section h2 {
+	font-size: large;
+	font-weight: bold;
+}
+
+.settings-section .form{
+	margin-left: 16px;
+}

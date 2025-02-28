@@ -14,11 +14,10 @@ export default function FortyTwoAuthButton({
 
 	const handleMessage = (event) => {
 		if (event.origin !== window.location.origin) return;
-
-		const { token, expire_at } = event.data;
+		const { token, expire_at, statusCode } = event.data;
 		if (token)
 			auth(token, expire_at);
-		else {
+		else if (statusCode === 401) {
 			createToast('Authentication failed', 'danger', 7000);
 		}
 
@@ -39,6 +38,6 @@ export default function FortyTwoAuthButton({
 
 	return <a onClick={openPopup} className='fortytwo-auth-button flex items-center'>
 		<img src='/assets/images/fortytwo-logo.png'/>
-		<p>Login with 42intra</p>
+		<p>Sign in with 42intra</p>
 	</a>
 }

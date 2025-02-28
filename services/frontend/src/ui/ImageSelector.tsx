@@ -13,14 +13,16 @@ export default function ImageSelector({
 		onChange,
 		required,
 		onImageRemove,
+		defaultValue,
 		...props
 	}: {
 		label: string,
 		field: string,
 		images: Image[],
-		onChange: (value: string) => void,
+		onChange?: (value: string) => void,
 		required?: boolean,
 		onImageRemove?: (url: string) => void,
+		defaultValue?: string,
 		[key: string]: any
 	}) {
 
@@ -38,12 +40,17 @@ export default function ImageSelector({
 		updateFieldValidity(field, true);
 	}
 
+	Babact.useEffect(() => {
+		if (defaultValue)
+			updateField(field, defaultValue);
+	}, []);
+
 	return <div className='image-selector' {...props}>
 		<label>
 			{label}
 			{required && <span>*</span>}
 		</label>
-		<div className='image-selector-container'>
+		<div className='image-selector-container scrollbar'>
 			{
 				images.map((image: Image, i: number) => (
 					<div className='image-selector-item'>

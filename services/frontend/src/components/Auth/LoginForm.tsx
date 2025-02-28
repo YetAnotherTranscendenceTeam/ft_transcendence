@@ -56,7 +56,7 @@ export default function LoginForm({
 				<GoogleAuthButton />
 				<FortyTwoAuthButton isOpen={isOpen}/>
 				<Separator>or</Separator>
-
+				<h1>Login to your account</h1>
 				<Input
 					label="Email"
 					error="Invalid Email"

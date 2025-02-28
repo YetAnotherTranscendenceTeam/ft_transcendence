@@ -112,4 +112,28 @@
 
 body {
 	font-family: "Ubuntu", serif;
+	overflow: hidden;
+}
+
+/* Scroll Bar */
+
+.scrollbar {
+	overflow-y: auto;
+}
+
+.scrollbar::-webkit-scrollbar {
+	width: 4px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+	background-color: var(--primary-color-20);
+	border-radius: 2px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+	background-color: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+	background-color: var(--primary-color);
 }

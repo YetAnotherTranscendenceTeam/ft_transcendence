@@ -1,7 +1,7 @@
 import Babact from "babact";
 import useNavigate from "./useNavigate.js";
 
-export default function Link({to, children, ...props}: {to: string, children?: any}) {
+export default function Link({to, children, className, ...props}: {to: string, children?: any, className?: string, [key: string]: any}) {
 
 	const navigate = useNavigate();
 
@@ -11,7 +11,7 @@ export default function Link({to, children, ...props}: {to: string, children?: a
 	};
 
 	return ( 
-		<a href={to} onClick={handleClick} {...props}>
+		<a href={to} onClick={handleClick} className={className} {...props}>
 			{children}
 		</a>
 	);
