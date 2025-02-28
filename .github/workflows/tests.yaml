@@ -15,6 +15,12 @@ jobs:
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       PASSWORD_PEPPER: ${{ secrets.PASSWORD_PEPPER }}
+      TOKEN_MANAGER_SECRET: ${{ secrets.TOKEN_MANAGER_SECRET }}
+      BACKEND_URL: http://127.0.0.1:7979
+      FRONTEND_URL: http://127.0.0.1:8080
+      API42_CLIENT_ID: 'example'
+      API42_SECRET: 'example'
+      API42_REDIRECT_URI: 'http://127.0.0.1:7979/auth/42/callback'
 
     steps:
       - name: Checkout repository
@@ -39,7 +45,7 @@ jobs:
         run: docker compose up -d
 
       - name: Run Jest tests
-        run: npm test
+        run: npm run action
         working-directory: ./tests
 
       - name: Tear down Docker Compose

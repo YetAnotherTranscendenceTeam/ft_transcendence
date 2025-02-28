@@ -6,7 +6,8 @@
     "fastify": "^5.2.1"
   },
   "scripts": {
-    "test": "node --env-file=../.env --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "node --env-file=../.env --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "action": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "type": "module",
   "dependencies": {
