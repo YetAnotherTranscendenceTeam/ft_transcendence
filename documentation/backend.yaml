@@ -1,0 +1,192 @@
+openapi: '3.0.3'
+info:
+  title: YetAnotherPong Backend
+  version: '1.0'
+servers:
+  - url: https://localhost:7979
+  - url: ${BACKEND_URL}
+
+components:
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  parameters:
+    account_id:
+      name: account_id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: The account unique ID
+
+    username:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The user unique name
+  
+  schemas:  
+    email:
+      type: string
+      format: email
+      example: nanou@example.com
+    
+    password:
+      type: string
+      minLength: 8
+      maxLength: 24
+      example: "Renardpolaire74!"
+
+    access_token:
+      description: "JSON Web Token"
+      type: string
+      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NedW50X2lkIjo5NiwiaWF0IjoxNzQwNYc1NzM5LCJleHAiOjE3NDA1NzY2Mzl9.7ZuX-M9EIdByqk0X2bjU0-YjgFyVZYzSI520YZbw9N8"
+
+  responses:
+    AccountNotFound:
+      description: Resource not found
+
+    AuthSuccess:
+      description: Successful authentication
+      content:
+         application/json:
+           schema:
+            type: object
+            properties:
+              access_token:
+                $ref: '#/components/schemas/access_token'
+              expire_at:
+                type: string
+                format: int64
+                example: "1740575739427"
+            required:
+              - access_token
+              - expire_at
+
+paths:
+  /register/:
+    post:
+      summary: Account registration
+      description: Create a new account using an email address and a password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  $ref: '#/components/schemas/email'
+                password:
+                  $ref: '#/components/schemas/password'
+              required:
+                - email
+                - password
+      responses:
+        200:
+          $ref: '#/components/responses/AuthSuccess'
+        401:
+          description: Failure
+  
+  /auth/:
+    post:
+      summary: login
+      description: Authenticate using an email address and a password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  $ref: '#/components/schemas/email'
+                password:
+                  $ref: '#/components/schemas/password'
+              required:
+                - email
+                - password
+      responses:
+        201:
+          $ref: '#/components/responses/AuthSuccess'
+        409:
+          description: Email address already in use
+
+  /auth/fortytwo/:
+    get:
+      summary: 42API remote auth
+      description: Authenticate using 42API Oauth
+      tags:
+        - Authentication
+      responses:
+        301:
+          description: Redirect to 42API authorize url
+  
+  /auth/fortytwo/callback:
+    get:
+      summary: 42API callback
+      description: Callback route for 42API OAuth
+      tags:
+        - Authentication
+      responses:
+        301:
+          description: default
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URL to redirect to, including `acess_token` and `expire_at` parameters for a sucessfull authentication or `statusCode` `code` `error` `message` in case of error
+        
+
+  /me:
+    get:
+      summary: "get token owner"
+      description: Retrieve informations about the acess_token owner
+      tags:
+        - Users
+      responses:
+        204:
+          description: Sucess
+      security:
+        - JWT: []
+
+  /users/{account_id}:
+    get:
+      summary: "get a user"
+      description: Retrieve public informations about the user associated with an account_id
+      tags:
+        - Users
+      parameters:
+        - $ref: '#/components/parameters/account_id'
+      responses:
+        204:
+          description: Sucess
+        404:
+          $ref: '#/components/responses/AccountNotFound'
+      security:
+        - JWT: []
+
+  /users/available/{username}:
+    get:
+      summary: "username availability"
+      description: "Check wether a username is available"
+      parameters:
+        - $ref: '#/components/parameters/username'
+      tags:
+        - Users
+      responses:
+        204:
+          description: Username available
+        403:
+          description: Username unavailable
+      security:
+        - JWT: []

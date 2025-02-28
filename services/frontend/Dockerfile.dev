@@ -1,0 +1,10 @@
+FROM node:23.7-alpine3.20
+
+WORKDIR /services/frontend/
+COPY . .
+
+RUN npm install
+
+ENTRYPOINT [ "npm",  "start" ]
+
+EXPOSE 8080

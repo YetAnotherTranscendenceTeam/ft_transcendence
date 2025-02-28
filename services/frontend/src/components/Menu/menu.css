@@ -1,0 +1,54 @@
+.menu-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	z-index: 1;
+}
+
+.menu {
+	position: absolute;
+	left: 0;
+	height: 100%;
+	border-radius: 0;
+	width: 300px;
+	max-width: 300px;
+	transition: max-width 0.5s;
+}
+
+
+.menu a {
+	text-decoration: none;
+	justify-content: flex-start;
+	width: 80%;
+	padding: 1rem;
+}
+
+
+.menu.closed a {
+	overflow: hidden;
+}
+
+.menu .pop-hover-container {
+	gap: 8px;
+}
+
+.menu.closed {
+	max-width: 32px;
+}
+
+.menu p {
+	opacity: 1;
+	transition: opacity 0.3s;
+}
+
+.menu.closed p, .menu.closed .pop-hover-container .pop-hover {
+	opacity: 0;
+}
+
+.menu .button.active {
+	color: var(--primary-color);
+}

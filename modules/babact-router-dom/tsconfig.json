@@ -1,0 +1,16 @@
+{
+	"compilerOptions": {
+		"outDir": "dist",
+		"module": "ES6",
+		"target": "ES6",
+	  	"declaration": true,
+		"esModuleInterop": true,
+		"lib": ["ES2015", "DOM", "ES6", "ES5", "ES2019"],
+		"strict": false,
+		"jsx": "react",
+		"jsxFactory": "Babact.createElement",
+		"moduleResolution": "node",
+		"jsxFragmentFactory": "Babact.fragment",
+	},
+	"include": ["src"]
+}
