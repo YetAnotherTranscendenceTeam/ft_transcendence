@@ -11,8 +11,8 @@ app.register(jwt, {
 })
 
 const registerUrL = "http://127.0.0.1:4012";
-const credentialsUrl = "http://127.0.0.1:7002"
-const authUrl = "http://127.0.0.1:4022"
+const credentialsUrl = "http://127.0.0.1:7002";
+const authUrl = "http://127.0.0.1:4022";
 const dbprofilesUrL = "http://127.0.0.1:7001"
 
 export const users = [];
@@ -25,9 +25,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   for (const user of users) {
-    await request(credentialsUrl)
-      .delete(`/${user.account_id}`)
-      .expect(204);
+    await request(credentialsUrl).delete(`/${user.account_id}`).expect(204);
   }
 });
 

@@ -117,6 +117,31 @@ services:
       - tokens
       - db-profiles
 
+  lobbies:
+    build:
+      context: services/lobbies/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/lobbies/srcs:/services/lobbies/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - "127.0.0.1:4043:3000"
+    # networks:
+
+  # profiles-api:
+  #   build:
+  #     context: services/profiles-api/
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - ./sqlite:/database
+  #     - ./services/profiles-api/srcs:/run/srcs
+  #   ports:
+  #     - "127.0.0.1:3003:3000"
+  #   networks:
+  #     - credentials
+
   db-profiles:
     build:
       context: services/db-profiles/
@@ -147,19 +172,19 @@ services:
      - frontend
      - db-profiles
 
-  settings:
-    build:
-      context: services/settings/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/settings/srcs:/services/settings/srcs
-      - ./modules/:/modules:ro
-    environment:
-      - JWT_SECRET=${JWT_SECRET}
-    ports:
-      - 127.0.0.1:4004:3000
-    networks:
-      - settings
+  # settings:
+  #   build:
+  #     context: services/settings/
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - ./services/settings/srcs:/services/settings/srcs
+  #     - ./modules/:/modules:ro
+  #   environment:
+  #     - JWT_SECRET=${JWT_SECRET}
+  #   ports:
+  #     - 127.0.0.1:4004:3000
+  #   networks:
+  #     - settings
 
   swagger:
     build:

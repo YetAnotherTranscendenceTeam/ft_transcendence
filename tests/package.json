@@ -8,5 +8,8 @@
   "scripts": {
     "test": "node --env-file=../.env --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "superwstest": "^2.0.4"
+  }
 }
