@@ -14,7 +14,7 @@ const lobbies = new Map();
 const players = new Map();
 
 export default function router(fastify, opts, done) {
-  fastify.get("/join", {websocket: true}, (socket, req) => {
+  fastify.get("/join", { websocket: true }, (socket, req) => {
     try {
       /**
        * @type {Lobby | null}
@@ -31,7 +31,7 @@ export default function router(fastify, opts, done) {
       } else lobby = lobbies.get(req.query.secret);
       if (!lobby) return socket.close(1008, "Invalid secret");
       if (!lobby.isJoinable()) return socket.close(1008, "Lobby is not joinable");
-      let player = new Player(socket, req, lobby);
+      let player = new Player(socket, req, lobby, { lobbies, players });
       players.set(player.account_id, player);
       player.lobby = lobby;
       lobby.addPlayer(player);
@@ -46,15 +46,8 @@ export default function router(fastify, opts, done) {
         }
         player.receive(obj);
       });
-      socket.on("close", () => {
-        if (lobby) {
-          lobby.removePlayer(player);
-          if (player) players.delete(player.account_id);
-          if (lobby.shouldDestroy()) {
-            console.log("Destroying lobby ", lobby.joinSecret);
-            lobbies.delete(lobby.joinSecret);
-          }
-        }
+      socket.on("close", (reason) => {
+        if (player.connected) player.disconnect(); // perform cleanups: remove from player map and from lobby
       });
     } catch (e) {
       console.error(e);
@@ -62,17 +55,15 @@ export default function router(fastify, opts, done) {
   });
 
   fastify.get("/", async (req, res) => {
-      res.send({ status: "ok" });
-    }
-  );
+    res.send({ status: "ok" });
+  });
 
   fastify.get("/stats", async (req, res) => {
-      res.send({
-        lobby_count: lobbies.size,
-        player_count: players.size,
-      });
-    }
-  );
+    res.send({
+      lobby_count: lobbies.size,
+      player_count: players.size,
+    });
+  });
 
   done();
 }

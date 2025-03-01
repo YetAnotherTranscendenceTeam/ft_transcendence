@@ -10,7 +10,10 @@ class Player {
     this.user = user;
   }
   close() {
-    return this.ws.close();
+    return this.ws
+      .sendJson({ event: "disconnect" })
+      .expectClosed(1000, "Disconnected")
+      .close();
   }
   expectJoin(account_id) {
     return this.ws.expectJson((message) => {
@@ -178,6 +181,7 @@ describe("Lobby kick system", () => {
           data: { account_id: player.user.account_id },
         });
       await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+      player.ws.expectClosed(1000, "Kicked from lobby").close();
     }
   });
 });
