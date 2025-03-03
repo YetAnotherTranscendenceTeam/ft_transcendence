@@ -175,7 +175,7 @@ paths:
   /avatars:
     get:
       summary: get available avatars
-      description: Retrieve all the avatars available for the access_token bearer
+      description: Retrieve all the avatars available to the access_token bearer
       tags:
         - Avatars
       responses:
@@ -209,12 +209,22 @@ paths:
 
     post:
       summary: upload avatar
-      description: WIP
+      description: Upload a personal avatar for the access_token bearer
       tags:
         - Avatars
       responses:
         204:
           description: Sucess
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    example: 'https://example.com/avatars/user123.jpg'
+        403:
+          description: Avatar limit reached
       security:
         - JWT: []
 
