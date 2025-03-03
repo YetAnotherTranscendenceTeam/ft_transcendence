@@ -212,6 +212,14 @@ paths:
       description: Upload a personal avatar for the access_token bearer
       tags:
         - Avatars
+      requestBody:
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+              format: base64
+              description: Base64 encoded image data
       responses:
         204:
           description: Sucess
