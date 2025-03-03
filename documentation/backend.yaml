@@ -1,10 +1,10 @@
-openapi: '3.0.3'
+openapi: "3.0.3"
 info:
   title: YetAnotherPong Backend
-  version: '1.0'
+  version: "1.0"
 servers:
   - url: https://localhost:7979
-  - url: ${BACKEND_URL}
+  - url: https://z1r4p5:7979
 
 components:
   securitySchemes:
@@ -12,40 +12,54 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  
+
   parameters:
     account_id:
+      description: An account unique ID
       name: account_id
       in: path
       required: true
       schema:
         type: integer
-      description: The account unique ID
 
     username:
+      description: A unique user name
       name: username
       in: path
       required: true
       schema:
         type: string
-      description: The user unique name
-  
-  schemas:  
+
+  schemas:
     email:
+      description: An email address
       type: string
       format: email
       example: nanou@example.com
-    
+
     password:
+      description: A secret password
       type: string
       minLength: 8
       maxLength: 24
       example: "Renardpolaire74!"
 
     access_token:
-      description: "JSON Web Token"
+      description: A JSON Web Token
       type: string
       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NedW50X2lkIjo5NiwiaWF0IjoxNzQwNYc1NzM5LCJleHAiOjE3NDA1NzY2Mzl9.7ZuX-M9EIdByqk0X2bjU0-YjgFyVZYzSI520YZbw9N8"
+
+    username:
+      description: A unique user name
+      type: string
+      minLength: 4
+      maxLength: 12
+      example: "CronchCronch"
+
+    avatar:
+      description: An URI to profile picture
+      type: string
+      example: https://example.com/image.jpg
 
   responses:
     AccountNotFound:
@@ -54,12 +68,12 @@ components:
     AuthSuccess:
       description: Successful authentication
       content:
-         application/json:
-           schema:
+        application/json:
+          schema:
             type: object
             properties:
               access_token:
-                $ref: '#/components/schemas/access_token'
+                $ref: "#/components/schemas/access_token"
               expire_at:
                 type: string
                 format: int64
@@ -71,7 +85,7 @@ components:
 paths:
   /register/:
     post:
-      summary: Account registration
+      summary: account registration
       description: Create a new account using an email address and a password
       tags:
         - Authentication
@@ -83,18 +97,18 @@ paths:
               type: object
               properties:
                 email:
-                  $ref: '#/components/schemas/email'
+                  $ref: "#/components/schemas/email"
                 password:
-                  $ref: '#/components/schemas/password'
+                  $ref: "#/components/schemas/password"
               required:
                 - email
                 - password
       responses:
         200:
-          $ref: '#/components/responses/AuthSuccess'
+          $ref: "#/components/responses/AuthSuccess"
         401:
           description: Failure
-  
+
   /auth/:
     post:
       summary: login
@@ -109,15 +123,15 @@ paths:
               type: object
               properties:
                 email:
-                  $ref: '#/components/schemas/email'
+                  $ref: "#/components/schemas/email"
                 password:
-                  $ref: '#/components/schemas/password'
+                  $ref: "#/components/schemas/password"
               required:
                 - email
                 - password
       responses:
         201:
-          $ref: '#/components/responses/AuthSuccess'
+          $ref: "#/components/responses/AuthSuccess"
         409:
           description: Email address already in use
 
@@ -130,7 +144,7 @@ paths:
       responses:
         301:
           description: Redirect to 42API authorize url
-  
+
   /auth/fortytwo/callback:
     get:
       summary: 42API callback
@@ -144,15 +158,71 @@ paths:
             Location:
               schema:
                 type: string
-              description: URL to redirect to, including `acess_token` and `expire_at` parameters for a sucessfull authentication or `statusCode` `code` `error` `message` in case of error
-        
+              description: URL to redirect to, including `access_token` and `expire_at` parameters for a sucessfull authentication or `statusCode` `code` `error` `message` in case of error
 
   /me:
     get:
-      summary: "get token owner"
-      description: Retrieve informations about the acess_token owner
+      summary: token bearer infos
+      description: Retrieve informations about the access_token bearer
       tags:
         - Users
+      responses:
+        204:
+          description: Sucess
+      security:
+        - JWT: []
+
+  /avatars:
+    get:
+      summary: get available avatars
+      description: Retrieve all the avatars available for the access_token bearer
+      tags:
+        - Avatars
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  default:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                    example:
+                      - "https://z1r4p5:8181/avatars/default/SwhBfWnSFiZM.jpg"
+                      - "https://z1r4p5:8181/avatars/default/70UmnQ4MkOyM.jpg"
+                      - "https://z1r4p5:8181/avatars/default/620-200x200.jpg"
+                  user:
+                    type: array
+                    items:
+                      type: string
+                      format: uri
+                    example:
+                      - "https://z1r4p5:8181/avatars/users/y2xCNJpHBxV4.jpg"
+                      - "https://z1r4p5:8181/avatars/users/PCeXT4xyrQ6w.jpg"
+                      - "https://z1r4p5:8181/avatars/users/vBPsHV081GLs.jpg"
+      security:
+        - JWT: []
+
+    post:
+      summary: upload avatar
+      description: WIP
+      tags:
+        - Avatars
+      responses:
+        204:
+          description: Sucess
+      security:
+        - JWT: []
+
+    delete:
+      summary: delete avatar
+      description: WIP
+      tags:
+        - Avatars
       responses:
         204:
           description: Sucess
@@ -161,26 +231,26 @@ paths:
 
   /users/{account_id}:
     get:
-      summary: "get a user"
+      summary: get user
       description: Retrieve public informations about the user associated with an account_id
       tags:
         - Users
       parameters:
-        - $ref: '#/components/parameters/account_id'
+        - $ref: "#/components/parameters/account_id"
       responses:
         204:
           description: Sucess
         404:
-          $ref: '#/components/responses/AccountNotFound'
+          $ref: "#/components/responses/AccountNotFound"
       security:
         - JWT: []
 
   /users/available/{username}:
     get:
-      summary: "username availability"
+      summary: username availability
       description: "Check wether a username is available"
       parameters:
-        - $ref: '#/components/parameters/username'
+        - $ref: "#/components/parameters/username"
       tags:
         - Users
       responses:
@@ -188,5 +258,29 @@ paths:
           description: Username available
         403:
           description: Username unavailable
+      security:
+        - JWT: []
+
+  /settings/profile:
+    patch:
+      summary: profile modification
+      description: Modify the profile associated with the JWT bearer
+      tags:
+        - Settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  $ref: "#/components/schemas/username"
+                avatar:
+                  $ref: "#/components/schemas/avatar"
+              additionalProperties: false
+      responses:
+        204:
+          description: Sucessfull profile edition
       security:
         - JWT: []

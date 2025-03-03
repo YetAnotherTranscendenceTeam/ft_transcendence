@@ -34,5 +34,4 @@ describe("pings", () => {
   it("ping users auth", async () => {
     const response = await request(`${host}:4003`).get("/ping").set('Authorization', `Bearer ${dummy.jwt}`).expect(204);
   });
-
 });
