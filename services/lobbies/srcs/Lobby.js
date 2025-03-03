@@ -6,11 +6,7 @@ import {
   LobbyStateMessage,
 } from "./LobbyMessages.js";
 import Player from "./Player.js";
-
-export const GameModes = {
-  "1v1": { name: "1v1", team_size: 1 },
-  "2v2": { name: "2v2", team_size: 2 },
-};
+import { GameModes } from "./GameModes.js";
 
 export const LobbyState = {
   waiting: () => ({ type: "waiting", joinable: true }),
@@ -41,10 +37,16 @@ export class Lobby {
 
   joinSecret = generateJoinSecret();
 
-  mode = GameModes["1v1"];
+  mode = Object.values(GameModes)[0];
   state = LobbyState.waiting();
 
-  constructor() {
+  constructor(modename) {
+	if (modename) {
+		const mode = GameModes[modename];
+		if (!mode)
+			throw new Error("Invalid gamemode");
+		this.mode = mode;
+	}
   }
 
   messageMember() {
