@@ -1,0 +1,24 @@
+client_max_body_size 10M;
+
+server {
+    listen 8181 ssl;
+
+    ssl_certificate /run/secrets/ssl-crt;
+    ssl_certificate_key /run/secrets/ssl-key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        limit_except GET { deny all; }
+
+        autoindex on;
+        root /app/;
+    }
+
+    location /api/ {
+        limit_except GET POST DELETE { deny all; }
+
+        rewrite ^/api/(.*) /$1 break;
+        proxy_pass http://cdn-api:3000;
+    }
+}

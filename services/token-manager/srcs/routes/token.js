@@ -46,7 +46,7 @@ export default function router(fastify, opts, done) {
       reply.send({
         access_token: fastify.jwt.sign({ account_id }, { expiresIn: "15m" }),
         refresh_token: fastify.jwt.sign({ account_id }, { expiresIn: "7d" }),
-        expire_at: Date.now().toString(),
+        expire_at: new Date(new Date().getTime() + 15 * 60000),
       });
     }
   );
