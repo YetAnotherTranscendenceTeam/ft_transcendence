@@ -5,7 +5,6 @@ import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket'
 import router from "./router.js";
 import YATT, {HttpError} from "yatt-utils";
-import bearerAuth from "@fastify/bearer-auth";
 import jwt from "@fastify/jwt";
 import { jwt_secret } from "./env.js";
 
@@ -25,27 +24,6 @@ export default function build(opts = {}) {
       ],
     });
   }
-
-  const serviceAuthorization = (token, request) => {
-    if (request.url == "/api-docs") return true;
-
-    try {
-      const decoded = app.jwt.verify(token)
-      request.account_id = decoded.account_id;
-    } catch (err) {
-      return false;
-    }
-    return true;
-  };
-
-  app.register(bearerAuth, {
-    auth: serviceAuthorization,
-    addHook: true,
-    errorResponse: (err) => {
-      return new HttpError.Unauthorized().json();
-    },
-  });
-
   app.register(jwt, {
     secret: jwt_secret,
   });

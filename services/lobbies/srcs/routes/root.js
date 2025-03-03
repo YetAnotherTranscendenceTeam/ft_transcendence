@@ -21,6 +21,15 @@ export default function router(fastify, opts, done) {
        * @type {Lobby | null}
        */
       let lobby;
+      if (!req.query.token)
+        return socket.close(1008, "Missing token");
+      try {
+        const token = req.query.token;
+        const decoded = fastify.jwt.verify(token)
+        req.account_id = decoded.account_id;
+      } catch (err) {
+        return socket.close(1008, "Invalid token");
+      }
       if (players.has(req.account_id)) {
         console.log(`Player ${req.account_id} already in a lobby`);
         return socket.close(1008, "Already in a lobby");
@@ -32,9 +41,12 @@ export default function router(fastify, opts, done) {
         lobby = new Lobby(gamemode);
         lobbies.set(lobby.joinSecret, lobby);
         console.log("Creating lobby", lobby.joinSecret);
-      } else lobby = lobbies.get(req.query.secret);
-      if (!lobby) return socket.close(1008, "Invalid secret");
-      if (!lobby.isJoinable()) return socket.close(1008, "Lobby is not joinable");
+      } else
+        lobby = lobbies.get(req.query.secret);
+      if (!lobby)
+        return socket.close(1008, "Invalid secret");
+      if (!lobby.isJoinable())
+          return socket.close(1008, "Lobby is not joinable");
       let player = new Player(socket, req, lobby, { lobbies, players });
       players.set(player.account_id, player);
       player.lobby = lobby;

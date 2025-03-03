@@ -43,8 +43,7 @@ const createLobby = (user, gamemode) => {
   return new Promise((resolve, reject) => {
     let joinSecret;
     const ws = request(lobbiesURL)
-      .ws(`/join${isGamemodeDefined ? `?gamemode=${gamemode.name}` : ""}`)
-      .set("Authorization", `Bearer ${user.jwt}`)
+      .ws(`/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`)
       .expectJson((message) => {
         expect(message.event).toBe("player_join");
         expect(message.data.player.account_id).toBe(user.account_id);
@@ -67,8 +66,7 @@ const createLobby = (user, gamemode) => {
 const joinLobby = (user, lobbyconnection) => {
   return new Promise((resolve, reject) => {
     const ws = request(lobbiesURL)
-      .ws(`/join?secret=${lobbyconnection.joinSecret}`)
-      .set("Authorization", `Bearer ${user.jwt}`)
+      .ws(`/join?token=${user.jwt}&secret=${lobbyconnection.joinSecret}`)
       .expectJson((message) => {
         expect(message.event).toBe("player_join");
         expect(message.data.player.account_id).toBe(user.account_id);
@@ -101,8 +99,7 @@ describe("Mass lobby creation", () => {
     await Promise.all(
       lobbies.map((lobby, i) => {
         request(lobbiesURL)
-          .ws(`/join?secret=${lobby.joinSecret}`)
-          .set("Authorization", `Bearer ${users[i].jwt}`)
+          .ws(`/join?token=${lobby.user.jwt}&secret=${lobby.joinSecret}`)
           .expectClosed(1008, "Invalid secret")
           .close();
       })
@@ -249,28 +246,25 @@ describe("Player join multiple lobbies", () => {
   });
   it(`User 0 attempt to create another lobby`, async () => {
     await request(lobbiesURL)
-      .ws("/join")
-      .set("Authorization", `Bearer ${users[0].jwt}`)
+      .ws(`/join?token=${users[0].jwt}`)
       .expectClosed(1008, "Already in a lobby")
       .close();
   });
   it(`User 1 attempt to create another lobby`, async () => {
     await request(lobbiesURL)
-      .ws("/join")
-      .set("Authorization", `Bearer ${users[1].jwt}`)
+    .ws(`/join?token=${users[1].jwt}`)
       .expectClosed(1008, "Already in a lobby")
       .close();
   });
   it(`User 0 attempt to join the original lobby`, async () => {
     await request(lobbiesURL)
-      .ws(`/join?secret=${lobby.joinSecret}`)
-      .set("Authorization", `Bearer ${users[0].jwt}`)
+      .ws(`/join?token=${users[0].jwt}&secret=${lobby.joinSecret}`)
       .expectClosed(1008, "Already in a lobby")
       .close();
   });
   it(`User 1 attempt to join the original lobby`, async () => {
     await request(lobbiesURL)
-      .ws(`/join?secret=${lobby.joinSecret}`)
+      .ws(`/join?token=${users[1].jwt}&secret=${lobby.joinSecret}`)
       .set("Authorization", `Bearer ${users[1].jwt}`)
       .expectClosed(1008, "Already in a lobby")
       .close();
