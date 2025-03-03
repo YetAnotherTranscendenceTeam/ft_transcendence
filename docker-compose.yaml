@@ -128,7 +128,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     ports:
       - "127.0.0.1:4043:3000"
-    # networks:
+    networks:
+      - frontend
 
   # profiles-api:
   #   build:

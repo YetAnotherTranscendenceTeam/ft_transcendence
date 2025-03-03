@@ -12,8 +12,10 @@ export default function SelectModeOverlay({
 		<div className='online-select-overlay-content flex flex-col'>
 			<h1>Select a game mode</h1>
 			<div className='mode-buttons flex gap-4'>
-				<ModeButton mode='classic' selected={true} image='https://cdn-0001.qstv.on.epicgames.com/ISfvNqRrgZJYiukxUk/image/landscape_comp.jpeg' onSelect={onSelect} />
-				<ModeButton mode='speed' selected={false} image='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNTKPQNODV6msbJoT0UQtvOLOO1ANGjZdJuA&s' onSelect={onSelect} />
+				<ModeButton mode='classic' image='https://cdn-0001.qstv.on.epicgames.com/ISfvNqRrgZJYiukxUk/image/landscape_comp.jpeg' onSelect={onSelect} />
+				<ModeButton mode='speed' image='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNTKPQNODV6msbJoT0UQtvOLOO1ANGjZdJuA&s' onSelect={onSelect} />
+				{/* <ModeButton mode='speed' image='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNTKPQNODV6msbJoT0UQtvOLOO1ANGjZdJuA&s' onSelect={onSelect} />
+				<ModeButton mode='speed' image='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNTKPQNODV6msbJoT0UQtvOLOO1ANGjZdJuA&s' onSelect={onSelect} /> */}
 			</div>
 		</div>
 	</div>	

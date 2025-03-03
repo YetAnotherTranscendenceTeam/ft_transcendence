@@ -15,61 +15,61 @@ export default function SocialManager({ className = '', children, ...props }: { 
 			elo: 1200,
 			avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
 		},
-		{
-			username: 'ibertran',
-			elo: 600,
-			avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
-		},
-		{
-			username: 'anfichet',
-			elo: 800,
-			avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
-		},
-		{
-			username: 'bwisniew',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
-		},
-		{
-			username: 'ibertran',
-			elo: 600,
-			avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
-		},
-		{
-			username: 'anfichet',
-			elo: 800,
-			avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
-		},
-		{
-			username: 'bwisniew',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
-		},
-		{
-			username: 'ibertran',
-			elo: 600,
-			avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
-		},
-		{
-			username: 'anfichet',
-			elo: 800,
-			avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
-		},
-		{
-			username: 'bwisniew',
-			elo: 1200,
-			avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
-		},
-		{
-			username: 'ibertran',
-			elo: 600,
-			avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
-		},
-		{
-			username: 'anfichet',
-			elo: 800,
-			avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
-		},
+		// {
+		// 	username: 'ibertran',
+		// 	elo: 600,
+		// 	avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
+		// },
+		// {
+		// 	username: 'anfichet',
+		// 	elo: 800,
+		// 	avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
+		// },
+		// {
+		// 	username: 'bwisniew',
+		// 	elo: 1200,
+		// 	avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
+		// },
+		// {
+		// 	username: 'ibertran',
+		// 	elo: 600,
+		// 	avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
+		// },
+		// {
+		// 	username: 'anfichet',
+		// 	elo: 800,
+		// 	avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
+		// },
+		// {
+		// 	username: 'bwisniew',
+		// 	elo: 1200,
+		// 	avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
+		// },
+		// {
+		// 	username: 'ibertran',
+		// 	elo: 600,
+		// 	avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
+		// },
+		// {
+		// 	username: 'anfichet',
+		// 	elo: 800,
+		// 	avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
+		// },
+		// {
+		// 	username: 'bwisniew',
+		// 	elo: 1200,
+		// 	avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG'
+		// },
+		// {
+		// 	username: 'ibertran',
+		// 	elo: 600,
+		// 	avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg'
+		// },
+		// {
+		// 	username: 'anfichet',
+		// 	elo: 800,
+		// 	avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG'
+		// },
 	]
 
 	return <div className={`social-manager ${className}`} {...props}>

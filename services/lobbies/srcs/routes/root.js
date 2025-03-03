@@ -15,6 +15,14 @@ const lobbies = new Map();
 const players = new Map();
 
 export default function router(fastify, opts, done) {
+
+
+  const interval = setInterval(function ping() {
+    players.forEach((player) => {
+      player.socket.ping();
+    });
+  }, 3000);
+
   fastify.get("/join", { websocket: true }, (socket, req) => {
     try {
       /**
