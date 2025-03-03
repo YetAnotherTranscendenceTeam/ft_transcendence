@@ -80,9 +80,34 @@ export default function router(fastify, opts, done) {
     }
   });
 
-  fastify.delete("/", async function handler(request, reply) {
-    console.log("delete profiles")
-    new HttpError.NotImplemented().send(reply);
+  schema = {
+    querystring: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', format: 'uri' }
+      },
+      required: ['url'],
+    },
+  }
+
+  fastify.delete("/", { schema }, async function handler(request, reply) {
+    const { url } = request.query;
+
+    console.log("avatar delition route called");
+    if (!db.prepare("SELECT * FROM avatars WHERE account_id = ? AND url = ?").get(request.account_id, url)) {
+      return new HttpError.NotFound().send(reply);
+    }
+    try {
+      //TODO: DELETE to CDN
+      db.prepare("DELETE FROM avatars WHERE account_id = ? AND url = ?").run(request.account_id, url);
+      reply.code(204).send();
+    } catch (err) {
+      if (err instanceof HttpError) {
+        err.send(reply);
+      } else {
+        throw err;
+      }
+    }
   });
 
   done();

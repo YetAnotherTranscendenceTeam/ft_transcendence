@@ -238,12 +238,22 @@ paths:
 
     delete:
       summary: delete avatar
-      description: WIP
+      description: Upload a personal avatar of the access_token bearer
       tags:
         - Avatars
+      parameters:
+        - in: query
+          name: url
+          required: true
+          schema:
+            type: string
+            format: uri
+          description: URL of the avatar to be deleted
       responses:
         204:
-          description: Sucess
+          description: Avatar successfully deleted
+        404:
+          description: Avatar not found
       security:
         - JWT: []
 
