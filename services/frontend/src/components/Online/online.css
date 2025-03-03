@@ -1,0 +1,56 @@
+.online-select-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: rgb(0, 0, 0, 0.5);
+	z-index: 100;
+	display: none;
+	opacity: 0;
+	color: var(--fg-1);
+	font-size: x-large;
+}
+
+.online-select-overlay.open {
+	display: flex;
+	animation: fadeIn 0.5s forwards;
+	opacity: 1;
+}
+
+@keyframes fadeIn {
+  from {
+	opacity: 0;
+  }
+  to {
+	opacity: 1;
+  }
+}
+
+
+.online-select-overlay-content {
+	gap: 16px;
+}
+
+.mode-buttons {
+	
+}
+
+.mode-button {
+	background-image: var(--image);
+	-webkit-filter: grayscale(100%);
+	filter: gray;
+	background-size: cover;
+	background-position: center;
+	height: 150px;
+	aspect-ratio: 4/3;
+	display: flex;
+	align-items: flex-end;
+	padding: 16px;
+	transition: filter 0.3s;
+}
+
+.mode-button.selected, .mode-button:hover {
+	-webkit-filter: grayscale(0%);
+	filter: none;
+}
