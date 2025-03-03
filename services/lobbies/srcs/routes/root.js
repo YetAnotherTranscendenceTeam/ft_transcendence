@@ -1,6 +1,7 @@
 "use strict";
 
 import { Lobby } from "../Lobby.js";
+import { GameModes } from "../GameModes.js";
 import Player from "../Player.js";
 
 /**
@@ -25,7 +26,10 @@ export default function router(fastify, opts, done) {
         return socket.close(1008, "Already in a lobby");
       }
       if (!req.query.secret) {
-        lobby = new Lobby();
+        let gamemode = req.query.gamemode;
+        if (gamemode && !GameModes[gamemode])
+          return socket.close(1008, "Invalid gamemode");
+        lobby = new Lobby(gamemode);
         lobbies.set(lobby.joinSecret, lobby);
         console.log("Creating lobby", lobby.joinSecret);
       } else lobby = lobbies.get(req.query.secret);
@@ -56,6 +60,10 @@ export default function router(fastify, opts, done) {
 
   fastify.get("/", async (req, res) => {
     res.send({ status: "ok" });
+  });
+
+  fastify.get("/gamemodes", async (req, res) => {
+    res.send(GameModes);
   });
 
   fastify.get("/stats", async (req, res) => {

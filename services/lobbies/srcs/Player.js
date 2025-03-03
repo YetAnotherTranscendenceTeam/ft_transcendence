@@ -1,4 +1,5 @@
-import { Lobby, GameModes } from "./Lobby.js";
+import { Lobby } from "./Lobby.js";
+import { GameModes } from "./GameModes.js";
 import { LobbyErrorMessage } from "./LobbyMessages.js";
 
 export default class Player {
