@@ -29,18 +29,16 @@ export default function router(fastify, opts, done) {
   });
   let schema = {
     body: {
-      type: "object",
-      properties: {
-        image: properties.image,
-      },
-      required: ["image"],
-    },
+      type: 'string',
+      contentMediaType: 'text/plain',
+      minLength: 1,
+    }
   };
 
   const maxAvatarPerUser = 5;
 
   fastify.post("/", { schema }, async function handler(request, reply) {
-    const { image } = request.body;
+    const image = request.body;
     let infos;
 
     try {
@@ -67,12 +65,13 @@ export default function router(fastify, opts, done) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          image: request.body.image,
+          image: request.body,
           extension: infos.type,
         }),
       });
       db.prepare("INSERT INTO avatars (account_id, url) VALUES (?, ?)")
         .run(request.account_id, cdn_url + upload.uri);
+      reply.code(201).send({ url: cdn_url + upload.uri });
     } catch (err) {
       if (err instanceof HttpError) {
         err.send(reply);
