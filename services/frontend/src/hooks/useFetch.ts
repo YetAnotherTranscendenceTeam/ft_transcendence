@@ -26,11 +26,14 @@ export default function useFetch() {
 				}
 			});
 			if (response.ok) {
-				const data = await response.json();
+				let data = true;
+				if (response.status !== 204) {
+					data = await response.json();
+				}
 				if (option.success_message)
 					createToast(option.success_message, 'success', 7000);
 				setIsLoading(false);
-				return data;
+				return data as any;
 			}
 			else {
 				const { message, statusCode } = await response.json();

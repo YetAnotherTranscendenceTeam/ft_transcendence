@@ -68,6 +68,7 @@ server {
     }
 
     location /avatars {
+        client_max_body_size 10M;
         rewrite ^/avatars(.*)$ /$1 break;
         proxy_pass http://avatars:3000;
     }

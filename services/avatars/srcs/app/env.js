@@ -11,7 +11,7 @@ if (!cdn_jwt_secret) {
 }
 
 export const cdn_url = process.env.CDN_URL;
-if (!cdn_jwt_secret) {
+if (!cdn_url) {
   console.error("Missing environment variable: CDN_URL");
   process.exit(1);
 }
