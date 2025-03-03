@@ -34,4 +34,11 @@ describe("pings", () => {
   it("ping users auth", async () => {
     const response = await request(`${host}:4003`).get("/ping").set('Authorization', `Bearer ${dummy.jwt}`).expect(204);
   });
+
+  it("ping avatars", async () => {
+    const response = await request(`${host}:4113`).get("/ping").expect(401);
+  });
+  it("ping avatars auth", async () => {
+    const response = await request(`${host}:4113`).get("/ping").set('Authorization', `Bearer ${dummy.jwt}`).expect(204);
+  });
 });

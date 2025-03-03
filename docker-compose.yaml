@@ -192,7 +192,7 @@ services:
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
       - CDN_URL=${CDN_URL}
     ports:
-      - 127.0.0.1:1324:3000
+      - 127.0.0.1:4113:3000
     networks:
       - avatars
 

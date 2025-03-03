@@ -1,7 +1,7 @@
 "use strict";
 
 import { HttpError } from "yatt-utils";
-import YATT, { properties } from "yatt-utils";
+import YATT from "yatt-utils";
 import db from "../app/database.js";
 import { cdn_url } from "../app/env.js"
 import { imageSize } from 'image-size';
@@ -98,7 +98,13 @@ export default function router(fastify, opts, done) {
       return new HttpError.NotFound().send(reply);
     }
     try {
-      //TODO: DELETE to CDN
+      const token = fastify.jwt.cdn.sign({});
+      await YATT.fetch(`${cdn_url}/api/${url.replace(cdn_url, '')}`, {
+        method: "DELETE",
+        headers: {
+          'authorization': `Bearer ${token}`,
+        }
+      });
       db.prepare("DELETE FROM avatars WHERE account_id = ? AND url = ?").run(request.account_id, url);
       reply.code(204).send();
     } catch (err) {

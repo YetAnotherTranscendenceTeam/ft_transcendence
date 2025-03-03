@@ -65,6 +65,12 @@ export default class HttpError {
     }
   };
 
+  static InternalServerError = class InternalServerError extends HttpError {
+    constructor(message = httpErrMessages.get(500)) {
+      super(500, "Internal Server Error", message);
+    }
+  };
+
   static NotImplemented = class NotImplemented extends HttpError {
     constructor(message = httpErrMessages.get(501)) {
       super(501, "Not Implemented", message);
@@ -91,6 +97,7 @@ httpErrMessages.set(403, "The server understood the request but refuses to autho
 httpErrMessages.set(404, "The requested resource could not be found on the server");
 httpErrMessages.set(409, "The request could not be completed due to a conflict with the current state of the target resource");
 httpErrMessages.set(429, "You're doing that too often! Try again later.");
+httpErrMessages.set(500, "An unexpected error occurred on the server");
 httpErrMessages.set(501, "The server does not support the functionality required to fulfill the request");
 httpErrMessages.set(502, "The server received an invalid response from an upstream server");
 httpErrMessages.set(503, "The server cannot handle the request right now");
