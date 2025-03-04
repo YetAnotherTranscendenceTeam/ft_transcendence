@@ -34,10 +34,10 @@ const createLobby = (user, gamemode) => {
   let isGamemodeDefined = gamemode !== undefined;
   if (!isGamemodeDefined) {
     gamemode = {
-      name: "ranked_1v1",
-      team_size: 1,
-      team_count: 1,
-      ranked: true,
+      name: "unranked_2v2",
+      team_size: 2,
+      team_count: 2,
+      ranked: false,
     };
   }
   return new Promise((resolve, reject) => {
@@ -132,14 +132,14 @@ describe("Lobby game mode change", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < users.length; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
     }
   });
   it(`change game mode`, () => {
-    players[0].ws.sendJson({ event: "mode", data: { mode: "ranked_2v2" } });
+    players[0].ws.sendJson({ event: "mode", data: { mode: "unranked_2v2" } });
   });
   it(`expect game mode change`, async () => {
     await Promise.all(
@@ -147,10 +147,10 @@ describe("Lobby game mode change", () => {
         player.ws.expectJson((message) => {
           expect(message.event).toBe("mode_change");
           expect(message.data.mode).toStrictEqual({
-            name: "ranked_2v2",
+            name: "unranked_2v2",
             team_size: 2,
-            team_count: 1,
-            ranked: true,
+            team_count: 2,
+            ranked: false,
           });
         })
       )
@@ -169,7 +169,7 @@ describe("Lobby kick system", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < users.length; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -199,7 +199,7 @@ describe("Ownership transfer (by leaving group)", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < users.length; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -215,21 +215,21 @@ describe("Ownership transfer (by leaving group)", () => {
           .slice(1)
           .map((p) =>
             p.ws
-              .sendJson({ event: "mode", data: { mode: "ranked_2v2" } })
+              .sendJson({ event: "mode", data: { mode: "unranked_2v2" } })
               .expectJson((message) => expect(message.event).toBe("error"))
           )
       );
       if (players[0]) {
-        players[0].ws.sendJson({ event: "mode", data: { mode: "ranked_2v2" } });
+        players[0].ws.sendJson({ event: "mode", data: { mode: "unranked_2v2" } });
         await Promise.all(
           players.map((p) =>
             p.ws.expectJson((message) => {
               expect(message.event).toBe("mode_change");
               expect(message.data.mode).toStrictEqual({
-                name: "ranked_2v2",
+                name: "unranked_2v2",
                 team_size: 2,
-                team_count: 1,
-                ranked: true,
+                team_count: 2,
+                ranked: false,
               });
             })
           )
@@ -282,11 +282,16 @@ describe("Player join multiple lobbies", () => {
 describe("Lobby creation with gamemode", () => {
   const testGamemode = async (gamemode) => {
     const lobby = await createLobby(users[0], gamemode);
-    const player = await joinLobby(users[1], lobby);
-    expect(player.lobby.mode).toStrictEqual(gamemode);
-    await lobby.expectJoin(users[1].account_id);
-    await player.close();
-    await lobby.expectLeave(users[1].account_id);
+    let player;
+    if (gamemode.team_count != 1 && gamemode.team_size != 1) {
+      player = await joinLobby(users[1], lobby);
+      expect(player.lobby.mode).toStrictEqual(gamemode);
+    }
+    if (gamemode.team_count != 1 && gamemode.team_size != 1) {
+      await lobby.expectJoin(users[1].account_id);
+      await player.close();
+      await lobby.expectLeave(users[1].account_id);
+    }
     await lobby.close();
   };
   test("create a lobby with ranked_1v1 gamemode", async () => {
@@ -354,7 +359,7 @@ describe("Move player inside lobby", () => {
   let players = [];
   test("create and join a lobby", async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < users.length; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -399,3 +404,106 @@ describe("Move player inside lobby", () => {
     }
   })
 })
+
+describe("Join full lobby", () => {
+  const testgamemode = async (gamemode) => {
+    let players = [];
+    players.push(await createLobby(users[0], gamemode));
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+      let player = await joinLobby(users[i], players[0]);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+    await request(lobbiesURL)
+      .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].joinSecret}`)
+      .expectClosed(1008, "Lobby is not in a joinable state")
+      .close();
+    while(players.length > 0) {
+      let player = players.pop();
+      await player.close();
+      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+    }
+  }
+  test("1v1 ranked lobby", () => {
+    return testgamemode({
+      name: "ranked_1v1",
+      team_size: 1,
+      team_count: 1,
+      ranked: true,
+    });
+  })
+  test("2v2 ranked lobby", () => {
+    return testgamemode({
+      name: "ranked_2v2",
+      team_size: 2,
+      team_count: 1,
+      ranked: true,
+    });
+  })
+  test("2v2 unranked lobby", () => {
+    return testgamemode({
+      name: "unranked_2v2",
+      team_size: 2,
+      team_count: 2,
+      ranked: false,
+    });
+  })
+  test("1v1 unranked lobby", () => {
+    return testgamemode({
+      name: "unranked_1v1",
+      team_size: 1,
+      team_count: 2,
+      ranked: false,
+    });
+  })
+})
+
+describe("Change gamemode with too many players", () => {
+  const testgamemode = async (gamemode) => {
+    let players = [];
+    players.push(await createLobby(users[0], {
+      name: "unranked_2v2",
+      team_size: 2,
+      team_count: 2,
+      ranked: false,
+    }));
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+      let player = await joinLobby(users[i], players[0]);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+    players[0].ws.sendJson({ event: "mode", data: { mode: gamemode.name } })
+    .expectJson((message) => {
+      expect(message.event).toBe("error");
+    });
+    while(players.length > 0) {
+      let player = players.pop();
+      await player.close();
+      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+    }
+  }
+  test("1v1 ranked lobby", () => {
+    return testgamemode({
+      name: "ranked_1v1",
+      team_size: 1,
+      team_count: 1,
+      ranked: true,
+    });
+  })
+  test("2v2 ranked lobby", () => {
+    return testgamemode({
+      name: "ranked_2v2",
+      team_size: 2,
+      team_count: 1,
+      ranked: true,
+    });
+  })
+  test("1v1 unranked lobby", () => {
+    return testgamemode({
+      name: "unranked_1v1",
+      team_size: 1,
+      team_count: 2,
+      ranked: false,
+    });
+  })
+});

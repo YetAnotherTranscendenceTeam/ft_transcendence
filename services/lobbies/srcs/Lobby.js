@@ -90,8 +90,14 @@ export class Lobby {
     }
   }
 
+  getLobbyCapacity() {
+	return this.mode.team_size * this.mode.team_count;
+  }
+
   setGameMode(mode) {
     if (!mode) throw new Error("Invalid gamemode");
+	if (this.players.length > mode.team_size * mode.team_count)
+		throw new Error("Too many players in lobby to change to this gamemode");
     this.mode = mode;
     this.broadbast(new LobbyModeMessage(mode));
   }
@@ -102,7 +108,9 @@ export class Lobby {
   }
 
   isJoinable() {
-    return this.state.joinable;
+	if (!this.state.joinable)
+		return false;
+	return this.players.length < this.getLobbyCapacity();
   }
 
   queue() {

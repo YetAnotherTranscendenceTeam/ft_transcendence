@@ -14,7 +14,7 @@ export class Player {
         (player) => player.account_id == msg.account_id
       );
       if (!target) return;
-      target.socket.close(1000, "Kicked from lobby");
+	  target.disconnect(1000, "Kicked from lobby");
     },
     queue_start: (msg, player) => {
       player.lobby.queue();
@@ -43,7 +43,7 @@ export class Player {
     this.connected = true;
   }
 
-  disconnect() {
+  disconnect(code, reason) {
     console.log(`Player ${this.account_id} disconnected`);
     this.lobby.removePlayer(this);
     this.players.delete(this.account_id);
@@ -51,7 +51,12 @@ export class Player {
       console.log(`Destroying lobby ${this.lobby.joinSecret}`);
       this.lobbies.delete(this.lobby.joinSecret);
     }
-    if (this.connected) this.socket.close(1000, "Disconnected");
+    if (this.connected) {
+		if (code && reason)
+			this.socket.close(code, reason);
+		else
+			this.socket.close(code ? code : 1000, "Disconnected");
+	}
     this.connected = false;
   }
 
