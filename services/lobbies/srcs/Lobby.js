@@ -4,6 +4,7 @@ import {
   LobbyLeaveMessage,
   LobbyModeMessage,
   LobbyStateMessage,
+  MovePlayerMessage
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
@@ -71,6 +72,16 @@ export class Lobby {
   removePlayer(player) {
     this.players = this.players.filter((p) => p != player);
     this.broadbast(new LobbyLeaveMessage(player));
+  }
+
+  movePlayer({account_id, index}) {
+	if (typeof index != "number" || index < 0 || index >= this.players.length)
+		throw new Error("Invalid index");
+	const player = this.players.find((player) => player.account_id == account_id);
+	if (!player) throw new Error("Player not found");
+	this.players = this.players.filter((p) => p != player);
+	this.players.splice(index, 0, player);
+	this.broadbast(new MovePlayerMessage(player, index));
   }
 
   broadbast(message) {

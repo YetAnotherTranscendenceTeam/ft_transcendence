@@ -195,7 +195,7 @@ describe("Lobby kick system", () => {
   });
 });
 
-describe("Ownership transfer", () => {
+describe("Ownership transfer (by leaving group)", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
@@ -286,6 +286,7 @@ describe("Lobby creation with gamemode", () => {
     expect(player.lobby.mode).toStrictEqual(gamemode);
     await lobby.expectJoin(users[1].account_id);
     await player.close();
+    await lobby.expectLeave(users[1].account_id);
     await lobby.close();
   };
   test("create a lobby with ranked_1v1 gamemode", async () => {
@@ -348,3 +349,53 @@ describe("Stats", () => {
     await lobby.close();
   });
 });
+
+describe("Move player inside lobby", () => {
+  let players = [];
+  test("create and join a lobby", async () => {
+    players.push(await createLobby(users[0]));
+    for (let i = 1; i < users.length; i++) {
+      let player = await joinLobby(users[i], players[0]);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+  });
+  test("move player", async () => {
+    await players[0].ws.sendJson({
+      event: "move_player",
+      data: { account_id: users[1].account_id, index: 0 },
+    });
+    await Promise.all(
+      players.map((player) =>
+        player.ws.expectJson((message) => {
+          expect(message.event).toBe("move_player");
+          expect(message.data.account_id).toBe(users[1].account_id);
+          expect(message.data.index).toBe(0);
+        })
+      )
+    );
+  });
+  // checks if ownership is transferred
+  test("move players[1] back to it's original position", async () => {
+    await players[1].ws.sendJson({
+      event: "move_player",
+      data: { account_id: users[0].account_id, index: 0 },
+    });
+    await Promise.all(
+      players.map((player) =>
+        player.ws.expectJson((message) => {
+          expect(message.event).toBe("move_player");
+          expect(message.data.account_id).toBe(users[0].account_id);
+          expect(message.data.index).toBe(0);
+        })
+      )
+    );
+  })
+  test("leave lobby", async () => {
+    while (players.length > 0) {
+      let player = players.pop();
+      await player.close();
+      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+    }
+  })
+})

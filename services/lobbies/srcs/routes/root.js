@@ -13,7 +13,7 @@ export default function router(fastify, opts, done) {
         lobby = connection_manager.checkConnection(fastify, req);
       }
       catch (err) {
-        console.error(err);
+        console.error(err.message);
         socket.close(1008, err.message);
         return;
       }

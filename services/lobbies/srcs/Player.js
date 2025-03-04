@@ -10,7 +10,9 @@ export class Player {
     },
     mode: (msg, player) => player.lobby.setGameMode(GameModes[msg.mode]),
     kick: (msg, player) => {
-      const target = player.lobby.players.find((player) => player.account_id == msg.account_id);
+      const target = player.lobby.players.find(
+        (player) => player.account_id == msg.account_id
+      );
       if (!target) return;
       target.socket.close(1000, "Kicked from lobby");
     },
@@ -22,6 +24,9 @@ export class Player {
     },
     disconnect: (msg, player) => {
       player.disconnect();
+    },
+    move_player: (msg, player) => {
+      player.lobby.movePlayer(msg);
     },
   };
 
