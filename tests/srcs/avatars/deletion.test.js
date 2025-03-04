@@ -26,7 +26,7 @@ describe('Avatar Creation and Deletion', () => {
     expect(createdAvatars.length).toBe(5);
     for (let url of createdAvatars) {
         url = new URL(url); 
-        await request('https://' + url.host).get(url.pathname).expect(200);
+        await request("https://127.0.0.1:8181").get(url.pathname).expect(200);
     }
 
     // Delete each avatar
@@ -48,7 +48,7 @@ describe('Avatar Creation and Deletion', () => {
 
     for (let url of createdAvatars) {
         url = new URL(url); 
-        await request('https://' + url.host).get(url.pathname).expect(404);
+        await request("https://127.0.0.1:8181").get(url.pathname).expect(404);
     }
   });
 });

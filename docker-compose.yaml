@@ -195,6 +195,7 @@ services:
       - 127.0.0.1:4113:3000
     networks:
       - avatars
+      - cdn-test
 
   swagger:
     build:
@@ -220,6 +221,7 @@ services:
       - ./services/CDN/.avatars:/app/avatars/default/:ro
     networks:
       - cdn-api
+      - cdn-test
     secrets:
       - ssl-crt
       - ssl-key
@@ -253,7 +255,7 @@ networks:
     driver: bridge
   avatars:
     driver: bridge
-  cdn:
+  cdn-test:
     driver: bridge
   cdn-api:
     driver: bridge
