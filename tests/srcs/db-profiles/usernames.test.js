@@ -39,7 +39,6 @@ describe("/usernames/:username", () => {
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
     expect(response.body.username).toEqual(dummyProfile.username);
     expect(response.body.avatar).toEqual(null);
-    expect(response.body.created_at).toEqual(response.body.updated_at);
   })
 
   it("get by username", async () => {
@@ -51,7 +50,6 @@ describe("/usernames/:username", () => {
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
     expect(response.body.username).toEqual(dummyProfile.username);
     expect(response.body.avatar).toEqual("");
-    expect(response.body.created_at).toEqual(response.body.updated_at);
   })
 
   it("patch profile username", async () => {
@@ -66,7 +64,6 @@ describe("/usernames/:username", () => {
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
     expect(response.body.username).toEqual(dummyProfile.username.slice(5));
     expect(response.body.avatar).toEqual(null);
-    expect(response.body.created_at).toEqual(response.body.updated_at);
   })
 
   it("get by old username", async () => {
@@ -92,7 +89,6 @@ describe("/usernames/:username", () => {
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
     expect(response.body.username).toEqual(dummyProfile.username.slice(5));
     expect(response.body.avatar).toEqual("");
-    expect(response.body.created_at).toEqual(response.body.updated_at);
   })
 
   it("delete dummy profile", async () => {

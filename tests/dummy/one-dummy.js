@@ -14,6 +14,7 @@ const registerUrL = "http://127.0.0.1:4012";
 const credentialsUrl = "http://127.0.0.1:7002"
 const authUrl = "http://127.0.0.1:4022"
 const dbprofilesUrL = "http://127.0.0.1:7001"
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 export const dummy = {
   account_id: null,
@@ -21,7 +22,7 @@ export const dummy = {
   email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
   password: crypto.randomBytes(4).toString("hex"),
   username: crypto.randomBytes(4).toString("hex"),
-  avatar: `https://${crypto.randomBytes(8).toString("hex")}.com`,
+  avatar: null,
 };
 
 const USER_COUNT = 10;
@@ -85,6 +86,16 @@ it("auth using password", async () => {
 });
 
 it("patch profile", async () => {
+  const myavatars = await request("https://127.0.0.1:7979")
+    .get('/avatars')
+    .set('Authorization', `Bearer ${dummy.jwt}`)
+    .expect(200)
+
+  const minCeiled = Math.ceil(0);
+  const maxFloored = Math.floor(myavatars.body.default.length);
+  const rand = Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
+  dummy.avatar = myavatars.body.default[rand];
+
   const response = await request(dbprofilesUrL)
     .patch(`/${dummy.account_id}`)
     .send({
