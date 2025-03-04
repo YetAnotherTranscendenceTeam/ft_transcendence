@@ -2,7 +2,7 @@ import { Lobby } from "./Lobby.js";
 import { GameModes } from "./GameModes.js";
 import { LobbyErrorMessage } from "./LobbyMessages.js";
 
-export default class Player {
+export class Player {
   static playerMessages = ["disconnect"];
   static messageHanlers = {
     unrecognized: () => {
@@ -25,10 +25,10 @@ export default class Player {
     },
   };
 
-  constructor(socket, req, lobby, { lobbies, players }) {
+  constructor(socket, req, lobby, { lobbies, players }, profile) {
     this.socket = socket;
     this.account_id = req.account_id;
-    this.profile = null; // TODO profile?? (profile service communication?)
+    this.profile = profile;
     /**
      * @type {Lobby}
      */

@@ -130,6 +130,7 @@ services:
       - "127.0.0.1:4043:3000"
     networks:
       - frontend
+      - db-profiles
 
   # profiles-api:
   #   build:

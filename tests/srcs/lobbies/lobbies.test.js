@@ -43,7 +43,9 @@ const createLobby = (user, gamemode) => {
   return new Promise((resolve, reject) => {
     let joinSecret;
     const ws = request(lobbiesURL)
-      .ws(`/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`)
+      .ws(
+        `/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`
+      )
       .expectJson((message) => {
         expect(message.event).toBe("player_join");
         expect(message.data.player.account_id).toBe(user.account_id);
@@ -96,14 +98,15 @@ describe("Mass lobby creation", () => {
     await Promise.all(lobbies.map((lobby) => lobby.close()));
   });
   it(`check if lobbies are destroyed`, async () => {
-    await Promise.all(
-      lobbies.map((lobby, i) => {
-        request(lobbiesURL)
-          .ws(`/join?token=${lobby.user.jwt}&secret=${lobby.joinSecret}`)
-          .expectClosed(1008, "Invalid secret")
-          .close();
-      })
-    );
+    return request(lobbiesURL)
+      .get("/stats")
+      .set("Authorization", `Bearer ${users[0].jwt}`)
+      .send()
+      .expect(200)
+      .then((res) => {
+        expect(res.body.lobby_count).toBe(0);
+        expect(res.body.player_count).toBe(0);
+      });
   });
 });
 
@@ -252,7 +255,7 @@ describe("Player join multiple lobbies", () => {
   });
   it(`User 1 attempt to create another lobby`, async () => {
     await request(lobbiesURL)
-    .ws(`/join?token=${users[1].jwt}`)
+      .ws(`/join?token=${users[1].jwt}`)
       .expectClosed(1008, "Already in a lobby")
       .close();
   });

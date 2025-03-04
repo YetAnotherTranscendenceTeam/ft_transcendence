@@ -5,7 +5,7 @@ import {
   LobbyModeMessage,
   LobbyStateMessage,
 } from "./LobbyMessages.js";
-import Player from "./Player.js";
+import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
 
 export const LobbyState = {
@@ -17,13 +17,10 @@ export const LobbyState = {
 // export this to be used when the secret is already used
 export function generateJoinSecret() {
   const SECRET_LENGTH = 8;
-  const SECRET_CHARS =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  const SECRET_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
   let joinSecret = "";
   for (let i = 0; i < SECRET_LENGTH; i++) {
-    joinSecret += SECRET_CHARS.at(
-      Math.floor(Math.random() * SECRET_CHARS.length)
-    );
+    joinSecret += SECRET_CHARS.at(Math.floor(Math.random() * SECRET_CHARS.length));
   }
   return joinSecret;
 }
@@ -41,21 +38,20 @@ export class Lobby {
   state = LobbyState.waiting();
 
   constructor(modename) {
-	if (modename) {
-		const mode = GameModes[modename];
-		if (!mode)
-			throw new Error("Invalid gamemode");
-		this.mode = mode;
-	}
+    if (modename) {
+      const mode = GameModes[modename];
+      if (!mode) throw new Error("Invalid gamemode");
+      this.mode = mode;
+    }
   }
 
   messageMember() {
-	return {
-		players: this.players.map(player => player.messageMember()),
-		joinSecret: this.joinSecret,
-		mode: this.mode,
-		state: this.state
-	}
+    return {
+      players: this.players.map((player) => player.messageMember()),
+      joinSecret: this.joinSecret,
+      mode: this.mode,
+      state: this.state,
+    };
   }
 
   getOwner() {
@@ -84,8 +80,7 @@ export class Lobby {
   }
 
   setGameMode(mode) {
-	if (!mode)
-		throw new Error("Invalid gamemode");
+    if (!mode) throw new Error("Invalid gamemode");
     this.mode = mode;
     this.broadbast(new LobbyModeMessage(mode));
   }
@@ -100,12 +95,12 @@ export class Lobby {
   }
 
   queue() {
-	  this.setState(LobbyState.queued());
+    this.setState(LobbyState.queued());
     // TODO: matchmake
   }
 
   unqueue() {
-	  this.setState(LobbyState.waiting());
-	// TODO: unqueue from matchmaking
+    this.setState(LobbyState.waiting());
+    // TODO: unqueue from matchmaking
   }
 }
