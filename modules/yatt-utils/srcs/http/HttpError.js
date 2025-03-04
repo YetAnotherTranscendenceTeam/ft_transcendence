@@ -47,6 +47,12 @@ export default class HttpError {
     }
   };
 
+  static NotFound = class NotFound extends HttpError {
+    constructor(message = httpErrMessages.get(404)) {
+      super(404, "Not Found", message);
+    }
+  };
+
   static Conflict = class Conflict extends HttpError {
     constructor(message = httpErrMessages.get(409)) {
       super(409, "Conflict", message);
@@ -56,6 +62,12 @@ export default class HttpError {
   static TooManyRequests = class TooManyRequests extends HttpError {
     constructor(message = httpErrMessages.get(429)) {
       super(429, "Too Many Requests", message);
+    }
+  };
+
+  static InternalServerError = class InternalServerError extends HttpError {
+    constructor(message = httpErrMessages.get(500)) {
+      super(500, "Internal Server Error", message);
     }
   };
 
@@ -82,8 +94,10 @@ export const httpErrMessages = new Map();
 httpErrMessages.set(400, "The server cannot process the request due to a client error");
 httpErrMessages.set(401, "Authentication is required and has failed or has not been provided");
 httpErrMessages.set(403, "The server understood the request but refuses to authorize it");
+httpErrMessages.set(404, "The requested resource could not be found on the server");
 httpErrMessages.set(409, "The request could not be completed due to a conflict with the current state of the target resource");
 httpErrMessages.set(429, "You're doing that too often! Try again later.");
+httpErrMessages.set(500, "An unexpected error occurred on the server");
 httpErrMessages.set(501, "The server does not support the functionality required to fulfill the request");
 httpErrMessages.set(502, "The server received an invalid response from an upstream server");
 httpErrMessages.set(503, "The server cannot handle the request right now");

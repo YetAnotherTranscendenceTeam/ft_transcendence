@@ -7,6 +7,7 @@ services:
     networks:
       - frontend
       - db-profiles
+      - avatars
       - settings
       - swagger
     environment:
@@ -130,17 +131,6 @@ services:
       - "127.0.0.1:4043:3000"
     # networks:
 
-  # profiles-api:
-  #   build:
-  #     context: services/profiles-api/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./sqlite:/database
-  #     - ./services/profiles-api/srcs:/run/srcs
-  #   ports:
-  #     - "127.0.0.1:3003:3000"
-  #   networks:
-  #     - credentials
 
   db-profiles:
     build:
@@ -185,6 +175,27 @@ services:
   #     - 127.0.0.1:4004:3000
   #   networks:
   #     - settings
+  #     - cdn
+  #   secrets:
+  #     - ssl-crt
+
+  avatars:
+    build:
+      context: services/avatars/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/avatars/srcs:/services/avatars/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_URL=${CDN_URL}
+    ports:
+      - 127.0.0.1:4113:3000
+    networks:
+      - avatars
+      - cdn-test
 
   swagger:
     build:
@@ -201,6 +212,33 @@ services:
     networks:
       - swagger
 
+  cdn-nginx:
+    build: services/CDN/nginx/
+    ports:
+      - "8181:8181"
+    volumes:
+      - avatars:/app/avatars/users/:ro
+      - ./services/CDN/.avatars:/app/avatars/default/:ro
+    networks:
+      - cdn-api
+      - cdn-test
+    secrets:
+      - ssl-crt
+      - ssl-key
+
+  cdn-api:
+    build:
+      context: services/CDN/api/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - avatars:/app/avatars/users/
+      - ./services/CDN/.avatars:/app/avatars/default/:ro
+      - ./services/CDN/api/srcs:/services/CDN/api/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+    networks:
+     - cdn-api
 
 networks:
   frontend:
@@ -215,6 +253,15 @@ networks:
     driver: bridge
   swagger:
     driver: bridge
+  avatars:
+    driver: bridge
+  cdn-test:
+    driver: bridge
+  cdn-api:
+    driver: bridge
+
+volumes:
+  avatars:
 
 secrets:
   ssl-crt: 

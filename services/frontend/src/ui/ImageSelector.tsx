@@ -33,6 +33,7 @@ export default function ImageSelector({
 		const reader = new FileReader();
 		reader.onload = (e: any) => onChange(e);
 		reader.readAsDataURL(file);
+		e.target.value = '';
 	}
 
 	const handleImageClick = (url: string) => {

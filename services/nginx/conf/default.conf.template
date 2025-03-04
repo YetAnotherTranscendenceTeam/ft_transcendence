@@ -32,12 +32,12 @@ server {
         return 404;
     }
 
-    location /register/ {
+    location /register {
         rewrite ^/register/(.*)$ /$1 break;
         proxy_pass http://registration:3000;
     }
 
-    location /auth/ {
+    location /auth {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -48,7 +48,7 @@ server {
         proxy_pass http://password-auth:3000;
     }
 
-    location /auth/fortytwo/ {
+    location /auth/fortytwo {
         rewrite ^/auth/fortytwo/(.*)$ /$1 break;
         proxy_pass http://fortytwo-auth:3000;
     }
@@ -58,26 +58,24 @@ server {
         proxy_pass http://token-manager:3000;
     }
 
-    location /users/ {
+    location /users {
         rewrite ^/users/(.*)$ /$1 break;
         proxy_pass http://users:3000;
     }
 
-    location = /me {
-        rewrite ^/me$ /me break;
+    location /me {
         proxy_pass http://users:3000;
     }
+
+    location /avatars {
+        client_max_body_size 5M;
+
+        rewrite ^/avatars(.*)$ /$1 break;
+        proxy_pass http://avatars:3000;
+    }
+
+    # location /settings {
+    #     rewrite ^/settings(.*)$ /$1 break;
+    #     proxy_pass http://settings:3000;
+    # }
 }
-
-# server {
-#     listen 7878 ssl;
-
-#     ssl_certificate /run/secrets/ssl-crt;
-#     ssl_certificate_key /run/secrets/ssl-key;
-#     ssl_protocols TLSv1.2 TLSv1.3;
-#     ssl_ciphers HIGH:!aNULL:!MD5;
-
-#     location / {
-#         root /avatars;
-#     }
-# }
