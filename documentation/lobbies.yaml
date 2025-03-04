@@ -1,0 +1,430 @@
+asyncapi: 3.0.0
+info:
+  title: Lobbies service
+  version: 1.0.0
+  description: This service is in charge of processing player lobbies
+servers:
+  development:
+    host: localhost:8080
+    protocol: wss
+    description: The development server
+channels:
+  lobby:
+    bindings:
+      ws:
+        query:
+          type: object
+          required:
+            - token
+          properties:
+            token:
+              type: string
+              description: The token of the user
+            secret:
+              type: string
+              description: the join secret of the lobby to join (none to create one)
+            gamemode:
+              $ref: '#/components/schemas/gamemode_name'
+    address: /lobbies/join
+    messages:
+    # sent from client
+      disconnect:
+        $ref: '#/components/messages/disconnect'
+      mode:
+        $ref: '#/components/messages/mode'
+      kick:
+        $ref: '#/components/messages/kick'
+      move_player:
+        $ref: '#/components/messages/move_player'
+      queue_start:
+        $ref: '#/components/messages/queue_start'
+      queue_stop:
+        $ref: '#/components/messages/queue_stop'
+
+    # sent from server
+      lobby:
+        $ref: '#/components/messages/lobby'
+      player_join:
+        $ref: '#/components/messages/player_join'
+      player_leave:
+        $ref: '#/components/messages/player_leave'
+      mode_change:
+        $ref: '#/components/messages/mode_change'
+      state_change:
+        $ref: '#/components/messages/state_change'
+      error:
+        $ref: '#/components/messages/error'
+operations:
+  publish:
+    action: send
+    channel:
+      $ref: '#/channels/lobby'
+    messages:
+      - $ref: '#/channels/lobby/messages/player_join'
+      - $ref: '#/channels/lobby/messages/lobby'
+      - $ref: '#/channels/lobby/messages/player_leave'
+      - $ref: '#/channels/lobby/messages/mode_change'
+      - $ref: '#/channels/lobby/messages/state_change'
+      - $ref: '#/channels/lobby/messages/error'
+  subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/lobby'
+    messages:
+      - $ref: '#/channels/lobby/messages/disconnect'
+      - $ref: '#/channels/lobby/messages/mode'
+      - $ref: '#/channels/lobby/messages/kick'
+      - $ref: '#/channels/lobby/messages/move_player'
+      - $ref: '#/channels/lobby/messages/queue_start'
+      - $ref: '#/channels/lobby/messages/queue_stop'
+components:
+  tags:
+    owner:
+      name: owner
+      description: Messages that only the owner of the lobby can send
+    broadcast:
+      name: broadcast
+      description: Messages that are broadcasted to all lobby members
+  messages:
+    disconnect:
+      description: Send this message to disconnect cleanly from the lobby (performs backend cleanup **before** disconnecting)
+      payload:
+        type: object
+        required:
+          - event
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - disconnect
+    mode:
+      description: Send this message to change the lobby game mode
+      tags:
+        - $ref: '#/components/tags/owner'
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - mode
+          data:
+            type: object
+            required:
+              - mode
+            properties:
+              mode:
+                $ref: '#/components/schemas/gamemode_name'
+    kick:
+      description: Send this message to kick a player from the lobby
+      tags:
+        - $ref: '#/components/tags/owner'
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - kick
+          data:
+            type: object
+            required:
+              - account_id
+            properties:
+              account_id:
+                type: number
+                description: Account ID of the player to kick
+    move_player:
+      description: Send this message to move a player to another team
+      tags:
+        - $ref: '#/components/tags/owner'
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - move_player
+          data:
+            type: object
+            required:
+              - account_id
+              - index
+            properties:
+              account_id:
+                type: number
+                description: Account ID of the player to move
+              index:
+                type: number
+                description: The slot index to move the player to (0 to make then leader)
+    queue_start:
+      description: Send this message to start queuing for a match
+      tags:
+        - $ref: '#/components/tags/owner'
+      payload:
+        type: object
+        required:
+          - event
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - queue_start
+    queue_stop:
+      description: Send this message to stop queuing for a match
+      tags:
+        - $ref: '#/components/tags/owner'
+      payload:
+        type: object
+        required:
+          - event
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - queue_stop
+    state_change:
+      description: Message sent to all lobby members when the state of the lobby changes
+      tags:
+        - $ref: '#/components/tags/broadcast'
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - state_change
+          data:
+            type: object
+            required:
+              - state
+            properties:
+              state:
+                $ref: '#/components/schemas/lobbyState'
+    mode_change:
+      description: Message sent to all lobby members when the game mode of the lobby changes
+      tags:
+        - $ref: '#/components/tags/broadcast'
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - mode_change
+          data:
+            type: object
+            required:
+              - mode
+            properties:
+              mode:
+                $ref: '#/components/schemas/gamemode'
+    player_join:
+      description: Message sent to all lobby members when a player joins
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - player_join
+          data:
+            type: object
+            required:
+              - player
+            properties:
+              player:
+                $ref: '#/components/schemas/player'
+    player_leave:
+      description: Message sent to all lobby members when a player leaves
+      payload:
+        required:
+          - event
+          - data
+        type: object
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - player_leave
+          data:
+            type: object
+            required:
+              - player
+            properties:
+              player:
+                $ref: '#/components/schemas/player'
+    lobby:
+      description: Message containing the entire lobby which is sent to a joining player to sync the lobby
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - lobby
+          data:
+            type: object
+            required:
+              - lobby
+            properties:
+              lobby:
+                $ref: '#/components/schemas/lobby'
+    error:
+      description: Message sent when an error occurs in reply to a message (invalid usage)
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - error
+          data:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+                description: The error message
+  schemas:
+    account_id:
+      type: number
+      description: Account ID of the player
+    player:
+      type: object
+      description: The player in the lobby
+      required:
+        - account_id
+      properties:
+        account_id:
+          $ref: '#/components/schemas/account_id'
+        profile:
+          $ref: '#/components/schemas/profile'
+    profile:
+      type: object
+      description: The profile of the player (can be null if profile service is unavailable)
+      required:
+        - account_id
+        - name
+        - avatar
+        - created_at
+        - updated_at
+      properties:
+        account_id:
+          $ref: '#/components/schemas/account_id'
+        name:
+          type: string
+          description: Name of the player
+        avatar:
+          type: string
+          description: Avatar of the player
+        created_at:
+          type: string
+          format: date-time
+          description: Date when the player was created
+        updated_at:
+          type: string
+          format: date-time
+          description: Date when the player profile was last updated
+    gamemode_name:
+      type: string
+      description: The name of the gamemode
+      enum:
+        - unranked_2v2
+        - ranked_2v2
+        - unranked_1v1
+        - ranked_1v1
+    gamemode:
+      type: object
+      required:
+        - name
+        - team_size
+        - team_count
+        - ranked
+      description: The game mode of the lobby
+      properties:
+        name:
+          $ref: '#/components/schemas/gamemode_name'
+        team_size:
+          type: integer
+          description: Size of the team
+        team_count:
+          type: integer
+          description: Max number of teams for this lobby
+        ranked:
+          type: boolean
+          description: Whether this mode is ranked or not
+    lobbyState:
+      type: object
+      required:
+        - type
+        - joinable
+      description: The state of the lobby
+      properties:
+        type:
+          type: string
+          description: The type of the state
+          enum:
+            - waiting
+            - queued
+            - playing
+        joinable:
+          type: boolean
+          description: Whether the lobby is joinable or not
+    lobby:
+      type: object
+      required:
+        - players
+        - mode
+        - state
+        - joinSecret
+      properties:
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/player'
+          description: List of players in the lobby
+        mode:
+          $ref: '#/components/schemas/gamemode'
+        state:
+          $ref: '#/components/schemas/lobbyState'
+        joinSecret:
+          type: string
+          description: The secret to join the lobby
