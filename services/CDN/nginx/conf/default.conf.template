@@ -15,6 +15,7 @@ server {
 
     location /api/ {
         limit_except GET POST DELETE { deny all; }
+        client_max_body_size 6M;
 
         rewrite ^/api/(.*) /$1 break;
         proxy_pass http://cdn-api:3000;

@@ -27,6 +27,9 @@ export default function router(fastify, opts, done) {
       throw err;
     }
   });
+
+  const maxAvatarPerUser = 5;
+
   let schema = {
     body: {
       type: 'string',
@@ -34,9 +37,6 @@ export default function router(fastify, opts, done) {
       minLength: 1,
     }
   };
-
-  const maxAvatarPerUser = 5;
-
   fastify.post("/", { schema }, async function handler(request, reply) {
     const image = request.body;
     let infos;
@@ -119,12 +119,12 @@ export default function router(fastify, opts, done) {
   done();
 }
 
-const allowedTypes = ["jpg", "jpeg", "png", "gif", "webp"];
+const allowedTypes = ["jpg", "png", "gif", "webp"];
 
 function validateImageFormat(infos) {
   const { width, height, type } = infos;
   if (!allowedTypes.find(ext => ext === type)
-    || width < 128 || height < 128
+    || width < 32 || height < 32
     || width > 1024 || height > 1024) {
     throw new HttpError.BadRequest();
   }
