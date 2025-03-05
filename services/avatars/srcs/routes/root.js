@@ -15,7 +15,7 @@ export default function router(fastify, opts, done) {
           .all()
           .map(avatar => avatar.url),
         user: db
-          .prepare("SELECT * FROM avatars WHERE account_id = ?")
+          .prepare("SELECT * FROM avatars ORDER BY created_at DESC WHERE account_id = ?")
           .all(request.account_id)
           .map(avatar => avatar.url),
       });
