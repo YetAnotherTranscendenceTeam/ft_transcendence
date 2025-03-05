@@ -80,10 +80,8 @@ export default function router(fastify, opts, done) {
         .get(account_id);
       reply.code(201).send(profile);
     } catch (err) {
-      if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
-        return new HttpError.Conflict().send(reply);
-      }
-      throw err;
+      if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") new HttpError.Conflict().send(reply);
+      else throw err;
     }
   });
 
@@ -154,19 +152,22 @@ export default function router(fastify, opts, done) {
     const { account_id } = request.params;
     const { setClause, params } = patchBodyToSql(request.body);
 
-    const update = db
-      .prepare(`
-        UPDATE profiles
-        SET ${setClause}
-        WHERE account_id = ?
-        RETURNING *;
-      `)
-      .get(...params, account_id);
-
-    console.log("UPDATE:", update);
-    reply.send(update);
-  }
-  );
+    try {
+      const update = db
+        .prepare(`
+          UPDATE profiles
+          SET ${setClause}
+          WHERE account_id = ?
+          RETURNING *;
+        `)
+        .get(...params, account_id);
+      console.log("UPDATE:", update);
+      reply.send(update);
+    } catch (err) {
+      if (err.code === "SQLITE_CONSTRAINT_UNIQUE") new HttpError.Conflict().send(reply);
+      else throw err;
+    }
+  });
 
   done();
 }
