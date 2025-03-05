@@ -9,16 +9,15 @@ import { imageSize } from 'image-size';
 export default function router(fastify, opts, done) {
   fastify.get("/", async function handler(request, reply) {
     try {
-      const token = fastify.jwt.cdn.sign({ account_id: request.account_id });
-      const defaults = await YATT.fetch(`${cdn_url}/api/avatars/default`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        }
-      });
-      const user = db.prepare("SELECT * FROM avatars WHERE account_id = ?").all(request.account_id);
       reply.send({
-        default: defaults.map(path => cdn_url + path),
-        user: user.map(avatar => avatar.url),
+        default: db
+          .prepare("SELECT * FROM avatars WHERE account_id = -1")
+          .all()
+          .map(avatar => avatar.url),
+        user: db
+          .prepare("SELECT * FROM avatars WHERE account_id = ?")
+          .all(request.account_id)
+          .map(avatar => avatar.url),
       });
     } catch (err) {
       if (err instanceof HttpError) {
