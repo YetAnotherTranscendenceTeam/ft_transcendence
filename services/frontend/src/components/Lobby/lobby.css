@@ -1,0 +1,58 @@
+.lobby-card {
+	position: fixed;
+	top: 24px;
+	right: 24px;
+	min-width: 200px;
+}
+
+.lobby-card h1 {
+	font-size: medium;
+	font-weight: bold;
+	color: var(--fg-1);
+}
+
+.lobby-card h2 {
+	font-size: small;
+	color: var(--fg-2);
+}
+
+.lobby-card-body .avatar:first-child {
+	border: 1px solid var(--primary-color);
+}
+
+/* =============== List =============== */
+
+.lobby-player-list {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+	margin-left: 64px;
+}
+
+.lobby-player-list h1 {
+	width: 100%;
+	color: var(--fg-1);
+	font-size: large;
+}
+
+.lobby-player-list-team {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	gap: 1rem;
+	padding: 16px;
+	background-color: var(--bg-2);
+	--primary-color: var(--team-color);
+}
+
+
+
+.lobby-player-list-team .card{
+	flex-direction: row;
+	min-width: 200px;
+	min-height: 48px;
+}

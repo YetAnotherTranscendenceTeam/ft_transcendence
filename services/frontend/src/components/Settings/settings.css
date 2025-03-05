@@ -4,11 +4,12 @@
 	left: 0;
 	height: calc(100vh - 32px);
 	width: 400px;
-	transition: opacity 0.5s, transform 0.5s;
+	transition: opacity 0.5s, transform 0.5s, max-width 0.5s;
 	border-radius: 0;
 	opacity: 0;
 	transform: translateX(-100%);
 	padding: 16px 32px;
+	max-width: 0;
 }
 
 .menu-container .settings {
@@ -16,7 +17,9 @@
 }
 
 .settings.open {
+	position: relative;
 	opacity: 1;
+	max-width: 40vw;
 	transform: translateX(0);
 }
 

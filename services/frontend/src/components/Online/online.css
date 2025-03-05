@@ -59,3 +59,13 @@
 	-webkit-filter: grayscale(0%);
 	filter: none;
 }
+
+
+.online-join-form {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 8px;
+	font-size: medium;
+}

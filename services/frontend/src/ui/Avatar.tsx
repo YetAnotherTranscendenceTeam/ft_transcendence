@@ -1,12 +1,26 @@
 import Babact from "babact";
 
-export default function Avatar({className = '', src, name, status, ...props}: {className?: string, src?: string, name?: string, status?: string, [key: string]: any}) {
+export default function Avatar({
+		className = '',
+		src,
+		name,
+		status,
+		...props
+	}: {
+		className?: string,
+		src?: string,
+		name?: string,
+		status?: string,
+		[key: string]: any
+	}) {
 
+	if (typeof name !== 'string') name = 'Anonymous';
 	const initials = name.split(" ").map((n) => n[0]).join("");
 
 	const [loading, setLoading] = Babact.useState(true);
 
 	Babact.useEffect(() => {
+		if (!src) return;
 		fetch(src).then((res) => {
 			if(res.ok) setLoading(false);
 		}).catch(() => {});
@@ -28,7 +42,7 @@ export default function Avatar({className = '', src, name, status, ...props}: {c
 
 	return <div className={`avatar ${className}`} style={`background-color: ${stringToColour(name)};`} {...props}>
 		<p>{initials}</p>
-		{loading ? null : <img src={src} alt="avatar"/>}
-		<span style={`background-color: var(--success-color);`} />
+		{loading || !src ? null : <img src={src} alt="avatar"/>}
+		{status && <span style={`background-color: var(--success-color);`} />}
 	</div>
 }

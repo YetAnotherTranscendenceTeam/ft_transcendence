@@ -3,6 +3,7 @@ import Card from "../../ui/Card";
 import Button from "../../ui/Button";
 import AccountForm from "./AccountForm";
 import ProfileForm from "./ProfileForm";
+import useEscape from "../../hooks/useEscape";
 
 export default function Settings({
 		me,
@@ -13,17 +14,6 @@ export default function Settings({
 		isOpen?: boolean,
 		onClose: Function
 	}) {
-
-	const handleEscape = (e: KeyboardEvent) => {
-		if (e.key === 'Escape')
-			onClose();
-	}
-
-	Babact.useEffect(() => {
-		if (isOpen)
-			window.addEventListener('keydown', handleEscape);
-		return () => window.removeEventListener('keydown', handleEscape);
-	}, [isOpen]);
 	
 	return <Card className={`settings right flex flex-col items-center h-full gap-8 w-full ${isOpen ? 'open' : ''}`}>
 		<div className='flex justify-between w-full items-center'>

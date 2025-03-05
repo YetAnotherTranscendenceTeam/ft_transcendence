@@ -25,6 +25,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - BACKEND_URL=${BACKEND_URL}
+      - WS_URL=${WS_URL}
     ports:
       - "127.0.0.1:4242:8080"
     networks:

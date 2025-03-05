@@ -1,16 +1,15 @@
 .menu-container {
-	position: fixed;
+	position: relative;
 	top: 0;
 	left: 0;
 	height: 100vh;
+	max-width: 50vw;
 	display: flex;
-	justify-content: flex-end;
 	align-items: center;
 	z-index: 1;
 }
 
 .menu {
-	position: absolute;
 	left: 0;
 	height: 100%;
 	border-radius: 0;
@@ -38,6 +37,7 @@
 }
 
 .menu.closed {
+	position: absolute;
 	max-width: 32px;
 }
 

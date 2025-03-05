@@ -7,6 +7,7 @@ import { useAuth } from "../../contexts/useAuth";
 import Button from "../../ui/Button";
 import Settings from "../Settings/Settings";
 import SelectModeOverlay from "../Online/SelectModeOverlay";
+import useEscape from "../../hooks/useEscape";
 
 export default function Menu() {
 
@@ -16,9 +17,11 @@ export default function Menu() {
 
 	const isClosed = selected !== null;
 
+	useEscape(isClosed, () => setSelected(null));
+
 	return <div className='menu-container flex'>
 		<Settings me={me} isOpen={selected === 'settings'} onClose={() => setSelected(null)} />
-		<SelectModeOverlay isOpen={selected === 'online'} onClose={() => setSelected(null)} onSelect={()=>{}} />
+		<SelectModeOverlay isOpen={selected === 'online'} onClose={() => setSelected(null)} />
 		<Card className={`menu right flex flex-col items-center justify-center h-full gap-4 ${isClosed ? 'closed' : ''}`}>
 
 			<Link to='/local' className='button ghost'>

@@ -16,6 +16,8 @@
 	--bg-4: #868e96;
 	--bg-5: #adb5bd;
 	--shadow: 0px 0px 16px 4px var(--primary-color);
+	--team-1-color: #ff3c3c;
+	--team-2-color: #72b8f1;
 }
 
 :root {
