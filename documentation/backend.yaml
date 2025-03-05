@@ -307,6 +307,9 @@ paths:
                 avatar:
                   $ref: "#/components/schemas/avatar"
               additionalProperties: false
+              oneOf:
+              - required: [username]
+              - required: [avatar]
       responses:
         204:
           description: Sucessfull profile edition
