@@ -29,7 +29,8 @@ export default function router(fastify, opts, done) {
             "Authorization": `Bearer ${request.acess_token}`,
           },
         });
-        if (!available.default.find(e => e === avatar) || !available.user.find(e => e === avatar)) {
+        console.log('Check', avatar, available);
+        if (!available.default.find(e => e === avatar) && !available.user.find(e => e === avatar)) {
           return new HttpError.Forbidden().send(reply);
         }
       }

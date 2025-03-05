@@ -5,44 +5,40 @@ import Input from "../../ui/Input";
 import './profile.css';
 import ImageSelector from "../../ui/ImageSelector";
 import Submit from "../../ui/Submit";
-import useFetch from "../../hooks/useFetch";
-import config from "../../config";
 import { useAuth } from "../../contexts/useAuth";
 import Button from "../../ui/Button";
 import useAvatars from "../../hooks/useAvatars";
+import useProfile from "../../hooks/useProfile";
 
 export default function ConfirmProfileModal({ ...props}) {
 
-	const { refresh, me, logout } = useAuth();
+	const { me, logout } = useAuth();
 
 	const { avatars, uploadAvatar, deleteAvatar } = useAvatars();
 
-	const { ft_fetch , isLoading } = useFetch();
-
-
+	const { setSettings, isLoading } = useProfile();
 
 	const handleSubmit = async (fields) => {
-		const response = await ft_fetch(`${config.API_URL}/settings/profile`, {
-			method: 'PATCH',
-			body: JSON.stringify({
-				username: fields['profile-username'],
-				avatar: fields['profile-picture']
-			})
-		}, {
-			show_error: true,	
+		setSettings({
+			username: fields['profile-username'].value,
+			avatar: fields['profile-avatar'].value
 		});
-		if (response)
-			refresh();
 	}
 
 	if (me)
-	return <Modal className="confirm-profile-modal gap-4 left" isOpen={true} onClose={()=>{}} {...props} closeOnBackgroundClick={false}>
+	return <Modal
+		className="confirm-profile-modal gap-4 left"
+		isOpen={true}
+		{...props}
+		closeOnBackgroundClick={false}
+	>
 		<h1>Almost There...</h1>
-		<Form formFields={['profile-username*', 'profile-picture*']}>
+		<Form formFields={['profile-username*', 'profile-avatar*']}>
 			<Input
 				field='profile-username'
 				label='Username'
 				required
+				maxlength={12}
 				defaultValue={me.username}
 			/>
 
@@ -50,7 +46,7 @@ export default function ConfirmProfileModal({ ...props}) {
 				label='Profile Picture'
 				images={avatars}
 				onChange={(e: any) => uploadAvatar(e.target.result)}
-				field="profile-picture"
+				field="profile-avatar"
 				required
 				onImageRemove={deleteAvatar}
 				defaultValue={me.avatar}
@@ -60,7 +56,7 @@ export default function ConfirmProfileModal({ ...props}) {
 				<Button className="danger" onClick={() => logout()}>
 					Logout <i className="fa-solid fa-arrow-right-from-bracket"></i>
 				</Button>
-				<Submit fields={['profile-username', 'profile-picture']} onSubmit={handleSubmit} loading={isLoading}>
+				<Submit fields={['profile-username', 'profile-avatar']} onSubmit={handleSubmit} loading={isLoading}>
 					Confirm <i className="fa-solid fa-user-check"></i>
 				</Submit>
 			</div>

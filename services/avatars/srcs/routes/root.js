@@ -124,8 +124,7 @@ const allowedTypes = ["jpg", "png", "gif", "webp"];
 function validateImageFormat(infos) {
   const { width, height, type } = infos;
   if (!allowedTypes.find(ext => ext === type)
-    || width < 32 || height < 32
-    || width > 1024 || height > 1024) {
+    || width < 32 || height < 32) {
     throw new HttpError.BadRequest();
   }
 }

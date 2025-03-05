@@ -14,7 +14,7 @@ export default function Modal({
 		...props
 	}: {
 		isOpen: boolean,
-		onClose: () => void,
+		onClose?: () => void,
 		children?: any,
 		className?: string,
 		closeOnBackgroundClick?: boolean,

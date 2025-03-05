@@ -1,5 +1,6 @@
 import Babact from "babact";
 import { useForm } from "../contexts/useForm";
+import useToast from "../hooks/useToast";
 
 export type Image = {
 	url: string,
@@ -26,12 +27,20 @@ export default function ImageSelector({
 		[key: string]: any
 	}) {
 
+	const { createToast } = useToast();
+
 	const { updateField, updateFieldValidity, fields } = useForm();
 
 	const handleFileChange = (e: any) => {
 		const file = e.target.files[0];
 		const reader = new FileReader();
-		reader.onload = (e: any) => onChange(e);
+		reader.onload = (e: any) => {
+			if (e.target.result.length > 5 * 1024 * 1024) {
+				createToast('File too large', 'danger', 7000);
+				return;
+			}
+			onChange(e)
+		};
 		reader.readAsDataURL(file);
 		e.target.value = '';
 	}
