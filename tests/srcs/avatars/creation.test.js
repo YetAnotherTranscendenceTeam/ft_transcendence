@@ -2,8 +2,8 @@ import request from "supertest";
 import { dummy } from "../../dummy/one-dummy";
 import { avatarPNG } from "./b64avatars.js";
 
-const baseUrl = 'https://127.0.0.1:7979'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+const baseUrl = 'https://127.0.0.1:7979';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 describe('Avatar Router', () => {
   describe('GET /', () => {

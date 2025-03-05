@@ -76,8 +76,8 @@ export default function router(fastify, opts, done) {
 
     try {
       const profile = db
-        .prepare("INSERT INTO profiles (account_id) VALUES (?) RETURNING *")
-        .get(account_id);
+        .prepare("INSERT INTO profiles (account_id, avatar) VALUES (?, ?) RETURNING *")
+        .get(account_id, fastify.defaultAvatar);
       reply.code(201).send(profile);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") new HttpError.Conflict().send(reply);
@@ -104,10 +104,7 @@ export default function router(fastify, opts, done) {
     }
   };
 
-  fastify.delete(
-    "/:account_id",
-    { schema },
-    async function handler(request, reply) {
+  fastify.delete("/:account_id", { schema }, async function handler(request, reply) {
       const { account_id } = request.params;
 
       const result = db

@@ -139,7 +139,8 @@ services:
       - ./modules/:/modules:ro
       - ./sqlite:/database
     environment:
-      - JWT_SECRET=${JWT_SECRET}
+      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_URL=${CDN_URL}
     ports:
       - 127.0.0.1:7001:3000
     networks:

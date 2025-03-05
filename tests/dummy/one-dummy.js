@@ -89,7 +89,7 @@ it("patch profile", async () => {
   const myavatars = await request("https://127.0.0.1:7979")
     .get('/avatars')
     .set('Authorization', `Bearer ${dummy.jwt}`)
-    .expect(200)
+    .expect(200);
 
   const minCeiled = Math.ceil(0);
   const maxFloored = Math.floor(myavatars.body.default.length);

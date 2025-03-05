@@ -17,13 +17,13 @@ server.listen({ port: 3000, host: "0.0.0.0" }, async (err, address) => {
   await defaultAvatars(`${cdn_url}/api/avatars/default`);
 });
 
-const defaultAvatars = async (host) => {
+const defaultAvatars = async (endpoint) => {
   const access_token = server.jwt.cdn.sign({}, { expireIn: '15m' });
   let attempt = 0;
 
   while (attempt < 5) {
     try {
-      const response = await fetch(host, {
+      const response = await fetch(endpoint, {
         headers: { 'Authorization': `Bearer ${access_token}` }
       });
       if (response.ok) {
@@ -43,7 +43,6 @@ const defaultAvatars = async (host) => {
     } catch (err) {
       attempt++;
       console.error(err);
-      console.error("")
     }
     await new Promise(resolve => setTimeout(resolve, 5000));
   }
