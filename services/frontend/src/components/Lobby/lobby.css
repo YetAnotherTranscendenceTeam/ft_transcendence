@@ -47,6 +47,7 @@
 	padding: 16px;
 	background-color: var(--bg-2);
 	--primary-color: var(--team-color);
+	z-index: 10;
 }
 
 
@@ -55,4 +56,20 @@
 	flex-direction: row;
 	min-width: 200px;
 	min-height: 48px;
+}
+
+.lobby-player-card {
+	cursor: grab;
+	z-index: 100;
+}
+
+.lobby-player-card.dragging {
+	box-shadow: 10px 10px 75px 0px rgba(0,0,0,0.50);
+	transform: translate(var(--x), var(--y));
+	z-index: 1000;
+}
+
+.lobby-player-card i{
+	font-size: large;
+	color: var(--fg-4);
 }

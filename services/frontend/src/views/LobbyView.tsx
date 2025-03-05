@@ -15,12 +15,12 @@ export default function LobbyView() {
 
 	const { join, create } = useLobby();
 
-	// Babact.useEffect(() => {
-	// 	console.log('code', code)
-	// 	if (code)
-	// 		create('unranked_2v2');
-	// 		// join(code);
-	// }, [])
+	Babact.useEffect(() => {
+		console.log('code', code)
+		if (code)
+			create('unranked_2v2');
+			// join(code);
+	}, [])
 
 	const { lobby } = useLobby();
 
