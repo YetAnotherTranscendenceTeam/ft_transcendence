@@ -36,7 +36,6 @@ jobs:
         with:
           node-version: '23.3.0'
 
-
       - name: Create SSL certificate
         run: make
 

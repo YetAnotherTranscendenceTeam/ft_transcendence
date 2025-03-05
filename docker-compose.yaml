@@ -6,10 +6,8 @@ services:
       - "7979:7979"
     networks:
       - frontend
-      - db-profiles
       - avatars
       - settings
-      - swagger
     environment:
       - NGINX_HOST=localhost
     secrets:
@@ -162,22 +160,20 @@ services:
      - frontend
      - db-profiles
 
-  # settings:
-  #   build:
-  #     context: services/settings/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./services/settings/srcs:/services/settings/srcs
-  #     - ./modules/:/modules:ro
-  #   environment:
-  #     - JWT_SECRET=${JWT_SECRET}
-  #   ports:
-  #     - 127.0.0.1:4004:3000
-  #   networks:
-  #     - settings
-  #     - cdn
-  #   secrets:
-  #     - ssl-crt
+  settings:
+    build:
+      context: services/settings/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/settings/srcs:/services/settings/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - 127.0.0.1:4004:3000
+    networks:
+      - settings
+      - db-profiles
 
   avatars:
     build:
@@ -255,9 +251,10 @@ networks:
     driver: bridge
   avatars:
     driver: bridge
-  cdn-test:
-    driver: bridge
   cdn-api:
+    driver: bridge
+
+  cdn-test:
     driver: bridge
 
 volumes:

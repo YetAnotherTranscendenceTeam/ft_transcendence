@@ -145,31 +145,27 @@ export default function router(fastify, opts, done) {
     },
     response: {
       204: {
-        description: "[PLACEHOLDER]"
+        description: "Sucess"
       }
     }
   };
 
-  fastify.patch(
-    "/:account_id",
-    { schema },
-    async function handler(request, reply) {
-      const { account_id } = request.params;
-      const { setClause, params } = patchBodyToSql(request.body);
+  fastify.patch("/:account_id", { schema }, async function handler(request, reply) {
+    const { account_id } = request.params;
+    const { setClause, params } = patchBodyToSql(request.body);
 
-      const update = db
-        .prepare(
-          `
+    const update = db
+      .prepare(`
         UPDATE profiles
         SET ${setClause}
         WHERE account_id = ?
         RETURNING *;
-      `
-        )
-        .get(...params, account_id);
+      `)
+      .get(...params, account_id);
 
-      reply.send(update);
-    }
+    console.log("UPDATE:", update);
+    reply.send(update);
+  }
   );
 
   done();

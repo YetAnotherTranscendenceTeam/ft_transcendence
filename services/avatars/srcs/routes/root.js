@@ -93,19 +93,19 @@ export default function router(fastify, opts, done) {
   fastify.delete("/", { schema }, async function handler(request, reply) {
     const { url } = request.query;
 
-    console.log("avatar delition route called");
     if (!db.prepare("SELECT * FROM avatars WHERE account_id = ? AND url = ?").get(request.account_id, url)) {
       return new HttpError.NotFound().send(reply);
     }
     try {
       const token = fastify.jwt.cdn.sign({});
-      await YATT.fetch(`${cdn_url}/api/${url.replace(cdn_url, '')}`, {
+      await YATT.fetch(url.replace(cdn_url, `${cdn_url}/api/`), {
         method: "DELETE",
         headers: {
           'authorization': `Bearer ${token}`,
         }
       });
       db.prepare("DELETE FROM avatars WHERE account_id = ? AND url = ?").run(request.account_id, url);
+      console.log(`id#${request.account_id} deleted avatar ${url}`);
       reply.code(204).send();
     } catch (err) {
       if (err instanceof HttpError) {

@@ -74,8 +74,8 @@ server {
         proxy_pass http://avatars:3000;
     }
 
-    # location /settings {
-    #     rewrite ^/settings(.*)$ /$1 break;
-    #     proxy_pass http://settings:3000;
-    # }
+    location /settings {
+        rewrite ^/settings/(.*)$ /$1 break;
+        proxy_pass http://settings:3000;
+    }
 }
