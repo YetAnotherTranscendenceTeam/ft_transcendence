@@ -23,28 +23,67 @@ export function commitRoot() {
 }
 
 export function commitWork(fiber: IFiber | null) {
+    if (!fiber) {
+        return;
+    }
+    let domParentFiber: IFiber = fiber.parent;
+    while (!domParentFiber.dom) {
+        domParentFiber = domParentFiber.parent;
+    }
+    const domParent: HTMLElement | Text = domParentFiber.dom;
+    if (fiber.effectTag === EffectTag.Placement && fiber.dom != null) {
+        insertFiberInOrder(fiber, domParent);
+    } else if (fiber.effectTag === EffectTag.Update && fiber.dom != null) {
+        updateDom(fiber.dom as HTMLElement, fiber.alternate.props, fiber.props);
+    } else if (fiber.effectTag === EffectTag.Deletion) {
+        commitDeletion(fiber, domParent);
+        return;
+    }
+
+    if (fiber.hooks)
+        BabactState.effects.push(...fiber.hooks.filter(hook => hook.tag === 'effect'));
+
+    commitWork(fiber.child);
+    commitWork(fiber.sibling);
+}
+
+function findValidReferenceNode(fiber: IFiber, domParent: HTMLElement | Text): HTMLElement | Text {
+
 	if (!fiber) {
-		return;
-	}
-	let domParentFiber: IFiber = fiber.parent;
-	while (!domParentFiber.dom) {
-		domParentFiber = domParentFiber.parent;
-	}
-	const domParent: HTMLElement | Text = domParentFiber.dom;
-	if (fiber.effectTag === EffectTag.Placement && fiber.dom != null) {
-		domParent.appendChild(fiber.dom);
-	} else if (fiber.effectTag === EffectTag.Update && fiber.dom != null) {
-		updateDom(fiber.dom as HTMLElement, fiber.alternate.props, fiber.props);
-	} else if (fiber.effectTag === EffectTag.Deletion) {
-		commitDeletion(fiber, domParent);
-		return;
+		return null;
 	}
 
-	if (fiber.hooks)
-		BabactState.effects.push(...fiber.hooks.filter(hook => hook.tag === 'effect'));
+	if (fiber.dom && domParent.contains(fiber.dom)) {
+		return fiber.dom;
+	}
 
-	commitWork(fiber.child);
-	commitWork(fiber.sibling);
+	if (fiber.child) {
+		const reference = findValidReferenceNode(fiber.child, domParent);
+		if (reference) {
+			return reference;
+		}
+	}
+	if (fiber.sibling) {
+		const reference = findValidReferenceNode(fiber.sibling, domParent);
+		if (reference) {
+			return reference;
+		}
+	}
+	return null;
+}
+
+function insertFiberInOrder(fiber: IFiber, domParent: HTMLElement | Text) {
+	let startFiber = fiber;
+	while (startFiber.parent && !startFiber.sibling) {
+		startFiber = startFiber.parent;
+	}
+    let validReferenceNode = findValidReferenceNode(startFiber.sibling, domParent);
+
+    if (validReferenceNode) {
+        domParent.insertBefore(fiber.dom, validReferenceNode);
+    } else {
+        domParent.appendChild(fiber.dom);
+    }
 }
 
 function updateDom(dom: HTMLElement, prevProps: ElementProps, nextProps: ElementProps) {
