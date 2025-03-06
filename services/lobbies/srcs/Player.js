@@ -25,8 +25,8 @@ export class Player {
     disconnect: (msg, player) => {
       player.disconnect();
     },
-    move_player: (msg, player) => {
-      player.lobby.movePlayer(msg);
+    swap_players: (msg, player) => {
+      player.lobby.swapPlayers(msg);
     },
   };
 

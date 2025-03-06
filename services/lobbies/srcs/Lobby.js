@@ -4,7 +4,7 @@ import {
   LobbyLeaveMessage,
   LobbyModeMessage,
   LobbyStateMessage,
-  MovePlayerMessage,
+  SwapPlayersMessage,
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
@@ -97,14 +97,26 @@ export class Lobby {
       this.scheduleDestruction();
   }
 
-  movePlayer({ account_id, index }) {
-    if (typeof index != "number" || index < 0 || index >= this.players.length)
-      throw new Error("Invalid index");
-    const player = this.players.find((player) => player.account_id == account_id);
-    if (!player) throw new Error("Player not found");
-    this.players = this.players.filter((p) => p != player);
-    this.players.splice(index, 0, player);
-    this.broadbast(new MovePlayerMessage(player, index));
+  // swaps the positions of 2 players
+  swapPlayers({ account_ids  }) {
+    const indexes = [];
+    if (!Array.isArray(account_ids) || account_ids.length != 2)
+      throw new Error("Expected element 'indexes' to be an array of 2 element");
+    for (let i = 0; i < account_ids.length; i++)
+    {
+      let account_id = account_ids[i];
+      if (typeof account_id != "number")
+        throw new Error("Invalid account_id, expected a number");
+      let index = this.players.findIndex((p) => p.account_id == account_id);
+      if (index == -1)
+        throw new Error("Account_id is not part of this lobby");
+      indexes.push(index);
+    }
+    // swap players with a temp value
+    let player = this.players[indexes[0]];
+    this.players[indexes[0]] = this.players[indexes[1]];
+    this.players[indexes[1]] = player;
+    this.broadbast(new SwapPlayersMessage(account_ids));
   }
 
   broadbast(message) {

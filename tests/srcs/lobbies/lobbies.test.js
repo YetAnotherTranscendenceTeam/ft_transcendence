@@ -13,10 +13,7 @@ class Player {
     this.lobby = lobby;
   }
   close() {
-    return this.ws
-      .sendJson({ event: "disconnect" })
-      .expectClosed(1000, "Disconnected")
-      .close();
+    return this.ws.sendJson({ event: "disconnect" }).expectClosed(1000, "Disconnected").close();
   }
   expectJoin(account_id) {
     return this.ws.expectJson((message) => {
@@ -45,9 +42,7 @@ const createLobby = (user, gamemode) => {
   return new Promise((resolve, reject) => {
     let joinSecret;
     const ws = request(lobbiesURL)
-      .ws(
-        `/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`
-      )
+      .ws(`/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`)
       .expectJson((message) => {
         expect(message.event).toBe("player_join");
         expect(message.data.player.account_id).toBe(user.account_id);
@@ -78,9 +73,7 @@ const joinLobby = (user, lobbyconnection) => {
       .expectJson((message) => {
         expect(message.event).toBe("lobby");
         expect(
-          message.data.lobby.players.find(
-            (player) => player.account_id === user.account_id
-          )
+          message.data.lobby.players.find((player) => player.account_id === user.account_id)
         ).toBeDefined();
         resolve(new Player(ws, lobbyconnection.joinSecret, user, message.data.lobby));
       });
@@ -320,9 +313,13 @@ describe("Lobby creation with gamemode", () => {
 });
 
 describe("Stats", () => {
-  it(`Waits for lobbies to be destroyed`, async () => {
-    await new Promise((res) => setTimeout(res, LOBBY_DESTRUCTION_DELAY + 100));
-  }, LOBBY_DESTRUCTION_DELAY + 200);
+  it(
+    `Waits for lobbies to be destroyed`,
+    async () => {
+      await new Promise((res) => setTimeout(res, LOBBY_DESTRUCTION_DELAY + 100));
+    },
+    LOBBY_DESTRUCTION_DELAY + 200
+  );
   it(`check stats`, async () => {
     await request(lobbiesURL)
       .get("/stats")
@@ -361,15 +358,17 @@ describe("Move player inside lobby", () => {
   });
   test("move player", async () => {
     await players[0].ws.sendJson({
-      event: "move_player",
-      data: { account_id: users[1].account_id, index: 0 },
+      event: "swap_players",
+      data: { account_ids: [users[0].account_id, users[1].account_id] },
     });
     await Promise.all(
       players.map((player) =>
         player.ws.expectJson((message) => {
-          expect(message.event).toBe("move_player");
-          expect(message.data.account_id).toBe(users[1].account_id);
-          expect(message.data.index).toBe(0);
+          expect(message.event).toBe("swap_players");
+          expect(message.data.account_ids).toStrictEqual([
+            users[0].account_id,
+            users[1].account_id,
+          ]);
         })
       )
     );
@@ -377,27 +376,29 @@ describe("Move player inside lobby", () => {
   // checks if ownership is transferred
   test("move players[1] back to it's original position", async () => {
     await players[1].ws.sendJson({
-      event: "move_player",
-      data: { account_id: users[0].account_id, index: 0 },
+      event: "swap_players",
+      data: { account_ids: [users[0].account_id, users[1].account_id] },
     });
     await Promise.all(
       players.map((player) =>
         player.ws.expectJson((message) => {
-          expect(message.event).toBe("move_player");
-          expect(message.data.account_id).toBe(users[0].account_id);
-          expect(message.data.index).toBe(0);
+          expect(message.event).toBe("swap_players");
+          expect(message.data.account_ids).toStrictEqual([
+            users[0].account_id,
+            users[1].account_id,
+          ]);
         })
       )
     );
-  })
+  });
   test("leave lobby", async () => {
     while (players.length > 0) {
       let player = players.pop();
       await player.close();
       await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
     }
-  })
-})
+  });
+});
 
 describe("Join full lobby", () => {
   const testgamemode = async (gamemode) => {
@@ -412,12 +413,12 @@ describe("Join full lobby", () => {
       .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].joinSecret}`)
       .expectClosed(1008, "Lobby is not in a joinable state")
       .close();
-    while(players.length > 0) {
+    while (players.length > 0) {
       let player = players.pop();
       await player.close();
       await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
     }
-  }
+  };
   test("1v1 ranked lobby", () => {
     return testgamemode({
       name: "ranked_1v1",
@@ -425,7 +426,7 @@ describe("Join full lobby", () => {
       team_count: 1,
       ranked: true,
     });
-  })
+  });
   test("2v2 ranked lobby", () => {
     return testgamemode({
       name: "ranked_2v2",
@@ -433,7 +434,7 @@ describe("Join full lobby", () => {
       team_count: 1,
       ranked: true,
     });
-  })
+  });
   test("2v2 unranked lobby", () => {
     return testgamemode({
       name: "unranked_2v2",
@@ -441,7 +442,7 @@ describe("Join full lobby", () => {
       team_count: 2,
       ranked: false,
     });
-  })
+  });
   test("1v1 unranked lobby", () => {
     return testgamemode({
       name: "unranked_1v1",
@@ -449,36 +450,39 @@ describe("Join full lobby", () => {
       team_count: 2,
       ranked: false,
     });
-  })
-})
+  });
+});
 
 describe("Change gamemode with too many players", () => {
   const testgamemode = async (gamemode) => {
     let players = [];
-    players.push(await createLobby(users[0], {
-      name: "unranked_2v2",
-      team_size: 2,
-      team_count: 2,
-      ranked: false,
-    }));
+    players.push(
+      await createLobby(users[0], {
+        name: "unranked_2v2",
+        team_size: 2,
+        team_count: 2,
+        ranked: false,
+      })
+    );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
     }
-    players[0].ws.sendJson({ event: "mode", data: { mode: gamemode.name } })
+    players[0].ws
+      .sendJson({ event: "mode", data: { mode: gamemode.name } })
       .expectJson((message) => {
-      if (message.event != "error") {
-        console.log(message)
-      }
-      expect(message.event).toBe("error");
-    });
-    while(players.length > 0) {
+        if (message.event != "error") {
+          console.log(message);
+        }
+        expect(message.event).toBe("error");
+      });
+    while (players.length > 0) {
       let player = players.pop();
       await player.close();
       await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
     }
-  }
+  };
   test("1v1 ranked lobby", () => {
     return testgamemode({
       name: "ranked_1v1",
@@ -486,7 +490,7 @@ describe("Change gamemode with too many players", () => {
       team_count: 1,
       ranked: true,
     });
-  })
+  });
   test("2v2 ranked lobby", () => {
     return testgamemode({
       name: "ranked_2v2",
@@ -494,7 +498,7 @@ describe("Change gamemode with too many players", () => {
       team_count: 1,
       ranked: true,
     });
-  })
+  });
   test("1v1 unranked lobby", () => {
     return testgamemode({
       name: "unranked_1v1",
@@ -502,5 +506,5 @@ describe("Change gamemode with too many players", () => {
       team_count: 2,
       ranked: false,
     });
-  })
+  });
 });

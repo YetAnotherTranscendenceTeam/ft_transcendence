@@ -34,8 +34,8 @@ channels:
         $ref: '#/components/messages/mode'
       kick:
         $ref: '#/components/messages/kick'
-      move_player:
-        $ref: '#/components/messages/move_player'
+      swap_players:
+        $ref: '#/components/messages/swap_players'
       queue_start:
         $ref: '#/components/messages/queue_start'
       queue_stop:
@@ -52,6 +52,8 @@ channels:
         $ref: '#/components/messages/mode_change'
       state_change:
         $ref: '#/components/messages/state_change'
+      swap_players_update:
+        $ref: '#/components/messages/swap_players_update'
       error:
         $ref: '#/components/messages/error'
 operations:
@@ -64,6 +66,7 @@ operations:
       - $ref: '#/channels/lobby/messages/lobby'
       - $ref: '#/channels/lobby/messages/player_leave'
       - $ref: '#/channels/lobby/messages/mode_change'
+      - $ref: '#/channels/lobby/messages/swap_players_update'
       - $ref: '#/channels/lobby/messages/state_change'
       - $ref: '#/channels/lobby/messages/error'
   subscribe:
@@ -74,7 +77,7 @@ operations:
       - $ref: '#/channels/lobby/messages/disconnect'
       - $ref: '#/channels/lobby/messages/mode'
       - $ref: '#/channels/lobby/messages/kick'
-      - $ref: '#/channels/lobby/messages/move_player'
+      - $ref: '#/channels/lobby/messages/swap_players'
       - $ref: '#/channels/lobby/messages/queue_start'
       - $ref: '#/channels/lobby/messages/queue_stop'
 components:
@@ -143,8 +146,8 @@ components:
               account_id:
                 type: number
                 description: Account ID of the player to kick
-    move_player:
-      description: Send this message to move a player to another team
+    swap_players:
+      description: Send this message to swap the position of 2 players
       tags:
         - $ref: '#/components/tags/owner'
       payload:
@@ -157,19 +160,49 @@ components:
             type: string
             description: Event type
             enum:
-              - move_player
+              - swap_players
           data:
             type: object
             required:
-              - account_id
-              - index
+              - account_ids
             properties:
-              account_id:
-                type: number
-                description: Account ID of the player to move
-              index:
-                type: number
-                description: The slot index to move the player to (0 to make then leader)
+              account_ids:
+                uniqueItems: true
+                minItems: 2
+                maxItems: 2
+                type: array
+                description: Account IDs of the players to move
+                items:
+                  $ref: "#/components/schemas/account_id"
+    swap_players_update:
+      description: Message sent to all lobby members when 2 players are swapped by the lobby leader
+      tags:
+        - $ref: '#/components/tags/broadcast'
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - swap_players
+          data:
+            type: object
+            required:
+              - account_ids
+            properties:
+              account_ids:
+                uniqueItems: true
+                minItems: 2
+                maxItems: 2
+                type: array
+                description: Account IDs of the players to move
+                items:
+                  $ref: "#/components/schemas/account_id"
+
     queue_start:
       description: Send this message to start queuing for a match
       tags:
