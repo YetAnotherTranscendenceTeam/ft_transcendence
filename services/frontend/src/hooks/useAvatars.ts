@@ -9,13 +9,13 @@ export default function useAvatars() {
 
 	const mapAvatars = (avatars) => {
 		if (!avatars) return [];
-		const mappedAvatars = avatars.default.map((avatar) => ({
+		const mappedAvatars = avatars.user.map((avatar) => ({
 				url: avatar,
-				isRemovable: false
+				isRemovable: true
 		}));
-		mappedAvatars.push(...avatars.user.map((avatar) => ({
+		mappedAvatars.push(...avatars.default.map((avatar) => ({
 			url: avatar,
-			isRemovable: true
+			isRemovable: false
 		})));
 		return mappedAvatars;
 	}
@@ -52,7 +52,7 @@ export default function useAvatars() {
 		if (response)
 			setAvatars({
 				default: avatars.default,
-				user: [...avatars.user, response.url]
+				user: [response.url, ...avatars.user]
 			});
 	}
 

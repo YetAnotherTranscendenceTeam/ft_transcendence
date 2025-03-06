@@ -39,6 +39,7 @@ export default function ProfileForm({ me }: { me: any }) {
 				images={avatars}
 				onChange={(e: any) => uploadAvatar(e.target.result)}
 				onImageRemove={deleteAvatar}
+				webcam
 			/>
 
 			<div className='flex gap-4 justify-end'>
