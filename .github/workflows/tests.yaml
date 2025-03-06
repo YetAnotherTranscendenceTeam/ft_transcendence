@@ -44,10 +44,7 @@ jobs:
         working-directory: ./tests
 
       - name: Build and run Docker Compose
-        run: docker compose up -d
-
-      - name : Check containers status
-        run: 'sleep 10 && docker compose ps --format "{{.Name}}: {{.Status}}"'
+        run: docker compose up -d --wait --wait-timeout 60
 
       - name: Run Jest tests
         run: npm run action
