@@ -47,10 +47,6 @@ export class Player {
     console.log(`Player ${this.account_id} disconnected`);
     this.lobby.removePlayer(this);
     this.players.delete(this.account_id);
-    if (this.lobby.shouldDestroy()) {
-      console.log(`Destroying lobby ${this.lobby.joinSecret}`);
-      this.lobbies.delete(this.lobby.joinSecret);
-    }
     if (this.connected) {
 		if (code && reason)
 			this.socket.close(code, reason);

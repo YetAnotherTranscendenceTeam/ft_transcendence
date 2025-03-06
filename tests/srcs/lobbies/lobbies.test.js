@@ -3,6 +3,8 @@ import request from "superwstest";
 
 const lobbiesURL = "http://localhost:4043";
 
+const LOBBY_DESTRUCTION_DELAY = 2000;
+
 class Player {
   constructor(ws, joinSecret, user, lobby) {
     this.ws = ws;
@@ -96,17 +98,6 @@ describe("Mass lobby creation", () => {
   });
   it(`close lobbies`, async () => {
     await Promise.all(lobbies.map((lobby) => lobby.close()));
-  });
-  it(`check if lobbies are destroyed`, async () => {
-    return request(lobbiesURL)
-      .get("/stats")
-      .set("Authorization", `Bearer ${users[0].jwt}`)
-      .send()
-      .expect(200)
-      .then((res) => {
-        expect(res.body.lobby_count).toBe(0);
-        expect(res.body.player_count).toBe(0);
-      });
   });
 });
 
@@ -329,6 +320,9 @@ describe("Lobby creation with gamemode", () => {
 });
 
 describe("Stats", () => {
+  it(`Waits for lobbies to be destroyed`, async () => {
+    await new Promise((res) => setTimeout(res, LOBBY_DESTRUCTION_DELAY + 100));
+  }, LOBBY_DESTRUCTION_DELAY + 200);
   it(`check stats`, async () => {
     await request(lobbiesURL)
       .get("/stats")
@@ -473,7 +467,10 @@ describe("Change gamemode with too many players", () => {
       players.push(player);
     }
     players[0].ws.sendJson({ event: "mode", data: { mode: gamemode.name } })
-    .expectJson((message) => {
+      .expectJson((message) => {
+      if (message.event != "error") {
+        console.log(message)
+      }
       expect(message.event).toBe("error");
     });
     while(players.length > 0) {

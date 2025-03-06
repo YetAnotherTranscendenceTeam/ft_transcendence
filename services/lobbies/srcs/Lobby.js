@@ -4,7 +4,7 @@ import {
   LobbyLeaveMessage,
   LobbyModeMessage,
   LobbyStateMessage,
-  MovePlayerMessage
+  MovePlayerMessage,
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
@@ -26,6 +26,8 @@ export function generateJoinSecret() {
   return joinSecret;
 }
 
+const LOBBY_DESTRUCTION_DELAY = 2000;
+
 export class Lobby {
   // owner is always the first player
   /**
@@ -38,7 +40,10 @@ export class Lobby {
   mode = Object.values(GameModes)[0];
   state = LobbyState.waiting();
 
-  constructor(modename) {
+  destructionTimeout = null;
+
+  constructor(modename, lobbies) {
+    this.lobbies = lobbies;
     if (modename) {
       const mode = GameModes[modename];
       if (!mode) throw new Error("Invalid gamemode");
@@ -59,11 +64,27 @@ export class Lobby {
     return this.players[0];
   }
 
-  shouldDestroy() {
+  shouldScheduleDestruction() {
     return this.players.length === 0;
   }
 
+  scheduleDestruction() {
+    this.destructionTimeout = setTimeout(() => {
+      this.destroy();
+    }, LOBBY_DESTRUCTION_DELAY)
+  }
+
+  destroy() {
+    console.log(`Lobby ${this.joinSecret} destroyed`);
+    this.lobbies.delete(this.joinSecret);
+  }
+
   addPlayer(player) {
+    if (this.destructionTimeout)
+    {
+      clearTimeout(this.destructionTimeout);
+      this.destructionTimeout = null;
+    }
     this.players.push(player);
     this.broadbast(new LobbyJoinMessage(player));
     player.send(new LobbyCopyMessage(this));
@@ -72,16 +93,18 @@ export class Lobby {
   removePlayer(player) {
     this.players = this.players.filter((p) => p != player);
     this.broadbast(new LobbyLeaveMessage(player));
+    if (this.shouldScheduleDestruction())
+      this.scheduleDestruction();
   }
 
-  movePlayer({account_id, index}) {
-	if (typeof index != "number" || index < 0 || index >= this.players.length)
-		throw new Error("Invalid index");
-	const player = this.players.find((player) => player.account_id == account_id);
-	if (!player) throw new Error("Player not found");
-	this.players = this.players.filter((p) => p != player);
-	this.players.splice(index, 0, player);
-	this.broadbast(new MovePlayerMessage(player, index));
+  movePlayer({ account_id, index }) {
+    if (typeof index != "number" || index < 0 || index >= this.players.length)
+      throw new Error("Invalid index");
+    const player = this.players.find((player) => player.account_id == account_id);
+    if (!player) throw new Error("Player not found");
+    this.players = this.players.filter((p) => p != player);
+    this.players.splice(index, 0, player);
+    this.broadbast(new MovePlayerMessage(player, index));
   }
 
   broadbast(message) {
@@ -91,13 +114,13 @@ export class Lobby {
   }
 
   getLobbyCapacity() {
-	return this.mode.team_size * this.mode.team_count;
+    return this.mode.team_size * this.mode.team_count;
   }
 
   setGameMode(mode) {
     if (!mode) throw new Error("Invalid gamemode");
-	if (this.players.length > mode.team_size * mode.team_count)
-		throw new Error("Too many players in lobby to change to this gamemode");
+    if (this.players.length > mode.team_size * mode.team_count)
+      throw new Error("Too many players in lobby to change to this gamemode");
     this.mode = mode;
     this.broadbast(new LobbyModeMessage(mode));
   }
@@ -108,9 +131,8 @@ export class Lobby {
   }
 
   isJoinable() {
-	if (!this.state.joinable)
-		return false;
-	return this.players.length < this.getLobbyCapacity();
+    if (!this.state.joinable) return false;
+    return this.players.length < this.getLobbyCapacity();
   }
 
   queue() {

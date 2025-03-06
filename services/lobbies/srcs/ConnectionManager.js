@@ -45,7 +45,7 @@ export class ConnectionManager {
       let gamemode = req.query.gamemode;
       if (gamemode && !GameModes[gamemode])
         throw new Error("Invalid gamemode");
-      let lobby = new Lobby(gamemode);
+      let lobby = new Lobby(gamemode, this.lobbies);
       this.lobbies.set(lobby.joinSecret, lobby);
       return lobby;
     }
