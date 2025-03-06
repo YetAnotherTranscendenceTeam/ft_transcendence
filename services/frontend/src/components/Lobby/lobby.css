@@ -22,7 +22,7 @@
 
 /* =============== List =============== */
 
-.lobby-player-list {
+.lobby-teams {
 	height: 100vh;
 	display: flex;
 	flex-direction: column;
@@ -31,15 +31,16 @@
 	gap: 1rem;
 	margin-left: 64px;
 	position: relative;
+	user-select: none;
 }
 
-.lobby-player-list h1 {
+.lobby-teams h1 {
 	width: 100%;
 	color: var(--fg-1);
 	font-size: large;
 }
 
-.lobby-player-list-team {
+.lobby-team {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -51,7 +52,7 @@
 	--primary-color: var(--team-color);
 }
 
-.lobby-player-list-team .card{
+.lobby-team .card{
 	flex-direction: row;
 	min-width: 200px;
 	min-height: 48px;

@@ -2,7 +2,7 @@ import Babact from "babact";
 import Card from "../../ui/Card";
 import LobbyPlayerCard from "./LobbyPlayerCard";
 
-export default function LobbyPlayerList({lobby}) {
+export default function LobbyTeamsList({lobby}) {
 	
 	const createTeam = () => {
 		const teams = new Array(lobby.mode.team_count).fill(null).map(() => []);
@@ -43,9 +43,9 @@ export default function LobbyPlayerList({lobby}) {
 		setDragging(false);
 	}
 
-	return <div className='lobby-player-list'>
+	return <div className='lobby-teams'>
 		{createTeam().map((team, i) => (
-			<Card key={i} className='lobby-player-list-team left' style={`--team-color: var(--team-${i % 2 + 1}-color)`}>
+			<Card key={i} className='lobby-team left' style={`--team-color: var(--team-${i % 2 + 1}-color)`}>
 				<h1>Team {i + 1}</h1>
 				{team.map((player) => (
 					<LobbyPlayerCard
@@ -56,8 +56,8 @@ export default function LobbyPlayerList({lobby}) {
 						player={player}
 					/>
 				))}
-				{new Array(lobby.mode.team_size - team.length).fill(null).map((_, i) => (
-					<Card key={-i} className='empty flex flex-row gap-2 items-center'>
+				{new Array(lobby.mode.team_size - team.length).fill(null).map((_, index) => (
+					<Card key={'empty-'+index} className='empty flex flex-row gap-2 items-center'>
 						Empty
 					</Card>
 				))}
