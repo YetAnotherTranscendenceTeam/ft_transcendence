@@ -14,8 +14,7 @@ services:
       - ssl-crt
       - ssl-key
     depends_on:
-      - db-profiles
-      - settings
+      - avatars
 
   frontend:
     build:
@@ -148,9 +147,6 @@ services:
       - 127.0.0.1:7001:3000
     networks:
       - db-profiles
-    depends_on:
-      avatars:
-        condition: service_healthy
 
   users:
     build:
@@ -182,9 +178,6 @@ services:
       - settings
       - avatars
       - db-profiles
-    depends_on:
-      avatars:
-        condition: service_healthy
 
   avatars:
     build:

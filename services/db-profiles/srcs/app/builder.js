@@ -34,21 +34,7 @@ export default function build(opts = {}) {
 
   app.register(router);
 
-  app.decorate('defaultAvatar');
-
-  app.addHook('onReady', async () => {
-    try {
-      const url = await getDefaultAvatar(`${cdn_url}/api/avatars/default`, app);
-      if (url) {
-        app.defaultAvatar = url;
-        console.log(`Default avatar: ${url}`)
-      } else {
-        console.error('Failed to fetch default avatar');
-      }
-    } catch (error) {
-      console.error('Error setting default avatar:', error);
-    }
-  });
+  app.decorate('defaultAvatar', `${cdn_url}/avatars/default/0000-default.jpg`);
 
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
@@ -56,25 +42,3 @@ export default function build(opts = {}) {
   
   return app;
 }
-
-const getDefaultAvatar = async (endpoint, fastify) => {
-  const access_token = fastify.jwt.sign({}, { expireIn: '15m' });
-  let attempt = 0;
-
-  while (attempt < 5) {
-    try {
-      const response = await fetch(endpoint, {
-        headers: { 'Authorization': `Bearer ${access_token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        return cdn_url + data[0];
-      }
-    } catch (err) {
-      attempt++;
-      console.error(err);
-    }
-    await new Promise(resolve => setTimeout(resolve, 5000));
-  }
-  return null;
-};
