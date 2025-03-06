@@ -30,6 +30,7 @@
 	align-items: center;
 	gap: 1rem;
 	margin-left: 64px;
+	position: relative;
 }
 
 .lobby-player-list h1 {
@@ -46,11 +47,9 @@
 	gap: 1rem;
 	padding: 16px;
 	background-color: var(--bg-2);
+	backdrop-filter: none;
 	--primary-color: var(--team-color);
-	z-index: 10;
 }
-
-
 
 .lobby-player-list-team .card{
 	flex-direction: row;
@@ -60,13 +59,14 @@
 
 .lobby-player-card {
 	cursor: grab;
-	z-index: 100;
+	position: relative;
+	z-index: 10;
 }
 
 .lobby-player-card.dragging {
 	box-shadow: 10px 10px 75px 0px rgba(0,0,0,0.50);
 	transform: translate(var(--x), var(--y));
-	z-index: 1000;
+	z-index: 9999;
 }
 
 .lobby-player-card i{
