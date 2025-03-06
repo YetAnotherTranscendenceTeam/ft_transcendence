@@ -126,3 +126,5 @@ it("patch profile", async () => {
     })
   );
 });
+
+export const dummy2 = dummy;
