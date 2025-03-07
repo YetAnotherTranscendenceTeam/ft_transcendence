@@ -10,11 +10,9 @@ export class Player {
     },
     mode: (msg, player) => player.lobby.setGameMode(GameModes[msg.mode]),
     kick: (msg, player) => {
-      const target = player.lobby.players.find(
-        (player) => player.account_id == msg.account_id
-      );
+      const target = player.lobby.players.find((player) => player.account_id == msg.account_id);
       if (!target) return;
-	  target.disconnect(1000, "Kicked from lobby");
+      target.disconnect(1000, "Kicked from lobby");
     },
     queue_start: (msg, player) => {
       player.lobby.queue();
@@ -41,6 +39,11 @@ export class Player {
     this.lobbies = lobbies;
     this.players = players;
     this.connected = true;
+    this.last_pong = Date.now();
+    this.socket.on("pong", () => {
+      this.last_pong = Date.now();
+      this.lobby.playerPong(this);
+    });
   }
 
   disconnect(code, reason) {
@@ -48,15 +51,13 @@ export class Player {
     this.lobby.removePlayer(this);
     this.players.delete(this.account_id);
     if (this.connected) {
-		if (code && reason)
-			this.socket.close(code, reason);
-		else
-			this.socket.close(code ? code : 1000, "Disconnected");
-	}
+      if (code && reason) this.socket.close(code, reason);
+      else this.socket.close(code ? code : 1000, "Disconnected");
+    }
     this.connected = false;
   }
 
-  messageMember() {
+  toJSON() {
     return { account_id: this.account_id, profile: this.profile };
   }
 
@@ -75,6 +76,7 @@ export class Player {
       if (!handler) handler = Player.messageHanlers["unrecognized"];
       handler(message.data, this);
     } catch (e) {
+      console.error(e);
       this.send(new LobbyErrorMessage(e.message));
     }
   }

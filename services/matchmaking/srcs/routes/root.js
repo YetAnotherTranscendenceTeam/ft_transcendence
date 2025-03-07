@@ -1,17 +1,13 @@
 "use strict";
 
-export default function router(fastify, opts, done) {
-  let schema = {
-    tags: ["[PLACEHOLDER]"],
-    description: "[PLACEHOLDER]",
-    response: {
-      500: {
-        description: "[PLACEHOLDER]",
-      },
-    },
-  };
+import { GameModes } from "../GameModes.js";
 
-  fastify.get("/", { schema }, async function handler(request, reply) {});
+
+export default function router(fastify, opts, done) {
+
+  fastify.get("/gamemodes", async function handler(request, reply) {
+	reply.send(GameModes)
+  });
 
   done();
 }

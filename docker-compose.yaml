@@ -118,6 +118,8 @@ services:
       - db-profiles
 
   lobbies:
+    depends_on:
+      - matchmaking
     build:
       context: services/lobbies/
       dockerfile: Dockerfile.dev
@@ -126,11 +128,28 @@ services:
       - ./modules/:/modules:ro
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - JWT_MATCHMAKING_SECRET=${JWT_MATCHMAKING_SECRET}
     ports:
       - "127.0.0.1:4043:3000"
     networks:
       - frontend
       - db-profiles
+
+  matchmaking:
+    build:
+      context: services/matchmaking/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/matchmaking/srcs:/services/matchmaking/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_MATCHMAKING_SECRET=${JWT_MATCHMAKING_SECRET}
+    ports:
+      - "127.0.0.1:4044:3000"
+    networks:
+      - frontend
 
   # profiles-api:
   #   build:

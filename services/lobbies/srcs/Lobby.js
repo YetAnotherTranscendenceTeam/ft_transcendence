@@ -1,5 +1,6 @@
 import {
   LobbyCopyMessage,
+  LobbyErrorMessage,
   LobbyJoinMessage,
   LobbyLeaveMessage,
   LobbyModeMessage,
@@ -8,6 +9,7 @@ import {
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
+import MatchmakingConnection from "./MatchmakingConnection.js";
 
 export const LobbyState = {
   waiting: () => ({ type: "waiting", joinable: true }),
@@ -40,7 +42,7 @@ export class Lobby {
   mode = Object.values(GameModes)[0];
   state = LobbyState.waiting();
 
-  destructionTimeout = null;
+  destruction_timeout = null;
 
   constructor(modename, lobbies) {
     this.lobbies = lobbies;
@@ -51,9 +53,9 @@ export class Lobby {
     }
   }
 
-  messageMember() {
+  toJSON() {
     return {
-      players: this.players.map((player) => player.messageMember()),
+      players: this.players,
       joinSecret: this.joinSecret,
       mode: this.mode,
       state: this.state,
@@ -69,21 +71,21 @@ export class Lobby {
   }
 
   scheduleDestruction() {
-    this.destructionTimeout = setTimeout(() => {
+    this.destruction_timeout = setTimeout(() => {
       this.destroy();
-    }, LOBBY_DESTRUCTION_DELAY)
+    }, LOBBY_DESTRUCTION_DELAY);
   }
 
   destroy() {
     console.log(`Lobby ${this.joinSecret} destroyed`);
+    if (this.state.type == "queuing") this.unqueue();
     this.lobbies.delete(this.joinSecret);
   }
 
   addPlayer(player) {
-    if (this.destructionTimeout)
-    {
-      clearTimeout(this.destructionTimeout);
-      this.destructionTimeout = null;
+    if (this.destruction_timeout) {
+      clearTimeout(this.destruction_timeout);
+      this.destruction_timeout = null;
     }
     this.players.push(player);
     this.broadbast(new LobbyJoinMessage(player));
@@ -92,24 +94,21 @@ export class Lobby {
 
   removePlayer(player) {
     this.players = this.players.filter((p) => p != player);
+    if (this.state.type == "queuing") this.unqueue();
     this.broadbast(new LobbyLeaveMessage(player));
-    if (this.shouldScheduleDestruction())
-      this.scheduleDestruction();
+    if (this.shouldScheduleDestruction()) this.scheduleDestruction();
   }
 
   // swaps the positions of 2 players
-  swapPlayers({ account_ids  }) {
+  swapPlayers({ account_ids }) {
     const indexes = [];
     if (!Array.isArray(account_ids) || account_ids.length != 2)
       throw new Error("Expected element 'indexes' to be an array of 2 element");
-    for (let i = 0; i < account_ids.length; i++)
-    {
+    for (let i = 0; i < account_ids.length; i++) {
       let account_id = account_ids[i];
-      if (typeof account_id != "number")
-        throw new Error("Invalid account_id, expected a number");
+      if (typeof account_id != "number") throw new Error("Invalid account_id, expected a number");
       let index = this.players.findIndex((p) => p.account_id == account_id);
-      if (index == -1)
-        throw new Error("Account_id is not part of this lobby");
+      if (index == -1) throw new Error("Account_id is not part of this lobby");
       indexes.push(index);
     }
     // swap players with a temp value
@@ -138,6 +137,7 @@ export class Lobby {
   }
 
   setState(state) {
+    console.log(`Lobby ${this.joinSecret} state changed to ${state.type}`);
     this.state = state;
     this.broadbast(new LobbyStateMessage(state));
   }
@@ -147,13 +147,26 @@ export class Lobby {
     return this.players.length < this.getLobbyCapacity();
   }
 
+  matchFound(match) {
+    this.setState(LobbyState.playing(match.match_id));
+  }
+
+  forcedUnqueue(reason) {
+    this.broadbast(new LobbyErrorMessage(reason));
+    this.setState(LobbyState.waiting());
+  }
+
   queue() {
+    if (!MatchmakingConnection.getInstance().isReady) {
+      throw new Error("Matchmaking service is currently not available");
+    }
     this.setState(LobbyState.queued());
-    // TODO: matchmake
+    MatchmakingConnection.getInstance().queue(this);
   }
 
   unqueue() {
     this.setState(LobbyState.waiting());
-    // TODO: unqueue from matchmaking
+    if (MatchmakingConnection.getInstance().isReady)
+      MatchmakingConnection.getInstance().unqueue(this);
   }
 }

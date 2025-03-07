@@ -7,19 +7,19 @@ class LobbyMessage {
 
 export class LobbyCopyMessage extends LobbyMessage {
   constructor(lobby) {
-    super("lobby", {lobby: lobby.messageMember()});
+    super("lobby", {lobby: lobby});
   }
 }
 
 export class LobbyJoinMessage extends LobbyMessage {
   constructor(player) {
-    super("player_join", {player: player.messageMember()});
+    super("player_join", {player: player});
   }
 }
 
 export class LobbyLeaveMessage extends LobbyMessage {
   constructor(player) {
-    super("player_leave", {player: player.messageMember()});
+    super("player_leave", {player: player});
   }
 }
 
