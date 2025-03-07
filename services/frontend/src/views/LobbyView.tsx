@@ -14,13 +14,13 @@ export default function LobbyView() {
 	const { code } = useParams();
 
 	const { join, create } = useLobby();
+	const { lobby } = useLobby();
 
 	Babact.useEffect(() => {
-		if (code)
+		if (code && lobby === null)
 			join(code);
 	}, [])
 
-	const { lobby } = useLobby();
 
 	return <div className='lobby-view flex gap-4'>
 		<Menu/>

@@ -12,6 +12,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const { createToast } = useToast();
 
 	const onPlayerJoin = (player: any) => {
+		createToast(`${player.profile?.username} joined the lobby`, 'info');
 		setLobby((lobby) => (lobby && {
 			...lobby,
 			players: [...lobby.players, player]
@@ -32,6 +33,22 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		setLobby(lobby);
 	}
 
+	const onPlayerSwap = ([id1, id2]) => {
+		setLobby((lobby) => {
+			const newPlayers = [...lobby.players];
+			const player1 = newPlayers.findIndex((p) => p.account_id === id1);
+			const player2 = newPlayers.findIndex((p) => p.account_id === id2);
+			const temp = newPlayers[player1];
+			newPlayers[player1] = newPlayers[player2];
+			newPlayers[player2] = temp;
+			console.log(lobby.players);
+			return {
+				...lobby,
+				players: newPlayers
+			};
+		});
+	}
+
 	const onMessage = (message: string) => {
 		const msg = JSON.parse(message);
 		console.log('onMessage', msg)
@@ -43,6 +60,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}
 		else if (msg.event === 'player_leave') {
 			onPlayerLeave(msg.data.player);
+		}
+		else if (msg.event === 'swap_players') {
+			onPlayerSwap(msg.data.account_ids);
 		}
 	};
 
@@ -72,6 +92,18 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}&token=${localStorage.getItem("access_token")}`);
 	};
 
+	const swapPlayers = (player1: any, player2: any) => {
+		ws.send(JSON.stringify({
+			event: 'swap_players',
+			data: {
+				account_ids: [
+					player1,
+					player2
+				]
+			}
+		}));
+	};
+
 	useEffect(() => {
 		const lobby = localStorage.getItem('lobby');
 		if (lobby) {
@@ -84,7 +116,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			value={{
 				lobby,
 				create,
-				join
+				join,
+				swapPlayers
 			}}
 		>
 			{children}

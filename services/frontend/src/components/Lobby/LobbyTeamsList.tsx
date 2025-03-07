@@ -1,109 +1,103 @@
 import Babact from "babact";
 import Card from "../../ui/Card";
 import LobbyPlayerCard from "./LobbyPlayerCard";
-
-type PlayerCard = {
-	account_id: string;
-	x: number;
-	y: number;
-	width: number;
-	height: number;
-}
+import { useLobby } from "../../contexts/useLobby";
 
 export default function LobbyTeamsList({lobby}) {
+
+	const { swapPlayers } = useLobby();
+	const switchingPlayer = Babact.useRef(null);
 	
 	const [players, setPlayers] = Babact.useState(lobby.players);
+	const [teams, setTeams] = Babact.useState([]);
 
 	const createTeam = () => {
 		const teams = new Array(lobby.mode.team_count).fill(null).map(() => []);
 		players.forEach((player, i) => {
 			teams[i % lobby.mode.team_count].push(player);
 		})
-		// console.log('teams', teams)
 		return teams;
 	}
 
-	const teams = Babact.useRef([]);
-
 	Babact.useEffect(() => {
-		teams.current = createTeam();
+		setTeams(createTeam());
 	}, [players]);
+	
+	Babact.useEffect(() => {
+		setPlayers(lobby.players);
+	}, [lobby]);
 
-	const [draggingPlayer, setDraggingPlayer] = Babact.useState(false);
-
-	const [position, setPosition] = Babact.useState({x: 0, y: 0});
-
-	const [initialPosition, setInitialPosition] = Babact.useState({x: 0, y: 0});
+	const [draggingPlayer, setDraggingPlayer] = Babact.useState(null);
+	const [transform, setTransform] = Babact.useState({x: 0, y: 0});
 
 	Babact.useEffect(() => {
+		if (!draggingPlayer) return;
 		document.addEventListener('mouseup', handleMouseUp);
 		document.addEventListener('mousemove', handleMouseMove);
 		return () => {
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseup', handleMouseUp);
 		}
-	}, [draggingPlayer, initialPosition]);
-
-	Babact.useEffect(() => {
-		setPlayers(lobby.players);
-	}, [lobby]);
+	}, [draggingPlayer]);
 
 	const handleMouseMove = (e) => {
-		// if (dragging !== false) {
-		// 	setPosition({x: e.clientX - initialPosition.x, y: e.clientY - initialPosition.y});
-		// }
+		if (draggingPlayer) {
+			setTransform((p) => ({
+				x: e.movementX + p.x,
+				y: e.movementY + p.y
+			}))
+		}
 	}
 
 	const handleMouseDown = (e, account_id) => {
-		setDraggingPlayer({
-			account_id,
-			x: e.clientX,
-			y: e.clientY,
-			width: e.target.offsetWidth,
-			height: e.target.offsetHeight
-		});
-		// console.log('down', account_id, e)	
-		// setInitialPosition({x: e.clientX, y: e.clientY});
-		// setPosition({x: 0, y: 0});
-		// setDragging(account_id);
+		if (e.button !== 0) return;
+		setDraggingPlayer(account_id);
+		setTransform({
+			x: e.target.getBoundingClientRect().x,
+			y: e.target.getBoundingClientRect().y
+		})
 	}
 
 	const handleMouseUp = (e) => {
-		// setDragging(false);
+		setDraggingPlayer(null);
+		setTransform({
+			x: 0,
+			y: 0
+		})
+		if (switchingPlayer.current)
+			swapPlayers(draggingPlayer, switchingPlayer.current);
+		switchingPlayer.current = null;
 	}
 
 	const handleMouseEnter = (e, account_id) => {
-		// console.log('enter', account_id)
-		// if (dragging != false && dragging != account_id) {
-		// 	const playerIndex = players.findIndex((player) => player.account_id === account_id);
-		// 	const draggingIndex = players.findIndex((player) => player.account_id === dragging);
-		// 	const newPlayers = [...players];
-		// 	const temp = newPlayers[playerIndex];
-		// 	newPlayers[playerIndex] = newPlayers[draggingIndex];
-		// 	newPlayers[draggingIndex] = temp;
-		// 	setPlayers(newPlayers);
-		// 	setInitialPosition({x: e.clientX, y: e.clientY});
-		// }
-
+		if (draggingPlayer && account_id !== draggingPlayer) {
+			const newPlayers = [...players];
+			const draggingIndex = newPlayers.findIndex((p) => p.account_id === draggingPlayer);
+			const accountIndex = newPlayers.findIndex((p) => p.account_id === account_id);
+			const temp = newPlayers[draggingIndex];
+			newPlayers[draggingIndex] = newPlayers[accountIndex];
+			newPlayers[accountIndex] = temp;
+			setPlayers(newPlayers);
+			switchingPlayer.current = account_id;
+		}
 	}
 
 	const handleMouseLeave = (e, account_id) => {
-		// console.log('leave', account_id)
-		// setPlayers(lobby.players);
-		// setInitialPosition({x: e.clientX, y: e.clientY});
+		setPlayers(lobby.players);
+		switchingPlayer.current = null;
 	}
 
 	return <div className='lobby-teams'>
-		{teams.current.map((team, i) => (
+		{teams.map((team, i) => (
 			<Card
-				key={i} className='lobby-team left'
-				// style={`--team-color: var(--team-${i % 2 + 1}-color)`}
+				key={i} className='lobby-team'
+				style={`--team-color: var(--team-${i % 2 + 1}-color)`}
 			>
 				<h1>Team {i + 1}</h1>
 				{team.map((player) => (
 					<LobbyPlayerCard
-						position={draggingPlayer.account_id === player.account_id ? position : {x: 0, y: 0}}
-						dragging={draggingPlayer.account_id === player.account_id}
+						position={draggingPlayer === player.account_id ? transform : {x: 0, y: 0}}
+						dragging={draggingPlayer === player.account_id}
 						onMouseDown={(e) => handleMouseDown(e, player.account_id)}
 						onMouseEnter={(e) => handleMouseEnter(e, player.account_id)}
 						onMouseLeave={(e) => handleMouseLeave(e, player.account_id)}

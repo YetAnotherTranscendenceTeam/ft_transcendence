@@ -30,7 +30,6 @@
 	align-items: center;
 	gap: 1rem;
 	margin-left: 64px;
-	position: relative;
 	user-select: none;
 }
 
@@ -49,8 +48,8 @@
 	padding: 16px;
 	background-color: var(--bg-2);
 	backdrop-filter: none;
-	--primary-color: var(--team-color);
 	position: unset;
+	border-left: 2px solid var(--team-color);
 }
 
 .lobby-team .card{
@@ -66,13 +65,16 @@
 
 .lobby-player-card.dragging {
 	box-shadow: 10px 10px 75px 0px rgba(0,0,0,0.50);
-	transform: translate(var(--x), var(--y));
 	z-index: 9999;
+	top: var(--y);
+	left: var(--x);
 	pointer-events: none;
+	position: absolute;
 }
 
 .lobby-player-card i{
 	font-size: large;
+	pointer-events: none;
 	color: var(--fg-4);
 }
 
@@ -84,5 +86,6 @@
 .lobby-player-card-wrapper {
 	width: 100%;
 	height: 80px;
-	background-color: red;
+	border-radius: 4px;
+	outline: 1px solid var(--fg-5);
 }
