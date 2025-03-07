@@ -40,3 +40,9 @@ export class LobbyErrorMessage extends LobbyMessage {
 		super("error", {message: txt});
 	}
 }
+
+export class SwapPlayersMessage extends LobbyMessage {
+	constructor(account_ids) {
+		super("swap_players", {account_ids});
+	}
+}

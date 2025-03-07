@@ -7,11 +7,14 @@ export class GameMode {
 	}
 }
 
+/**
+ * @type {Object<string, GameMode>}
+ */
 export const GameModes = [
-	new GameMode("ranked_1v1", { team_size: 1, team_count: 1, ranked: true }),
+	new GameMode("unranked_2v2", { team_size: 2, team_count: 2, ranked: false }),
 	new GameMode("ranked_2v2", { team_size: 2, team_count: 1, ranked: true }),
 	new GameMode("unranked_1v1", { team_size: 1, team_count: 2, ranked: false }),
-	new GameMode("unranked_2v2", { team_size: 2, team_count: 2, ranked: false }),
+	new GameMode("ranked_1v1", { team_size: 1, team_count: 1, ranked: true }),
 ].reduce((prev, curr) =>
 	({...prev, [curr.name]: curr}), {});
 

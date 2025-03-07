@@ -4,6 +4,7 @@ import {
   LobbyLeaveMessage,
   LobbyModeMessage,
   LobbyStateMessage,
+  SwapPlayersMessage,
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
@@ -25,6 +26,8 @@ export function generateJoinSecret() {
   return joinSecret;
 }
 
+const LOBBY_DESTRUCTION_DELAY = 2000;
+
 export class Lobby {
   // owner is always the first player
   /**
@@ -37,7 +40,10 @@ export class Lobby {
   mode = Object.values(GameModes)[0];
   state = LobbyState.waiting();
 
-  constructor(modename) {
+  destructionTimeout = null;
+
+  constructor(modename, lobbies) {
+    this.lobbies = lobbies;
     if (modename) {
       const mode = GameModes[modename];
       if (!mode) throw new Error("Invalid gamemode");
@@ -58,11 +64,27 @@ export class Lobby {
     return this.players[0];
   }
 
-  shouldDestroy() {
+  shouldScheduleDestruction() {
     return this.players.length === 0;
   }
 
+  scheduleDestruction() {
+    this.destructionTimeout = setTimeout(() => {
+      this.destroy();
+    }, LOBBY_DESTRUCTION_DELAY)
+  }
+
+  destroy() {
+    console.log(`Lobby ${this.joinSecret} destroyed`);
+    this.lobbies.delete(this.joinSecret);
+  }
+
   addPlayer(player) {
+    if (this.destructionTimeout)
+    {
+      clearTimeout(this.destructionTimeout);
+      this.destructionTimeout = null;
+    }
     this.players.push(player);
     this.broadbast(new LobbyJoinMessage(player));
     player.send(new LobbyCopyMessage(this));
@@ -71,6 +93,30 @@ export class Lobby {
   removePlayer(player) {
     this.players = this.players.filter((p) => p != player);
     this.broadbast(new LobbyLeaveMessage(player));
+    if (this.shouldScheduleDestruction())
+      this.scheduleDestruction();
+  }
+
+  // swaps the positions of 2 players
+  swapPlayers({ account_ids  }) {
+    const indexes = [];
+    if (!Array.isArray(account_ids) || account_ids.length != 2)
+      throw new Error("Expected element 'indexes' to be an array of 2 element");
+    for (let i = 0; i < account_ids.length; i++)
+    {
+      let account_id = account_ids[i];
+      if (typeof account_id != "number")
+        throw new Error("Invalid account_id, expected a number");
+      let index = this.players.findIndex((p) => p.account_id == account_id);
+      if (index == -1)
+        throw new Error("Account_id is not part of this lobby");
+      indexes.push(index);
+    }
+    // swap players with a temp value
+    let player = this.players[indexes[0]];
+    this.players[indexes[0]] = this.players[indexes[1]];
+    this.players[indexes[1]] = player;
+    this.broadbast(new SwapPlayersMessage(account_ids));
   }
 
   broadbast(message) {
@@ -79,8 +125,14 @@ export class Lobby {
     }
   }
 
+  getLobbyCapacity() {
+    return this.mode.team_size * this.mode.team_count;
+  }
+
   setGameMode(mode) {
     if (!mode) throw new Error("Invalid gamemode");
+    if (this.players.length > mode.team_size * mode.team_count)
+      throw new Error("Too many players in lobby to change to this gamemode");
     this.mode = mode;
     this.broadbast(new LobbyModeMessage(mode));
   }
@@ -91,7 +143,8 @@ export class Lobby {
   }
 
   isJoinable() {
-    return this.state.joinable;
+    if (!this.state.joinable) return false;
+    return this.players.length < this.getLobbyCapacity();
   }
 
   queue() {

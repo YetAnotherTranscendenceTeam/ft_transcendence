@@ -10,9 +10,11 @@ export class Player {
     },
     mode: (msg, player) => player.lobby.setGameMode(GameModes[msg.mode]),
     kick: (msg, player) => {
-      const target = player.lobby.players.find((player) => player.account_id == msg.account_id);
+      const target = player.lobby.players.find(
+        (player) => player.account_id == msg.account_id
+      );
       if (!target) return;
-      target.socket.close(1000, "Kicked from lobby");
+	  target.disconnect(1000, "Kicked from lobby");
     },
     queue_start: (msg, player) => {
       player.lobby.queue();
@@ -22,6 +24,9 @@ export class Player {
     },
     disconnect: (msg, player) => {
       player.disconnect();
+    },
+    swap_players: (msg, player) => {
+      player.lobby.swapPlayers(msg);
     },
   };
 
@@ -38,15 +43,16 @@ export class Player {
     this.connected = true;
   }
 
-  disconnect() {
+  disconnect(code, reason) {
     console.log(`Player ${this.account_id} disconnected`);
     this.lobby.removePlayer(this);
     this.players.delete(this.account_id);
-    if (this.lobby.shouldDestroy()) {
-      console.log(`Destroying lobby ${this.lobby.joinSecret}`);
-      this.lobbies.delete(this.lobby.joinSecret);
-    }
-    if (this.connected) this.socket.close(1000, "Disconnected");
+    if (this.connected) {
+		if (code && reason)
+			this.socket.close(code, reason);
+		else
+			this.socket.close(code ? code : 1000, "Disconnected");
+	}
     this.connected = false;
   }
 
