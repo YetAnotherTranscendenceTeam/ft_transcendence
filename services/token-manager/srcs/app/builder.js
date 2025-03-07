@@ -1,13 +1,14 @@
 "use strict";
 
 import Fastify from "fastify";
-import fastifyFormbody from "@fastify/formbody";
+import cors from "@fastify/cors";
+import formbody from "@fastify/formbody";
+import jwt from "@fastify/jwt";
+import bearerAuth from "@fastify/bearer-auth";
+import cookie from "@fastify/cookie";
 import router from "./router.js";
 import YATT, { HttpError } from "yatt-utils";
-import cors from "@fastify/cors";
-import bearerAuth from "@fastify/bearer-auth";
-import { token_manager_secret, jwt_secret } from "./env.js";
-import jwt from "@fastify/jwt";
+import { token_manager_secret, jwt_secret, refresh_token_secret } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -49,7 +50,13 @@ export default function build(opts = {}) {
     secret: jwt_secret,
   });
 
-  app.register(fastifyFormbody);
+  app.register(jwt, {
+    secret: refresh_token_secret,
+    namespace: "refresh"
+  })
+
+  app.register(cookie)
+  app.register(formbody);
 
   app.register(router);
 

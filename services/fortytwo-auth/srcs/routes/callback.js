@@ -135,8 +135,8 @@ async function authenticate(reply, account_id) {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
-    path: "/refresh",
+    path: "/token/refresh",
   });
   reply.redirect(`${frontend_url}/fortytwo?token=${auth.access_token}&expire_at=${auth.expire_at}`);
-  console.log("AUTH: ", { account_id });
+  console.log("AUTH:", { account_id });
 }

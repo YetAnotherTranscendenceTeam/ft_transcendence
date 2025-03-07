@@ -56,6 +56,7 @@ services:
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
     ports:
       - 127.0.0.1:4002:3000
     networks:

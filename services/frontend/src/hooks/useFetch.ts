@@ -12,18 +12,20 @@ export default function useFetch() {
 		option: {
 			show_error?: boolean
 			success_message?: string,
-			error_messages?: { [key: number]: string }
+			error_messages?: { [key: number]: string },
+			disable_bearer?: boolean
 		} = {}
 	) => {
 		setIsLoading(true);
 		const token = localStorage.getItem('access_token');
 		try {
+			const headers = fetch_options?.headers || {};
+			if (!option.disable_bearer && token) {
+				headers['Authorization'] = `Bearer ${token}`;
+			}
 			const response = await fetch(url, {
 				...fetch_options,
-				headers: {
-					...fetch_options.headers,
-					'Authorization': `Bearer ${token}`
-				}
+				headers
 			});
 			if (response.ok) {
 				let data = true;

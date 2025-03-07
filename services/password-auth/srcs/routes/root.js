@@ -36,7 +36,7 @@ export default function passwordRoutes(fastify, opts, done) {
           httpOnly: true,
           secure: true,
           sameSite: "strict",
-          path: "/refresh",
+          path: "/token/refresh",
         });
         return reply.send(auth);
       }

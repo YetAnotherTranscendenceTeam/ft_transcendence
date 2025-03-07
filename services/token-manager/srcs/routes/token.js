@@ -1,6 +1,7 @@
 "use strict";
 
 import { properties } from "yatt-utils";
+import { generateTokens } from "../utils/generate.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -37,17 +38,14 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.post(
-    "/token/:account_id",
-    { schema, preHandler: fastify.verifyBearerAuth },
+  fastify.post("/token/:account_id", { schema, preHandler: fastify.verifyBearerAuth },
     async function handler(request, reply) {
       const { account_id } = request.params;
 
-      reply.send({
-        access_token: fastify.jwt.sign({ account_id }, { expiresIn: "15m" }),
-        refresh_token: fastify.jwt.sign({ account_id }, { expiresIn: "7d" }),
-        expire_at: new Date(new Date().getTime() + 15 * 60000),
-      });
+      const tokens = generateTokens(fastify, account_id);
+      console.log(tokens);
+      reply.send(tokens);
+      console.log("AUTH:", { account_id });
     }
   );
 

@@ -135,6 +135,23 @@ paths:
         409:
           description: Email address already in use
 
+  /token/refresh:
+    post:
+      summary: refresh token
+      description: Exchange a refresh_token for a new access_token
+      tags:
+        - Authentication
+      parameters:
+      - in: cookie
+        name: refresh_token
+        schema:
+          type: string
+        required: true
+        description: HTTP-only cookie containing the refresh_token
+      responses:
+        200:
+          $ref: "#/components/responses/AuthSuccess"
+
   /auth/fortytwo/:
     get:
       summary: 42API remote auth
