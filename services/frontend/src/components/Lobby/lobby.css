@@ -50,6 +50,7 @@
 	background-color: var(--bg-2);
 	backdrop-filter: none;
 	--primary-color: var(--team-color);
+	position: unset;
 }
 
 .lobby-team .card{
@@ -60,17 +61,28 @@
 
 .lobby-player-card {
 	cursor: grab;
-	position: relative;
-	z-index: 10;
+
 }
 
 .lobby-player-card.dragging {
 	box-shadow: 10px 10px 75px 0px rgba(0,0,0,0.50);
 	transform: translate(var(--x), var(--y));
 	z-index: 9999;
+	pointer-events: none;
 }
 
 .lobby-player-card i{
 	font-size: large;
 	color: var(--fg-4);
+}
+
+
+.lobby-team .card.empty {
+	background-color: var(--bg-1);
+}
+
+.lobby-player-card-wrapper {
+	width: 100%;
+	height: 80px;
+	background-color: red;
 }
