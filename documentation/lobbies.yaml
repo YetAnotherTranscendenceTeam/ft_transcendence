@@ -411,7 +411,12 @@ components:
         - team_size
         - team_count
         - ranked
-      description: The game mode of the lobby
+      description: |
+        The mode of the lobby, this also determines the lobby capacity\* which can be obtained this way:
+        ```
+        capacity = ranked ? team_size : team_size * team_count
+        ```
+        \**capacity* is the maximum number of players that can be in the lobby
       properties:
         name:
           $ref: '#/components/schemas/gamemode_name'
@@ -420,7 +425,7 @@ components:
           description: Size of the team
         team_count:
           type: integer
-          description: Max number of teams for this lobby
+          description: Max number of teams for this mode
         ranked:
           type: boolean
           description: Whether this mode is ranked or not

@@ -40,10 +40,6 @@ export class Player {
     this.players = players;
     this.connected = true;
     this.last_pong = Date.now();
-    this.socket.on("pong", () => {
-      this.last_pong = Date.now();
-      this.lobby.playerPong(this);
-    });
   }
 
   disconnect(code, reason) {

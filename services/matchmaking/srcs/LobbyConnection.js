@@ -1,8 +1,7 @@
 import { GameModes } from "./GameModes.js";
 import { Queue } from "./Queue.js";
 import { Lobby } from "./Lobby.js";
-
-const SCHEDULER_INTERVAL = 5000;
+import { matchmaking_scheduler_delay } from "./app/env.js";
 
 export class LobbyConnection {
   static messageHandlers = {
@@ -19,7 +18,7 @@ export class LobbyConnection {
         throw new Error("Invalid gamemode");
       }
       queue.unqueue(message.data.lobby);
-    }
+    },
   };
 
   /**
@@ -34,15 +33,16 @@ export class LobbyConnection {
       this.queues.forEach((queue) => {
         queue.matchmake();
       });
-    }, SCHEDULER_INTERVAL);
+    }, matchmaking_scheduler_delay);
     Object.values(GameModes).forEach((mode) => {
+      if (typeof mode !== "object") return;
       this.queues.set(mode.name, new Queue(mode, this));
     });
     this.socket = socket;
     this.socket.on("close", (code, reason) => {
-      console.log("Lobby connection closed");
-      console.log(code, reason);
       clearInterval(this.scheduler);
+      console.log("Lobby connection closed");
+      console.log(code, reason.toString());
     });
     this.socket.on("message", (message) => {
       try {
@@ -52,6 +52,10 @@ export class LobbyConnection {
         this.socket.close(1008, e.message);
       }
     });
+  }
+
+  send(message) {
+    this.socket.send(JSON.stringify(message));
   }
 
   handleMessage(message) {

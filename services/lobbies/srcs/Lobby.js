@@ -125,12 +125,12 @@ export class Lobby {
   }
 
   getLobbyCapacity() {
-    return this.mode.team_size * this.mode.team_count;
+    return this.mode.getLobbyCapacity();
   }
 
   setGameMode(mode) {
     if (!mode) throw new Error("Invalid gamemode");
-    if (this.players.length > mode.team_size * mode.team_count)
+    if (this.players.length > mode.getLobbyCapacity())
       throw new Error("Too many players in lobby to change to this gamemode");
     this.mode = mode;
     this.broadbast(new LobbyModeMessage(mode));

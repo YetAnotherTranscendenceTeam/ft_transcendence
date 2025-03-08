@@ -207,7 +207,7 @@ describe("Lobby creation with gamemode", () => {
     await testGamemode({
       name: "ranked_1v1",
       team_size: 1,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -215,7 +215,7 @@ describe("Lobby creation with gamemode", () => {
     await testGamemode({
       name: "ranked_2v2",
       team_size: 2,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -329,7 +329,8 @@ describe("Join full lobby", () => {
   const testgamemode = async (gamemode) => {
     let players = [];
     players.push(await createLobby(users[0], gamemode));
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    const lobby_capacity = gamemode.ranked ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    for (let i = 1; i < lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -348,7 +349,7 @@ describe("Join full lobby", () => {
     return testgamemode({
       name: "ranked_1v1",
       team_size: 1,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -356,7 +357,7 @@ describe("Join full lobby", () => {
     return testgamemode({
       name: "ranked_2v2",
       team_size: 2,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -389,12 +390,13 @@ describe("Change gamemode with too many players", () => {
         ranked: false,
       })
     );
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    const lobby_capacity = gamemode.ranked ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    for (let i = 1; i <= lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
     }
-    players[0].ws
+    await players[0].ws
       .sendJson({ event: "mode", data: { mode: gamemode.name } })
       .expectJson((message) => {
         if (message.event != "error") {
