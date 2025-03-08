@@ -28,7 +28,7 @@ describe("/usernames/:username", () => {
 
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
     expect(response.body.username).toEqual("");
-    expect(response.body.avatar).toEqual("");
+    expect(response.body.avatar).toEqual(expect.any(String));
   })
 
   it("delete dummy profile", async () => {

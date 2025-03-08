@@ -18,6 +18,10 @@ server {
         proxy_set_header Connection "Upgrade";
         # ================
     }
+
+    location = /ping {
+        return 204;
+    }
 }
 
 server {
@@ -74,8 +78,12 @@ server {
         proxy_pass http://avatars:3000;
     }
 
-    # location /settings {
-    #     rewrite ^/settings(.*)$ /$1 break;
-    #     proxy_pass http://settings:3000;
-    # }
+    location /settings {
+        rewrite ^/settings/(.*)$ /$1 break;
+        proxy_pass http://settings:3000;
+    }
+
+    location = /ping {
+        return 204;
+    }
 }

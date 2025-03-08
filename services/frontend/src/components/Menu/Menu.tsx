@@ -12,7 +12,7 @@ export default function Menu() {
 	const {me} = useAuth();
 
 	const [isClosed, setIsClosed] = Babact.useState(false)
-
+	
 	return <div className='menu-container flex'>
 		<Settings me={me} isOpen={isClosed} onClose={() => setIsClosed(false)} />
 		<Card className={`menu right flex flex-col items-center justify-center h-full gap-4 ${isClosed ? 'closed' : ''}`}>

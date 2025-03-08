@@ -1,13 +1,13 @@
 "use strict";
 
 import Fastify from "fastify";
-import fastifyFormbody from "@fastify/formbody";
+import cors from "@fastify/cors";
+import jwt from "@fastify/jwt";
+import bearerAuth from "@fastify/bearer-auth";
+import formbody from "@fastify/formbody";
 import router from "./router.js";
 import YATT, { HttpError } from "yatt-utils";
-import cors from "@fastify/cors";
-import bearerAuth from "@fastify/bearer-auth";
-import { token_manager_secret, jwt_secret } from "./env.js";
-import jwt from "@fastify/jwt";
+import { jwt_secret } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -19,37 +19,33 @@ export default function build(opts = {}) {
       methods: ["GET", "POST", "PATCH", "DELETE"], // Allowed HTTP methods
       credentials: true, // Allow credentials (cookies, authentication)
     });
-
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Token manager",
-        description: "[PLACEHOLDER]",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4002", description: "Development network" },
-        { url: "http://token-manager:3000", description: "Containers network" },
-      ],
-    });
   } else {
     // PRODUCTION configuration
     // TODO: Setup cors
   }
 
-  const keys = new Set([token_manager_secret]);
+  const serviceAuthorization = (token, request) => {
+    try {
+      const decoded = app.jwt.verify(token);
+      if (decoded.refresh) return false;
+      request.acess_token = token;
+      request.account_id = decoded.account_id;
+    } catch (err) {
+      return false;
+    }
+    return true;
+  };
+
   app.register(bearerAuth, {
-    keys,
-    addHook: false,
+    auth: serviceAuthorization,
+    addHook: true,
     errorResponse: (err) => {
       return new HttpError.Unauthorized().json();
     },
   });
 
-  app.register(jwt, {
-    secret: jwt_secret,
-  });
-
-  app.register(fastifyFormbody);
+  app.register(jwt, { secret: jwt_secret });
+  app.register(formbody);
 
   app.register(router);
 

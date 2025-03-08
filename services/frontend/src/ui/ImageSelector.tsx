@@ -1,5 +1,7 @@
 import Babact from "babact";
 import { useForm } from "../contexts/useForm";
+import useToast from "../hooks/useToast";
+import WebcamModal from "./WebcamModal";
 
 export type Image = {
 	url: string,
@@ -14,6 +16,7 @@ export default function ImageSelector({
 		required,
 		onImageRemove,
 		defaultValue,
+		webcam = false,
 		...props
 	}: {
 		label: string,
@@ -23,15 +26,26 @@ export default function ImageSelector({
 		required?: boolean,
 		onImageRemove?: (url: string) => void,
 		defaultValue?: string,
+		webcam?: boolean,
 		[key: string]: any
 	}) {
 
+	const { createToast } = useToast();
+
 	const { updateField, updateFieldValidity, fields } = useForm();
+
+	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState(false);
 
 	const handleFileChange = (e: any) => {
 		const file = e.target.files[0];
 		const reader = new FileReader();
-		reader.onload = (e: any) => onChange(e);
+		reader.onload = (e: any) => {
+			if (e.target.result.length > 5 * 1024 * 1024) {
+				createToast('File too large', 'danger', 7000);
+				return;
+			}
+			onChange(e)
+		};
 		reader.readAsDataURL(file);
 		e.target.value = '';
 	}
@@ -52,9 +66,21 @@ export default function ImageSelector({
 			{required && <span>*</span>}
 		</label>
 		<div className='image-selector-container scrollbar'>
+			<label
+				key='file'
+			>
+				<input type="file" onChange={handleFileChange} accept='image/*' />
+				<i className="fa-solid fa-plus"></i>
+			</label>
+			{webcam && <label
+				key='webcam'
+				onClick={() => setWebcamModalOpen(true)}
+			>
+				<i className="fa-solid fa-camera" ></i>
+			</label>}
 			{
 				images.map((image: Image, i: number) => (
-					<div className='image-selector-item'>
+					<div className='image-selector-item' key={-i}>
 						<img
 							src={image.url} alt={`image-${i}`}
 							className={fields[field].value === image.url ? 'selected' : ''}
@@ -64,10 +90,11 @@ export default function ImageSelector({
 					</div>
 				))
 			}
-			<label>
-				<input type="file" onChange={handleFileChange} accept='image/*' />
-				<i className="fa-solid fa-plus"></i>
-			</label>
 		</div>
+		<WebcamModal
+			isOpen={webcamModalOpen}
+			onClose={() => setWebcamModalOpen(false)}
+			onCapture={onChange}
+		/>
 	</div>
 }

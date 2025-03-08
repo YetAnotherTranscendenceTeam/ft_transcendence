@@ -9,16 +9,15 @@ import { imageSize } from 'image-size';
 export default function router(fastify, opts, done) {
   fastify.get("/", async function handler(request, reply) {
     try {
-      const token = fastify.jwt.cdn.sign({ account_id: request.account_id });
-      const defaults = await YATT.fetch(`${cdn_url}/api/avatars/default`, {
-        headers: {
-          authorization: `Bearer ${token}`,
-        }
-      });
-      const user = db.prepare("SELECT * FROM avatars WHERE account_id = ?").all(request.account_id);
       reply.send({
-        default: defaults.map(path => cdn_url + path),
-        user: user.map(avatar => avatar.url),
+        default: db
+          .prepare("SELECT * FROM avatars WHERE account_id = -1")
+          .all()
+          .map(avatar => avatar.url),
+        user: db
+          .prepare("SELECT * FROM avatars WHERE account_id = ? ORDER BY created_at DESC ")
+          .all(request.account_id)
+          .map(avatar => avatar.url),
       });
     } catch (err) {
       if (err instanceof HttpError) {
@@ -93,19 +92,19 @@ export default function router(fastify, opts, done) {
   fastify.delete("/", { schema }, async function handler(request, reply) {
     const { url } = request.query;
 
-    console.log("avatar delition route called");
     if (!db.prepare("SELECT * FROM avatars WHERE account_id = ? AND url = ?").get(request.account_id, url)) {
       return new HttpError.NotFound().send(reply);
     }
     try {
       const token = fastify.jwt.cdn.sign({});
-      await YATT.fetch(`${cdn_url}/api/${url.replace(cdn_url, '')}`, {
+      await YATT.fetch(url.replace(cdn_url, `${cdn_url}/api/`), {
         method: "DELETE",
         headers: {
           'authorization': `Bearer ${token}`,
         }
       });
       db.prepare("DELETE FROM avatars WHERE account_id = ? AND url = ?").run(request.account_id, url);
+      console.log(`id#${request.account_id} deleted avatar ${url}`);
       reply.code(204).send();
     } catch (err) {
       if (err instanceof HttpError) {
@@ -124,8 +123,7 @@ const allowedTypes = ["jpg", "png", "gif", "webp"];
 function validateImageFormat(infos) {
   const { width, height, type } = infos;
   if (!allowedTypes.find(ext => ext === type)
-    || width < 32 || height < 32
-    || width > 1024 || height > 1024) {
+    || width < 32 || height < 32) {
     throw new HttpError.BadRequest();
   }
 }

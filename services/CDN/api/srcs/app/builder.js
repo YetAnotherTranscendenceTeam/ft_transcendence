@@ -16,7 +16,7 @@ export default function build(opts = {}) {
     // DEVELOPEMENT configuration
     app.register(cors, {
       origin: true,
-      methods: ["GET", "POST", "PATH", "DELETE"], // Allowed HTTP methods
+      methods: ["GET", "POST", "PATCH", "DELETE"], // Allowed HTTP methods
       credentials: true, // Allow credentials (cookies, authentication)
     });
   } else {

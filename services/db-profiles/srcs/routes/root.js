@@ -76,14 +76,12 @@ export default function router(fastify, opts, done) {
 
     try {
       const profile = db
-        .prepare("INSERT INTO profiles (account_id) VALUES (?) RETURNING *")
-        .get(account_id);
+        .prepare("INSERT INTO profiles (account_id, avatar) VALUES (?, ?) RETURNING *")
+        .get(account_id, fastify.defaultAvatar);
       reply.code(201).send(profile);
     } catch (err) {
-      if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
-        return new HttpError.Conflict().send(reply);
-      }
-      throw err;
+      if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") new HttpError.Conflict().send(reply);
+      else throw err;
     }
   });
 
@@ -106,10 +104,7 @@ export default function router(fastify, opts, done) {
     }
   };
 
-  fastify.delete(
-    "/:account_id",
-    { schema },
-    async function handler(request, reply) {
+  fastify.delete("/:account_id", { schema }, async function handler(request, reply) {
       const { account_id } = request.params;
 
       const result = db
@@ -145,32 +140,31 @@ export default function router(fastify, opts, done) {
     },
     response: {
       204: {
-        description: "[PLACEHOLDER]"
+        description: "Sucess"
       }
     }
   };
 
-  fastify.patch(
-    "/:account_id",
-    { schema },
-    async function handler(request, reply) {
-      const { account_id } = request.params;
-      const { setClause, params } = patchBodyToSql(request.body);
+  fastify.patch("/:account_id", { schema }, async function handler(request, reply) {
+    const { account_id } = request.params;
+    const { setClause, params } = patchBodyToSql(request.body);
 
+    try {
       const update = db
-        .prepare(
-          `
-        UPDATE profiles
-        SET ${setClause}
-        WHERE account_id = ?
-        RETURNING *;
-      `
-        )
+        .prepare(`
+          UPDATE profiles
+          SET ${setClause}
+          WHERE account_id = ?
+          RETURNING *;
+        `)
         .get(...params, account_id);
-
+      console.log("UPDATE:", update);
       reply.send(update);
+    } catch (err) {
+      if (err.code === "SQLITE_CONSTRAINT_UNIQUE") new HttpError.Conflict().send(reply);
+      else throw err;
     }
-  );
+  });
 
   done();
 }

@@ -6,15 +6,15 @@ services:
       - "7979:7979"
     networks:
       - frontend
-      - db-profiles
       - avatars
       - settings
-      - swagger
     environment:
       - NGINX_HOST=localhost
     secrets:
       - ssl-crt
       - ssl-key
+    depends_on:
+      - avatars
 
   frontend:
     build:
@@ -141,7 +141,8 @@ services:
       - ./modules/:/modules:ro
       - ./sqlite:/database
     environment:
-      - JWT_SECRET=${JWT_SECRET}
+      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_URL=${CDN_URL}
     ports:
       - 127.0.0.1:7001:3000
     networks:
@@ -162,22 +163,21 @@ services:
      - frontend
      - db-profiles
 
-  # settings:
-  #   build:
-  #     context: services/settings/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./services/settings/srcs:/services/settings/srcs
-  #     - ./modules/:/modules:ro
-  #   environment:
-  #     - JWT_SECRET=${JWT_SECRET}
-  #   ports:
-  #     - 127.0.0.1:4004:3000
-  #   networks:
-  #     - settings
-  #     - cdn
-  #   secrets:
-  #     - ssl-crt
+  settings:
+    build:
+      context: services/settings/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/settings/srcs:/services/settings/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - 127.0.0.1:4004:3000
+    networks:
+      - settings
+      - avatars
+      - db-profiles
 
   avatars:
     build:
@@ -196,6 +196,9 @@ services:
     networks:
       - avatars
       - cdn-test
+    depends_on:
+      cdn-nginx:
+        condition: service_healthy
 
   swagger:
     build:
@@ -225,6 +228,9 @@ services:
     secrets:
       - ssl-crt
       - ssl-key
+    depends_on:
+      cdn-api:
+        condition: service_healthy
 
   cdn-api:
     build:
@@ -255,9 +261,10 @@ networks:
     driver: bridge
   avatars:
     driver: bridge
-  cdn-test:
-    driver: bridge
   cdn-api:
+    driver: bridge
+
+  cdn-test:
     driver: bridge
 
 volumes:

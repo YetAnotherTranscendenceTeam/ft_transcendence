@@ -11,7 +11,7 @@ export const UiProvider = ({ children } : {children?: any}) => {
 		<UiContext.Provider
 			value={{
 				toaster,
-				setToaster
+				setToaster,
 			}}
 		>
 			<div className='toaster'>

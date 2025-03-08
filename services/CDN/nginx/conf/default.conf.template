@@ -20,4 +20,8 @@ server {
         rewrite ^/api/(.*) /$1 break;
         proxy_pass http://cdn-api:3000;
     }
+
+    location = /ping {
+        return 204;
+    }
 }
