@@ -18,14 +18,7 @@ describe("TOKEN GENERATION", () => {
   it("no authorization header", async () => {
     const response = await request(baseUrl)
       .post("/token/45")
-      .expect(400)
-      .expect("Content-Type", /json/);
-    expect(response.body).toEqual({
-      statusCode: 400,
-      code: "FST_ERR_VALIDATION",
-      error: "Bad Request",
-      message: "headers must have required property 'authorization'",
-    });
+      .expect(401)
   });
 
   it("invalid authorization header 1", async () => {

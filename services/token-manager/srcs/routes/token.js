@@ -2,50 +2,46 @@
 
 import { properties } from "yatt-utils";
 import { generateTokens } from "../utils/generate.js";
+import db from "../app/database.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
-    summary: "JWT Generation",
-    description: "Generate a JWT token for a given account ID",
-    tags: ["Access token"],
     params: {
       type: "object",
       properties: {
         account_id: properties.account_id,
       },
       required: ["account_id"],
-    },
-    headers: {
-      type: "object",
-      properties: {
-        Authorization: {
-          type: "string",
-          description: "Bearer token for authentication",
-        },
-      },
-      required: ["Authorization"],
-    },
-    response: {
-      200: {
-        type: "object",
-        properties: {
-          access_token: properties.access_token,
-          refresh_token: properties.access_token,
-          expire_at: properties.expire_at,
-        },
-        required: ["access_token", "refresh_token", "expire_at"],
-      },
-    },
-  };
+      additionalProperties: false,
+  }};
 
   fastify.post("/token/:account_id", { schema, preHandler: fastify.verifyBearerAuth },
     async function handler(request, reply) {
       const { account_id } = request.params;
 
       const tokens = generateTokens(fastify, account_id);
-      console.log(tokens);
       reply.send(tokens);
       console.log("AUTH:", { account_id });
+    }
+  );
+
+  schema = {
+    headers: {
+      type: 'object',
+      properties: {
+        'Cookie': { type: 'string' }
+      },
+      required: ['Cookie']
+    },
+  };
+
+  fastify.post("/token/revoke", { schema }, async function handler(request, reply) {
+      const token = request.cookies.refresh_token;
+
+      db.prepare("DELETE FROM refresh_tokens WHERE token = ?").run(token);
+      reply.clearCookie("refresh_token");
+      console.log("REVOKE:", { account_id });
+      reply.code(204).send();
     }
   );
 
