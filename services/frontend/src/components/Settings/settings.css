@@ -1,15 +1,13 @@
 .settings {
 	position: absolute;
 	top: 0;
-	left: 0;
+	left: calc(-600px);
 	height: calc(100vh - 32px);
 	width: 400px;
-	transition: opacity 0.5s, transform 0.5s, max-width 0.5s;
 	border-radius: 0;
 	opacity: 0;
-	transform: translateX(-100%);
 	padding: 16px 32px;
-	max-width: 0;
+	transition: left 0.5s, opacity 0.5s;
 }
 
 .menu-container .settings {
@@ -17,10 +15,9 @@
 }
 
 .settings.open {
-	position: relative;
+	position: absolute;
 	opacity: 1;
-	max-width: 40vw;
-	transform: translateX(0);
+	left: 0;
 }
 
 .settings-content {

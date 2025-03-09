@@ -44,7 +44,10 @@ export default function Menu() {
 				</PopHover>
 			</Link>
 
-			<Button className={`button ghost ${selected === 'settings' ? 'active' : ''}`} onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}>
+			<Button
+				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}
+				onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}
+			>
 				<i className="fa-solid fa-sliders"></i><p>Settings</p>
 			</Button>
 		</Card>
