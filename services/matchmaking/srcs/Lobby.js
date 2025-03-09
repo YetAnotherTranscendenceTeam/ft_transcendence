@@ -73,7 +73,6 @@ export class Lobby {
       }
     }
     rating += Math.abs(this.players.length - other.players.length) * WEIGHT_PLAYER_COUNT_DIFF;
-    console.log(`Match rating between ${this.joinSecret} and ${other.joinSecret} is ${rating}`);
     return rating;
   }
 }

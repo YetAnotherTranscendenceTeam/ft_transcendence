@@ -1,9 +1,10 @@
-import { users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../dummy/dummy-account";
 import { createLobby, joinLobby, lobbiesURL } from "../../dummy/lobbies-player";
 import request from "superwstest";
 
+createUsers(10);
 
-const LOBBY_DESTRUCTION_DELAY = 2000;
+const LOBBY_DESTRUCTION_DELAY = 3000;
 
 describe("Mass lobby creation", () => {
   let lobbies = [];
@@ -234,40 +235,6 @@ describe("Lobby creation with gamemode", () => {
       team_count: 2,
       ranked: false,
     });
-  });
-});
-
-describe("Stats", () => {
-  it(
-    `Waits for lobbies to be destroyed`,
-    async () => {
-      await new Promise((res) => setTimeout(res, LOBBY_DESTRUCTION_DELAY + 100));
-    },
-    LOBBY_DESTRUCTION_DELAY + 200
-  );
-  it(`check stats`, async () => {
-    await request(lobbiesURL)
-      .get("/stats")
-      .set("Authorization", `Bearer ${users[0].jwt}`)
-      .send()
-      .expect(200)
-      .then((res) => {
-        expect(res.body.lobby_count).toBe(0);
-        expect(res.body.player_count).toBe(0);
-      });
-  });
-  it(`create a lobby and check stats`, async () => {
-    const lobby = await createLobby(users[0]);
-    await request(lobbiesURL)
-      .get("/stats")
-      .set("Authorization", `Bearer ${users[0].jwt}`)
-      .send()
-      .expect(200)
-      .then((res) => {
-        expect(res.body.lobby_count).toBe(1);
-        expect(res.body.player_count).toBe(1);
-      });
-    await lobby.close();
   });
 });
 

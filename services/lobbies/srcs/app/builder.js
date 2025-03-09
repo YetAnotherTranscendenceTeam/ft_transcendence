@@ -6,7 +6,7 @@ import websocket from '@fastify/websocket'
 import router from "./router.js";
 import YATT, {HttpError} from "yatt-utils";
 import jwt from "@fastify/jwt";
-import { jwt_secret, jwt_matchmaking_secret } from "./env.js";
+import { jwt_secret, matchmaking_jwt_secret } from "./env.js";
 import { fetchGameModes, GameModes } from "../GameModes.js";
 import MatchmakingConnection from "../MatchmakingConnection.js";
 
@@ -34,7 +34,7 @@ export default function build(opts = {}) {
     secret: jwt_secret,
   });
   app.register(jwt, {
-	secret: jwt_matchmaking_secret,
+	secret: matchmaking_jwt_secret,
 	namespace: "matchmaking"
   })
   app.register(fastifyFormbody);

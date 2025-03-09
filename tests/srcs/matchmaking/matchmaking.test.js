@@ -1,21 +1,38 @@
-import { users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../dummy/dummy-account";
 import request from "superwstest";
 import { createLobby } from "../../dummy/lobbies-player";
-import { jwt_matchmaking_secret } from "./env";
+import { matchmaking_jwt_secret } from "./env";
+import { matchmaking_tests } from "./matches-tests";
 
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
 
 const app = Fastify();
 app.register(jwt, {
-  secret: jwt_matchmaking_secret,
+  secret: matchmaking_jwt_secret,
 });
 
 beforeAll(async () => {
   await app.ready();
 });
 
+createUsers(
+  matchmaking_tests.reduce((acc, test) => {
+    const player_count = test.lobby_player_count.reduce(
+      (acc, player_count) => acc + player_count,
+      0
+    );
+    return player_count > acc ? player_count : acc;
+  }, 0)
+);
+
 const matchmakingURL = "http://localhost:4044";
+
+let GameModes;
+test("fetch gamemodes", async () => {
+  const response = await request(matchmakingURL).get("/gamemodes").expect(200);
+  GameModes = response.body;
+});
 
 describe("queue and unqueue lobby", () => {
   let lobby;
@@ -34,29 +51,21 @@ describe("queue and unqueue lobby", () => {
     });
   });
   test("unqueue lobby", async () => {
-    await lobby.ws
-      .wait(50)
-      .sendJson({ event: "queue_stop" })
-      .expectJson((message) => {
-        if (message.event !== "state_change") {
-          console.error(message);
-        }
-        expect(message.event).toBe("state_change");
-        expect(message.data.state.type).toBe("waiting");
-      });
+    await lobby.ws.sendJson({ event: "queue_stop" }).expectJson((message) => {
+      if (message.event !== "state_change") {
+        console.error(message);
+      }
+      expect(message.event).toBe("state_change");
+      expect(message.data.state.type).toBe("waiting");
+    });
   });
   test("close lobby", async () => {
     await lobby.close();
   });
 });
 
-describe("match making", () => {
+describe("direct (fake lobbies) match making", () => {
   let ws;
-  let GameModes;
-  test("fetch gamemodes", async () => {
-    const response = await request(matchmakingURL).get("/gamemodes").expect(200);
-    GameModes = response.body;
-  });
   test("connect to matchmaking websocket", async () => {
     ws = request(matchmakingURL)
       .ws("/lobbieconnection")
@@ -70,23 +79,9 @@ describe("match making", () => {
         expect(message.event).toBe("handshake");
       });
   });
-  test.each([
-    /* 1 match */
-    { lobby_player_count: [1, 1], gamemode: "ranked_1v1", expected_matches: [[0,1]], expected_tolerances: [0] },
-    { lobby_player_count: [2, 2], gamemode: "ranked_2v2", expected_matches: [[0,1]], expected_tolerances: [0] },
-    { lobby_player_count: [1, 1, 2], gamemode: "ranked_2v2", expected_matches: [[0,1,2]], expected_tolerances: [1] },
-    { lobby_player_count: [2, 1, 1], gamemode: "ranked_2v2", expected_matches: [[0,1,2]], expected_tolerances: [1] },
-    { lobby_player_count: [1, 1, 1, 1], gamemode: "ranked_2v2", expected_matches: [[0,1,2,3]], expected_tolerances: [0] },
-    /* 2 matches */
-    { lobby_player_count: [1, 2, 1, 1, 1, 2], gamemode: "ranked_2v2", expected_matches: [[0,2,3,4], [1,5]], expected_tolerances: [0,0] },
-    { lobby_player_count: [2, 1, 1, 1, 1, 2], gamemode: "unranked_2v2", expected_matches: [[0,5], [1,2,3,4]], expected_tolerances: [0,0] },
-    { lobby_player_count: [1, 1, 1, 1, 2, 2], gamemode: "unranked_2v2", expected_matches: [[0,1,2,3], [4,5]], expected_tolerances: [0,0] },
-    /* 3 matches */
-    { lobby_player_count: [1, 1, 2, 2, 2, 2, 2], gamemode: "unranked_2v2", expected_matches: [[2,3], [4,5], [0,1,6]], expected_tolerances: [0,0,1] },
-    { lobby_player_count: [1, 1, 1, 1, 1, 1, 2, 2, 2], gamemode: "unranked_2v2", expected_matches: [[0,1,2,3], [6,7], [4,5,8]], expected_tolerances: [0,0,1] },
-  ])(
-    "queue $lobby_player_count.length lobbies and expect $expected_matches.length matche(s) ($gamemode)",
-    async ({ lobby_player_count, gamemode, expected_matches, expected_tolerances}) => {
+  test.each(matchmaking_tests)(
+    "queue $lobby_player_count.length lobbies and expect $expected_matches.length match(es) ($gamemode)",
+    async ({ lobby_player_count, gamemode, expected_matches, expected_tolerances }) => {
       let account_id = 0;
       const lobbies = lobby_player_count.map((player_count, index) => ({
         players: Array.from({ length: player_count }, () => ({ account_id: account_id++ })),
@@ -111,17 +106,18 @@ describe("match making", () => {
       for (let i = 0; i < expected_matches.length; i++) {
         const expected_match = expected_matches[i];
         const expected_tolerance = expected_tolerances[i];
-        await ws
-          .expectJson((message) => {
-            expect(message.event).toBe("match");
-            expect(message.data.lobbies.length).toBe(expected_match.length);
-            for (let lobby of message.data.lobbies) {
-              expect(lobby.tolerance).toBe(expected_tolerance);
-            }
-            for (let i of expected_match) {
-              expect(message.data.lobbies.find((other) => other.joinSecret == lobbies[i].joinSecret)).toBeDefined();
-            }
-          });
+        await ws.expectJson((message) => {
+          expect(message.event).toBe("match");
+          expect(message.data.lobbies.length).toBe(expected_match.length);
+          for (let lobby of message.data.lobbies) {
+            expect(lobby.tolerance).toBe(expected_tolerance);
+          }
+          for (let i of expected_match) {
+            expect(
+              message.data.lobbies.find((other) => other.joinSecret == lobbies[i].joinSecret)
+            ).toBeDefined();
+          }
+        });
       }
     }
   );
@@ -129,3 +125,74 @@ describe("match making", () => {
     await ws.close(1000, "test done");
   });
 });
+
+describe.each(matchmaking_tests)(
+  "lobby match making with $lobby_player_count.length lobbies forming $expected_matches.length match(es) ($gamemode)",
+  ({ lobby_player_count, gamemode, expected_matches, expected_tolerances }) => {
+    let user_index = 0;
+    let lobbies = Array.from({ length: lobby_player_count.length }, () => []);
+    const lobby_indexes = Array.from({ length: lobby_player_count.length }, (_, i) => i);
+    const match_indexes = Array.from({ length: expected_matches.length }, (_, i) => i);
+    let lobby_index = 0;
+    let matches = new Map();
+    test.each(lobby_player_count)("create lobby %# with %i players", async (player_count) => {
+      const players = lobbies[lobby_index++];
+      const lobby = await createLobby(users[user_index++], GameModes[gamemode]);
+      players.push(lobby);
+      for (let i = 0; i < player_count - 1; i++) {
+        const player = await lobby.join(users[user_index++]);
+        for (let other of players) {
+          await other.expectJoin(player.user.account_id);
+        }
+        players.push(player);
+      }
+    });
+    test.each(lobby_indexes)("lobby %# queue", async (lobby_index) => {
+      const lobby = lobbies[lobby_index];
+      await lobby[0].ws.sendJson({ event: "queue_start" });
+    });
+    test("expect queue confirmations", async () => {
+      await Promise.all(
+        lobbies.flat().map((player) =>
+          player.ws.expectJson((message) => {
+            expect(message.event).toBe("state_change");
+            expect(message.data.state.type).toBe("queued");
+          })
+        )
+      );
+    });
+    test.each(match_indexes)("expect match %#", async (match_index) => {
+      const expected_match = expected_matches[match_index];
+      for (let lobby_index of expected_match) {
+        const lobby = lobbies[lobby_index];
+        for (let i = 0; i < lobby.length; i++) {
+          const player = lobby[i];
+          await player.ws.expectJson((message) => {
+            expect(message.event).toBe("state_change");
+            expect(message.data.state.type).toBe("playing");
+            expect(message.data.state.match).toBeDefined();
+            if (i != 0) return;
+            let match = matches.get(message.data.state.match);
+            if (!match) {
+              match = [];
+              matches.set(message.data.state.match, match);
+            }
+            match.push(lobby_index);
+          });
+        }
+      }
+    });
+    test("compare matches", () => {
+      expect([...matches.values()]).toStrictEqual(expected_matches);
+    });
+    test("close lobbies", async () => {
+      await Promise.all(lobbies.map(async (lobby) => {
+        while (lobby.length > 0) {
+          let player = lobby.pop();
+          await player.close();
+          await Promise.all(lobby.map((p) => p.expectLeave(player.user.account_id)));
+        }
+      }));
+    });
+  }
+);

@@ -4,6 +4,8 @@ import { LobbyConnection } from "./LobbyConnection.js";
 
 const LOBBY_TOLERANCE_INCREMENT = 1.0;
 
+let match_id = 0;
+
 export class Queue {
   /**
    * @type {Lobby[]}
@@ -36,6 +38,8 @@ export class Queue {
   }
 
   unqueue(lobby, send = true) {
+    const index = this.lobbies.findIndex((other) => other.joinSecret === lobby.joinSecret);
+    if (index === -1) return;
     if (send)
       this.lobbyConnection.send({
         event: "confirm_unqueue",
@@ -43,16 +47,19 @@ export class Queue {
           lobby,
         },
       });
-    const index = this.lobbies.indexOf(lobby);
-    if (index === -1) return;
     this.lobbies.splice(index, 1);
   }
 
   matchmake() {
-    if (this.lobbies.length < 2) return;
+    if (this.lobbies.length === 0) return;
     console.log(`Matchmaking for ${this.gamemode.name}`);
     for (let i = 0; i < this.lobbies.length; i++) {
       const teams = [];
+      if (this.lobbies[i].players.length > this.gamemode.team_size) {
+        this.matchLobbies([this.lobbies[i]]);
+        i--;
+        continue;
+      }
       for (let j = i; teams.length < this.gamemode.team_count && j < this.lobbies.length; j++) {
         const team = this.createTeam(this.lobbies, j, teams);
         if (!team) continue;
@@ -110,14 +117,12 @@ export class Queue {
       this.unqueue(lobby, false);
       console.log(` - ${lobby.joinSecret}`);
     });
-    this.lobbyConnection.socket.send(
-      JSON.stringify({
+    this.lobbyConnection.send({
         event: "match",
         data: {
           lobbies,
-          match_id: null, // TODO: implement match id (match server)
+          match: match_id++, // TODO: implement matches (match server)
         },
-      })
-    );
+      });
   }
 }

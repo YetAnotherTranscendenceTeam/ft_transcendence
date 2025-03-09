@@ -252,7 +252,7 @@ components:
               - state
             properties:
               state:
-                $ref: '#/components/schemas/lobbyState'
+                $ref: '#/components/schemas/lobby_state'
     mode_change:
       description: Message sent to all lobby members when the game mode of the lobby changes
       tags:
@@ -429,7 +429,7 @@ components:
         ranked:
           type: boolean
           description: Whether this mode is ranked or not
-    lobbyState:
+    lobby_state:
       type: object
       required:
         - type
@@ -446,6 +446,20 @@ components:
         joinable:
           type: boolean
           description: Whether the lobby is joinable or not
+        # properties depending on the state
+        queue_stats:
+          type: object
+          description: The stats for the queue at the moment this lobby joined it (only if the state is queued)
+          properties:
+            players:
+              type: integer
+              description: The number of players in the queue
+            lobbies:
+              type: integer
+              description: The number of lobbies in the queue
+        match:
+          type: integer
+          description: The match ID (only if the state is playing). This is still a WIP
     lobby:
       type: object
       required:
@@ -462,7 +476,7 @@ components:
         mode:
           $ref: '#/components/schemas/gamemode'
         state:
-          $ref: '#/components/schemas/lobbyState'
+          $ref: '#/components/schemas/lobby_state'
         joinSecret:
           type: string
           description: The secret to join the lobby

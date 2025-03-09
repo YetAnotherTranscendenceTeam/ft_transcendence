@@ -13,8 +13,8 @@ import MatchmakingConnection from "./MatchmakingConnection.js";
 
 export const LobbyState = {
   waiting: () => ({ type: "waiting", joinable: true }),
-  queued: () => ({ type: "queued", joinable: false }),
-  playing: (matchid) => ({ type: "playing", joinable: false, matchid }),
+  queued: (stats) => ({ type: "queued", joinable: false, stats }),
+  playing: (match) => ({ type: "playing", joinable: false, match }),
 };
 
 // export this to be used when the secret is already used
@@ -137,7 +137,6 @@ export class Lobby {
   }
 
   setState(state) {
-    console.log(`Lobby ${this.joinSecret} state changed to ${state.type}`);
     this.state = state;
     this.broadbast(new LobbyStateMessage(state));
   }
@@ -148,7 +147,7 @@ export class Lobby {
   }
 
   matchFound(match) {
-    this.setState(LobbyState.playing(match.match_id));
+    this.setState(LobbyState.playing(match));
   }
 
   forcedUnqueue(reason) {
@@ -157,16 +156,24 @@ export class Lobby {
   }
 
   queue() {
+    if (this.state.type != "waiting") throw new Error("Lobby is not waiting");
     if (!MatchmakingConnection.getInstance().isReady) {
       throw new Error("Matchmaking service is currently not available");
     }
-    this.setState(LobbyState.queued());
     MatchmakingConnection.getInstance().queue(this);
   }
 
+  confirmQueue(stats) {
+    this.setState(LobbyState.queued(stats));
+  }
+
   unqueue() {
-    this.setState(LobbyState.waiting());
+    if (this.state.type != "queued") throw new Error("Lobby is not queued");
     if (MatchmakingConnection.getInstance().isReady)
       MatchmakingConnection.getInstance().unqueue(this);
+  }
+
+  confirmUnqueue() {
+    this.setState(LobbyState.waiting());
   }
 }

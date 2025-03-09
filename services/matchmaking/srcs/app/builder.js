@@ -7,7 +7,7 @@ import router from "./router.js";
 import YATT, {HttpError} from "yatt-utils";
 import jwt from "@fastify/jwt";
 import { jwt_secret } from "./env.js";
-import { jwt_matchmaking_secret } from "./env.js";
+import { matchmaking_jwt_secret } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -29,7 +29,7 @@ export default function build(opts = {}) {
     secret: jwt_secret,
   });
   app.register(jwt, {
-	secret: jwt_matchmaking_secret,
+	secret: matchmaking_jwt_secret,
 	namespace: "matchmaking"
   })
   app.register(fastifyFormbody);

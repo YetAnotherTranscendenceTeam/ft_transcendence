@@ -9,9 +9,34 @@ export default class MatchmakingConnection extends EventEmitter {
     return MatchmakingConnection.instance;
   }
 
+  messageHandlers = {
+    match: (message) => {
+      for (const lobby of message.data.lobbies) {
+        const lobbyInstance = this.queuedLobbies.get(lobby.joinSecret);
+        if (lobbyInstance) {
+          this.queuedLobbies.delete(lobby.joinSecret);
+          lobbyInstance.matchFound(message.data.match);
+        }
+      }
+    },
+    confirm_queue: (message) => {
+      const lobby = this.queuedLobbies.get(message.data.lobby.joinSecret);
+      if (lobby) {
+        lobby.confirmQueue();
+      }
+    },
+    confirm_unqueue: (message) => {
+      const lobby = this.queuedLobbies.get(message.data.lobby.joinSecret);
+      if (lobby) {
+        lobby.confirmUnqueue();
+        this.queuedLobbies.delete(lobby.joinSecret);
+      }
+    }
+  }
+
   socket = null;
   isReady = false;
-  queuedLobbies = new Set();
+  queuedLobbies = new Map();
 
   constructor(fastify) {
     super();
@@ -61,6 +86,12 @@ export default class MatchmakingConnection extends EventEmitter {
             this.isReady = true;
             return;
           }
+          let handler = this.messageHandlers[message.event];
+          if (handler) {
+            handler(message);
+          } else {
+            console.error(`Unhandled message from matchmaking server: ${message.event}`);
+          }
         } catch (e) {
           console.error(e);
         }
@@ -75,7 +106,7 @@ export default class MatchmakingConnection extends EventEmitter {
   }
 
   queue(lobby) {
-    this.queuedLobbies.add(lobby);
+    this.queuedLobbies.set(lobby.joinSecret, lobby);
     this.send({
       event: "queue_lobby",
       data: {
@@ -85,7 +116,6 @@ export default class MatchmakingConnection extends EventEmitter {
   }
 
   unqueue(lobby) {
-    this.queuedLobbies.delete(lobby);
     this.send({
       event: "unqueue_lobby",
       data: {

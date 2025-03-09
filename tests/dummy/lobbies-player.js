@@ -24,6 +24,10 @@ export class Player {
 	  expect(message.data.player.account_id).toBe(account_id);
 	});
   }
+
+  join(user) {
+	return joinLobby(user, this);
+  }
 }
 
 export const createLobby = (user, gamemode) => {
