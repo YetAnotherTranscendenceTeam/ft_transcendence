@@ -388,12 +388,12 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
+	width: 100vw;
+  	height: 100vh;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 1000;
+	z-index: 9999;
 }
 
 .modal.overlay {
@@ -562,4 +562,8 @@
 .pop-hover-container:hover .pop-hover {
 	display: block;
 	opacity: 1;
+}
+
+.webcam-modal .error{
+	color: var(--danger-color)
 }

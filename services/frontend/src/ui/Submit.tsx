@@ -7,19 +7,21 @@ export default function Submit({
 		className = "",
 		children,
 		onSubmit,
+		disabled,
 		...props
 	}: {
 		fields: any,
 		className?: string,
 		children?: any,
 		onSubmit?: (fields: string[], clearFields: () => void) => void,
+		disabled?: (fields: string[]) => boolean,
 		[key: string]: any
 	}) {
 
 	const { checkValidity, fields: formFields, clearFields } = useForm();
 
 	return <Button
-		disabled={!checkValidity(fields)}
+		disabled={!checkValidity(fields) || (disabled && disabled(formFields))}
 		className={`button primary ${className}`}
 		onClick={() => onSubmit(formFields, clearFields)}
 		{...props}

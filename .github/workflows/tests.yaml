@@ -14,13 +14,15 @@ jobs:
 
     env:
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      CDN_JWT_SECRET: ${{ secrets.CDN_JWT_SECRET }}
       PASSWORD_PEPPER: ${{ secrets.PASSWORD_PEPPER }}
       TOKEN_MANAGER_SECRET: ${{ secrets.TOKEN_MANAGER_SECRET }}
-      BACKEND_URL: http://127.0.0.1:7979
-      FRONTEND_URL: http://127.0.0.1:8080
+      FRONTEND_URL: https://localhost:8080
+      BACKEND_URL: https://localhost:7979
+      CDN_URL: https://cdn-nginx:8181
       API42_CLIENT_ID: 'example'
       API42_SECRET: 'example'
-      API42_REDIRECT_URI: 'http://127.0.0.1:7979/auth/42/callback'
+      API42_REDIRECT_URI: 'https://fake-callback.com'
 
     steps:
       - name: Checkout repository
@@ -42,11 +44,15 @@ jobs:
         working-directory: ./tests
 
       - name: Build and run Docker Compose
-        run: docker compose up -d
+        run: docker compose up -d --wait --wait-timeout 60
 
       - name: Run Jest tests
         run: npm run action
         working-directory: ./tests
+
+      - name: Print containers logs on test failure
+        if: always()
+        run: docker compose logs
 
       - name: Tear down Docker Compose
         run: docker compose down

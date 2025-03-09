@@ -69,7 +69,7 @@ export const Form = ({ formFields = {}, className, children } : {formFields?: an
 				fields
 			}}
 		>
-			<form className={`form flex flex-col gap-4 ${className || ''}`}>
+			<form className={`form flex flex-col gap-4 ${className || ''}`} onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}>
 				{children}
 			</form>
 		</FormContext.Provider>

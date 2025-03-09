@@ -19,7 +19,9 @@ TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 
 override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
-all: $(SERVICES_DEPS) $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SSL_CERTIFICATE)
+all: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SSL_CERTIFICATE)
+
+dev: $(SERVICES_DEPS)
 
 $(MODULES_DEPS) $(SERVICES_DEPS):
 	(cd $(@D) && npm i)
