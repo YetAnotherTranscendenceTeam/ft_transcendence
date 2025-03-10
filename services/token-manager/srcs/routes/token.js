@@ -15,7 +15,7 @@ export default function router(fastify, opts, done) {
       additionalProperties: false,
   }};
 
-  fastify.post("/token/:account_id", { schema, preHandler: fastify.verifyBearerAuth },
+  fastify.post("/:account_id", { schema, preHandler: fastify.verifyBearerAuth },
     async function handler(request, reply) {
       const { account_id } = request.params;
 
@@ -35,12 +35,14 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.post("/token/revoke", { schema }, async function handler(request, reply) {
+  fastify.post("/revoke", { schema }, async function handler(request, reply) {
       const token = request.cookies.refresh_token;
 
-      db.prepare("DELETE FROM refresh_tokens WHERE token = ?").run(token);
       reply.clearCookie("refresh_token");
-      console.log("REVOKE:", { account_id });
+      const deletion = db.prepare("DELETE FROM refresh_tokens WHERE token = ? RETURNING *").get(token);
+      if (deletion) {
+        console.log("REVOKE:", { account_id: deletion.account_id });
+      }
       reply.code(204).send();
     }
   );

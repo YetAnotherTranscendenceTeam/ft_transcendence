@@ -24,7 +24,7 @@ export default function passwordRoutes(fastify, opts, done) {
       );
       if (await YATT.crypto.verifyPassword(password, account.hash, account.salt, pepper)) {
         const auth = await YATT.fetch(
-          `http://token-manager:3000/token/${account.account_id}`,
+          `http://token-manager:3000/${account.account_id}`,
           {
             method: "POST",
             headers: {

@@ -54,7 +54,7 @@ export default function routes(fastify, opts, done) {
 }
 
 async function authenticate(reply, account_id) {
-  const auth = await YATT.fetch(`http://token-manager:3000/token/${account_id}`, {
+  const auth = await YATT.fetch(`http://token-manager:3000/${account_id}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token_manager_secret}`,
