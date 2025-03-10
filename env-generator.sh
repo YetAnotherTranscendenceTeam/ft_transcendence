@@ -60,8 +60,13 @@ echo "[SECRETS]"
 # Loop through the secret keys
 for key in "${secret_keys[@]}"
 do
-    generate_or_use_existing_key "$key" "$(openssl rand -base64 64)"
+    generate_or_use_existing_key "$key" "$(openssl rand -base64  64 | tr -d '\n')"
 done
+
+if [ ! -z $GITHUB_ACTION ]; then
+    mv $TMP_FILE $ENV_FILE
+    exit
+fi
 
 HOST=$(hostname | cut -d'.' -f1)
 
