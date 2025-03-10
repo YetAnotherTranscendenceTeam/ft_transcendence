@@ -9,7 +9,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS refresh_tokens (
     account_id INTEGER,
     token TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    expire_at DATETIME NOT NULL
   )
 `);
 

@@ -2,6 +2,7 @@
 
 import { HttpError } from "yatt-utils";
 import { generateTokens } from "../utils/generate.js";
+import db from "../app/database.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -26,7 +27,8 @@ export default function router(fastify, opts, done) {
       return new HttpError.Forbidden().send(reply);
     }
     // Remove refresh_token from the white list for one-time validity
-    const deletion = db.prerare("DELETE FROM refresh_tokens WHERE account_id = ? AND token = ?")
+    const deletion = db
+      .prepare("DELETE FROM refresh_tokens WHERE account_id = ? AND token = ?")
       .run(account_id, token);
     if (deletion.changes === 0) {
       reply.clearCookie("refresh_token");

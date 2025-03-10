@@ -6,9 +6,11 @@ import formbody from "@fastify/formbody";
 import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import cookie from "@fastify/cookie";
+import { fastifySchedule } from '@fastify/schedule';
 import router from "./router.js";
 import YATT, { HttpError } from "yatt-utils";
 import { token_manager_secret, jwt_secret, refresh_token_secret } from "./env.js";
+import { removeExpiredTokens } from "./schedules.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -57,6 +59,11 @@ export default function build(opts = {}) {
 
   app.register(cookie)
   app.register(formbody);
+  app.register(fastifySchedule);
+
+  app.ready().then(() => {
+    app.scheduler.addSimpleIntervalJob(removeExpiredTokens);
+  });
 
   app.register(router);
 
