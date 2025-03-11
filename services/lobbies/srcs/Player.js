@@ -1,6 +1,6 @@
 import { Lobby } from "./Lobby.js";
 import { GameModes } from "./GameModes.js";
-import { LobbyErrorMessage } from "./LobbyMessages.js";
+import { LobbyCopyMessage, LobbyErrorMessage } from "./LobbyMessages.js";
 
 export class Player {
   static playerMessages = ["disconnect"];
@@ -61,12 +61,16 @@ export class Player {
     this.socket.send(JSON.stringify(message));
   }
 
+  syncLobby() {
+    this.send(new LobbyCopyMessage(this.lobby));
+  }
+
   // receive a message from client
   receive(message) {
     try {
       if (typeof message.event !== "string")
         throw new Error("Invalid message format, expected event string");
-      if (!Player.playerMessages.includes(message.event) && this != this.lobby.getOwner())
+      if (!Player.playerMessages.includes(message.event) && !this.lobby.isLeader(this))
         throw new Error("Only the lobby owner can send this message type");
       let handler = Player.messageHanlers[message.event];
       if (!handler) handler = Player.messageHanlers["unrecognized"];

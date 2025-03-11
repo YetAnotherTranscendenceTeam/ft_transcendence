@@ -46,3 +46,9 @@ export class SwapPlayersMessage extends LobbyMessage {
 		super("swap_players", {account_ids});
 	}
 }
+
+export class LobbyLeaderMessage extends LobbyMessage {
+  constructor(account_id) {
+    super("leader_change", {leader_account_id: account_id});
+  }
+}

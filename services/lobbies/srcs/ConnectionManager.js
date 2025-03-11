@@ -54,7 +54,8 @@ export class ConnectionManager {
 
   // Checks if the connection is valid and returns the corresponding lobby
   // Throws an error if the connection is invalid
-  checkConnection(fastify, req) {
+  async checkConnection(socket, fastify, req) {
+    let reconnect = false;
     if (!req.query.token)
       throw new Error("Missing token");
     try {
@@ -65,23 +66,42 @@ export class ConnectionManager {
     catch (err) {
       throw new Error("Invalid token");
     }
-    if (this.players.has(req.account_id))
-      throw new Error("Already in a lobby");
     const lobby = this.getLobby(req);
     if (!lobby)
       throw new Error("Invalid secret");
-    if (!lobby.isJoinable())
-      throw new Error("Lobby is not in a joinable state");
-    return lobby;
-  }
-
-  async joinLobby(socket, req, lobby) {
+    let other = this.players.get(req.account_id);
+    let disconnect_other = false;
+    if (!lobby.isJoinable()) {
+      if (other?.lobby === lobby)
+        disconnect_other = true;
+      else
+        throw new Error("Lobby is not in a joinable state");
+    }
+    else if (other)
+      disconnect_other = true;
+    if (disconnect_other) {
+      if (other.lobby === lobby) {
+        other.socket.close(1008, "Logged in from another location");
+        other.socket = socket;
+        other.connected = false;
+        other.syncLobby();
+        return {player: other, oldplayer: other};
+      }
+      else
+        other.disconnect(1008, "Logged in from another location");
+    }
     const profile = await this.getProfile(req.account_id);
     let player = new Player(socket, req, lobby, this, profile);
-    this.players.set(player.account_id, player);
     player.lobby = lobby;
-    lobby.addPlayer(player);
-    console.log(`Player ${player.account_id} joined lobby ${lobby.joinSecret}`);
+    return {player};
+  }
+
+  async joinLobby(socket, req, player, oldplayer) {
+    if (!oldplayer) {
+      this.players.set(player.account_id, player);
+      player.lobby.addPlayer(player);
+    }
+    console.log(`Player ${player.account_id} joined lobby ${player.lobby.joinSecret}`);
     socket.on("message", (message) => {
       let obj;
       try {
@@ -94,6 +114,7 @@ export class ConnectionManager {
     });
     socket.on("close", (reason) => {
       if (player.connected) player.disconnect(); // perform cleanups: remove from player map and from lobby
+      player.connected = true;
     });
   }
 

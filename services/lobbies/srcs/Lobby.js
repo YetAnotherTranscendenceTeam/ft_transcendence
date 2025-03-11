@@ -6,6 +6,7 @@ import {
   LobbyModeMessage,
   LobbyStateMessage,
   SwapPlayersMessage,
+  LobbyLeaderMessage,
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
@@ -44,6 +45,8 @@ export class Lobby {
 
   destruction_timeout = null;
 
+  leader_account_id = null;
+
   constructor(modename, lobbies) {
     this.lobbies = lobbies;
     if (modename) {
@@ -59,11 +62,20 @@ export class Lobby {
       joinSecret: this.joinSecret,
       mode: this.mode,
       state: this.state,
+      leader_account_id: this.leader_account_id,
     };
   }
 
-  getOwner() {
-    return this.players[0];
+  isLeader(player) {
+    return this.leader_account_id === player.account_id;
+  }
+
+  setLeader(player) {
+    if (!player)
+      this.leader_account_id = null;
+    else
+      this.leader_account_id = player.account_id;
+    this.broadbast(new LobbyLeaderMessage(this.leader_account_id));
   }
 
   shouldScheduleDestruction() {
@@ -87,14 +99,17 @@ export class Lobby {
       clearTimeout(this.destruction_timeout);
       this.destruction_timeout = null;
     }
+    if (this.leader_account_id === null) this.setLeader(player);
     this.players.push(player);
     this.broadbast(new LobbyJoinMessage(player));
-    player.send(new LobbyCopyMessage(this));
+    player.syncLobby();
   }
 
   removePlayer(player) {
     this.players = this.players.filter((p) => p != player);
     if (this.state.type == "queuing") this.unqueue();
+    if (this.isLeader(player))
+      this.setLeader(this.players[0]);
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
   }
