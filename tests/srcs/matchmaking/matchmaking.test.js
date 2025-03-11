@@ -41,7 +41,7 @@ describe("queue and unqueue lobby", () => {
       name: "ranked_1v1",
       team_size: 1,
       team_count: 2,
-      ranked: true,
+      type: "ranked",
     });
   });
   it("queue lobby", async () => {

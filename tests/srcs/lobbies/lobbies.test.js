@@ -63,7 +63,7 @@ describe("Lobby game mode change", () => {
             name: "unranked_2v2",
             team_size: 2,
             team_count: 2,
-            ranked: false,
+            type: "unranked",
           });
         })
       )
@@ -135,7 +135,9 @@ describe("Leadership transfer (by leaving group)", () => {
           .map((p) =>
             p.ws
               .sendJson({ event: "mode", data: { mode: "unranked_2v2" } })
-              .expectJson((message) => expect(message.event).toBe("error"))
+              .expectJson((message) => {
+                expect(message.event).toBe("error")
+              })
           )
       );
       if (players[0]) {
@@ -148,7 +150,7 @@ describe("Leadership transfer (by leaving group)", () => {
                 name: "unranked_2v2",
                 team_size: 2,
                 team_count: 2,
-                ranked: false,
+                type: "unranked",
               });
             })
           )
@@ -166,7 +168,7 @@ describe("Single connection tests", () => {
       name: "ranked_2v2",
       team_size: 2,
       team_count: 2,
-      ranked: true,
+      type: "ranked",
     });
     player = await joinLobby(users[1], lobby);
     await lobby.expectJoin(users[1].account_id);
@@ -223,7 +225,7 @@ describe("Lobby creation with gamemode", () => {
       name: "ranked_1v1",
       team_size: 1,
       team_count: 2,
-      ranked: true,
+      type: "ranked",
     });
   });
   test("create a lobby with ranked_2v2 gamemode", async () => {
@@ -231,7 +233,7 @@ describe("Lobby creation with gamemode", () => {
       name: "ranked_2v2",
       team_size: 2,
       team_count: 2,
-      ranked: true,
+      type: "ranked",
     });
   });
   test("create a lobby with unranked_1v1 gamemode", async () => {
@@ -239,7 +241,7 @@ describe("Lobby creation with gamemode", () => {
       name: "unranked_1v1",
       team_size: 1,
       team_count: 2,
-      ranked: false,
+      type: "unranked",
     });
   });
   test("create a lobby with unranked_2v2 gamemode", async () => {
@@ -247,7 +249,7 @@ describe("Lobby creation with gamemode", () => {
       name: "unranked_2v2",
       team_size: 2,
       team_count: 2,
-      ranked: false,
+      type: "unranked",
     });
   });
 });
@@ -312,7 +314,7 @@ describe("Join full lobby", () => {
   const testgamemode = async (gamemode) => {
     let players = [];
     players.push(await createLobby(users[0], gamemode));
-    const lobby_capacity = gamemode.ranked ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    const lobby_capacity = gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
     for (let i = 1; i < lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -335,7 +337,7 @@ describe("Join full lobby", () => {
       name: "ranked_1v1",
       team_size: 1,
       team_count: 2,
-      ranked: true,
+      type: "ranked",
     });
   });
   test("2v2 ranked lobby", () => {
@@ -343,7 +345,7 @@ describe("Join full lobby", () => {
       name: "ranked_2v2",
       team_size: 2,
       team_count: 2,
-      ranked: true,
+      type: "ranked",
     });
   });
   test("2v2 unranked lobby", () => {
@@ -351,7 +353,7 @@ describe("Join full lobby", () => {
       name: "unranked_2v2",
       team_size: 2,
       team_count: 2,
-      ranked: false,
+      type: "unranked",
     });
   });
   test("1v1 unranked lobby", () => {
@@ -359,7 +361,7 @@ describe("Join full lobby", () => {
       name: "unranked_1v1",
       team_size: 1,
       team_count: 2,
-      ranked: false,
+      type: "unranked",
     });
   });
 });
@@ -372,10 +374,10 @@ describe("Change gamemode with too many players", () => {
         name: "unranked_2v2",
         team_size: 2,
         team_count: 2,
-        ranked: false,
+        type: "unranked",
       })
     );
-    const lobby_capacity = gamemode.ranked ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    const lobby_capacity = gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
     for (let i = 1; i <= lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -402,7 +404,7 @@ describe("Change gamemode with too many players", () => {
       name: "ranked_1v1",
       team_size: 1,
       team_count: 1,
-      ranked: true,
+      type: "ranked",
     });
   });
   test("2v2 ranked lobby", () => {
@@ -410,7 +412,7 @@ describe("Change gamemode with too many players", () => {
       name: "ranked_2v2",
       team_size: 2,
       team_count: 1,
-      ranked: true,
+      type: "ranked",
     });
   });
   test("1v1 unranked lobby", () => {
@@ -418,7 +420,7 @@ describe("Change gamemode with too many players", () => {
       name: "unranked_1v1",
       team_size: 1,
       team_count: 2,
-      ranked: false,
+      type: "unranked",
     });
   });
 });

@@ -439,11 +439,11 @@ components:
         - name
         - team_size
         - team_count
-        - ranked
+        - type
       description: |
         The mode of the lobby, this also determines the lobby capacity\* which can be obtained this way:
         ```
-        capacity = ranked ? team_size : team_size * team_count
+        capacity = type == 'ranked' ? team_size : team_size * team_count
         ```
         \**capacity* is the maximum number of players that can be in the lobby
       properties:
@@ -455,9 +455,13 @@ components:
         team_count:
           type: integer
           description: Max number of teams for this mode
-        ranked:
-          type: boolean
-          description: Whether this mode is ranked or not
+        type:
+          type: string
+          description: The gamemode type
+          enum:
+            - unranked
+            - ranked
+            - tournament
     lobby_state:
       type: object
       required:

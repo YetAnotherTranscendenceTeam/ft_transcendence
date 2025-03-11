@@ -1,18 +1,20 @@
 
+import { getLobbyCapacity } from "yatt-lobbies";
+
 class GameMode {
   /**
    * 
-   * @param {{name: string, team_size: number, team_count: number, ranked: boolean}} param0 
+   * @param {{name: string, team_size: number, team_count: number, type: string}} param0 
   */
- constructor({ name, team_size, team_count, ranked }) {
+ constructor({ name, team_size, team_count, type }) {
    this.name = name;
    this.team_size = team_size;
    this.team_count = team_count;
-   this.ranked = ranked;
+   this.type = type;
   }
   
   getLobbyCapacity() {
-    return this.ranked ? this.team_size : this.team_size * this.team_count;
+    return getLobbyCapacity(this);
   }
 }
 
@@ -24,7 +26,7 @@ export let GameModes = {};
 export async function fetchGameModes() {
   let response = await fetch("http://matchmaking:3000/gamemodes");
   if (!response.ok)
-    throw new Error("Failed to fetch game modes");
+    return GameModes = [];
   GameModes = await response.json();
   console.log("Game modes fetched");
   for (let key in GameModes) {

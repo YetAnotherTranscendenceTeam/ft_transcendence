@@ -54,7 +54,7 @@ export const createLobby = (user, gamemode) => {
       name: "unranked_2v2",
       team_size: 2,
       team_count: 2,
-      ranked: false,
+      type: "unranked",
     };
   }
   return new Promise((resolve, reject) => {
