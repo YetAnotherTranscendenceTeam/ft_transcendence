@@ -97,8 +97,8 @@ export class Lobby {
       this.destruction_timeout = null;
     }
     if (this.leader_account_id === null) this.setLeader(player);
-    this.players.push(player);
     this.broadbast(new LobbyJoinMessage(player));
+    this.players.push(player);
     player.syncLobby();
   }
 

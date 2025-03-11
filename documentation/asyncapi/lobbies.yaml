@@ -279,7 +279,7 @@ components:
               mode:
                 $ref: '#/components/schemas/gamemode'
     player_join:
-      description: Message sent to all lobby members when a player joins
+      description: Message sent to all lobby members (except the joining player) when a player joins
       tags:
         - $ref: '#/components/tags/broadcast'
       payload:

@@ -62,10 +62,6 @@ export const createLobby = (user, gamemode) => {
     const ws = request(lobbiesURL)
       .ws(`/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`)
       .expectJson((message) => {
-        expect(message.event).toBe("player_join");
-        expect(message.data.player.account_id).toBe(user.account_id);
-      })
-      .expectJson((message) => {
         expect(message.event).toBe("lobby");
         expect(message.data.lobby.players.length).toBe(1);
         expect(message.data.lobby.join_secret).toBeDefined();
@@ -85,12 +81,6 @@ export const joinLobby = (user, lobbyconnection) => {
   return new Promise((resolve, reject) => {
     const ws = request(lobbiesURL)
       .ws(`/join?token=${user.jwt}&secret=${lobbyconnection.join_secret}`);
-    if (expect_join) {
-      ws.expectJson((message) => {
-        expect(message.event).toBe("player_join");
-        expect(message.data.player.account_id).toBe(user.account_id);
-      });
-    }
     ws.expectJson((message) => {
       expect(message.event).toBe("lobby");
       expect(
