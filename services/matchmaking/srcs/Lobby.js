@@ -19,9 +19,9 @@ export class Lobby {
    */
   constructor(lobby, queue) {
     this.gamemode = lobby.mode;
-    this.joinSecret = lobby.joinSecret;
+    this.join_secret = lobby.join_secret;
     this.players = lobby.players;
-    const maxLobbySize = this.gamemode.ranked
+    const maxLobbySize = this.gamemode.type === "ranked"
       ? this.gamemode.team_size
       : this.gamemode.team_size * this.gamemode.team_count;
     if (this.players.length > maxLobbySize)
@@ -60,7 +60,7 @@ export class Lobby {
       matchmaking_users: this.matchmaking_users,
       gamemode: this.gamemode,
       tolerance: this.tolerance,
-      joinSecret: this.joinSecret,
+      join_secret: this.join_secret,
     };
   }
 

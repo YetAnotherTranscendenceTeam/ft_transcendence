@@ -22,11 +22,11 @@ export const LobbyState = {
 export function generateJoinSecret() {
   const SECRET_LENGTH = 8;
   const SECRET_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let joinSecret = "";
+  let join_secret = "";
   for (let i = 0; i < SECRET_LENGTH; i++) {
-    joinSecret += SECRET_CHARS.at(Math.floor(Math.random() * SECRET_CHARS.length));
+    join_secret += SECRET_CHARS.at(Math.floor(Math.random() * SECRET_CHARS.length));
   }
-  return joinSecret;
+  return join_secret;
 }
 
 const LOBBY_DESTRUCTION_DELAY = 2000;
@@ -37,7 +37,7 @@ export class Lobby {
    */
   players = [];
 
-  joinSecret = generateJoinSecret();
+  join_secret = generateJoinSecret();
 
   mode = Object.values(GameModes)[0];
   state = LobbyState.waiting();
@@ -58,7 +58,7 @@ export class Lobby {
   toJSON() {
     return {
       players: this.players,
-      joinSecret: this.joinSecret,
+      join_secret: this.join_secret,
       mode: this.mode,
       state: this.state,
       leader_account_id: this.leader_account_id,
@@ -86,9 +86,9 @@ export class Lobby {
   }
 
   destroy() {
-    console.log(`Lobby ${this.joinSecret} destroyed`);
+    console.log(`Lobby ${this.join_secret} destroyed`);
     if (this.state.type == "queuing") this.unqueue();
-    this.lobbies.delete(this.joinSecret);
+    this.lobbies.delete(this.join_secret);
   }
 
   addPlayer(player) {

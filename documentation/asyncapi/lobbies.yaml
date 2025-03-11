@@ -498,7 +498,7 @@ components:
         - players
         - mode
         - state
-        - joinSecret
+        - join_secret
         - leader_account_id
       properties:
         players:
@@ -510,7 +510,7 @@ components:
           $ref: '#/components/schemas/gamemode'
         state:
           $ref: '#/components/schemas/lobby_state'
-        joinSecret:
+        join_secret:
           type: string
           description: The secret to join the lobby
         leader_account_id:

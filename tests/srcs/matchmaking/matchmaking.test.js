@@ -86,7 +86,7 @@ describe("direct (fake lobbies) match making", () => {
       const lobbies = lobby_player_count.map((player_count, index) => ({
         players: Array.from({ length: player_count }, () => ({ account_id: account_id++ })),
         mode: GameModes[gamemode],
-        joinSecret: `${gamemode}_${index}`,
+        join_secret: `${gamemode}_${index}`,
       }));
       let lobby_count = 0;
       let player_count = 0;
@@ -114,7 +114,7 @@ describe("direct (fake lobbies) match making", () => {
           }
           for (let i of expected_match) {
             expect(
-              message.data.lobbies.find((other) => other.joinSecret == lobbies[i].joinSecret)
+              message.data.lobbies.find((other) => other.join_secret == lobbies[i].join_secret)
             ).toBeDefined();
           }
         });

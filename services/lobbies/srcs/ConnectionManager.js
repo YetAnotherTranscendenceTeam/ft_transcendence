@@ -46,7 +46,7 @@ export class ConnectionManager {
       if (gamemode && !GameModes[gamemode])
         throw new Error("Invalid gamemode");
       let lobby = new Lobby(gamemode, this.lobbies);
-      this.lobbies.set(lobby.joinSecret, lobby);
+      this.lobbies.set(lobby.join_secret, lobby);
       return lobby;
     }
     return this.lobbies.get(req.query.secret);
@@ -55,7 +55,6 @@ export class ConnectionManager {
   // Checks if the connection is valid and returns the corresponding lobby
   // Throws an error if the connection is invalid
   async checkConnection(socket, fastify, req) {
-    let reconnect = false;
     if (!req.query.token)
       throw new Error("Missing token");
     try {
@@ -103,7 +102,7 @@ export class ConnectionManager {
       this.players.set(player.account_id, player);
       player.lobby.addPlayer(player);
     }
-    console.log(`Player ${player.account_id} joined lobby ${player.lobby.joinSecret}`);
+    console.log(`Player ${player.account_id} joined lobby ${player.lobby.join_secret}`);
     socket.on("message", (message) => {
       let obj;
       try {

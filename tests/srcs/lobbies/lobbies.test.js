@@ -11,7 +11,7 @@ describe("Mass lobby creation", () => {
   it(`create lobbies`, async () => {
     for (let i = 0; i < users.length; i++) {
       const lobby = await createLobby(users[i]);
-      expect(lobbies.find((l) => l.joinSecret === lobby.joinSecret)).toBeUndefined();
+      expect(lobbies.find((l) => l.join_secret === lobby.join_secret)).toBeUndefined();
       lobbies.push(lobby);
     }
   });
@@ -175,12 +175,12 @@ describe("Single connection tests", () => {
   });
   it(`User 0 attempt to join lobby`, async () => {
     const old = lobby;
-    lobby = await joinLobby(users[0], lobby, false);
+    lobby = await joinLobby(users[0], lobby);
     await old.ws.expectClosed(1008, "Logged in from another location").close();
   });
   it (`User 1 attempt to join lobby`, async () => {
     const old = player;
-    player = await joinLobby(users[1], player, false);
+    player = await joinLobby(users[1], player);
     await old.ws.expectClosed(1008, "Logged in from another location").close();
   });
   it(`User 1 attempt to create another lobby`, async () => {
@@ -321,7 +321,7 @@ describe("Join full lobby", () => {
       players.push(player);
     }
     await request(lobbiesURL)
-      .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].joinSecret}`)
+      .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].join_secret}`)
       .expectClosed(1008, "Lobby is full")
       .close();
     while (players.length > 0) {
