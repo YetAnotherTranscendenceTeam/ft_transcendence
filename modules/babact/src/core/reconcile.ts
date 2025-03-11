@@ -61,14 +61,13 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
             BabactState.deletions.push(oldFiber);
         }
 
-        if (newFiber) {
-            if (i === 0) {
-                wipFiber.child = newFiber;
-            } else {
-                prevSibling.sibling = newFiber;
-            }
-            prevSibling = newFiber;
+      
+        if (i === 0) {
+            wipFiber.child = newFiber;
+        } else {
+            prevSibling.sibling = newFiber;
         }
+        prevSibling = newFiber;
     }
     
     existingFibers.forEach((fiber) => {

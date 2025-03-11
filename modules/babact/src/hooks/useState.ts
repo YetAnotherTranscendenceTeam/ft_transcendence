@@ -17,7 +17,7 @@ export default function useState(initial?: any) {
     actions.forEach(action => {
         hook.state = action instanceof Function ? action(hook.state) : action;
     });
-    actions.length = 0;
+    hook.queue = [];
 
     const setState = (action: any) => {
         hook.queue.push(action);
@@ -31,7 +31,6 @@ export default function useState(initial?: any) {
 			tag: null,
         };
         BabactState.nextUnitOfWork = BabactState.wipRoot;
-        BabactState.deletions = [];
     };
 
     BabactState.wipFiber.hooks.push(hook);

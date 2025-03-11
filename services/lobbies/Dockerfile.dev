@@ -11,6 +11,6 @@ COPY package*.json .
 RUN npm install -g nodemon
 RUN npm install
 
-ENTRYPOINT [ "nodemon", "--watch", "/modules", "--watch", "./srcs" , "srcs/index.js" ]
+ENTRYPOINT [ "nodemon", "--watch", "/modules/yatt-utils", "--watch", "./srcs" , "srcs/index.js" ]
 
 EXPOSE 3000

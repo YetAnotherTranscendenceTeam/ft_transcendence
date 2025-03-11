@@ -35,8 +35,8 @@ export default function LobbyTeamsList({lobby}) {
 		document.addEventListener('mouseup', handleMouseUp);
 		document.addEventListener('mousemove', handleMouseMove);
 		return () => {
-			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseup', handleMouseUp);
+			document.removeEventListener('mousemove', handleMouseMove);
 		}
 	}, [draggingPlayer]);
 
@@ -51,6 +51,8 @@ export default function LobbyTeamsList({lobby}) {
 
 	const handleMouseDown = (e, account_id) => {
 		if (e.button !== 0) return;
+		setDraggingPlayer(account_id);
+		setDraggingPlayer(account_id + 1);
 		setDraggingPlayer(account_id);
 		setTransform({
 			x: e.target.getBoundingClientRect().x,
@@ -71,9 +73,11 @@ export default function LobbyTeamsList({lobby}) {
 
 	const handleMouseEnter = (e, account_id) => {
 		if (draggingPlayer && account_id !== draggingPlayer) {
+			console.log('handleMouseEnter', account_id, draggingPlayer);
 			const newPlayers = [...players];
 			const draggingIndex = newPlayers.findIndex((p) => p.account_id === draggingPlayer);
 			const accountIndex = newPlayers.findIndex((p) => p.account_id === account_id);
+			// console.log('draggingIndex', draggingIndex, 'accountIndex', accountIndex);
 			const temp = newPlayers[draggingIndex];
 			newPlayers[draggingIndex] = newPlayers[accountIndex];
 			newPlayers[accountIndex] = temp;
@@ -83,25 +87,28 @@ export default function LobbyTeamsList({lobby}) {
 	}
 
 	const handleMouseLeave = (e, account_id) => {
-		setPlayers(lobby.players);
+		// if (!draggingPlayer) return;
+		if (players != lobby.players)
+			setPlayers(lobby.players);
 		switchingPlayer.current = null;
 	}
 
+	console.log('teams render', teams);
 	return <div className='lobby-teams'>
 		{teams.map((team, i) => (
 			<Card
-				key={i} className='lobby-team'
+				key={'team'+i} className='lobby-team'
 				style={`--team-color: var(--team-${i % 2 + 1}-color)`}
 			>
 				<h1>Team {i + 1}</h1>
-				{team.map((player) => (
+				{team.map((player, i) => (
 					<LobbyPlayerCard
 						position={draggingPlayer === player.account_id ? transform : {x: 0, y: 0}}
 						dragging={draggingPlayer === player.account_id}
 						onMouseDown={(e) => handleMouseDown(e, player.account_id)}
 						onMouseEnter={(e) => handleMouseEnter(e, player.account_id)}
 						onMouseLeave={(e) => handleMouseLeave(e, player.account_id)}
-						key={player.account_id}
+						key={'player'+i}
 						player={player}
 					/>
 				))}

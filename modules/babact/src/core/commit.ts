@@ -20,19 +20,20 @@ export function commitRoot() {
 	});
 
 	BabactState.effects = [];
+	BabactState.deletions = [];
 }
 
 export function commitWork(fiber: IFiber | null) {
     if (!fiber) {
         return;
     }
-    let domParentFiber: IFiber = fiber.parent;
+    let domParentFiber: IFiber = fiber.parent; 
     while (!domParentFiber.dom) {
         domParentFiber = domParentFiber.parent;
     }
     const domParent: HTMLElement | Text = domParentFiber.dom;
     if (fiber.effectTag === EffectTag.Placement && fiber.dom != null) {
-        insertFiberInOrder(fiber, domParent);
+		insertFiberInOrder(fiber, domParent);
     } else if (fiber.effectTag === EffectTag.Update && fiber.dom != null) {
         updateDom(fiber.dom as HTMLElement, fiber.alternate.props, fiber.props);
     } else if (fiber.effectTag === EffectTag.Deletion) {

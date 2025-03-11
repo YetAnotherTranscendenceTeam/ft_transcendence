@@ -5,7 +5,7 @@ import { FunctionComponent, IElement } from './Element';
 import { IFiber } from './Fiber';
 import { reconcileChildren } from './reconcile';
 
-window.requestIdleCallback(workLoop, { timeout: 1000 });
+window.requestIdleCallback(workLoop);
 
 function workLoop(deadline: IdleDeadline) {
 	let shouldYield = false;
@@ -17,7 +17,7 @@ function workLoop(deadline: IdleDeadline) {
 	if (!BabactState.nextUnitOfWork && BabactState.wipRoot) {
 		commitRoot()
 	}
-	window.requestIdleCallback(workLoop, { timeout: 2000 });
+	window.requestIdleCallback(workLoop);
 }
 
 function updateHostComponent(fiber: IFiber) {

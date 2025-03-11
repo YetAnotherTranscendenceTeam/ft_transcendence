@@ -23,11 +23,11 @@ export default function LobbyCard() {
 			<Button className="icon primary" onClick={() => navigate(`/lobby/${lobby.joinSecret}`)}><i className="fa-solid fa-square-arrow-up-right"></i></Button>
 		</div>
 		<div className='lobby-card-body flex gap-1'>
-			{lobby.players.map((player: any) => {
+			{lobby.players.map((player: any, i) => {
 				if (player.profile)
-					return <Avatar key={player.account_id} src={player.profile.avatar} name={player.profile.username}/>
+					return <Avatar key={i} src={player.profile.avatar} name={player.profile.username}/>
 				else
-					return <Avatar key={player.account_id} name={player.account_id.toString()} />
+					return <Avatar key={i} name={player.account_id.toString() } />
 			})}
 		</div>
 	</Card>
