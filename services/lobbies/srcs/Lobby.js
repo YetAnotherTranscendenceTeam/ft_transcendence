@@ -1,5 +1,4 @@
 import {
-  LobbyCopyMessage,
   LobbyErrorMessage,
   LobbyJoinMessage,
   LobbyLeaveMessage,
@@ -11,6 +10,7 @@ import {
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
+import { removePlayer } from "yatt-lobbies";
 
 export const LobbyState = {
   waiting: () => ({ type: "waiting", joinable: true }),
@@ -21,7 +21,7 @@ export const LobbyState = {
 // export this to be used when the secret is already used
 export function generateJoinSecret() {
   const SECRET_LENGTH = 8;
-  const SECRET_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  const SECRET_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let joinSecret = "";
   for (let i = 0; i < SECRET_LENGTH; i++) {
     joinSecret += SECRET_CHARS.at(Math.floor(Math.random() * SECRET_CHARS.length));
@@ -32,7 +32,6 @@ export function generateJoinSecret() {
 const LOBBY_DESTRUCTION_DELAY = 2000;
 
 export class Lobby {
-  // owner is always the first player
   /**
    * @type {Player[]}
    */
@@ -71,10 +70,8 @@ export class Lobby {
   }
 
   setLeader(player) {
-    if (!player)
-      this.leader_account_id = null;
-    else
-      this.leader_account_id = player.account_id;
+    if (!player) this.leader_account_id = null;
+    else this.leader_account_id = player.account_id;
     this.broadbast(new LobbyLeaderMessage(this.leader_account_id));
   }
 
@@ -106,10 +103,11 @@ export class Lobby {
   }
 
   removePlayer(player) {
-    this.players = this.players.filter((p) => p != player);
+    const rm_index = this.players.findIndex((p) => p.account_id == player.account_id);
+    if (rm_index == -1) throw new Error("Player not in lobby");
+    if (this.isLeader(player)) this.setLeader(rm_index == 0 ? this.players[1] : this.players[0]);
+    this.players = removePlayer(this.players, this.mode, rm_index);
     if (this.state.type == "queuing") this.unqueue();
-    if (this.isLeader(player))
-      this.setLeader(this.players[0]);
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
   }
