@@ -29,14 +29,14 @@ createUsers(
 const matchmakingURL = "http://localhost:4044";
 
 let GameModes;
-test("fetch gamemodes", async () => {
+it("fetch gamemodes", async () => {
   const response = await request(matchmakingURL).get("/gamemodes").expect(200);
   GameModes = response.body;
 });
 
 describe("queue and unqueue lobby", () => {
   let lobby;
-  test("create lobby", async () => {
+  it("create lobby", async () => {
     lobby = await createLobby(users[0], {
       name: "ranked_1v1",
       team_size: 1,
@@ -44,13 +44,13 @@ describe("queue and unqueue lobby", () => {
       ranked: true,
     });
   });
-  test("queue lobby", async () => {
+  it("queue lobby", async () => {
     await lobby.ws.sendJson({ event: "queue_start" }).expectJson((message) => {
       expect(message.event).toBe("state_change");
       expect(message.data.state.type).toBe("queued");
     });
   });
-  test("unqueue lobby", async () => {
+  it("unqueue lobby", async () => {
     await lobby.ws.sendJson({ event: "queue_stop" }).expectJson((message) => {
       if (message.event !== "state_change") {
         console.error(message);
@@ -59,14 +59,14 @@ describe("queue and unqueue lobby", () => {
       expect(message.data.state.type).toBe("waiting");
     });
   });
-  test("close lobby", async () => {
+  it("close lobby", async () => {
     await lobby.close();
   });
 });
 
 describe("direct (fake lobbies) match making", () => {
   let ws;
-  test("connect to matchmaking websocket", async () => {
+  it("connect to matchmaking websocket", async () => {
     ws = request(matchmakingURL)
       .ws("/lobbieconnection")
       .sendJson({
@@ -79,7 +79,7 @@ describe("direct (fake lobbies) match making", () => {
         expect(message.event).toBe("handshake");
       });
   });
-  test.each(matchmaking_tests)(
+  it.each(matchmaking_tests)(
     "queue $lobby_player_count.length lobbies and expect $expected_matches.length match(es) ($gamemode)",
     async ({ lobby_player_count, gamemode, expected_matches, expected_tolerances }) => {
       let account_id = 0;
@@ -121,7 +121,7 @@ describe("direct (fake lobbies) match making", () => {
       }
     }
   );
-  test("close websocket", async () => {
+  it("close websocket", async () => {
     await ws.close(1000, "test done");
   });
 });
@@ -135,7 +135,7 @@ describe.each(matchmaking_tests)(
     const match_indexes = Array.from({ length: expected_matches.length }, (_, i) => i);
     let lobby_index = 0;
     let matches = new Map();
-    test.each(lobby_player_count)("create lobby %# with %i players", async (player_count) => {
+    it.each(lobby_player_count)("create lobby %# with %i players", async (player_count) => {
       const players = lobbies[lobby_index++];
       const lobby = await createLobby(users[user_index++], GameModes[gamemode]);
       players.push(lobby);
@@ -147,11 +147,11 @@ describe.each(matchmaking_tests)(
         players.push(player);
       }
     });
-    test.each(lobby_indexes)("lobby %# queue", async (lobby_index) => {
+    it.each(lobby_indexes)("lobby %# queue", async (lobby_index) => {
       const lobby = lobbies[lobby_index];
       await lobby[0].ws.sendJson({ event: "queue_start" });
     });
-    test("expect queue confirmations", async () => {
+    it("expect queue confirmations", async () => {
       await Promise.all(
         lobbies.flat().map((player) =>
           player.ws.expectJson((message) => {
@@ -161,7 +161,7 @@ describe.each(matchmaking_tests)(
         )
       );
     });
-    test.each(match_indexes)("expect match %#", async (match_index) => {
+    it.each(match_indexes)("expect match %#", async (match_index) => {
       const expected_match = expected_matches[match_index];
       for (let lobby_index of expected_match) {
         const lobby = lobbies[lobby_index];
@@ -182,15 +182,17 @@ describe.each(matchmaking_tests)(
         }
       }
     });
-    test("compare matches", () => {
+    it("compare matches", () => {
       expect([...matches.values()]).toStrictEqual(expected_matches);
     });
-    test("close lobbies", async () => {
+    it("close lobbies", async () => {
       await Promise.all(lobbies.map(async (lobby) => {
         while (lobby.length > 0) {
           let player = lobby.pop();
           await player.close();
-          await Promise.all(lobby.map((p) => p.expectLeave(player.user.account_id)));
+          for (let other of lobby) {
+            await other.expectLeave(player.user.account_id);
+          }
         }
       }));
     });
