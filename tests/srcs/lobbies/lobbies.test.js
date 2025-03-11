@@ -322,7 +322,7 @@ describe("Join full lobby", () => {
     }
     await request(lobbiesURL)
       .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].joinSecret}`)
-      .expectClosed(1008, "Lobby is not in a joinable state")
+      .expectClosed(1008, "Lobby is full")
       .close();
     while (players.length > 0) {
       let player = players.pop();

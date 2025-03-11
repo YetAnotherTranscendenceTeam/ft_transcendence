@@ -154,6 +154,10 @@ export class Lobby {
     this.broadbast(new LobbyStateMessage(state));
   }
 
+  isFull() {
+    return this.players.length >= this.getLobbyCapacity();
+  }
+
   isJoinable() {
     if (!this.state.joinable) return false;
     return this.players.length < this.getLobbyCapacity();

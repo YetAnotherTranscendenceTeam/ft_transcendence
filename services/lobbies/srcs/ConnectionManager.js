@@ -74,8 +74,10 @@ export class ConnectionManager {
     if (!lobby.isJoinable()) {
       if (other?.lobby === lobby)
         disconnect_other = true;
+      else if (lobby.isFull())
+        throw new Error("Lobby is full");
       else
-        throw new Error("Lobby is not in a joinable state");
+        throw new Error(`Lobby is not in a joinable state: ${lobby.state.type}`);
     }
     else if (other)
       disconnect_other = true;
