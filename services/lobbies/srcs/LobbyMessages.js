@@ -7,19 +7,19 @@ class LobbyMessage {
 
 export class LobbyCopyMessage extends LobbyMessage {
   constructor(lobby) {
-    super("lobby", {lobby: lobby.messageMember()});
+    super("lobby", {lobby: lobby});
   }
 }
 
 export class LobbyJoinMessage extends LobbyMessage {
   constructor(player) {
-    super("player_join", {player: player.messageMember()});
+    super("player_join", {player: player});
   }
 }
 
 export class LobbyLeaveMessage extends LobbyMessage {
   constructor(player) {
-    super("player_leave", {player: player.messageMember()});
+    super("player_leave", {player: player});
   }
 }
 
@@ -45,4 +45,10 @@ export class SwapPlayersMessage extends LobbyMessage {
 	constructor(account_ids) {
 		super("swap_players", {account_ids});
 	}
+}
+
+export class LobbyLeaderMessage extends LobbyMessage {
+  constructor(account_id) {
+    super("leader_change", {leader_account_id: account_id});
+  }
 }

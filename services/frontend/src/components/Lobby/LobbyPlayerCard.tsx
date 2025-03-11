@@ -20,6 +20,7 @@ export default function LobbyPlayerCard({
 		[key: string]: any
 	}) {
 
+	console.log('player', player);
 	return <div className='lobby-player-card-wrapper flex items-center justify-center'
 		onMouseEnter={onMouseEnter}
 		onMouseLeave={onMouseLeave}
@@ -32,6 +33,7 @@ export default function LobbyPlayerCard({
 			>
 			<div className='flex flex-row gap-2 items-center'>
 				<Avatar src={player.profile?.avatar} name={player.profile?.username}/>
+				{player.isLeader && <i className="fa-solid fa-crown"></i>}
 				{player.profile?.username}
 			</div>
 			<i className="fa-solid fa-grip-vertical"></i>

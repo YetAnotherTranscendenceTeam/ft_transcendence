@@ -37,12 +37,12 @@ export default function Menu() {
 					<i className="fa-solid fa-globe"></i><p>Online</p>
 				</PopHover>
 			</Button>
-
+{/* 
 			<Link to='/tournament' className={`button ghost ${!me ? 'disabled' : ''}`}>
 				<PopHover content={!me ? 'You must be logged in' : ''} className="flex items-center">
 					<i className="fa-solid fa-users"></i><p>Tournament</p>
 				</PopHover>
-			</Link>
+			</Link> */}
 
 			<Button
 				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}

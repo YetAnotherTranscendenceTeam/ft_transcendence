@@ -54,6 +54,8 @@ channels:
         $ref: '#/components/messages/state_change'
       swap_players_update:
         $ref: '#/components/messages/swap_players_update'
+      leader_change:
+        $ref: '#/components/messages/leader_change'
       error:
         $ref: '#/components/messages/error'
 operations:
@@ -68,6 +70,7 @@ operations:
       - $ref: '#/channels/lobby/messages/mode_change'
       - $ref: '#/channels/lobby/messages/swap_players_update'
       - $ref: '#/channels/lobby/messages/state_change'
+      - $ref: '#/channels/lobby/messages/leader_change'
       - $ref: '#/channels/lobby/messages/error'
   subscribe:
     action: receive
@@ -252,7 +255,7 @@ components:
               - state
             properties:
               state:
-                $ref: '#/components/schemas/lobbyState'
+                $ref: '#/components/schemas/lobby_state'
     mode_change:
       description: Message sent to all lobby members when the game mode of the lobby changes
       tags:
@@ -277,6 +280,8 @@ components:
                 $ref: '#/components/schemas/gamemode'
     player_join:
       description: Message sent to all lobby members when a player joins
+      tags:
+        - $ref: '#/components/tags/broadcast'
       payload:
         type: object
         required:
@@ -297,6 +302,8 @@ components:
                 $ref: '#/components/schemas/player'
     player_leave:
       description: Message sent to all lobby members when a player leaves
+      tags:
+        - $ref: '#/components/tags/broadcast'
       payload:
         required:
           - event
@@ -315,6 +322,28 @@ components:
             properties:
               player:
                 $ref: '#/components/schemas/player'
+    leader_change:
+      description: Message sent to all lobby members when the leader of the lobby changes (leader leaves)
+      tags:
+        - $ref: '#/components/tags/broadcast'
+      payload:
+        required:
+          - event
+          - data
+        type: object
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - leader_change
+          data:
+            type: object
+            required:
+              - leader_account_id
+            properties:
+              leader_account_id:
+                $ref: '#/components/schemas/account_id'
     lobby:
       description: Message containing the entire lobby which is sent to a joining player to sync the lobby
       payload:
@@ -411,7 +440,12 @@ components:
         - team_size
         - team_count
         - ranked
-      description: The game mode of the lobby
+      description: |
+        The mode of the lobby, this also determines the lobby capacity\* which can be obtained this way:
+        ```
+        capacity = ranked ? team_size : team_size * team_count
+        ```
+        \**capacity* is the maximum number of players that can be in the lobby
       properties:
         name:
           $ref: '#/components/schemas/gamemode_name'
@@ -420,11 +454,11 @@ components:
           description: Size of the team
         team_count:
           type: integer
-          description: Max number of teams for this lobby
+          description: Max number of teams for this mode
         ranked:
           type: boolean
           description: Whether this mode is ranked or not
-    lobbyState:
+    lobby_state:
       type: object
       required:
         - type
@@ -441,6 +475,19 @@ components:
         joinable:
           type: boolean
           description: Whether the lobby is joinable or not
+        # properties depending on the state
+        queue_stats:
+          type: object
+          description: The stats for the queue at the moment this lobby joined it (only if the state is queued)
+          properties:
+            players:
+              type: integer
+              description: The number of players in the queue
+            lobbies:
+              type: integer
+              description: The number of lobbies in the queue
+        match:
+          $ref: 'matchmaking.yaml#/components/schemas/match'
     lobby:
       type: object
       required:
@@ -448,6 +495,7 @@ components:
         - mode
         - state
         - joinSecret
+        - leader_account_id
       properties:
         players:
           type: array
@@ -457,7 +505,9 @@ components:
         mode:
           $ref: '#/components/schemas/gamemode'
         state:
-          $ref: '#/components/schemas/lobbyState'
+          $ref: '#/components/schemas/lobby_state'
         joinSecret:
           type: string
           description: The secret to join the lobby
+        leader_account_id:
+          $ref: '#/components/schemas/account_id'

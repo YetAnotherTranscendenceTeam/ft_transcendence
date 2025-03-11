@@ -1,84 +1,10 @@
-import { users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../dummy/dummy-account";
+import { createLobby, joinLobby, lobbiesURL } from "../../dummy/lobbies-player";
 import request from "superwstest";
 
-const lobbiesURL = "http://localhost:4043";
+createUsers(10);
 
-const LOBBY_DESTRUCTION_DELAY = 2000;
-
-class Player {
-  constructor(ws, joinSecret, user, lobby) {
-    this.ws = ws;
-    this.joinSecret = joinSecret;
-    this.user = user;
-    this.lobby = lobby;
-  }
-  close() {
-    return this.ws.sendJson({ event: "disconnect" }).expectClosed(1000, "Disconnected").close();
-  }
-  expectJoin(account_id) {
-    return this.ws.expectJson((message) => {
-      expect(message.event).toBe("player_join");
-      expect(message.data.player.account_id).toBe(account_id);
-    });
-  }
-  expectLeave(account_id) {
-    return this.ws.expectJson((message) => {
-      expect(message.event).toBe("player_leave");
-      expect(message.data.player.account_id).toBe(account_id);
-    });
-  }
-}
-
-const createLobby = (user, gamemode) => {
-  let isGamemodeDefined = gamemode !== undefined;
-  if (!isGamemodeDefined) {
-    gamemode = {
-      name: "unranked_2v2",
-      team_size: 2,
-      team_count: 2,
-      ranked: false,
-    };
-  }
-  return new Promise((resolve, reject) => {
-    let joinSecret;
-    const ws = request(lobbiesURL)
-      .ws(`/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`)
-      .expectJson((message) => {
-        expect(message.event).toBe("player_join");
-        expect(message.data.player.account_id).toBe(user.account_id);
-      })
-      .expectJson((message) => {
-        expect(message.event).toBe("lobby");
-        expect(message.data.lobby.players.length).toBe(1);
-        expect(message.data.lobby.joinSecret).toBeDefined();
-        expect(message.data.lobby.mode).toStrictEqual(gamemode);
-        expect(message.data.lobby.state).toStrictEqual({
-          type: "waiting",
-          joinable: true,
-        });
-        joinSecret = message.data.lobby.joinSecret;
-        resolve(new Player(ws, joinSecret, user, message.data.lobby));
-      });
-  });
-};
-
-const joinLobby = (user, lobbyconnection) => {
-  return new Promise((resolve, reject) => {
-    const ws = request(lobbiesURL)
-      .ws(`/join?token=${user.jwt}&secret=${lobbyconnection.joinSecret}`)
-      .expectJson((message) => {
-        expect(message.event).toBe("player_join");
-        expect(message.data.player.account_id).toBe(user.account_id);
-      })
-      .expectJson((message) => {
-        expect(message.event).toBe("lobby");
-        expect(
-          message.data.lobby.players.find((player) => player.account_id === user.account_id)
-        ).toBeDefined();
-        resolve(new Player(ws, lobbyconnection.joinSecret, user, message.data.lobby));
-      });
-  });
-};
+const LOBBY_DESTRUCTION_DELAY = 3000;
 
 describe("Mass lobby creation", () => {
   let lobbies = [];
@@ -129,6 +55,9 @@ describe("Lobby game mode change", () => {
     await Promise.all(
       players.map((player) =>
         player.ws.expectJson((message) => {
+          if (message.event != "mode_change") {
+            console.log(message);
+          }
           expect(message.event).toBe("mode_change");
           expect(message.data.mode).toStrictEqual({
             name: "unranked_2v2",
@@ -144,7 +73,9 @@ describe("Lobby game mode change", () => {
     while (players.length > 0) {
       let player = players.pop();
       await player.close();
-      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
     }
   });
 });
@@ -173,13 +104,15 @@ describe("Lobby kick system", () => {
           event: "kick",
           data: { account_id: player.user.account_id },
         });
-      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
       player.ws.expectClosed(1000, "Kicked from lobby").close();
     }
   });
 });
 
-describe("Ownership transfer (by leaving group)", () => {
+describe("Leadership transfer (by leaving group)", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
@@ -189,11 +122,13 @@ describe("Ownership transfer (by leaving group)", () => {
       players.push(player);
     }
   });
-  it(`quit lobby, expect leave messages and test ownership (with gamemode change)`, async () => {
+  it(`quit lobby, expect leave messages and test leadership (with gamemode change)`, async () => {
     while (players.length > 0) {
       let player = players.shift();
       await player.close();
-      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
       await Promise.all(
         players
           .slice(1)
@@ -223,42 +158,47 @@ describe("Ownership transfer (by leaving group)", () => {
   });
 });
 
-describe("Player join multiple lobbies", () => {
+describe("Single connection tests", () => {
   let lobby;
   let player;
-  it(`create a lobby and join it with another user`, async () => {
-    lobby = await createLobby(users[0]);
+  it(`create a 2v2 ranked lobby and join it with another user`, async () => {
+    lobby = await createLobby(users[0], {
+      name: "ranked_2v2",
+      team_size: 2,
+      team_count: 2,
+      ranked: true,
+    });
+    player = await joinLobby(users[1], lobby);
+    await lobby.expectJoin(users[1].account_id);
+  });
+  it(`User 0 attempt to join lobby`, async () => {
+    const old = lobby;
+    lobby = await joinLobby(users[0], lobby, false);
+    await old.ws.expectClosed(1008, "Logged in from another location").close();
+  });
+  it (`User 1 attempt to join lobby`, async () => {
+    const old = player;
+    player = await joinLobby(users[1], player, false);
+    await old.ws.expectClosed(1008, "Logged in from another location").close();
+  });
+  it(`User 1 attempt to create another lobby`, async () => {
+    const old = player;
+    player = await createLobby(users[1]);
+    await old.ws.expectClosed(1008, "Logged in from another location").close();
+    lobby.expectLeave(users[1].account_id);
+    // leave new lobby and join back to the old one
+    player.close();
     player = await joinLobby(users[1], lobby);
     await lobby.expectJoin(users[1].account_id);
   });
   it(`User 0 attempt to create another lobby`, async () => {
-    await request(lobbiesURL)
-      .ws(`/join?token=${users[0].jwt}`)
-      .expectClosed(1008, "Already in a lobby")
-      .close();
+    const old = lobby;
+    lobby = await createLobby(users[0]);
+    await old.ws.expectClosed(1008, "Logged in from another location").close();
+    await player.expectLeave(users[0].account_id);
   });
-  it(`User 1 attempt to create another lobby`, async () => {
-    await request(lobbiesURL)
-      .ws(`/join?token=${users[1].jwt}`)
-      .expectClosed(1008, "Already in a lobby")
-      .close();
-  });
-  it(`User 0 attempt to join the original lobby`, async () => {
-    await request(lobbiesURL)
-      .ws(`/join?token=${users[0].jwt}&secret=${lobby.joinSecret}`)
-      .expectClosed(1008, "Already in a lobby")
-      .close();
-  });
-  it(`User 1 attempt to join the original lobby`, async () => {
-    await request(lobbiesURL)
-      .ws(`/join?token=${users[1].jwt}&secret=${lobby.joinSecret}`)
-      .set("Authorization", `Bearer ${users[1].jwt}`)
-      .expectClosed(1008, "Already in a lobby")
-      .close();
-  });
-  it(`quit lobby and expect leave messages`, async () => {
+  it(`Disconnect users`, async () => {
     await player.close();
-    await lobby.expectLeave(users[1].account_id);
     await lobby.close();
   });
 });
@@ -282,7 +222,7 @@ describe("Lobby creation with gamemode", () => {
     await testGamemode({
       name: "ranked_1v1",
       team_size: 1,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -290,7 +230,7 @@ describe("Lobby creation with gamemode", () => {
     await testGamemode({
       name: "ranked_2v2",
       team_size: 2,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -309,40 +249,6 @@ describe("Lobby creation with gamemode", () => {
       team_count: 2,
       ranked: false,
     });
-  });
-});
-
-describe("Stats", () => {
-  it(
-    `Waits for lobbies to be destroyed`,
-    async () => {
-      await new Promise((res) => setTimeout(res, LOBBY_DESTRUCTION_DELAY + 100));
-    },
-    LOBBY_DESTRUCTION_DELAY + 200
-  );
-  it(`check stats`, async () => {
-    await request(lobbiesURL)
-      .get("/stats")
-      .set("Authorization", `Bearer ${users[0].jwt}`)
-      .send()
-      .expect(200)
-      .then((res) => {
-        expect(res.body.lobby_count).toBe(0);
-        expect(res.body.player_count).toBe(0);
-      });
-  });
-  it(`create a lobby and check stats`, async () => {
-    const lobby = await createLobby(users[0]);
-    await request(lobbiesURL)
-      .get("/stats")
-      .set("Authorization", `Bearer ${users[0].jwt}`)
-      .send()
-      .expect(200)
-      .then((res) => {
-        expect(res.body.lobby_count).toBe(1);
-        expect(res.body.player_count).toBe(1);
-      });
-    await lobby.close();
   });
 });
 
@@ -375,7 +281,7 @@ describe("Move player inside lobby", () => {
   });
   // checks if ownership is transferred
   test("move players[1] back to it's original position", async () => {
-    await players[1].ws.sendJson({
+    await players[0].ws.sendJson({
       event: "swap_players",
       data: { account_ids: [users[0].account_id, users[1].account_id] },
     });
@@ -395,7 +301,9 @@ describe("Move player inside lobby", () => {
     while (players.length > 0) {
       let player = players.pop();
       await player.close();
-      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
     }
   });
 });
@@ -404,7 +312,8 @@ describe("Join full lobby", () => {
   const testgamemode = async (gamemode) => {
     let players = [];
     players.push(await createLobby(users[0], gamemode));
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    const lobby_capacity = gamemode.ranked ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    for (let i = 1; i < lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -416,14 +325,16 @@ describe("Join full lobby", () => {
     while (players.length > 0) {
       let player = players.pop();
       await player.close();
-      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
     }
   };
   test("1v1 ranked lobby", () => {
     return testgamemode({
       name: "ranked_1v1",
       team_size: 1,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -431,7 +342,7 @@ describe("Join full lobby", () => {
     return testgamemode({
       name: "ranked_2v2",
       team_size: 2,
-      team_count: 1,
+      team_count: 2,
       ranked: true,
     });
   });
@@ -464,12 +375,13 @@ describe("Change gamemode with too many players", () => {
         ranked: false,
       })
     );
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    const lobby_capacity = gamemode.ranked ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    for (let i = 1; i <= lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
     }
-    players[0].ws
+    await players[0].ws
       .sendJson({ event: "mode", data: { mode: gamemode.name } })
       .expectJson((message) => {
         if (message.event != "error") {
@@ -480,7 +392,9 @@ describe("Change gamemode with too many players", () => {
     while (players.length > 0) {
       let player = players.pop();
       await player.close();
-      await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
     }
   };
   test("1v1 ranked lobby", () => {

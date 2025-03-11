@@ -3,6 +3,7 @@ import useWebSocket from "../hooks/useWebSocket";
 import config from "../config";
 import useEffect from "babact/dist/hooks/useEffect";
 import useToast from "../hooks/useToast";
+import useFetch from "../hooks/useFetch";
 
 const LobbyContext = Babact.createContext();
 
@@ -117,7 +118,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				lobby,
 				create,
 				join,
-				swapPlayers
+				swapPlayers,
 			}}
 		>
 			{children}

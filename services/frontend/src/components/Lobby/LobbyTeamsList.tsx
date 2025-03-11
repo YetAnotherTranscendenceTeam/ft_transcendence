@@ -114,7 +114,7 @@ export default function LobbyTeamsList({lobby}) {
 				))}
 				{new Array(lobby.mode.team_size - team.length).fill(null).map((_, index) => (
 					<Card key={'empty-'+index} className='empty flex flex-row gap-2 items-center'>
-						Empty
+						
 					</Card>
 				))}
 			</Card>

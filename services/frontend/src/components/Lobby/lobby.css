@@ -23,10 +23,10 @@
 /* =============== List =============== */
 
 .lobby-teams {
-	height: 100vh;
+	width: 100%;
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
+	flex-wrap: wrap;
+	justify-self: flex-start;
 	align-items: center;
 	gap: 1rem;
 	margin-left: 64px;
@@ -40,6 +40,7 @@
 }
 
 .lobby-team {
+	height: auto;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -81,6 +82,7 @@
 
 .lobby-team .card.empty {
 	background-color: var(--bg-1);
+	opacity: 0.5;
 }
 
 .lobby-player-card-wrapper {
@@ -88,4 +90,8 @@
 	height: 80px;
 	border-radius: 4px;
 	outline: 1px solid var(--fg-5);
+}
+
+.lobby-player-card .avatar {
+	pointer-events: none;
 }

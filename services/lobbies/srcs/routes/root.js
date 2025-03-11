@@ -6,18 +6,21 @@ import { ConnectionManager } from "../ConnectionManager.js";
 const connection_manager = new ConnectionManager();
 
 export default function router(fastify, opts, done) {
-  fastify.get("/join", { websocket: true }, (socket, req) => {
+  fastify.get("/join", { websocket: true }, async (socket, req) => {
     try {
-      let lobby;
+      let player, oldplayer;
       try {
-        lobby = connection_manager.checkConnection(fastify, req);
+        const connect = await connection_manager.checkConnection(socket, fastify, req);
+        player = connect.player;
+        oldplayer = connect.oldplayer;
       }
       catch (err) {
         console.error(err.message);
         socket.close(1008, err.message);
         return;
       }
-      connection_manager.joinLobby(socket, req, lobby);
+      if (player) // player is undefined if it was a reconnect
+        await connection_manager.joinLobby(socket, req, player, oldplayer);
     } catch (e) {
       console.error(e);
     }

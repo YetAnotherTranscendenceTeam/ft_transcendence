@@ -21,11 +21,17 @@ export default function SelectModeOverlay({
 
 	return <div className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}>
 		<div className='online-select-overlay-content flex flex-col'>
-			<div className='mode-buttons flex gap-4'>
-			<ModeButton mode='ranked_1v1' image='https://cdn-0001.qstv.on.epicgames.com/ISfvNqRrgZJYiukxUk/image/landscape_comp.jpeg' onSelect={onSelect} />
-			<ModeButton mode='ranked_2v2' image='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNTKPQNODV6msbJoT0UQtvOLOO1ANGjZdJuA&s' onSelect={onSelect} />
-			<ModeButton mode='unranked_1v1' image='https://cdn-0001.qstv.on.epicgames.com/ISfvNqRrgZJYiukxUk/image/landscape_comp.jpeg' onSelect={onSelect} />
-			<ModeButton mode='unranked_2v2' image='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNTKPQNODV6msbJoT0UQtvOLOO1ANGjZdJuA&s' onSelect={onSelect} />
+			<div className='mode-buttons flex flex-col'>
+				<div className='flex flex-row gap-4'>
+					<ModeButton mode='ranked_1v1' onSelect={onSelect} />
+					<ModeButton mode='unranked_1v1' onSelect={onSelect} />
+					<ModeButton mode='tournament_1v1' onSelect={onSelect} />
+				</div>
+				<div className='flex flex-row gap-4'>
+					<ModeButton mode='ranked_2v2' onSelect={onSelect} />
+					<ModeButton mode='unranked_2v2' onSelect={onSelect} />
+					<ModeButton mode='tournament_2v2' onSelect={onSelect} />
+				</div>
 			</div>
 		</div>
 		<Form className="online-join-form flex flex-row" formFields={['lobby-code*']}>

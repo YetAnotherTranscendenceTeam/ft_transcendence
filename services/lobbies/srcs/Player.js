@@ -1,6 +1,6 @@
 import { Lobby } from "./Lobby.js";
 import { GameModes } from "./GameModes.js";
-import { LobbyErrorMessage } from "./LobbyMessages.js";
+import { LobbyCopyMessage, LobbyErrorMessage } from "./LobbyMessages.js";
 
 export class Player {
   static playerMessages = ["disconnect"];
@@ -10,11 +10,9 @@ export class Player {
     },
     mode: (msg, player) => player.lobby.setGameMode(GameModes[msg.mode]),
     kick: (msg, player) => {
-      const target = player.lobby.players.find(
-        (player) => player.account_id == msg.account_id
-      );
+      const target = player.lobby.players.find((player) => player.account_id == msg.account_id);
       if (!target) return;
-	  target.disconnect(1000, "Kicked from lobby");
+      target.disconnect(1000, "Kicked from lobby");
     },
     queue_start: (msg, player) => {
       player.lobby.queue();
@@ -41,6 +39,7 @@ export class Player {
     this.lobbies = lobbies;
     this.players = players;
     this.connected = true;
+    this.last_pong = Date.now();
   }
 
   disconnect(code, reason) {
@@ -48,15 +47,13 @@ export class Player {
     this.lobby.removePlayer(this);
     this.players.delete(this.account_id);
     if (this.connected) {
-		if (code && reason)
-			this.socket.close(code, reason);
-		else
-			this.socket.close(code ? code : 1000, "Disconnected");
-	}
+      if (code && reason) this.socket.close(code, reason);
+      else this.socket.close(code ? code : 1000, "Disconnected");
+    }
     this.connected = false;
   }
 
-  messageMember() {
+  toJSON() {
     return { account_id: this.account_id, profile: this.profile };
   }
 
@@ -64,17 +61,22 @@ export class Player {
     this.socket.send(JSON.stringify(message));
   }
 
+  syncLobby() {
+    this.send(new LobbyCopyMessage(this.lobby));
+  }
+
   // receive a message from client
   receive(message) {
     try {
       if (typeof message.event !== "string")
         throw new Error("Invalid message format, expected event string");
-      if (!Player.playerMessages.includes(message.event) && this != this.lobby.getOwner())
+      if (!Player.playerMessages.includes(message.event) && !this.lobby.isLeader(this))
         throw new Error("Only the lobby owner can send this message type");
       let handler = Player.messageHanlers[message.event];
       if (!handler) handler = Player.messageHanlers["unrecognized"];
       handler(message.data, this);
     } catch (e) {
+      console.error(e);
       this.send(new LobbyErrorMessage(e.message));
     }
   }
