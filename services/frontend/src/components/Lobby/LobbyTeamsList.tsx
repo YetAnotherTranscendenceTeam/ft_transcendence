@@ -76,7 +76,6 @@ export default function LobbyTeamsList({lobby}) {
 
 	const handleMouseEnter = (e, account_id) => {
 		if (draggingPlayer && account_id !== draggingPlayer) {
-			console.log('handleMouseEnter', account_id, draggingPlayer);
 			const newPlayers = [...players];
 			const draggingIndex = newPlayers.findIndex((p) => p.account_id === draggingPlayer);
 			const accountIndex = newPlayers.findIndex((p) => p.account_id === account_id);
@@ -94,7 +93,6 @@ export default function LobbyTeamsList({lobby}) {
 		switchingPlayer.current = null;
 	}
 
-	console.log('teams render', teams);
 	return <div className='lobby-teams'>
 		{teams.map((team, i) => (
 			<Card
@@ -105,7 +103,7 @@ export default function LobbyTeamsList({lobby}) {
 				{team.map((player, i) => (
 					<LobbyPlayerCard
 						isLeader={player.account_id === lobby.leader_account_id}
-						dragable={me.account_id === lobby.leader_account_id}
+						draggable={me.account_id === lobby.leader_account_id && lobby.mode.team_size > 1}
 						position={draggingPlayer === player.account_id ? transform : {x: 0, y: 0}}
 						dragging={draggingPlayer === player.account_id}
 						onMouseDown={(e) => handleMouseDown(e, player.account_id)}

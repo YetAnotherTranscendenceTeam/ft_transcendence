@@ -59,7 +59,7 @@
 	min-height: 48px;
 }
 
-.lobby-player-card {
+.lobby-player-card.draggable {
 	cursor: grab;
 
 }

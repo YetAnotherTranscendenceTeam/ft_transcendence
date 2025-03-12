@@ -9,7 +9,7 @@ export default function LobbyPlayerCard({
 		onMouseDown,
 		onMouseEnter,
 		onMouseLeave,
-		dragable,
+		draggable,
 		isLeader,
 		...props
 	} : {
@@ -19,12 +19,12 @@ export default function LobbyPlayerCard({
 		onMouseDown: (e: any) => void,
 		onMouseEnter: (e: any) => void,
 		onMouseLeave: (e: any) => void,
-		dragable: boolean,
+		draggable: boolean,
 		isLeader: boolean,
 		[key: string]: any
 	}) {
 
-	if (dragable)
+	if (draggable)
 		return <div className='lobby-player-card-wrapper flex items-center justify-center'
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
@@ -32,7 +32,7 @@ export default function LobbyPlayerCard({
 		>
 			<Card
 				onMouseDown={onMouseDown}
-				className={`lobby-player-card flex flex-row gap-2 items-center justify-between ${dragging ? 'dragging' : ''}`}
+				className={`lobby-player-card flex flex-row gap-2 items-center justify-between draggable ${dragging ? 'dragging' : ''}`}
 				style={`--x: ${position.x}px; --y: ${position.y}px;`}
 				>
 				<div className='flex flex-row gap-2 items-center'>
