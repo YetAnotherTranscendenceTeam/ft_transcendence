@@ -8,6 +8,7 @@ services:
       - frontend
       - avatars
       - settings
+      - social
     environment:
       - NGINX_HOST=localhost
     secrets:
@@ -201,6 +202,22 @@ services:
       cdn-nginx:
         condition: service_healthy
 
+  social:
+    build:
+      context: services/social/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/social/srcs:/services/social/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - 127.0.0.1:4123:3000
+    networks:
+      - social
+
+
   swagger:
     build:
       context: services/swagger/
@@ -258,11 +275,13 @@ networks:
     driver: bridge
   settings:
     driver: bridge
-  swagger:
-    driver: bridge
   avatars:
     driver: bridge
+  social:
+    driver: bridge
   cdn-api:
+    driver: bridge
+  swagger:
     driver: bridge
 
   cdn-test:

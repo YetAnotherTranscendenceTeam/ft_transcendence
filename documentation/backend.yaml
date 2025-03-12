@@ -8,7 +8,7 @@ servers:
 
 components:
   securitySchemes:
-    JWT:
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -206,7 +206,7 @@ paths:
         204:
           description: Sucess
       security:
-        - JWT: []
+        - BearerAuth: []
 
   /avatars:
     get:
@@ -241,7 +241,7 @@ paths:
                       - "https://z1r4p5:8181/avatars/users/PCeXT4xyrQ6w.jpg"
                       - "https://z1r4p5:8181/avatars/users/vBPsHV081GLs.jpg"
       security:
-        - JWT: []
+        - BearerAuth: []
 
     post:
       summary: upload avatar
@@ -270,7 +270,7 @@ paths:
         403:
           description: Avatar limit reached
       security:
-        - JWT: []
+        - BearerAuth: []
 
     delete:
       summary: delete avatar
@@ -291,7 +291,7 @@ paths:
         404:
           description: Avatar not found
       security:
-        - JWT: []
+        - BearerAuth: []
 
   /users/{account_id}:
     get:
@@ -307,7 +307,7 @@ paths:
         404:
           $ref: "#/components/responses/AccountNotFound"
       security:
-        - JWT: []
+        - BearerAuth: []
 
   /users/available/{username}:
     get:
@@ -323,7 +323,84 @@ paths:
         403:
           description: Username unavailable
       security:
-        - JWT: []
+        - BearerAuth: []
+  
+  /social/follows:
+    get:
+      summary: get follows
+      description: Return a list of all the accounts followed by the bearer
+      tags:
+        - Social
+        - Follows
+      responses:
+        200:
+          description: A list of accounts followed by the authenticated user.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    following:
+                      type: integer
+                      description: The ID of the account being followed.
+                    created_at:
+                      type: string
+                      format: date-time
+                      description: The timestamp when the follow relationship was created.
+                example:
+                  - following: 12345
+                    created_at: "2025-03-11T14:23:00Z"
+                  - following: 67890
+                    created_at: "2025-03-12T09:45:00Z"
+      security:
+        - BearerAuth: []
+  
+  /social/follows/{account_id}:
+    post:
+      summary: follow account
+      description: Follow another user account
+      tags:
+        - Social
+        - Follows
+      parameters:
+        - in: path
+          name: account_id
+          required: true
+          description: ID of the account to follow
+          schema:
+            type: integer
+            example: 12345
+      responses:
+        204:
+          description: Successfully followed the account (no content)
+        409:
+          description: Already following this account
+      security:
+        - bearerAuth: []
+
+    delete:
+      summary: unfollow account
+      description: Remove a follow relationship
+      tags:
+        - Social
+        - Follows
+      parameters:
+        - in: path
+          name: account_id
+          required: true
+          description: ID of the account to unfollow
+          schema:
+            type: integer
+            example: 12345
+      responses:
+        204:
+          description: Successfully unfollowed the account (no content)
+        406:
+          description: Not following this account
+      security:
+        - bearerAuth: []
 
   /settings/profile:
     patch:
@@ -354,4 +431,4 @@ paths:
         409:
           description: Username already in use
       security:
-        - JWT: []
+        - BearerAuth: []

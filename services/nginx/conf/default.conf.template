@@ -83,6 +83,11 @@ server {
         proxy_pass http://settings:3000;
     }
 
+    location /social {
+        rewrite ^/social/(.*)$ /$1 break;
+        proxy_pass http://social:3000;
+    }
+
     location = /ping {
         return 204;
     }

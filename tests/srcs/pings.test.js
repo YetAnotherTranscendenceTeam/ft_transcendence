@@ -48,4 +48,11 @@ describe("pings", () => {
   it("ping settings with authorization", async () => {
     const response = await request(`${host}:4004`).get("/ping").set('Authorization', `Bearer ${dummy.jwt}`).expect(204);
   });
+
+  it("ping social", async () => {
+    const response = await request(`${host}:4123`).get("/ping").expect(401);
+  });
+  it("ping social with authorization", async () => {
+    const response = await request(`${host}:4123`).get("/ping").set('Authorization', `Bearer ${dummy.jwt}`).expect(204);
+  });
 });
