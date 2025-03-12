@@ -1,33 +1,24 @@
 
-import { getLobbyCapacity } from "yatt-lobbies";
-
-class GameMode {
-  /**
-   * 
-   * @param {{name: string, team_size: number, team_count: number, type: string}} param0 
-  */
- constructor({ name, team_size, team_count, type }) {
-   this.name = name;
-   this.team_size = team_size;
-   this.team_count = team_count;
-   this.type = type;
-  }
-  
-  getLobbyCapacity() {
-    return getLobbyCapacity(this);
-  }
-}
+import { GameMode } from "yatt-lobbies";
+export { GameMode };
 
 /**
- * @type {Object<string, GameMode>}
+ * @type {{[key: string]: GameMode}}
  */
 export let GameModes = {};
 
 export async function fetchGameModes() {
-  let response = await fetch("http://matchmaking:3000/gamemodes");
-  if (!response.ok)
-    return GameModes = [];
-  GameModes = await response.json();
+  try {
+    let response = await fetch("http://matchmaking:3000/gamemodes");
+    if (!response.ok)
+      return GameModes = {};
+    GameModes = await response.json();
+  }
+  catch (e) {
+    console.error(e);
+    GameModes = {};
+    return ;
+  }
   console.log("Game modes fetched");
   for (let key in GameModes) {
     GameModes[key] = new GameMode(GameModes[key]);

@@ -6,6 +6,6 @@ COPY package*.json .
 RUN npm install -g nodemon
 RUN npm install
 
-ENTRYPOINT [ "nodemon", "./srcs" , "srcs/index.js" ]
+ENTRYPOINT [ "nodemon", "--watch", "/modules/yatt-lobbies", "--watch", "./srcs" , "srcs/index.js" ]
 
 EXPOSE 3000
