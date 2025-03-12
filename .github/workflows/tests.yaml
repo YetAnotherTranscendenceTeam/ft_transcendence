@@ -21,6 +21,8 @@ jobs:
       API42_CLIENT_ID: 'example'
       API42_SECRET: 'example'
       API42_REDIRECT_URI: 'http://127.0.0.1:7979/auth/42/callback'
+      MATCHMAKING_JWT_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
+      MATCHMAKING_SCHEDULER_DELAY: 100
 
     steps:
       - name: Checkout repository
