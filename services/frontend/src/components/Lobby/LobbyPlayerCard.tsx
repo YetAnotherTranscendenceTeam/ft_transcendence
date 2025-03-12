@@ -9,6 +9,8 @@ export default function LobbyPlayerCard({
 		onMouseDown,
 		onMouseEnter,
 		onMouseLeave,
+		dragable,
+		isLeader,
 		...props
 	} : {
 		player: any,
@@ -17,26 +19,42 @@ export default function LobbyPlayerCard({
 		onMouseDown: (e: any) => void,
 		onMouseEnter: (e: any) => void,
 		onMouseLeave: (e: any) => void,
+		dragable: boolean,
+		isLeader: boolean,
 		[key: string]: any
 	}) {
 
-	console.log('player', player);
+	if (dragable)
+		return <div className='lobby-player-card-wrapper flex items-center justify-center'
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
+			{...props}
+		>
+			<Card
+				onMouseDown={onMouseDown}
+				className={`lobby-player-card flex flex-row gap-2 items-center justify-between ${dragging ? 'dragging' : ''}`}
+				style={`--x: ${position.x}px; --y: ${position.y}px;`}
+				>
+				<div className='flex flex-row gap-2 items-center'>
+					<Avatar src={player.profile?.avatar} name={player.profile?.username}/>
+					{player.profile?.username}
+					{isLeader && <i className="fa-solid fa-crown"></i>}
+				</div>
+				<i className="fa-solid fa-grip-vertical"></i>
+			</Card>
+		</div>
+
 	return <div className='lobby-player-card-wrapper flex items-center justify-center'
-		onMouseEnter={onMouseEnter}
-		onMouseLeave={onMouseLeave}
 		{...props}
 	>
 		<Card
-			onMouseDown={onMouseDown}
-			className={`lobby-player-card flex flex-row gap-2 items-center justify-between ${dragging ? 'dragging' : ''}`}
-			style={`--x: ${position.x}px; --y: ${position.y}px;`}
+			className={`lobby-player-card flex flex-row gap-2 items-center justify-between`}
 			>
 			<div className='flex flex-row gap-2 items-center'>
 				<Avatar src={player.profile?.avatar} name={player.profile?.username}/>
-				{player.isLeader && <i className="fa-solid fa-crown"></i>}
 				{player.profile?.username}
+				{isLeader && <i className="fa-solid fa-crown"></i>}
 			</div>
-			<i className="fa-solid fa-grip-vertical"></i>
 		</Card>
 	</div>
 }

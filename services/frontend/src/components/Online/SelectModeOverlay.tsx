@@ -18,7 +18,6 @@ export default function SelectModeOverlay({
 		onClose();
 	};
 
-
 	return <div className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}>
 		<div className='online-select-overlay-content flex flex-col'>
 			<div className='mode-buttons flex flex-col'>

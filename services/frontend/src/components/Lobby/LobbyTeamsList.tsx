@@ -2,6 +2,7 @@ import Babact from "babact";
 import Card from "../../ui/Card";
 import LobbyPlayerCard from "./LobbyPlayerCard";
 import { useLobby } from "../../contexts/useLobby";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function LobbyTeamsList({lobby}) {
 
@@ -10,6 +11,8 @@ export default function LobbyTeamsList({lobby}) {
 	
 	const [players, setPlayers] = Babact.useState(lobby.players);
 	const [teams, setTeams] = Babact.useState([]);
+
+	const { me } = useAuth();
 
 	const createTeam = () => {
 		const teams = new Array(lobby.mode.team_count).fill(null).map(() => []);
@@ -22,7 +25,7 @@ export default function LobbyTeamsList({lobby}) {
 	Babact.useEffect(() => {
 		setTeams(createTeam());
 	}, [players]);
-	
+
 	Babact.useEffect(() => {
 		setPlayers(lobby.players);
 	}, [lobby]);
@@ -77,7 +80,6 @@ export default function LobbyTeamsList({lobby}) {
 			const newPlayers = [...players];
 			const draggingIndex = newPlayers.findIndex((p) => p.account_id === draggingPlayer);
 			const accountIndex = newPlayers.findIndex((p) => p.account_id === account_id);
-			// console.log('draggingIndex', draggingIndex, 'accountIndex', accountIndex);
 			const temp = newPlayers[draggingIndex];
 			newPlayers[draggingIndex] = newPlayers[accountIndex];
 			newPlayers[accountIndex] = temp;
@@ -87,7 +89,6 @@ export default function LobbyTeamsList({lobby}) {
 	}
 
 	const handleMouseLeave = (e, account_id) => {
-		// if (!draggingPlayer) return;
 		if (players != lobby.players)
 			setPlayers(lobby.players);
 		switchingPlayer.current = null;
@@ -103,6 +104,8 @@ export default function LobbyTeamsList({lobby}) {
 				<h1>Team {i + 1}</h1>
 				{team.map((player, i) => (
 					<LobbyPlayerCard
+						isLeader={player.account_id === lobby.leader_account_id}
+						dragable={me.account_id === lobby.leader_account_id}
 						position={draggingPlayer === player.account_id ? transform : {x: 0, y: 0}}
 						dragging={draggingPlayer === player.account_id}
 						onMouseDown={(e) => handleMouseDown(e, player.account_id)}
@@ -114,7 +117,6 @@ export default function LobbyTeamsList({lobby}) {
 				))}
 				{new Array(lobby.mode.team_size - team.length).fill(null).map((_, index) => (
 					<Card key={'empty-'+index} className='empty flex flex-row gap-2 items-center'>
-						
 					</Card>
 				))}
 			</Card>

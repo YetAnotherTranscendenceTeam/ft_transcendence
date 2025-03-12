@@ -10,6 +10,7 @@
 	opacity: 0;
 	color: var(--fg-1);
 	font-size: x-large;
+	overflow: hidden;
 }
 
 .online-select-overlay.open {

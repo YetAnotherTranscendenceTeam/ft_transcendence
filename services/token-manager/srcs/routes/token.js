@@ -44,7 +44,7 @@ export default function router(fastify, opts, done) {
       const { account_id } = request.params;
 
       reply.send({
-        access_token: fastify.jwt.sign({ account_id }, { expiresIn: "7d" }),
+        access_token: fastify.jwt.sign({ account_id }, { expiresIn: "15m" }),
         refresh_token: fastify.jwt.sign({ account_id }, { expiresIn: "7d" }),
         expire_at: new Date(new Date().getTime() + 15 * 60000),
       });

@@ -12,6 +12,13 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const [lobby, setLobby] = Babact.useState(null);
 	const { createToast } = useToast();
 
+	const onLeaderChange = (leader_account_id: any) => {
+		setLobby((lobby) => (lobby && {
+			...lobby,
+			leader_account_id
+		}));
+	}
+
 	const onPlayerJoin = (player: any) => {
 		createToast(`${player.profile?.username} joined the lobby`, 'info');
 		setLobby((lobby) => (lobby && {
@@ -64,6 +71,12 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}
 		else if (msg.event === 'swap_players') {
 			onPlayerSwap(msg.data.account_ids);
+		}
+		else if (msg.event === 'leader_change') {
+			onLeaderChange(msg.data.leader_account_id);
+		}
+		else if (msg.event === 'error') {
+			createToast(msg.data.message, 'danger');
 		}
 	};
 
