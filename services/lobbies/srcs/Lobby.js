@@ -6,6 +6,7 @@ import {
   LobbyStateMessage,
   SwapPlayersMessage,
   LobbyLeaderMessage,
+  TeamNameMessage,
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
@@ -37,6 +38,11 @@ export class Lobby {
    */
   players = [];
 
+  /**
+   * @type {string[]}
+   */
+  team_names = [];
+
   join_secret = generateJoinSecret();
 
   mode = Object.values(GameModes)[0];
@@ -53,6 +59,7 @@ export class Lobby {
       if (!mode) throw new Error("Invalid gamemode");
       this.mode = mode;
     }
+    this.setGameMode(this.mode);
   }
 
   toJSON() {
@@ -62,7 +69,16 @@ export class Lobby {
       mode: this.mode,
       state: this.state,
       leader_account_id: this.leader_account_id,
+      team_names: this.team_names,
     };
+  }
+
+  setTeamName(player, name) {
+    const index = this.players.findIndex((p) => p.account_id == player.account_id);
+    if (index == -1) throw new Error("Player not in lobby");
+    const team_index = index % this.mode.team_count;
+    this.team_names[team_index] = name;
+    this.broadbast(new TeamNameMessage(team_index, name));
   }
 
   isLeader(player) {
@@ -137,15 +153,17 @@ export class Lobby {
     }
   }
 
-  getLobbyCapacity() {
+  getCapacity() {
     return this.mode.getLobbyCapacity();
   }
 
   setGameMode(mode) {
     if (!mode) throw new Error("Invalid gamemode");
-    if (this.players.length > mode.getLobbyCapacity())
+    const lobby_capacity = mode.getLobbyCapacity();
+    if (this.players.length > lobby_capacity)
       throw new Error("Too many players in lobby to change to this gamemode");
     this.mode = mode;
+    this.team_names.length = lobby_capacity / mode.team_size;
     this.broadbast(new LobbyModeMessage(mode));
   }
 
@@ -155,12 +173,12 @@ export class Lobby {
   }
 
   isFull() {
-    return this.players.length >= this.getLobbyCapacity();
+    return this.players.length >= this.getCapacity();
   }
 
   isJoinable() {
     if (!this.state.joinable) return false;
-    return this.players.length < this.getLobbyCapacity();
+    return this.players.length < this.getCapacity();
   }
 
   matchFound(match) {

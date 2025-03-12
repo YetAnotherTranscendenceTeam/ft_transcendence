@@ -3,16 +3,27 @@ import { GameModes } from "./GameModes.js";
 import { LobbyCopyMessage, LobbyErrorMessage } from "./LobbyMessages.js";
 
 export class Player {
-  static playerMessages = ["disconnect"];
+  static playerMessages = ["disconnect", "team_name"];
   static messageHanlers = {
     unrecognized: () => {
       throw new Error("Unrecognized message");
     },
-    mode: (msg, player) => player.lobby.setGameMode(GameModes[msg.mode]),
+    mode: (msg, player) => {
+      if (!msg) throw new Error("Invalid mode message");
+      if (typeof msg.mode !== "string") throw new Error("Invalid mode");
+      player.lobby.setGameMode(GameModes[msg.mode])
+    },
     kick: (msg, player) => {
+      if (!msg) throw new Error("Invalid kick message");
+      if (typeof msg.account_id !== "number") throw new Error("Invalid account id");
       const target = player.lobby.players.find((player) => player.account_id == msg.account_id);
       if (!target) return;
       target.disconnect(1000, "Kicked from lobby");
+    },
+    team_name: (msg, player) => {
+      if (!msg) throw new Error("Invalid team name message");
+      if (typeof msg.name !== "string") throw new Error("Invalid team name");
+      player.lobby.setTeamName(player, msg.name);
     },
     queue_start: (msg, player) => {
       player.lobby.queue();
@@ -24,6 +35,7 @@ export class Player {
       player.disconnect();
     },
     swap_players: (msg, player) => {
+      if (!msg) throw new Error("Invalid swap players message");
       player.lobby.swapPlayers(msg);
     },
   };

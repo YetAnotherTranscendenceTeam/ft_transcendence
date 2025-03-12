@@ -23,6 +23,7 @@ export interface ILobbyState {
 
 export interface ILobby {
   join_secret: string;
+  team_names: string[];
   players: IPlayer[];
   mode: IGameMode;
   state: ILobbyState,
