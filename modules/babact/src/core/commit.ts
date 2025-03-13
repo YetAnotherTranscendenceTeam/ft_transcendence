@@ -127,7 +127,7 @@ function commitDeletion(fiber: IFiber, domParent: HTMLElement | Text) {
 	if (!fiber)
 		return;
 	removeEffect(fiber);
-	if (fiber.dom) {
+	if (fiber.dom && domParent.contains(fiber.dom)) {
 		domParent.removeChild(fiber.dom);
 	} else {
 		commitDeletion(fiber.child, domParent);

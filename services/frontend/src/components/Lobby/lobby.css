@@ -23,15 +23,43 @@
 /* =============== List =============== */
 
 .lobby-teams {
+	padding: 24px;
 	width: 100%;
-	display: flex;
+	/* display: flex;
+	flex-direction: column;
 	flex-wrap: wrap;
 	justify-self: flex-start;
-	align-items: center;
+	align-items: flex-start; */
+	display: grid;
+	/* 4x4 grid */
+	grid-template-columns: repeat(4, 1fr);
 	gap: 1rem;
-	margin-left: 64px;
 	user-select: none;
+	overflow-x: scroll;
+	box-sizing: border-box;
+	padding-bottom: 20vh;
 }
+
+/* Grid template change depend on view width */
+
+@media (max-width: 1480px) {
+	.lobby-teams {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (max-width: 1215px) {
+	.lobby-teams {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 900px) {
+	.lobby-teams {
+		grid-template-columns: repeat(1, 1fr);
+	}
+}
+
 
 .lobby-teams h1 {
 	width: 100%;
@@ -40,7 +68,7 @@
 }
 
 .lobby-team {
-	height: auto;
+	width: fit-content;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -64,6 +92,10 @@
 
 }
 
+.lobby-player-card div {
+	pointer-events: none;
+}
+
 .lobby-player-card.dragging {
 	box-shadow: 10px 10px 75px 0px rgba(0,0,0,0.50);
 	z-index: 9999;
@@ -83,10 +115,10 @@
 .lobby-team .card.empty {
 	background-color: var(--bg-1);
 	opacity: 0.5;
+	height: 48px;
 }
 
 .lobby-player-card-wrapper {
-	width: 100%;
 	min-width: 232px;
 	height: 80px;
 	border-radius: 4px;
@@ -95,4 +127,14 @@
 
 .lobby-player-card .avatar {
 	pointer-events: none;
+}
+
+/* Settings Card */
+
+.lobby-settings-card {
+	position: absolute;
+	bottom: 24px;
+	left: 24px;
+	min-height: 48px;
+	min-width: 300px;	
 }

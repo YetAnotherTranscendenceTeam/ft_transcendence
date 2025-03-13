@@ -3,7 +3,6 @@ import useWebSocket from "../hooks/useWebSocket";
 import config from "../config";
 import useEffect from "babact/dist/hooks/useEffect";
 import useToast from "../hooks/useToast";
-import useFetch from "../hooks/useFetch";
 
 const LobbyContext = Babact.createContext();
 
@@ -36,7 +35,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const onPlayerConnect = (lobby) => {
 		console.log('lobby', lobby.joinSecret)
-		// navigator.clipboard.writeText(lobby.joinSecret);
 		localStorage.setItem('lobby', lobby.joinSecret);
 		setLobby(lobby);
 	}
@@ -106,6 +104,10 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}&token=${localStorage.getItem("access_token")}`);
 	};
 
+	const leave = () => {
+		onClose({ code: 1000 });
+	};
+
 	const swapPlayers = (player1: any, player2: any) => {
 		ws.send(JSON.stringify({
 			event: 'swap_players',
@@ -131,6 +133,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				lobby,
 				create,
 				join,
+				leave,
 				swapPlayers,
 			}}
 		>

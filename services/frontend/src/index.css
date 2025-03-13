@@ -126,6 +126,7 @@ body {
 
 .scrollbar::-webkit-scrollbar {
 	width: 4px;
+	height: 0;
 }
 
 .scrollbar::-webkit-scrollbar-thumb {

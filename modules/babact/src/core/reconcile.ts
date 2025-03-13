@@ -12,7 +12,7 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
     while (oldFiber != null) {
         const key = oldFiber.props.key != null ? oldFiber.props.key : `auto_${oldFiberIndex}`;
         if (existingFibers.has(key)) {
-            throw new Error('Duplicate key');
+            throw new Error('Duplicate key: ' + key);
         }
         existingFibers.set(key, oldFiber);
         oldFiber = oldFiber.sibling;

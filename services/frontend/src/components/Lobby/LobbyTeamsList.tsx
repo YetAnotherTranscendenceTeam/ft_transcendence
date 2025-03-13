@@ -15,9 +15,11 @@ export default function LobbyTeamsList({lobby}) {
 	const { me } = useAuth();
 
 	const createTeam = () => {
-		const teams = new Array(lobby.mode.team_count).fill(null).map(() => []);
+		// at least 2 teams or 1 player per team and max team_count teams
+		const nb_teams = Math.max(2, Math.min(lobby.players.length / lobby.mode.team_size, lobby.mode.team_count));
+		const teams = new Array(nb_teams).fill(null).map(() => []);
 		players.forEach((player, i) => {
-			teams[i % lobby.mode.team_count].push(player);
+			teams[i % nb_teams].push(player);
 		})
 		return teams;
 	}
@@ -55,12 +57,16 @@ export default function LobbyTeamsList({lobby}) {
 	const handleMouseDown = (e, account_id) => {
 		if (e.button !== 0) return;
 		setDraggingPlayer(account_id);
-		setDraggingPlayer(account_id + 1);
-		setDraggingPlayer(account_id);
+
+		let relativeParent = e.target.offsetParent;
+		while (relativeParent && window.getComputedStyle(relativeParent).position === 'static') {
+			relativeParent = relativeParent.offsetParent;
+		}
+		const parentRect = relativeParent ? relativeParent.getBoundingClientRect() : { x: 0, y: 0 };
 		setTransform({
-			x: e.target.getBoundingClientRect().x,
-			y: e.target.getBoundingClientRect().y
-		})
+			x: e.target.getBoundingClientRect().x - parentRect.x,
+			y: e.target.getBoundingClientRect().y - parentRect.y
+		});
 	}
 
 	const handleMouseUp = (e) => {
@@ -93,7 +99,8 @@ export default function LobbyTeamsList({lobby}) {
 		switchingPlayer.current = null;
 	}
 
-	return <div className='lobby-teams'>
+	if (me)
+	return <div className='lobby-teams scrollbar'>
 		{teams.map((team, i) => (
 			<Card
 				key={'team'+i} className='lobby-team'

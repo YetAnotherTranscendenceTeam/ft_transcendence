@@ -7,6 +7,7 @@ import LobbyTeamsList from "../components/Lobby/LobbyTeamsList";
 import { useLobby } from "../contexts/useLobby";
 import AuthCard from "../components/Auth/AuthCard";
 import './views.css'
+import LobbySettingsCard from "../components/Lobby/LobbySettingsCard";
 
 export default function LobbyView() {
 
@@ -32,9 +33,12 @@ export default function LobbyView() {
 	}, [lobby])
 
 
-	return <div className='view flex gap-4'>
+	return <div className='view flex'>
 		<Menu/>
-		{lobby && <LobbyTeamsList lobby={lobby} />}
+		{lobby && <div className='flex lobby-view flex-col h-full w-full justify-between'>
+			<LobbyTeamsList lobby={lobby} />
+			<LobbySettingsCard lobby={lobby} />
+		</div>}
 		{
 			me ? <ProfileCard me={me}/> : <AuthCard/> 
 		}
