@@ -216,6 +216,7 @@ services:
       - 127.0.0.1:4123:3000
     networks:
       - social
+      - db-profiles
 
 
   swagger:

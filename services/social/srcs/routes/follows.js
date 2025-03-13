@@ -1,10 +1,10 @@
 "use strict";
 
 import db from "../app/database.js";
-import { HttpError, properties } from "yatt-utils";
+import YATT, { HttpError, properties } from "yatt-utils";
 
 export default function router(fastify, opts, done) {
-  fastify.get("/follows", async function handler(request, reply) {
+  fastify.get("/follows", { preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const follows = db.prepare("SELECT following, created_at FROM follows WHERE account_id = ?").all(request.account_id);
     reply.send(follows);
   })
@@ -20,7 +20,7 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.post("/follows/:account_id", { schema }, async function handler(request, reply) {
+  fastify.post("/follows/:account_id", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request.params;
 
     if (request.account_id === account_id) {
@@ -28,9 +28,16 @@ export default function router(fastify, opts, done) {
     }
 
     try {
+      // Verify account exists
+      await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+
       const insert = db.prepare("INSERT INTO follows (account_id, following) VALUES (?, ?) RETURNING *").get(request.account_id, account_id);
       reply.code(204).send();
       console.log("FOLLOW:", insert);
+
+      // Send notification through websocket(s)
+      await fastify.clients.get(request.account_id)?.follow(account_id, fastify.clients);
+
     } catch (err) {
       if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
         new HttpError.Conflict("Already following this account").send(reply);
@@ -43,7 +50,7 @@ export default function router(fastify, opts, done) {
     }
   });
 
-  fastify.delete("/follows/:account_id", { schema }, async function handler(request, reply) {
+  fastify.delete("/follows/:account_id", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request.params;
 
     if (request.account_id === account_id) {
@@ -53,6 +60,10 @@ export default function router(fastify, opts, done) {
     if (remove) {
       reply.code(204).send();
       console.log("UNFOLLOW:", remove);
+
+      // Send notification through websocket(s)
+      await fastify.clients.get(request.account_id)?.unfollow(account_id);
+
     } else {
       new HttpError.NotAcceptable().send(reply);
     }

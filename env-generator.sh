@@ -43,7 +43,11 @@ generate() {
 
     # Write the key-value pair to the environment file
     echo "$key=\"$value\"" >> "$TMP_FILE"
-    printf "%-${padding_length}s 🆕\n" "- $key"
+    if [ ${value} == ${!key} ]; then
+        printf "%-${padding_length}s ✅\n" "- $key"
+    else
+        printf "%-${padding_length}s 🆕\n" "- $key"
+    fi
     export $key="${value}"
 }
 

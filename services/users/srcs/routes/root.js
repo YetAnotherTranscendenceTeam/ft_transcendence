@@ -17,13 +17,12 @@ export default function router(fastify, opts, done) {
 
   fastify.get("/:account_id", { schema }, async function handler(request, reply) {
     const { account_id } = request.params;
-    console.error(account_id);
 
     try {
       const user = await getInfos(account_id);
       reply.send(user);
+      console.log("SENT:", user)
     } catch (err) {
-      console.log(err);
       if (err instanceof HttpError) {
         if (err.statusCode === 404) {
           reply.code(404).send(objects.accountNotFound);
@@ -31,6 +30,7 @@ export default function router(fastify, opts, done) {
           err.send(reply);
         }
       } else {
+        console.error(err);
         throw err;
       }
     }

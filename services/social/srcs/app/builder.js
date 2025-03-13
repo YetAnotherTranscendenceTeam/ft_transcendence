@@ -7,8 +7,9 @@ import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
 import websocket from '@fastify/websocket'
 import router from "./router.js";
-import YATT, { HttpError } from "yatt-utils";
+import { HttpError } from "yatt-utils";
 import { jwt_secret } from "./env.js";
+import { ConnectionManager } from "../utils/ConnectionManager.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -17,23 +18,8 @@ export default function build(opts = {}) {
     // DEVELOPEMENT configuration
     app.register(cors, {
       origin: true,
-      methods: ["GET", "POST", "PATCH", "DELETE"], // Allowed HTTP methods
+      methods: ["GET", "POST", "DELETE"], // Allowed HTTP methods
       credentials: true, // Allow credentials (cookies, authentication)
-    });
-
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "[PLACEHOLDER]",
-        description: "[PLACEHOLDER]",
-        version: "1.0.0",
-      },
-      servers: [
-        {
-          url: "http://localhost:[PLACEHOLDER]",
-          description: "Development network",
-        },
-        { url: "http://social:3000", description: "Containers network" },
-      ],
     });
   } else {
     // PRODUCTION configuration
@@ -53,7 +39,7 @@ export default function build(opts = {}) {
 
   app.register(bearerAuth, {
     auth: serviceAuthorization,
-    addHook: true,
+    addHook: false,
     errorResponse: (err) => {
       return new HttpError.Unauthorized().json();
     },
@@ -64,6 +50,14 @@ export default function build(opts = {}) {
   app.register(websocket);
 
   app.register(router);
+
+  // Create and attach the websocket manager
+  app.decorate('clients', new ConnectionManager());
+
+  // Close every websocket on server exit
+  app.addHook('onClose', (instance) => {
+    instance.clients.cleanup();
+  });
 
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
