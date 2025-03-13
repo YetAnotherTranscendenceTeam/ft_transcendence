@@ -1,6 +1,5 @@
 import Babact from "babact";
 import Card from "./Card";
-import useEffect from "babact/dist/hooks/useEffect";
 import Button from "./Button";
 
 export default function Modal({
@@ -15,7 +14,7 @@ export default function Modal({
 		...props
 	}: {
 		isOpen: boolean,
-		onClose: () => void,
+		onClose?: () => void,
 		children?: any,
 		className?: string,
 		closeOnBackgroundClick?: boolean,
@@ -35,7 +34,6 @@ export default function Modal({
 	}
 	
 	const handleEscape = (e: any) => {
-		console.log(e.key);
 		if (e.key === 'Escape') onClose();
 	}
 	

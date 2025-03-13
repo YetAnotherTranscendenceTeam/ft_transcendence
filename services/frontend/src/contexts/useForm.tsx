@@ -2,7 +2,7 @@ import Babact from "babact";
 
 const FormContext = Babact.createContext({});
 
-export const FormProvider = ({ formFields = {}, children } : {formFields?: any, children?: any}) => {
+export const Form = ({ formFields = {}, className, children } : {formFields?: any, className?: string, children?: any}) => {
 
 	const initFields = (fields) => fields.reduce((acc, field) => {
 		const required = field.endsWith('*');
@@ -35,8 +35,17 @@ export const FormProvider = ({ formFields = {}, children } : {formFields?: any, 
 		setFields(newFields);
 	}
 
-	const clearFields = () => {
-		setFields(initFields(formFields));
+	const clearFields = (fieldsName = []) => {
+		if (fieldsName.length === 0)
+			setFields(initFields(formFields));
+		else {
+			const newFields = {...fields};
+			const initialFields = initFields(formFields);
+			for (let name of fieldsName) {
+				newFields[name] = initialFields[name];
+			}
+			setFields(newFields);
+		}
 	}
 
 	const checkValidity = (fieldsName) => {
@@ -60,7 +69,9 @@ export const FormProvider = ({ formFields = {}, children } : {formFields?: any, 
 				fields
 			}}
 		>
-			{children}
+			<form className={`form flex flex-col gap-4 ${className || ''}`} onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}>
+				{children}
+			</form>
 		</FormContext.Provider>
 	);
 };

@@ -32,17 +32,17 @@
 	width: 16px;
 }
 
-.button-primary {
+.button.primary {
 	background-color: var(--primary-color);
 	color: var(--fg-1);
 }
 
-.button-primary:hover {
+.button.primary:hover {
 	background-color: var(--primary-color);
 	filter: saturate(2);
 }
 
-.button-primary.disabled, .button-primary.disabled:hover{
+.button.primary.disabled, .button.primary.disabled:hover{
 	background-color: var(--primary-color-40);
 	filter: saturate(1);
 }
@@ -59,6 +59,36 @@
 .button.ghost.disabled, .button.ghost.disabled:hover{
 	color: var(--fg-4);
 	background: transparent;
+}
+
+.button.danger {
+	background-color: var(--danger-color);
+	color: var(--fg-1);
+}
+
+.button.danger:hover {
+	background-color: var(--danger-color);
+	filter: saturate(2);
+}
+
+.button.danger.disabled, .button.danger.disabled:hover{
+	background-color: var(--danger-color-40);
+	filter: saturate(1);
+}
+
+.button.success {
+	background-color: var(--success-color);
+	color: var(--fg-1);
+}
+
+.button.success:hover {
+	background-color: var(--success-color);
+	filter: saturate(2);
+}
+
+.button.success.disabled, .button.success.disabled:hover{
+	background-color: var(--success-color-40);
+	filter: saturate(1);
 }
 
 /* ================================== */
@@ -141,8 +171,8 @@
 
 .avatar {
 	aspect-ratio: 1/1;
-	border-radius: 50%;
 	position: relative;
+	border-radius: 8px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -152,7 +182,7 @@
 .avatar img {
 	width: 100%;
 	height: 100%;
-	border-radius: 50%;
+	border-radius: 8px;
 	object-fit: cover;
 	position: absolute;
 }
@@ -171,6 +201,7 @@
 	width: 25%;
 	bottom: 0;
 	right: 0;
+	transform: translate(30%, 30%);
 }
 
 /* ================================== */
@@ -242,6 +273,13 @@
 	height: 13px;
 }
 
+.input-help {
+	text-align: left;
+	color: var(--fg-4);
+	font-size: small;
+	
+}
+
 
 /* ================================== */
 /* ============ Checkbox ============ */
@@ -305,9 +343,31 @@
 .toast {
 	background-color: color-mix(in srgb, var(--bg-3), transparent 30%);
 	opacity: 0;
+	animation:
+		slideIn 0.5s ease-in-out forwards,
+		fadeOut 500ms ease-in-out forwards var(--timeout);
+	max-height: 80vh;
+}
+
+.toast.sticky {
 	animation: slideIn 0.5s ease-in-out forwards;
 }
 
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		max-height: 80vh;
+		opacity: 0;
+		padding: 16px;
+	}
+	100% {
+		opacity: 0;
+		max-height: 0;
+		padding: 0;
+	}
+}
 
 @keyframes slideIn {
 	from {
@@ -328,12 +388,12 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100%;
-	height: 100%;
+	width: 100vw;
+  	height: 100vh;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 1000;
+	z-index: 9999;
 }
 
 .modal.overlay {
@@ -342,7 +402,6 @@
 
 .modal-content {
 	max-width: 60%;
-	max-height: 80%;
 	animation: fadeIn 0.2s ease-in-out;
 }
 
@@ -360,4 +419,151 @@
 	top: 8px;
 	right: 8px;
 	cursor: pointer;
+}
+
+/* ================================== */
+/* ========= ImageSelector ========== */
+/* ================================== */
+
+.image-selector {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.image-selector label {
+	font-weight: 500;
+	font-size: medium;
+}
+
+.image-selector label span {
+	font-size: small;
+	color: var(--danger-color);
+	vertical-align: super;
+	margin-left: 2px;
+}
+
+.image-selector-container {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+	grid-gap: 8px;
+	max-height: 30vh;
+	overflow-y: auto;
+	padding: 2px;
+}
+
+.image-selector-container img, .image-selector-container label {
+	object-fit: cover;
+	width: 100%;
+	aspect-ratio: 1/1;
+	border-radius: 8px;
+	cursor: pointer;
+	background-color: var(--bg-2);
+}
+
+.image-selector-container img:hover {
+	outline: 2px solid var(--fg-3);
+}
+
+.image-selector-container img.selected {
+	outline: 2px solid var(--primary-color);
+}
+
+.image-selector-container label input[type="file"] {
+	display: none;
+}
+
+.image-selector-container label {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: x-large;
+	background-color: var(--bg-2);
+}
+
+.image-selector-container label:hover {
+	background-color: var(--bg-3);
+}
+
+.image-selector-item {
+	position: relative;
+}
+
+.image-selector-item i {
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	color: var(--fg-1);
+	padding: 4px;
+}
+
+.image-selector-item:hover i {
+	display: block;
+}
+
+.image-selector-item i:hover {
+	color: var(--danger-color);
+}
+
+/* ================================== */
+/* ============= Spinner ============ */
+/* ================================== */
+
+.spinner i {
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+
+/* ================================== */
+/* ============ PopHover ============ */
+/* ================================== */
+
+.pop-hover-container {
+	position: relative;
+}
+
+.pop-hover {
+	position: absolute;
+	top: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: var(--bg-1);
+	color: var(--fg-1);
+	border-radius: 4px;
+	padding: 8px;
+	max-width: 200px;
+	min-width: 100px;
+	display: none;
+	z-index: 1000;
+	opacity: 0;
+	transform: opacity 0.3s;
+}
+
+.pop-hover::after {
+	content: '';
+	position: absolute;
+	top: -16px;
+	left: 50%;
+	transform: translateX(-50%);
+	border: 8px solid transparent;
+	border-bottom-color: var(--bg-1);
+}
+
+.pop-hover-container:hover .pop-hover {
+	display: block;
+	opacity: 1;
+}
+
+.webcam-modal .error{
+	color: var(--danger-color)
 }

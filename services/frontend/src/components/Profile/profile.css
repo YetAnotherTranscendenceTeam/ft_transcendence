@@ -2,7 +2,7 @@
 	position: absolute;
 	bottom: 24px;
 	right: 24px;
-	min-width: 300px;
+	width: 300px;
 }
 
 .profile-card-header h1 {
@@ -12,4 +12,123 @@
 .profile-card-header h2 {
 	color: var(--fg-3);
 	font-size: 90%;
+}
+
+.profile-card-body {
+	max-height: 0;
+	overflow: hidden;
+	padding-top: 0;
+	transition:
+		max-height 0.3s ease,
+		padding-top 0.3s ease;
+	;
+}
+
+.profile-card-body.open {
+	max-height: 50vh;
+	padding-top: 1rem;
+}
+
+
+
+/* Social Manager */
+
+.social-manager-tabbar {
+	font-size: small;
+	border-radius: 8px;
+	background-color: var(--bg-2);
+	overflow: hidden;
+}
+
+.social-manager-tabbar .button {
+	font-size: small;
+	border-radius: 0;
+	flex: 1;
+}
+
+.social-manager-tabbar .button.selected {
+	background-color: var(--bg-4);
+}
+
+.social-manager-content {
+	width: 100%;
+	height: 40vh;
+	position: relative;
+}
+
+.social-manager-tab {
+	overflow-y: auto;
+	height: 100%;
+	overflow-x: hidden;
+	width: 100%;
+	transition: transform 0.3s ease;
+	padding: 1rem 0;
+	box-sizing: border-box;
+	transform: translateX(-100%);
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.social-manager-tab:last-of-type {
+	transform: translateX(100%);
+}
+
+
+.social-manager-tab.open {
+	transform: translateX(0);
+}
+
+.social-manager-follow-card {
+	padding: 0.5rem 1rem;
+	box-sizing: border-box;
+	font-size: small;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.social-manager-follow-card:hover {
+	background-color: var(--bg-3);
+}
+
+.social-manager-follow-card h1 {
+	font-weight: bold;
+}
+
+.social-manager-follow-card h2 {
+	color: var(--fg-3);
+}
+
+
+.social-manager-follow-card .button {
+	font-size: medium;
+	display: none;
+}
+
+.social-manager-follow-card:hover .button {
+	display: block;
+}
+
+.social-manager-add {
+	overflow: hidden;
+}
+
+.social-manager-add-list {
+	overflow: auto;
+}
+
+/* Confirm Card */
+
+.confirm-profile-modal {
+	width: 400px;
+}
+
+.confirm-profile-modal h1 {
+	font-weight: bold;
+	font-size: x-large;
+	margin-bottom: 32px;
+}
+
+.confirm-profile-modal-footer {
+	margin-top: 4rem;
 }

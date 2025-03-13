@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "@fastify/formbody": "^8.0.2",
+    "@fastify/jwt": "^9.0.4",
+    "better-sqlite3": "^11.8.1",
+    "fastify": "^5.2.1",
+    "yatt-utils": "file:../../modules/yatt-utils"
+  },
+  "type": "module"
+}

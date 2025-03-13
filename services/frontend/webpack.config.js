@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
 import CopyWebpackPlugin from "copy-webpack-plugin";
+import webpack from "webpack";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,10 +35,14 @@ export default {
     new CopyWebpackPlugin({
       patterns: [{ from: "public", to: "." }],
     }),
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify(process.env)
+    })
   ],
   devtool: 'inline-source-map',
   mode: "development",
   devServer: {
     historyApiFallback: true,
+    allowedHosts: 'all',
   },
 };

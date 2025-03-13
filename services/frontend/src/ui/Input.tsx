@@ -8,14 +8,18 @@ export default function Input({
 		error,
 		onInput,
 		matching,
+		defaultValue,
+		help,
 		...props 
 	}: {
 		label?: string,
 		field: string
 		type?: string,
 		error?: string,
-		onInput?: Function
-		matching?: string
+		onInput?: Function,
+		matching?: string,
+		defaultValue?: string,
+		help?: string,
 		[key: string]: any
 	}) {
 
@@ -29,6 +33,11 @@ export default function Input({
 		if (isValid !== fields[field].isValid)
 			updateFieldValidity(field, isValid);
 	}
+
+	Babact.useEffect(() => {
+		if (defaultValue)
+			updateField(field, defaultValue);
+	}, []);
 
 	const isFieldValid = fields[field]?.isValid;
 
@@ -47,5 +56,6 @@ export default function Input({
 			{...props}
 		/>
 		{error && <p className='input-error'>{!isFieldValid && error}</p>}
+		{help && <p className='input-help'>{help}</p>}
 	</div>
 }

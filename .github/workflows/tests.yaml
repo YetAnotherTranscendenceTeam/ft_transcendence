@@ -1,0 +1,62 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+
+    env:
+      JWT_SECRET: hYWCKUFPF1VRsgn3RDH7j8XoTHtAdTCO+6s4kn9bobPWoa5jHtjslSrbM59okYCBgA7fb1r7izQdisqioqT3dA==
+      REFRESH_TOKEN_SECRET: qWF9Y4LrXL9G33PlgT36+IQm2vZUY9Smj25JxYpMc66OqTAIuJQseDj94tgDTO06p73VCGB4E1018fX38oodQA==
+      CDN_JWT_SECRET: oLYZA7wpxoGcA6W638ZOk+LuD5RP3ofiNzpD5e83M/t0oHaRVQlwqE70GFcH1dG7G6UdKyZab6hTpbh03iQuxQ==
+      PASSWORD_PEPPER: 5Y3olSUbsMA5baaa7yBqVtnJC9OGhXqdoB+krlM1URXASVchDTNyq+jTawZ4FslyR51QNCSJ5bojjRKJZc4iaQ==
+      TOKEN_MANAGER_SECRET: 7r+j+FVvFO74Upc5DhBY62QWNr0qVzxaCkXm0vhxwABX2zDmJwQUNxFl4oBvB9CH5fhN5WgRg2pqKn8kFh/tMw==
+      FRONTEND_URL: https://localhost:8080
+      BACKEND_URL: https://localhost:7979
+      CDN_URL: https://cdn-nginx:8181
+      API42_CLIENT_ID: 'example'
+      API42_SECRET: 'example'
+      API42_REDIRECT_URI: 'https://fake-callback.com'
+      MATCHMAKING_JWT_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
+      MATCHMAKING_SCHEDULER_DELAY: 100
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '23.3.0'
+
+      - name: Install dependencies
+        run: make
+
+      - name: Install test dependencies
+        run: npm install
+        working-directory: ./tests
+
+      - name: Build and run Docker Compose
+        run: docker compose up -d --wait --wait-timeout 60
+
+      - name: Run Jest tests
+        run: npm run action
+        working-directory: ./tests
+
+      - name: Print containers logs on test failure
+        if: always()
+        run: docker compose logs
+
+      - name: Tear down Docker Compose
+        run: docker compose down
+        if: always()

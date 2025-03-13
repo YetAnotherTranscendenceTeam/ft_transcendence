@@ -1,30 +1,43 @@
 import Babact from "babact";
+import config from "../../config";
+import useToast from "../../hooks/useToast";
+import { useAuth } from "../../contexts/useAuth";
 
-export default function FortyTwoAuthButton({isOpen}) {
+export default function FortyTwoAuthButton({
+		isOpen = false
+	}: {
+		isOpen: boolean
+	}) {
+
+	const { createToast } = useToast();
+	const { auth } = useAuth();
 
 	const handleMessage = (event) => {
 		if (event.origin !== window.location.origin) return;
-
-		if (event.data.token) {
-			console.log(event.data.token);
+		const { token, expire_at, statusCode } = event.data;
+		if (token)
+			auth(token, expire_at);
+		else if (statusCode === 401) {
+			createToast('Authentication failed', 'danger', 7000);
 		}
+
 	};
 
 	const openPopup = () => {
-		window.open('https://z1r3p1:7979/api/auth/fortytwo/', '_blank', "popup; width=600; height=600");
+		window.open(`${config.API_URL}/auth/fortytwo/`, '_blank', "popup; width=600; height=700");
 	};
 
 	Babact.useEffect(() => {
 		if (isOpen) {
 			window.addEventListener('message', handleMessage);
-			return () => {
-				window.removeEventListener('message', handleMessage);
-			}
+		}
+		return () => {
+			window.removeEventListener('message', handleMessage);
 		}
 	}, [isOpen]);
 
 	return <a onClick={openPopup} className='fortytwo-auth-button flex items-center'>
 		<img src='/assets/images/fortytwo-logo.png'/>
-		<p>Login with 42intra</p>
+		<p>Sign in with 42intra</p>
 	</a>
 }

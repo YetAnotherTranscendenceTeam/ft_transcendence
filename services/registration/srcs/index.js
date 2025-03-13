@@ -1,15 +1,12 @@
-import Fastify from "fastify";
-const fastify = Fastify();
+"use strict";
 
-import fastifyFormbody from "@fastify/formbody";
-fastify.register(fastifyFormbody);
+import build from "./app/builder.js";
 
-import routes from "./routes.js";
-fastify.register(routes);
+const server = build();
 
-try {
-  await fastify.listen({ port: 3000, host: '0.0.0.0' });
-} catch (err) {
-  fastify.log.error(err);
-  process.exit(1);
-}
+server.listen({ port: 3000, host: "0.0.0.0" }, (err, address) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+});

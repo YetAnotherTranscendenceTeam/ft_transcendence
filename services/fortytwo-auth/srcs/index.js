@@ -1,28 +1,12 @@
-import Fastify from 'fastify';
-const fastify = Fastify();
+"use strict";
 
-import fastifyFormbody from '@fastify/formbody';
-fastify.register(fastifyFormbody);
+import build from "./app/builder.js";
 
-import fastifyCookie from '@fastify/cookie';
-fastify.register(fastifyCookie);
+const server = build();
 
-import fastifyJWT from '@fastify/jwt';
-import { jwt_secret } from './env.js';
-fastify.register(fastifyJWT, {
-  secret: jwt_secret,
-  cookie: {
-    cookieName: 'access_token',
-    signed: false
+server.listen({ port: 3000, host: "0.0.0.0" }, (err, address) => {
+  if (err) {
+    console.error(err);
+    process.exit(1);
   }
-})
-
-import routes from './routes.js';
-fastify.register(routes);
-
-try {
-  await fastify.listen({ port: 3000, host: '0.0.0.0' });
-} catch (err) {
-  fastify.log.error(err);
-  process.exit(1);
-}
+});

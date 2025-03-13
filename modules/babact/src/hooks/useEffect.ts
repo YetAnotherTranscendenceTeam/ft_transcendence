@@ -43,5 +43,6 @@ export function removeEffect(fiber: any) {
             }
         });
     }
-
+    removeEffect(fiber.child);
+    removeEffect(fiber.sibling);
 }

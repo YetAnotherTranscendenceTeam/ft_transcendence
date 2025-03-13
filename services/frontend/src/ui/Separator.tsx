@@ -8,5 +8,5 @@ export default function Separator({ className = '', children, ...props }: { clas
 			<span className='separator'/>
 		</div>
 
-		return <span className='separator'/> 
+		return <span className={`separator ${className}`}/> 
 }
