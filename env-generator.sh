@@ -54,6 +54,7 @@ secret_keys=( \
     "TOKEN_MANAGER_SECRET" \
     "CDN_JWT_SECRET" \
     "PASSWORD_PEPPER" \
+    "MATCHMAKING_JWT_SECRET" \
 )  
 
 echo "[SECRETS]"
@@ -70,15 +71,20 @@ fi
 
 HOST=$(hostname | cut -d'.' -f1)
 
+echo "\n[MISC PARAMETERS] \n"
+generate MATCHMAKING_SCHEDULER_DELAY "100"
+
 printf "\n[URLs]\n"
 generate BACKEND_URL "https://${HOST}:7979"
 generate FRONTEND_URL "https://${HOST}:8080"
 generate CDN_URL "https://${HOST}:8181"
+
 
 printf "\n[42API OAuth]\n"
 generate_or_use_existing_key API42_CLIENT_ID ""
 generate_or_use_existing_key API42_SECRET ""
 generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
 echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
+
 
 mv $TMP_FILE $ENV_FILE
