@@ -1,8 +1,5 @@
 .lobby-card {
-	position: fixed;
-	top: 24px;
-	right: 24px;
-	min-width: 200px;
+	width: 100%;
 }
 
 .lobby-card h1 {
@@ -23,24 +20,24 @@
 /* =============== List =============== */
 
 .lobby-teams {
-	padding: 24px;
+	padding: 16px;
 	width: 100%;
-	/* display: flex;
-	flex-direction: column;
-	flex-wrap: wrap;
-	justify-self: flex-start;
-	align-items: flex-start; */
+	height: 100vh;
 	display: grid;
-	/* 4x4 grid */
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(5, 1fr);
+	grid-template-rows: repeat(4, 1fr);
 	gap: 1rem;
 	user-select: none;
-	overflow-x: scroll;
+	overflow-x: visible;
 	box-sizing: border-box;
-	padding-bottom: 20vh;
+	scrollbar-width: none;
 }
 
-/* Grid template change depend on view width */
+@media (max-width: 1600px) {
+	.lobby-teams {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
 
 @media (max-width: 1480px) {
 	.lobby-teams {
@@ -61,35 +58,38 @@
 }
 
 
-.lobby-teams h1 {
+
+.lobby-team {
+	width: 100%;
+	height: fit-content;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 1rem;
+	background-color: var(--bg-2);
+	backdrop-filter: none;
+	position: unset;
+	border-left: 3px solid var(--team-color);
+}
+
+.lobby-team h1 {
 	width: 100%;
 	color: var(--fg-1);
 	font-size: large;
 }
 
-.lobby-team {
-	width: fit-content;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	gap: 1rem;
-	padding: 16px;
-	background-color: var(--bg-2);
-	backdrop-filter: none;
-	position: unset;
-	border-left: 2px solid var(--team-color);
-}
-
 .lobby-team .card{
 	flex-direction: row;
-	min-width: 200px;
 	min-height: 48px;
 }
 
 .lobby-player-card.draggable {
 	cursor: grab;
 
+}
+
+.lobby-player-card {
+	width: 100%;
 }
 
 .lobby-player-card div {
@@ -103,6 +103,7 @@
 	left: var(--x);
 	pointer-events: none;
 	position: absolute;
+	width: var(--width);
 }
 
 .lobby-player-card i{
@@ -115,11 +116,11 @@
 .lobby-team .card.empty {
 	background-color: var(--bg-1);
 	opacity: 0.5;
-	height: 48px;
+	height: 80px;
 }
 
 .lobby-player-card-wrapper {
-	min-width: 232px;
+	width: 100%;
 	height: 80px;
 	border-radius: 4px;
 	outline: 1px solid var(--fg-5);
@@ -136,5 +137,6 @@
 	bottom: 24px;
 	left: 24px;
 	min-height: 48px;
-	min-width: 300px;	
+	min-width: 300px;
 }
+

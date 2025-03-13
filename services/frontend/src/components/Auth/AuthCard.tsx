@@ -3,8 +3,6 @@ import Card from "../../ui/Card";
 import "./auth.css"
 import Button from "../../ui/Button";
 import LoginForm from "./LoginForm";
-import Separator from "../../ui/Separator";
-import { useForm } from "../../contexts/useForm";
 import RegisterForm from "./RegisterForm";
 
 export default function AuthCard() {

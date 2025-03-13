@@ -5,6 +5,7 @@ import { useLobby } from "../../contexts/useLobby";
 import { Form } from "../../contexts/useForm";
 import Input from "../../ui/Input";
 import Submit from "../../ui/Submit";
+import useEscape from "../../hooks/useEscape";
 
 export default function SelectModeOverlay({
 		isOpen,
@@ -17,6 +18,8 @@ export default function SelectModeOverlay({
 		create(mode);
 		onClose();
 	};
+
+	useEscape(isOpen, onClose);
 
 	return <div className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}>
 		<div className='online-select-overlay-content flex flex-col'>

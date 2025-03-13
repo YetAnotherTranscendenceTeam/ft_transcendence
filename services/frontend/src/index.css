@@ -64,6 +64,14 @@
 	align-items: center;
 }
 
+.items-start {
+	align-items: flex-start;
+}
+
+.items-end {
+	align-items: flex-end;
+}
+
 .justify-end {
 	justify-content: flex-end;
 }

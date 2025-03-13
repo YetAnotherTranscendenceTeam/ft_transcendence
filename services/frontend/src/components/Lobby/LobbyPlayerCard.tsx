@@ -1,6 +1,8 @@
 import Babact from "babact";
 import Card from "../../ui/Card";
 import Avatar from "../../ui/Avatar";
+import useRef from "babact/dist/hooks/useRef";
+import useEffect from "babact/dist/hooks/useEffect";
 
 export default function LobbyPlayerCard({
 		player,

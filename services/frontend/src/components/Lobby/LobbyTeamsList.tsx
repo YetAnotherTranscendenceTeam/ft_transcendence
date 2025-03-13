@@ -11,11 +11,11 @@ export default function LobbyTeamsList({lobby}) {
 	
 	const [players, setPlayers] = Babact.useState(lobby.players);
 	const [teams, setTeams] = Babact.useState([]);
+	const width = Babact.useRef(0);
 
 	const { me } = useAuth();
 
 	const createTeam = () => {
-		// at least 2 teams or 1 player per team and max team_count teams
 		const nb_teams = Math.max(2, Math.min(lobby.players.length / lobby.mode.team_size, lobby.mode.team_count));
 		const teams = new Array(nb_teams).fill(null).map(() => []);
 		players.forEach((player, i) => {
@@ -37,6 +37,7 @@ export default function LobbyTeamsList({lobby}) {
 
 	Babact.useEffect(() => {
 		if (!draggingPlayer) return;
+		
 		document.addEventListener('mouseup', handleMouseUp);
 		document.addEventListener('mousemove', handleMouseMove);
 		return () => {
@@ -57,15 +58,10 @@ export default function LobbyTeamsList({lobby}) {
 	const handleMouseDown = (e, account_id) => {
 		if (e.button !== 0) return;
 		setDraggingPlayer(account_id);
-
-		let relativeParent = e.target.offsetParent;
-		while (relativeParent && window.getComputedStyle(relativeParent).position === 'static') {
-			relativeParent = relativeParent.offsetParent;
-		}
-		const parentRect = relativeParent ? relativeParent.getBoundingClientRect() : { x: 0, y: 0 };
+		width.current = e.target.getBoundingClientRect().width;
 		setTransform({
-			x: e.target.getBoundingClientRect().x - parentRect.x,
-			y: e.target.getBoundingClientRect().y - parentRect.y
+			x: e.target.getBoundingClientRect().x,
+			y: e.target.getBoundingClientRect().y
 		});
 	}
 
@@ -117,6 +113,7 @@ export default function LobbyTeamsList({lobby}) {
 						onMouseEnter={(e) => handleMouseEnter(e, player.account_id)}
 						onMouseLeave={(e) => handleMouseLeave(e, player.account_id)}
 						key={'player'+i}
+						style={`--width: ${width.current}px;`}
 						player={player}
 					/>
 				))}

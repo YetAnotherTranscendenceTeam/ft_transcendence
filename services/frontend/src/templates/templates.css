@@ -1,0 +1,17 @@
+.template-content {
+	width: calc(100vw - 400px);
+	height: 100vh;
+}
+
+.aside {
+	position: fixed;
+	top: 0;
+	right: 0;
+	height: 100vh;
+	width: 420px;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 16px;
+	box-sizing: border-box;
+	overflow: auto;
+}

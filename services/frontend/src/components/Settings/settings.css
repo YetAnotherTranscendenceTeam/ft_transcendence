@@ -2,16 +2,12 @@
 	position: absolute;
 	top: 0;
 	left: calc(-600px);
-	height: calc(100vh - 32px);
+	height: 100vh;
 	width: 400px;
 	border-radius: 0;
 	opacity: 0;
-	padding: 16px 32px;
+	padding: 0 32px;
 	transition: left 0.5s, opacity 0.5s;
-}
-
-.menu-container .settings {
-	padding-left: 96px;
 }
 
 .settings.open {
@@ -20,10 +16,15 @@
 	left: 0;
 }
 
+.settings-header {
+	margin-top: 32px;
+}
+
 .settings-content {
 	position: relative;
 	height: 100%;
 	overflow-y: auto;
+	padding-bottom: 20vh;
 }
 
 .settings-content::-webkit-scrollbar {

@@ -1,8 +1,5 @@
 .profile-card {
-	position: absolute;
-	bottom: 24px;
-	right: 24px;
-	width: 300px;
+	width: 100%;
 }
 
 .profile-card-header h1 {

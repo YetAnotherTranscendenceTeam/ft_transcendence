@@ -1,37 +1,12 @@
-.menu-container {
-	position: relative;
-	top: 0;
-	left: 0;
-	max-width: 50vw;
-	display: flex;
-	align-items: center;
-	z-index: 1;
-}
-
 .menu {
-	left: 0;
-	height: 100vh;
-	border-radius: 0;
-	width: 300px;
-	max-width: 300px;
-	transition: max-width 0.5s;
-	z-index: 200;
-	padding: 0 16px;
-}
-
-.menu.closed {
-	max-width: 32px;
+	width: 100%;
 }
 
 .menu a {
 	text-decoration: none;
 	justify-content: flex-start;
 	width: 80%;
-	padding: 1rem;
-}
-
-.menu.closed a {
-	overflow: hidden;
+	padding: 12px;
 }
 
 .menu .pop-hover-container {
@@ -42,10 +17,6 @@
 .menu p {
 	opacity: 1;
 	transition: opacity 0.3s;
-}
-
-.menu.closed p, .menu.closed .pop-hover-container .pop-hover {
-	opacity: 0;
 }
 
 .menu .button.active {
