@@ -6,7 +6,7 @@ services:
       - "7979:7979"
     networks:
       - frontend
-      - db-profiles
+      - avatars
       - settings
       - documentation
     environment:
@@ -14,6 +14,8 @@ services:
     secrets:
       - ssl-crt
       - ssl-key
+    depends_on:
+      - avatars
 
   frontend:
     build:
@@ -55,6 +57,7 @@ services:
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
     ports:
       - 127.0.0.1:4002:3000
     networks:
@@ -152,17 +155,6 @@ services:
     networks:
       - frontend
 
-  # profiles-api:
-  #   build:
-  #     context: services/profiles-api/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./sqlite:/database
-  #     - ./services/profiles-api/srcs:/run/srcs
-  #   ports:
-  #     - "127.0.0.1:3003:3000"
-  #   networks:
-  #     - credentials
 
   db-profiles:
     build:
@@ -173,7 +165,8 @@ services:
       - ./modules/:/modules:ro
       - ./sqlite:/database
     environment:
-      - JWT_SECRET=${JWT_SECRET}
+      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_URL=${CDN_URL}
     ports:
       - 127.0.0.1:7001:3000
     networks:
@@ -194,19 +187,42 @@ services:
      - frontend
      - db-profiles
 
-  # settings:
-  #   build:
-  #     context: services/settings/
-  #     dockerfile: Dockerfile.dev
-  #   volumes:
-  #     - ./services/settings/srcs:/services/settings/srcs
-  #     - ./modules/:/modules:ro
-  #   environment:
-  #     - JWT_SECRET=${JWT_SECRET}
-  #   ports:
-  #     - 127.0.0.1:4004:3000
-  #   networks:
-  #     - settings
+  settings:
+    build:
+      context: services/settings/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/settings/srcs:/services/settings/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+    ports:
+      - 127.0.0.1:4004:3000
+    networks:
+      - settings
+      - avatars
+      - db-profiles
+
+  avatars:
+    build:
+      context: services/avatars/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/avatars/srcs:/services/avatars/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_URL=${CDN_URL}
+    ports:
+      - 127.0.0.1:4113:3000
+    networks:
+      - avatars
+      - cdn-test
+    depends_on:
+      cdn-nginx:
+        condition: service_healthy
 
   documentation:
     build:
@@ -223,6 +239,36 @@ services:
     networks:
       - documentation
 
+  cdn-nginx:
+    build: services/CDN/nginx/
+    ports:
+      - "8181:8181"
+    volumes:
+      - avatars:/app/avatars/users/:ro
+      - ./services/CDN/.avatars:/app/avatars/default/:ro
+    networks:
+      - cdn-api
+      - cdn-test
+    secrets:
+      - ssl-crt
+      - ssl-key
+    depends_on:
+      cdn-api:
+        condition: service_healthy
+
+  cdn-api:
+    build:
+      context: services/CDN/api/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - avatars:/app/avatars/users/
+      - ./services/CDN/.avatars:/app/avatars/default/:ro
+      - ./services/CDN/api/srcs:/services/CDN/api/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+    networks:
+     - cdn-api
 
 networks:
   frontend:
@@ -237,6 +283,16 @@ networks:
     driver: bridge
   documentation:
     driver: bridge
+  avatars:
+    driver: bridge
+  cdn-api:
+    driver: bridge
+
+  cdn-test:
+    driver: bridge
+    
+volumes:
+  avatars:
 
 secrets:
   ssl-crt: 

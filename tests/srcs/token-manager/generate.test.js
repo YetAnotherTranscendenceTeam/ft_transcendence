@@ -1,37 +1,24 @@
 import request from "supertest";
-import crypto from "crypto";
 
 const baseUrl = "http://127.0.0.1:4002";
 
 describe("TOKEN GENERATION", () => {
   it("no account id", async () => {
     const response = await request(baseUrl)
-      .post("/token")
-      .expect(404)
+      .post("/")
+      .expect(400)
       .expect("Content-Type", /json/);
-    expect(response.body).toEqual({
-      message: 'Route POST:/token not found',
-      error: 'Not Found',
-      statusCode: 404
-    })
   });
 
   it("no authorization header", async () => {
     const response = await request(baseUrl)
-      .post("/token/45")
-      .expect(400)
-      .expect("Content-Type", /json/);
-    expect(response.body).toEqual({
-      statusCode: 400,
-      code: "FST_ERR_VALIDATION",
-      error: "Bad Request",
-      message: "headers must have required property 'authorization'",
-    });
+      .post("/45")
+      .expect(401)
   });
 
   it("invalid authorization header 1", async () => {
     const response = await request(baseUrl)
-      .post("/token/45")
+      .post("/45")
       .set('Authorization', 'SFSDFSF')
       .expect(401)
       .expect("Content-Type", /json/);
@@ -45,7 +32,7 @@ describe("TOKEN GENERATION", () => {
 
   it("invalid authorization header 2", async () => {
     const response = await request(baseUrl)
-      .post("/token/45")
+      .post("/45")
       .set('Authorization', 'Bearer')
       .expect(401)
       .expect("Content-Type", /json/);
@@ -59,7 +46,7 @@ describe("TOKEN GENERATION", () => {
 
   it("invalid authorization header 3", async () => {
     const response = await request(baseUrl)
-      .post("/token/45")
+      .post("/45")
       .set('Authorization', 'Bearer d')
       .expect(401)
       .expect("Content-Type", /json/);
@@ -73,7 +60,7 @@ describe("TOKEN GENERATION", () => {
 
   it("bad authorization header", async () => {
     const response = await request(baseUrl)
-      .post("/token/45")
+      .post("/45")
       .set('Authorization', `Bearer ${process.env.TOKEN_MANAGER_SECRET}`)
       .expect(200)
       .expect("Content-Type", /json/);

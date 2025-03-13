@@ -52,7 +52,7 @@ export default function build(opts = {}) {
 
   app.register(cors, {
     origin: true,
-    methods: ["GET", "POST", "PATH", "DELETE"], // Allowed HTTP methods
+    methods: ["GET", "POST", "PACTH", "DELETE"], // Allowed HTTP methods
     credentials: true, // Allow credentials (cookies, authentication)
   });
 
