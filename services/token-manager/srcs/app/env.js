@@ -9,3 +9,9 @@ if (!jwt_secret) {
     console.error("Missing environment variable: JWT_SECRET");
     process.exit(1);
 }
+
+export const refresh_token_secret = process.env.REFRESH_TOKEN_SECRET;
+if (!refresh_token_secret) {
+    console.error("Missing environment variable: REFRESH_TOKEN_SECRET");
+    process.exit(1);
+}

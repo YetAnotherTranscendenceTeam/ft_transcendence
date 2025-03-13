@@ -1,10 +1,30 @@
 import Babact from "babact";
 import useToast from "./useToast";
+import config from "../config";
 
 export default function useFetch() {
 
 	const {createToast} = useToast();
 	const [isLoading, setIsLoading] = Babact.useState(false);
+
+	const refreshToken = async () => {
+		const expired_at = localStorage.getItem('expire_at');
+		if (!expired_at)
+			return;
+		const expired_at_date = new Date(expired_at);
+		if (expired_at_date > new Date())
+			return;
+		const response = await ft_fetch(`${config.API_URL}/token/refresh`, {
+			method: 'POST',
+			credentials: 'include'
+		}, {
+			disable_bearer: true
+		});
+		if (response) {
+			localStorage.setItem('access_token', response.access_token);
+			localStorage.setItem('expire_at', response.expire_at);
+		}
+	};
 
 	const ft_fetch = async (
 		url: string,
@@ -12,18 +32,22 @@ export default function useFetch() {
 		option: {
 			show_error?: boolean
 			success_message?: string,
-			error_messages?: { [key: number]: string }
+			error_messages?: { [key: number]: string },
+			disable_bearer?: boolean
 		} = {}
 	) => {
 		setIsLoading(true);
-		const token = localStorage.getItem('access_token');
 		try {
+			if (!option.disable_bearer)
+				await refreshToken();
+			const headers = fetch_options?.headers || {};
+			const token = localStorage.getItem('access_token');
+			if (!option.disable_bearer && token) {
+				headers['Authorization'] = `Bearer ${token}`;
+			}
 			const response = await fetch(url, {
 				...fetch_options,
-				headers: {
-					...fetch_options.headers,
-					'Authorization': `Bearer ${token}`
-				}
+				headers
 			});
 			if (response.ok) {
 				let data = true;

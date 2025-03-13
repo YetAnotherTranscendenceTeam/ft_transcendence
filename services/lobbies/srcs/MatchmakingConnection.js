@@ -12,24 +12,24 @@ export default class MatchmakingConnection extends EventEmitter {
   messageHandlers = {
     match: (message) => {
       for (const lobby of message.data.lobbies) {
-        const lobbyInstance = this.queuedLobbies.get(lobby.joinSecret);
+        const lobbyInstance = this.queuedLobbies.get(lobby.join_secret);
         if (lobbyInstance) {
-          this.queuedLobbies.delete(lobby.joinSecret);
+          this.queuedLobbies.delete(lobby.join_secret);
           lobbyInstance.matchFound(message.data.match);
         }
       }
     },
     confirm_queue: (message) => {
-      const lobby = this.queuedLobbies.get(message.data.lobby.joinSecret);
+      const lobby = this.queuedLobbies.get(message.data.lobby.join_secret);
       if (lobby) {
         lobby.confirmQueue();
       }
     },
     confirm_unqueue: (message) => {
-      const lobby = this.queuedLobbies.get(message.data.lobby.joinSecret);
+      const lobby = this.queuedLobbies.get(message.data.lobby.join_secret);
       if (lobby) {
         lobby.confirmUnqueue();
-        this.queuedLobbies.delete(lobby.joinSecret);
+        this.queuedLobbies.delete(lobby.join_secret);
       }
     }
   }
@@ -106,7 +106,7 @@ export default class MatchmakingConnection extends EventEmitter {
   }
 
   queue(lobby) {
-    this.queuedLobbies.set(lobby.joinSecret, lobby);
+    this.queuedLobbies.set(lobby.join_secret, lobby);
     this.send({
       event: "queue_lobby",
       data: {

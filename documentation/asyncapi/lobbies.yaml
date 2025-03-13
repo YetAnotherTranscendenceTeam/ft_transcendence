@@ -38,6 +38,8 @@ channels:
         $ref: '#/components/messages/swap_players'
       queue_start:
         $ref: '#/components/messages/queue_start'
+      team_name:
+        $ref: '#/components/messages/team_name'
       queue_stop:
         $ref: '#/components/messages/queue_stop'
 
@@ -56,6 +58,8 @@ channels:
         $ref: '#/components/messages/swap_players_update'
       leader_change:
         $ref: '#/components/messages/leader_change'
+      team_name_update:
+        $ref: '#/components/messages/team_name_update'
       error:
         $ref: '#/components/messages/error'
 operations:
@@ -71,6 +75,7 @@ operations:
       - $ref: '#/channels/lobby/messages/swap_players_update'
       - $ref: '#/channels/lobby/messages/state_change'
       - $ref: '#/channels/lobby/messages/leader_change'
+      - $ref: '#/channels/lobby/messages/team_name_update'
       - $ref: '#/channels/lobby/messages/error'
   subscribe:
     action: receive
@@ -81,15 +86,16 @@ operations:
       - $ref: '#/channels/lobby/messages/mode'
       - $ref: '#/channels/lobby/messages/kick'
       - $ref: '#/channels/lobby/messages/swap_players'
+      - $ref: '#/channels/lobby/messages/team_name'
       - $ref: '#/channels/lobby/messages/queue_start'
       - $ref: '#/channels/lobby/messages/queue_stop'
 components:
   tags:
     owner:
-      name: owner
+      name: Owner
       description: Messages that only the owner of the lobby can send
     broadcast:
-      name: broadcast
+      name: Broadcast
       description: Messages that are broadcasted to all lobby members
   messages:
     disconnect:
@@ -279,7 +285,7 @@ components:
               mode:
                 $ref: '#/components/schemas/gamemode'
     player_join:
-      description: Message sent to all lobby members when a player joins
+      description: Message sent to all lobby members (except the joining player) when a player joins
       tags:
         - $ref: '#/components/tags/broadcast'
       payload:
@@ -344,6 +350,54 @@ components:
             properties:
               leader_account_id:
                 $ref: '#/components/schemas/account_id'
+    team_name:
+      description: Send this message to change the bearer's team name
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - team_name
+          data:
+            type: object
+            required:
+              - team_name
+            properties:
+              team_name:
+                type: string
+                description: The name of the team
+    team_name_update:
+      tags:
+        - $ref: '#/components/tags/broadcast'
+      description: Message sent to all lobby members when a team name is changed
+      payload:
+        type: object
+        required:
+          - event
+          - data
+        properties:
+          event:
+            type: string
+            description: Event type
+            enum:
+              - team_name
+          data:
+            type: object
+            required:
+              - name
+              - team_index
+            properties:
+              name:
+                type: string
+                description: The name of the team
+              team_index:
+                type: integer
+                description: The index of the team
     lobby:
       description: Message containing the entire lobby which is sent to a joining player to sync the lobby
       payload:
@@ -439,11 +493,11 @@ components:
         - name
         - team_size
         - team_count
-        - ranked
+        - type
       description: |
         The mode of the lobby, this also determines the lobby capacity\* which can be obtained this way:
         ```
-        capacity = ranked ? team_size : team_size * team_count
+        capacity = type == 'ranked' ? team_size : team_size * team_count
         ```
         \**capacity* is the maximum number of players that can be in the lobby
       properties:
@@ -455,9 +509,13 @@ components:
         team_count:
           type: integer
           description: Max number of teams for this mode
-        ranked:
-          type: boolean
-          description: Whether this mode is ranked or not
+        type:
+          type: string
+          description: The gamemode type
+          enum:
+            - unranked
+            - ranked
+            - tournament
     lobby_state:
       type: object
       required:
@@ -494,8 +552,9 @@ components:
         - players
         - mode
         - state
-        - joinSecret
+        - join_secret
         - leader_account_id
+        - team_names
       properties:
         players:
           type: array
@@ -506,8 +565,13 @@ components:
           $ref: '#/components/schemas/gamemode'
         state:
           $ref: '#/components/schemas/lobby_state'
-        joinSecret:
+        join_secret:
           type: string
           description: The secret to join the lobby
         leader_account_id:
           $ref: '#/components/schemas/account_id'
+        team_names:
+          type: array
+          items:
+            type: string
+          description: The names of the teams in the lobby

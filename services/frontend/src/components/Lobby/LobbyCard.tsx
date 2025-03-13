@@ -64,10 +64,10 @@ export default function LobbyCard() {
 		</div>
 		<div className='lobby-card-footer flex gap-2'>
 			{ me && lobby.leader_account_id === me.account_id &&
-			<Button className="success">
-				<i className="fa-solid fa-play"></i>
-				Start
-			</Button>
+				<Button className="success">
+					<i className="fa-solid fa-play"></i>
+					Start
+				</Button>
 			}
 			<Button className="danger" onClick={onLeave}>
 				<i className="fa-solid fa-sign-out"></i>

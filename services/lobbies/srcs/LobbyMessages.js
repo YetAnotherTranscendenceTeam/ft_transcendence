@@ -52,3 +52,9 @@ export class LobbyLeaderMessage extends LobbyMessage {
     super("leader_change", {leader_account_id: account_id});
   }
 }
+
+export class TeamNameMessage extends LobbyMessage {
+  constructor(team_index, name) {
+    super("team_name", {team_index, name});
+  }
+}

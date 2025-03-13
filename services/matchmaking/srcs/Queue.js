@@ -23,7 +23,7 @@ export class Queue {
   }
 
   queue(lobby) {
-    console.log(`Queued lobby ${lobby.joinSecret}`);
+    console.log(`Queued lobby ${lobby.join_secret}`);
     this.lobbyConnection.send({
       event: "confirm_queue",
       data: {
@@ -38,7 +38,7 @@ export class Queue {
   }
 
   unqueue(lobby, send = true) {
-    const index = this.lobbies.findIndex((other) => other.joinSecret === lobby.joinSecret);
+    const index = this.lobbies.findIndex((other) => other.join_secret === lobby.join_secret);
     if (index === -1) return;
     if (send)
       this.lobbyConnection.send({
@@ -115,7 +115,7 @@ export class Queue {
     console.log(`Matched lobbies`);
     lobbies.forEach((lobby) => {
       this.unqueue(lobby, false);
-      console.log(` - ${lobby.joinSecret}`);
+      console.log(` - ${lobby.join_secret}`);
     });
     this.lobbyConnection.send({
         event: "match",

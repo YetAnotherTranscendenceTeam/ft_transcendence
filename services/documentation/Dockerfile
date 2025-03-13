@@ -1,6 +1,6 @@
 FROM node:23.7-alpine3.20
 
-WORKDIR /services/swagger/
+WORKDIR /services/documentation/
 COPY . .
 
 RUN npm install

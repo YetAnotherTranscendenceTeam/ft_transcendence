@@ -1,5 +1,4 @@
 import {
-  LobbyCopyMessage,
   LobbyErrorMessage,
   LobbyJoinMessage,
   LobbyLeaveMessage,
@@ -7,10 +6,12 @@ import {
   LobbyStateMessage,
   SwapPlayersMessage,
   LobbyLeaderMessage,
+  TeamNameMessage,
 } from "./LobbyMessages.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
+import { removePlayer } from "yatt-lobbies";
 
 export const LobbyState = {
   waiting: () => ({ type: "waiting", joinable: true }),
@@ -21,24 +22,28 @@ export const LobbyState = {
 // export this to be used when the secret is already used
 export function generateJoinSecret() {
   const SECRET_LENGTH = 8;
-  const SECRET_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
-  let joinSecret = "";
+  const SECRET_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let join_secret = "";
   for (let i = 0; i < SECRET_LENGTH; i++) {
-    joinSecret += SECRET_CHARS.at(Math.floor(Math.random() * SECRET_CHARS.length));
+    join_secret += SECRET_CHARS.at(Math.floor(Math.random() * SECRET_CHARS.length));
   }
-  return joinSecret;
+  return join_secret;
 }
 
 const LOBBY_DESTRUCTION_DELAY = 2000;
 
 export class Lobby {
-  // owner is always the first player
   /**
    * @type {Player[]}
    */
   players = [];
 
-  joinSecret = generateJoinSecret();
+  /**
+   * @type {string[]}
+   */
+  team_names = [];
+
+  join_secret = generateJoinSecret();
 
   mode = Object.values(GameModes)[0];
   state = LobbyState.waiting();
@@ -54,16 +59,26 @@ export class Lobby {
       if (!mode) throw new Error("Invalid gamemode");
       this.mode = mode;
     }
+    this.setGameMode(this.mode);
   }
 
   toJSON() {
     return {
       players: this.players,
-      joinSecret: this.joinSecret,
+      join_secret: this.join_secret,
       mode: this.mode,
       state: this.state,
       leader_account_id: this.leader_account_id,
+      team_names: this.team_names,
     };
+  }
+
+  setTeamName(player, name) {
+    const index = this.players.findIndex((p) => p.account_id == player.account_id);
+    if (index == -1) throw new Error("Player not in lobby");
+    const team_index = index % this.mode.team_count;
+    this.team_names[team_index] = name;
+    this.broadbast(new TeamNameMessage(team_index, name));
   }
 
   isLeader(player) {
@@ -71,10 +86,8 @@ export class Lobby {
   }
 
   setLeader(player) {
-    if (!player)
-      this.leader_account_id = null;
-    else
-      this.leader_account_id = player.account_id;
+    if (!player) this.leader_account_id = null;
+    else this.leader_account_id = player.account_id;
     this.broadbast(new LobbyLeaderMessage(this.leader_account_id));
   }
 
@@ -89,9 +102,9 @@ export class Lobby {
   }
 
   destroy() {
-    console.log(`Lobby ${this.joinSecret} destroyed`);
+    console.log(`Lobby ${this.join_secret} destroyed`);
     if (this.state.type == "queuing") this.unqueue();
-    this.lobbies.delete(this.joinSecret);
+    this.lobbies.delete(this.join_secret);
   }
 
   addPlayer(player) {
@@ -100,16 +113,17 @@ export class Lobby {
       this.destruction_timeout = null;
     }
     if (this.leader_account_id === null) this.setLeader(player);
-    this.players.push(player);
     this.broadbast(new LobbyJoinMessage(player));
+    this.players.push(player);
     player.syncLobby();
   }
 
   removePlayer(player) {
-    this.players = this.players.filter((p) => p != player);
+    const rm_index = this.players.findIndex((p) => p.account_id == player.account_id);
+    if (rm_index == -1) throw new Error("Player not in lobby");
+    if (this.isLeader(player)) this.setLeader(rm_index == 0 ? this.players[1] : this.players[0]);
+    this.players = removePlayer(this.players, this.mode, rm_index);
     if (this.state.type == "queuing") this.unqueue();
-    if (this.isLeader(player))
-      this.setLeader(this.players[0]);
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
   }
@@ -139,15 +153,17 @@ export class Lobby {
     }
   }
 
-  getLobbyCapacity() {
+  getCapacity() {
     return this.mode.getLobbyCapacity();
   }
 
   setGameMode(mode) {
     if (!mode) throw new Error("Invalid gamemode");
-    if (this.players.length > mode.getLobbyCapacity())
+    const lobby_capacity = mode.getLobbyCapacity();
+    if (this.players.length > lobby_capacity)
       throw new Error("Too many players in lobby to change to this gamemode");
     this.mode = mode;
+    this.team_names.length = lobby_capacity / mode.team_size;
     this.broadbast(new LobbyModeMessage(mode));
   }
 
@@ -156,9 +172,13 @@ export class Lobby {
     this.broadbast(new LobbyStateMessage(state));
   }
 
+  isFull() {
+    return this.players.length >= this.getCapacity();
+  }
+
   isJoinable() {
     if (!this.state.joinable) return false;
-    return this.players.length < this.getLobbyCapacity();
+    return this.players.length < this.getCapacity();
   }
 
   matchFound(match) {

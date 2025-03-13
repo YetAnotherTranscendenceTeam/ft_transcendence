@@ -1,53 +1,49 @@
 "use strict";
 
 import { properties } from "yatt-utils";
+import { generateTokens } from "../utils/generate.js";
+import db from "../app/database.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
-    summary: "JWT Generation",
-    description: "Generate a JWT token for a given account ID",
-    tags: ["Access token"],
     params: {
       type: "object",
       properties: {
         account_id: properties.account_id,
       },
       required: ["account_id"],
-    },
-    headers: {
-      type: "object",
-      properties: {
-        Authorization: {
-          type: "string",
-          description: "Bearer token for authentication",
-        },
-      },
-      required: ["Authorization"],
-    },
-    response: {
-      200: {
-        type: "object",
-        properties: {
-          access_token: properties.access_token,
-          refresh_token: properties.access_token,
-          expire_at: properties.expire_at,
-        },
-        required: ["access_token", "refresh_token", "expire_at"],
-      },
-    },
-  };
+      additionalProperties: false,
+  }};
 
-  fastify.post(
-    "/token/:account_id",
-    { schema, preHandler: fastify.verifyBearerAuth },
+  fastify.post("/:account_id", { schema, preHandler: fastify.verifyBearerAuth },
     async function handler(request, reply) {
       const { account_id } = request.params;
 
-      reply.send({
-        access_token: fastify.jwt.sign({ account_id }, { expiresIn: "15m" }),
-        refresh_token: fastify.jwt.sign({ account_id }, { expiresIn: "7d" }),
-        expire_at: new Date(new Date().getTime() + 15 * 60000),
-      });
+      const tokens = generateTokens(fastify, account_id);
+      reply.send(tokens);
+      console.log("AUTH:", { account_id });
+    }
+  );
+
+  schema = {
+    headers: {
+      type: 'object',
+      properties: {
+        'Cookie': { type: 'string' }
+      },
+      required: ['Cookie']
+    },
+  };
+
+  fastify.post("/revoke", { schema }, async function handler(request, reply) {
+      const token = request.cookies.refresh_token;
+
+      reply.clearCookie("refresh_token");
+      const deletion = db.prepare("DELETE FROM refresh_tokens WHERE token = ? RETURNING *").get(token);
+      if (deletion) {
+        console.log("REVOKE:", { account_id: deletion.account_id });
+      }
+      reply.code(204).send();
     }
   );
 

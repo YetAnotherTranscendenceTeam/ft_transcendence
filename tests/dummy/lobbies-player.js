@@ -3,9 +3,9 @@ import request from "superwstest";
 export const lobbiesURL = "http://localhost:4043";
 
 export class Player {
-  constructor(ws, joinSecret, user, lobby) {
+  constructor(ws, join_secret, user, lobby) {
     this.ws = ws;
-    this.joinSecret = joinSecret;
+    this.join_secret = join_secret;
     this.user = user;
     this.lobby = lobby;
   }
@@ -54,49 +54,39 @@ export const createLobby = (user, gamemode) => {
       name: "unranked_2v2",
       team_size: 2,
       team_count: 2,
-      ranked: false,
+      type: "unranked",
     };
   }
   return new Promise((resolve, reject) => {
-    let joinSecret;
+    let join_secret;
     const ws = request(lobbiesURL)
       .ws(`/join?token=${user.jwt}${isGamemodeDefined ? `&gamemode=${gamemode.name}` : ""}`)
       .expectJson((message) => {
-        expect(message.event).toBe("player_join");
-        expect(message.data.player.account_id).toBe(user.account_id);
-      })
-      .expectJson((message) => {
         expect(message.event).toBe("lobby");
         expect(message.data.lobby.players.length).toBe(1);
-        expect(message.data.lobby.joinSecret).toBeDefined();
+        expect(message.data.lobby.join_secret).toBeDefined();
         expect(message.data.lobby.mode).toStrictEqual(gamemode);
         expect(message.data.lobby.leader_account_id).toBe(user.account_id);
         expect(message.data.lobby.state).toStrictEqual({
           type: "waiting",
           joinable: true,
         });
-        joinSecret = message.data.lobby.joinSecret;
-        resolve(new Player(ws, joinSecret, user, message.data.lobby));
+        join_secret = message.data.lobby.join_secret;
+        resolve(new Player(ws, join_secret, user, message.data.lobby));
       });
   });
 };
 
-export const joinLobby = (user, lobbyconnection, expect_join=true) => {
+export const joinLobby = (user, lobbyconnection) => {
   return new Promise((resolve, reject) => {
     const ws = request(lobbiesURL)
-      .ws(`/join?token=${user.jwt}&secret=${lobbyconnection.joinSecret}`);
-    if (expect_join) {
-      ws.expectJson((message) => {
-        expect(message.event).toBe("player_join");
-        expect(message.data.player.account_id).toBe(user.account_id);
-      });
-    }
+      .ws(`/join?token=${user.jwt}&secret=${lobbyconnection.join_secret}`);
     ws.expectJson((message) => {
       expect(message.event).toBe("lobby");
       expect(
         message.data.lobby.players.find((player) => player.account_id === user.account_id)
       ).toBeDefined();
-      resolve(new Player(ws, lobbyconnection.joinSecret, user, message.data.lobby));
+      resolve(new Player(ws, lobbyconnection.join_secret, user, message.data.lobby));
     });
   });
 };

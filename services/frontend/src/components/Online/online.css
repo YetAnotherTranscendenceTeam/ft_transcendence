@@ -70,6 +70,11 @@
 	background: linear-gradient(326deg, rgba(22,255,127,1) 20%, rgba(171,255,22,1) 80%);
 } */
 
+.mode-button.disabled {
+	pointer-events: none;
+	opacity: 0.5;
+}
+
 .mode-button:hover {
 	border: 2px solid var(--primary-color);
 	transform: scale(1.05);

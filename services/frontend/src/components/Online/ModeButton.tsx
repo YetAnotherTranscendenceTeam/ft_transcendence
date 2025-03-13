@@ -3,9 +3,11 @@ import useGamemodes from "../../hooks/useGamemodes";
 
 export default function ModeButton({
 		mode,
+		disabled = false,
 		onSelect
 	}: {
 		mode: string,
+		disabled?: boolean,
 		onSelect: (mode: string) => void
 	}) {
 
@@ -15,7 +17,7 @@ export default function ModeButton({
 		return null;
 	return <div
 		// style={`--image: url(${gamemodes[mode].image})`}
-		className={`mode-button flex items-center justify-center ${gamemodes[mode].type}`}
+		className={`mode-button flex items-center justify-center ${gamemodes[mode].type} ${disabled ? 'disabled' : ''}`}
 		onClick={() => onSelect(mode)}
 	>
 		<h1>{gamemodes[mode].name}</h1>
