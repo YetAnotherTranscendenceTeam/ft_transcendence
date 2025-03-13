@@ -1,4 +1,4 @@
-import { MeshBuilder, Mesh, Scene, StandardMaterial, Color3, PhysicsBody } from "@babylonjs/core";
+import { MeshBuilder, Mesh, Scene, StandardMaterial, Color3 } from "@babylonjs/core";
 import '@babylonjs/loaders';
 import * as BABYLON from '@babylonjs/core';
 
@@ -6,8 +6,6 @@ export default class Wall {
 	private _scene: Scene;
 	private _material: StandardMaterial;
 	private _mesh: Mesh;
-	private _body: PhysicsBody;
-	private _shape: BABYLON.PhysicsShapeSphere;
 	private _position: BABYLON.Vector2;	// x, z (top-down)
 	private _size: BABYLON.Vector2;	// width, depth
 	// private _velocity: BABYLON.Vector2 = new BABYLON.Vector2(0, 0);
@@ -18,18 +16,6 @@ export default class Wall {
 		this._size = size;
 		this.loadMaterial().then(() => {
 			this.createWallModel(name, color);
-			this._shape = new BABYLON.PhysicsShapeBox(new BABYLON.Vector3(0,0,0), new BABYLON.Quaternion(0, 0, 0, 1), new BABYLON.Vector3(this._size.x, 0.1, this._size.y), scene);
-			const material = {friction: 0, restitution: 1};
-			this._shape.material = material;
-			this._body = new PhysicsBody(this._mesh, BABYLON.PhysicsMotionType.STATIC, false, scene);
-			this._body.shape = this._shape;
-			this._body.setMassProperties({
-				mass: 1,
-				centerOfMass: new BABYLON.Vector3(0, 0, 0),
-				inertia: new BABYLON.Vector3(1, 1, 1),
-				inertiaOrientation: new BABYLON.Quaternion(0, 0, 0, 1)
-			});
-			this._body.setLinearDamping(0);
 		});
 	}
 
@@ -42,7 +28,8 @@ export default class Wall {
 		// container.addAllToScene();
 		console.log("Texture loaded successfully.", container);
 		// return container.materials[0] as StandardMaterial;
-		this._material = container.materials[0] as StandardMaterial;
+		this._material = (container.materials[0] as StandardMaterial).clone("wallMaterial");
+		// container.dispose();
 		this._material.backFaceCulling = true;
 	}
 

@@ -1,8 +1,8 @@
 import "@babylonjs/inspector";
-import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Color3, Color4, HavokPlugin, PhysicsAggregate, PhysicsShapeType } from "@babylonjs/core";
+import { Engine, Scene, Camera, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Color3, Color4 } from "@babylonjs/core";
 import Ball from "./Ball";
 import Wall from "./Wall";
-import HavokPhysics from "@babylonjs/havok";
+import { CellMaterial } from "@babylonjs/materials";
 
 export default function createGameScene(canvas: HTMLCanvasElement, engine: Engine) : Scene {
 	const scene: Scene = new Scene(engine);
@@ -14,18 +14,23 @@ export default function createGameScene(canvas: HTMLCanvasElement, engine: Engin
 	cameraTopDown.lowerRadiusLimit = 1.5;
 	cameraTopDown.upperRadiusLimit = 10;
 	cameraTopDown.wheelPrecision = 50;
+	// cameraTopDown.mode = Camera.ORTHOGRAPHIC_CAMERA;
+	// const width = 3 * 1.5;
+
+	// cameraTopDown.orthoLeft = (-1.2 * width) / 2;
+	// cameraTopDown.orthoRight = -cameraTopDown.orthoLeft;
+	// const ratio = canvas.height / canvas.width;
+	// if (cameraTopDown.orthoLeft && cameraTopDown.orthoRight) {
+	// 	cameraTopDown.orthoTop = cameraTopDown.orthoRight * ratio;
+	// 	cameraTopDown.orthoBottom = cameraTopDown.orthoLeft * ratio;
+	// }
+
 	const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
-
-	const hk : HavokPlugin = new HavokPlugin();
-
-	scene.enablePhysics(new Vector3(0, 0, 0), hk);
 
 	const sphere: Ball = new Ball(scene);
 
 	const wall1: Wall = new Wall(scene, "wall1", new Vector2(0, 1.5), new Vector2(4, 0.1));
 	const wall2: Wall = new Wall(scene, "wall2", new Vector2(0, -1.5), new Vector2(4, 0.1));
-
-	sphere.launch();
 
 	// scene.autoClear = false;
 	// scene.clearColor = Color4.FromColor3(Color3.Black());
