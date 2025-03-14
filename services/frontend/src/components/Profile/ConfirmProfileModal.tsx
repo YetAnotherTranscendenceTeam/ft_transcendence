@@ -38,7 +38,7 @@ export default function ConfirmProfileModal({ ...props}) {
 				field='profile-username'
 				label='Username'
 				required
-				maxlength={12}
+				maxlength={15}
 				defaultValue={me.username}
 			/>
 

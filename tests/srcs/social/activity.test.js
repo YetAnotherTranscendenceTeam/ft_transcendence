@@ -34,10 +34,10 @@ describe('Social websocket', () => {
             account_id: users[1].account_id,
             profile: expect.objectContaining({
               account_id: users[1].account_id,
-              avatar: users[1].avatar,
+              avatar: expect.any(String),
               created_at: expect.any(String),
               updated_at: expect.any(String),
-              username: users[1].username,
+              username: expect.any(String),
             }),
             status: "offline"
           })

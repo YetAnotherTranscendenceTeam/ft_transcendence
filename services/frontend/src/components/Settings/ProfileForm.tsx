@@ -30,7 +30,7 @@ export default function ProfileForm({ me }: { me: any }) {
 				type='text'
 				defaultValue={me.username}
 				placeholder={me.username}
-				maxlength={12}
+				maxlength={15}
 			/>
 			<ImageSelector
 				field="profile-avatar"

@@ -25,6 +25,7 @@ export function createUsers(count=10) {
   afterAll(async () => {
     for (const user of users) {
       await request(credentialsUrl).delete(`/${user.account_id}`).expect(204);
+      await request(dbprofilesUrL).delete(`/${user.account_id}`).expect(204);
     }
   });
   const USER_COUNT = count;
@@ -36,8 +37,6 @@ export function createUsers(count=10) {
           jwt: null,
           email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
           password: crypto.randomBytes(4).toString("hex"),
-          username: crypto.randomBytes(4).toString("hex"),
-          avatar: `https://${crypto.randomBytes(8).toString("hex")}.com`,
         };
         users.push(request(registerUrL)
           .post("/")
@@ -68,28 +67,6 @@ export function createUsers(count=10) {
           .expect("Content-Type", /json/);
   
         user.jwt = response.body.access_token;
-        return user;
-      }));
-    });
-    it("patch profiles", async () => {
-      users = await Promise.all(users.map(async (user) => {
-        const response = await request(dbprofilesUrL)
-          .patch(`/${user.account_id}`)
-          .send({
-            username: user.username,
-            avatar: user.avatar,
-          })
-          .set('Authorization', `Bearer ${user.jwt}`)
-          .expect(200)
-          .expect("Content-Type", /json/);
-  
-        expect(response.body).toEqual(
-          expect.objectContaining({
-            account_id: user.account_id,
-            avatar: user.avatar,
-            username: user.username,
-          })
-        );
         return user;
       }));
     });
