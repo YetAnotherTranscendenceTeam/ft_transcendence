@@ -5,12 +5,14 @@ export default function Avatar({
 		src,
 		name,
 		status,
+		children,
 		...props
 	}: {
 		className?: string,
 		src?: string,
 		name?: string,
 		status?: string,
+		children?: any,
 		[key: string]: any
 	}) {
 
@@ -36,5 +38,6 @@ export default function Avatar({
 			e.target.style.display = 'none';
 		}}/>
 		{status && <span style={`background-color: var(--success-color);`} />}
+		{children && <div  className='avatar-children'>{children}</div>}
 	</div>
 }

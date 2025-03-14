@@ -1,8 +1,16 @@
 import Babact from "babact";
 import Card from "../../ui/Card";
 import Avatar from "../../ui/Avatar";
-import useRef from "babact/dist/hooks/useRef";
-import useEffect from "babact/dist/hooks/useEffect";
+import Button from "../../ui/Button";
+
+
+function LobbyPlayerCardContent({player, isLeader}) {
+	return <div className='flex flex-row gap-2 items-center'>
+		<Avatar src={player.profile?.avatar} name={player.profile?.username}/>
+		{player.profile?.username}
+		{isLeader && <i className="fa-solid fa-crown"></i>}
+	</div>
+}
 
 export default function LobbyPlayerCard({
 		player,
@@ -37,12 +45,7 @@ export default function LobbyPlayerCard({
 				className={`lobby-player-card flex flex-row gap-2 items-center justify-between draggable ${dragging ? 'dragging' : ''}`}
 				style={`--x: ${position.x}px; --y: ${position.y}px;`}
 				>
-				<div className='flex flex-row gap-2 items-center'>
-					<Avatar src={player.profile?.avatar} name={player.profile?.username}/>
-					{player.profile?.username}
-					{isLeader && <i className="fa-solid fa-crown"></i>}
-				</div>
-				<i className="fa-solid fa-grip-vertical"></i>
+				<LobbyPlayerCardContent player={player} isLeader={isLeader}/>
 			</Card>
 		</div>
 
@@ -51,12 +54,8 @@ export default function LobbyPlayerCard({
 	>
 		<Card
 			className={`lobby-player-card flex flex-row gap-2 items-center justify-between`}
-			>
-			<div className='flex flex-row gap-2 items-center'>
-				<Avatar src={player.profile?.avatar} name={player.profile?.username}/>
-				{player.profile?.username}
-				{isLeader && <i className="fa-solid fa-crown"></i>}
-			</div>
+		>
+			<LobbyPlayerCardContent player={player} isLeader={isLeader}/>
 		</Card>
 	</div>
 }

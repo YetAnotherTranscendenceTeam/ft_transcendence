@@ -116,6 +116,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		setLobby(null);
 		if (e.code === 1008)
 			createToast(e.reason, 'danger');
+		else if (e.code === 1000)
+			createToast('Kicked from lobby', 'danger', 10000);
 	};
 
 	const onError = (error: any) => {
@@ -176,6 +178,16 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}));
 	};
 
+	const kickPlayer = (player: number) => {
+		console.log('kick', player)
+		ws.send(JSON.stringify({
+			event: 'kick',
+			data: {
+				account_id: player
+			}
+		}));
+	};
+
 
 	useEffect(() => {
 		const lobby = localStorage.getItem('lobby');
@@ -198,7 +210,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				swapPlayers,
 				changeMode,
 				queueStart,
-				queueStop
+				queueStop,
+				kickPlayer
 			}}
 		>
 			{children}
@@ -214,7 +227,8 @@ export const useLobby = (): {
 	swapPlayers: (player1: number, player2: number) => void,
 	changeMode: (mode: string) => void,
 	queueStart: () => void,
-	queueStop: () => void
+	queueStop: () => void,
+	kickPlayer: (player: number) => void
 } => {
 	return Babact.useContext(LobbyContext);
 };

@@ -33,6 +33,26 @@
 	}
 }
 
+
+.lobby-card .avatar .kick-button {
+	opacity: 0;
+	background: #00000080;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	border-radius: 4px;
+	transition: opacity 0.3s;
+}
+
+.lobby-card .avatar .kick-button i {
+	font-size: xx-large;
+	color: var(--danger-color);
+}
+
+.lobby-card .avatar:hover .kick-button {
+	opacity: 1;
+}
+
 /* =============== List =============== */
 
 .lobby-teams {
@@ -75,8 +95,6 @@
 	}
 }
 
-
-
 .lobby-team {
 	width: 100%;
 	height: fit-content;
@@ -103,11 +121,11 @@
 
 .lobby-player-card.draggable {
 	cursor: grab;
-
 }
 
 .lobby-player-card {
 	width: 100%;
+	position: relative;
 }
 
 .lobby-player-card div {
@@ -133,7 +151,6 @@
 .lobby-player-card .fa-crown {
 	color: var(--warning-color);
 }
-
 
 .lobby-team .card.empty {
 	background-color: var(--bg-1);

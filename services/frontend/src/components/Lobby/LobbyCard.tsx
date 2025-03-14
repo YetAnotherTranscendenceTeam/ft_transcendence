@@ -12,7 +12,7 @@ import { GameMode } from "yatt-lobbies";
 
 export default function LobbyCard() {
 
-	const { lobby, leave, queueStart, queueStop } = useLobby();
+	const { lobby, leave, queueStart, queueStop, kickPlayer } = useLobby();
 
 	const navigate = useNavigate();
 
@@ -50,11 +50,20 @@ export default function LobbyCard() {
 			{lobby.players.map((player: any, i) => {
 				if (player.profile)
 					return <Avatar
-						key={i}
-						src={player.profile.avatar}
-						name={player.profile.username}
-						className={player.account_id === lobby.leader_account_id ? 'leader' : ''}
-					/>
+							key={i}
+							src={player.profile.avatar}
+							name={player.profile.username}
+							className={player.account_id === lobby.leader_account_id ? 'leader' : ''}
+						>
+							{ me && lobby.leader_account_id === me.account_id && player.account_id !== me.account_id &&
+								<Button
+									className="kick-button icon ghost"
+									onClick={() => kickPlayer(player.account_id)}
+								>
+									<i className="fa-solid fa-ban"></i>
+								</Button>}
+						</Avatar>
+			
 			})}
 		</div>
 		<div className='lobby-card-footer flex gap-2'>
