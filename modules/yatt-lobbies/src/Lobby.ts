@@ -11,8 +11,14 @@ export interface IPlayer {
   };
 }
 
+export enum LobbyStateType {
+  WAITING = "waiting",
+  QUEUED = "queued",
+  PLAYING = "playing",
+}
+
 export interface ILobbyState {
-  type: "waiting" | "queued" | "playing";
+  type: LobbyStateType;
   joinable: boolean;
   stats?: {
     players: number;
