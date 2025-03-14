@@ -129,7 +129,7 @@ export class Lobby {
   }
 
   // swaps the positions of 2 players
-  swapPlayers({ account_ids }) {
+  swapPlayers(sender, { account_ids }) {
     const indexes = [];
     if (!Array.isArray(account_ids) || account_ids.length != 2)
       throw new Error("Expected element 'indexes' to be an array of 2 element");
@@ -139,6 +139,10 @@ export class Lobby {
       let index = this.players.findIndex((p) => p.account_id == account_id);
       if (index == -1) throw new Error("Account_id is not part of this lobby");
       indexes.push(index);
+    }
+    if (!this.isLeader(sender)) {
+      if (!account_ids.includes(sender.account_id) || indexes[0] % this.mode.team_count != indexes[1] % this.mode.team_count)
+        throw new Error("Non-leaders can only swap themselves with another player from their team");
     }
     // swap players with a temp value
     let player = this.players[indexes[0]];
