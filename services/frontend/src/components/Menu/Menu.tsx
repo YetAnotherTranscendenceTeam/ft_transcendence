@@ -6,6 +6,7 @@ import Card from "../../ui/Card";
 import { Link } from "babact-router-dom";
 import Button from "../../ui/Button";
 import PopHover from "../../ui/PopHover";
+import { useLobby } from "../../contexts/useLobby";
 
 export default function Menu({
 		selected,
@@ -17,6 +18,8 @@ export default function Menu({
 
 	const {me} = useAuth();
 
+	const { lobby } = useLobby();
+
 	return <Card className={`menu left flex flex-col items-center justify-center gap-2`}>
 
 			<Link to='/local' className='button ghost'>
@@ -24,11 +27,13 @@ export default function Menu({
 			</Link>
 
 			<Button
-				disabled={!me}
+				disabled={!me || (lobby && lobby.leader_account_id !== me.account_id)}
 				className={`button ghost ${selected === 'online' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'online' ? 'online' : null)}
 			>
-				<PopHover content={!me ? 'You must be logged in' : ''} className="flex items-center">
+				<PopHover content={
+					!me ? 'You must be logged in'
+					: (lobby && lobby.leader_account_id !== me.account_id) ? 'You are not the lobby leader' : ''} className="flex items-center">
 					<i className="fa-solid fa-globe"></i><p>Online</p>
 				</PopHover>
 			</Button>

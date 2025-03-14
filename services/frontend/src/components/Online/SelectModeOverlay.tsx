@@ -12,14 +12,19 @@ export default function SelectModeOverlay({
 		onClose,
 	}) {
 
-	const {create, join} = useLobby();
+	const {create, join, lobby, changeMode } = useLobby();
+
 
 	const onSelect = (mode) => {
-		create(mode);
+		if (lobby)
+			changeMode(mode);
+		else
+			create(mode);
 		onClose();
 	};
 
 	useEscape(isOpen, onClose);
+
 
 	return <div className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}>
 		<div className='online-select-overlay-content flex flex-col'>

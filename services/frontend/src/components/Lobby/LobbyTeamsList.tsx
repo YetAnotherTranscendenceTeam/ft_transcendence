@@ -4,9 +4,9 @@ import LobbyPlayerCard from "./LobbyPlayerCard";
 import { useLobby } from "../../contexts/useLobby";
 import { useAuth } from "../../contexts/useAuth";
 
-export default function LobbyTeamsList({lobby}) {
+export default function LobbyTeamsList() {
 
-	const { swapPlayers } = useLobby();
+	const { swapPlayers, lobby } = useLobby();
 	const switchingPlayer = Babact.useRef(null);
 	
 	const [players, setPlayers] = Babact.useState(lobby.players);
@@ -16,7 +16,7 @@ export default function LobbyTeamsList({lobby}) {
 	const { me } = useAuth();
 
 	const createTeam = () => {
-		const nb_teams = Math.max(2, Math.min(lobby.players.length / lobby.mode.team_size, lobby.mode.team_count));
+		const nb_teams = Math.max(lobby.mode.type === 'ranked' ? 1 : 2, Math.min(lobby.players.length / lobby.mode.team_size, lobby.mode.team_count));
 		const teams = new Array(nb_teams).fill(null).map(() => []);
 		players.forEach((player, i) => {
 			teams[i % nb_teams].push(player);
@@ -26,7 +26,8 @@ export default function LobbyTeamsList({lobby}) {
 
 	Babact.useEffect(() => {
 		setTeams(createTeam());
-	}, [players]);
+		console.log('create team', createTeam());
+	}, [players, lobby]);
 
 	Babact.useEffect(() => {
 		setPlayers(lobby.players);

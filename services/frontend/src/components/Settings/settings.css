@@ -1,4 +1,5 @@
 .settings {
+	z-index: 100;
 	position: absolute;
 	top: 0;
 	left: calc(-600px);

@@ -21,8 +21,6 @@ export default function LobbyCard() {
 
 	const onLeave = () => {
 		leave();
-		if (window.location.pathname.startsWith('/lobby'))
-			navigate('/');
 	}
 
 	if (lobby)
@@ -36,7 +34,7 @@ export default function LobbyCard() {
 				{ !window.location.pathname.startsWith('/lobby')  &&
 					<Button
 						className="icon primary"
-						onClick={() => navigate(`/lobby/${lobby.joinSecret}`)}
+						onClick={() => navigate(`/lobby/${lobby.join_secret}`)}
 					>
 						<i className="fa-solid fa-square-arrow-up-right"></i>
 					</Button>
