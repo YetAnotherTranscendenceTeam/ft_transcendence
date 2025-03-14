@@ -33,13 +33,15 @@ export default function Overlay({
 			<div className='template-content'>
 				{children}
 			</div>
-			<aside className='aside flex flex-col gap-4'>
-				{lobby && <LobbyCard/>}
-				{me ? <ProfileCard me={me}/> : <AuthCard/>}
+			<header className='header flex gap-4 items-center justify-center'>
 				<Menu
 					selected={selected}
 					setSelected={setSelected}
 				/>
+			</header>
+			<aside className='aside flex flex-col gap-4'>
+				{lobby && <LobbyCard/>}
+				{me ? <ProfileCard me={me}/> : <AuthCard/>}
 			</aside>
 		</div>
 }

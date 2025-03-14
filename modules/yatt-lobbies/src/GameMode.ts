@@ -41,6 +41,10 @@ export class GameMode implements IGameMode {
   }
 
   getLobbyCapacity(): number {
-    return this.type === "ranked" ? this.team_size : this.team_size * this.team_count;
+    return this.type === GameModeType.RANKED ? this.team_size : this.team_size * this.team_count;
+  }
+
+  getDisplayName(): string {
+    return this.team_size + "v" + this.team_size;
   }
 }

@@ -35,6 +35,6 @@ export default function Avatar({
 		<img key={src} src={src} alt="avatar" onError={(e) => {
 			e.target.style.display = 'none';
 		}}/>
-		<span style={`background-color: var(--success-color);`} />
+		{status && <span style={`background-color: var(--success-color);`} />}
 	</div>
 }

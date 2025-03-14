@@ -1,43 +1,29 @@
-
-const gamemodes = {
-	'ranked_1v1': {
-		name: '1v1',
-		type: 'ranked',
-		team_size: 1,
-		team_count: 1,
-	},
-	'ranked_2v2': {
-		name: '2v2',
-		type: 'ranked',
-		team_size: 2,
-		team_count: 1,
-	},
-	'unranked_1v1': {
-		name: '1v1',
-		type: 'unranked',
-		team_size: 1,
-		team_count: 2,
-	},
-	'unranked_2v2': {
-		name: '2v2',
-		type: 'unranked',
-		team_size: 2,
-		team_count: 2,
-	},
-	'tournament_1v1': {
-		name: '1v1',
-		type: 'tournament',
-		team_size: 1,
-		team_count: 16,
-	},
-	'tournament_2v2': {
-		name: '2v2',
-		type: 'tournament',
-		team_size: 2,
-		team_count: 16,
-	}
-}
+import useEffect from "babact/dist/hooks/useEffect";
+import useFetch from "./useFetch";
+import Babact from "babact";
+import config from "../config";
+import { GameMode } from "yatt-lobbies";
 
 export default function useGamemodes() {
+
+	const { ft_fetch } = useFetch();
+
+	const [gamemodes, setGamemodes] = Babact.useState(null);
+
+	const fetchGamemodes = async () => {
+		const res = await ft_fetch(`${config.API_URL}/lobbies/gamemodes`);
+		const gamemodes = [];
+		if (res) {
+			Object.keys(res).forEach((key) => {
+				gamemodes.push(new GameMode(res[key]));
+			});
+		}
+		setGamemodes(gamemodes);
+	}
+
+	useEffect(() => {
+		fetchGamemodes();
+	}, []);
+
 	return gamemodes;
 }

@@ -6,6 +6,9 @@ import { Form } from "../../contexts/useForm";
 import Input from "../../ui/Input";
 import Submit from "../../ui/Submit";
 import useEscape from "../../hooks/useEscape";
+import Button from "../../ui/Button";
+import useGamemodes from "../../hooks/useGamemodes";
+import { GameMode } from "yatt-lobbies";
 
 export default function SelectModeOverlay({
 		isOpen,
@@ -26,18 +29,28 @@ export default function SelectModeOverlay({
 	useEscape(isOpen, onClose);
 
 
-	return <div className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}>
+	const gamemodes: GameMode[] = useGamemodes();
+	
+	if (!gamemodes) return <div>Loading...</div>;
+
+	return <div
+		className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}
+		onClick={(e) => e.target === e.currentTarget && onClose()}
+	>
+		<Button onClick={onClose} className='close icon ghost'><i className="fa-solid fa-xmark"></i></Button>
 		<div className='online-select-overlay-content flex flex-col'>
 			<div className='mode-buttons flex flex-col'>
 				<div className='flex flex-row gap-4'>
-					<ModeButton mode='ranked_1v1' onSelect={onSelect} />
-					<ModeButton mode='unranked_1v1' onSelect={onSelect} />
-					<ModeButton mode='tournament_1v1' onSelect={onSelect} />
+					{
+						gamemodes.filter((mode) => mode.team_size === 1).map((mode, i) => (
+							<ModeButton gamemode={mode} onSelect={onSelect} />))
+					}
 				</div>
 				<div className='flex flex-row gap-4'>
-					<ModeButton mode='ranked_2v2' onSelect={onSelect} />
-					<ModeButton mode='unranked_2v2' onSelect={onSelect} />
-					<ModeButton mode='tournament_2v2' onSelect={onSelect} />
+					{
+						gamemodes.filter((mode) => mode.team_size === 2).map((mode, i) => (
+							<ModeButton gamemode={mode} onSelect={onSelect} />))
+					}
 				</div>
 			</div>
 		</div>
@@ -54,5 +67,5 @@ export default function SelectModeOverlay({
 				<i className="fa-solid fa-arrow-right-to-bracket"></i> Join
 			</Submit>
 		</Form>
-	</div>	
+	</div>
 }

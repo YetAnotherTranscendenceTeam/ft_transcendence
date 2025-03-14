@@ -1,28 +1,24 @@
 import Babact from "babact";
-import useGamemodes from "../../hooks/useGamemodes";
 import { useLobby } from "../../contexts/useLobby";
+import { GameMode } from "yatt-lobbies";
 
 export default function ModeButton({
-		mode,
+		gamemode,
 		onSelect
 	}: {
-		mode: string,
+		gamemode: GameMode,
 		onSelect: (mode: string) => void
 	}) {
 
 	const { lobby } = useLobby();
 
-	const gamemodes = useGamemodes();
 
-	
-	if (!gamemodes[mode])
-		return null;
-	const disabled = (lobby && gamemodes[mode].team_size * gamemodes[mode].team_count < lobby.players.length) || lobby?.mode.name === mode;
+	const disabled = (lobby && gamemode.getLobbyCapacity() < lobby.players.length) || lobby?.mode.name === gamemode.name;
 	return <div
-		className={`mode-button flex items-center justify-center ${gamemodes[mode].type} ${disabled ? 'disabled' : ''}`}
-		onClick={() => onSelect(mode)}
+		className={`mode-button flex items-center justify-center ${gamemode.type} ${disabled ? 'disabled' : ''}`}
+		onClick={() => onSelect(gamemode.name)}
 	>
-		<h1>{gamemodes[mode].name}</h1>
-		<p>{gamemodes[mode].type}</p>
+		<h1>{gamemode.getDisplayName()}</h1>
+		<p>{gamemode.type}</p>
 	</div>
 }

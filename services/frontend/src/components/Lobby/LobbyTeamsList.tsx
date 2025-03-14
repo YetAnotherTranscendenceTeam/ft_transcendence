@@ -26,7 +26,6 @@ export default function LobbyTeamsList() {
 
 	Babact.useEffect(() => {
 		setTeams(createTeam());
-		console.log('create team', createTeam());
 	}, [players, lobby]);
 
 	Babact.useEffect(() => {
@@ -118,7 +117,7 @@ export default function LobbyTeamsList() {
 						player={player}
 					/>
 				))}
-				{new Array(lobby.mode.team_size - team.length).fill(null).map((_, index) => (
+				{new Array(Math.max(lobby.mode.team_size - team.length, 0)).fill(null).map((_, index) => (
 					<Card key={'empty-'+index} className='empty flex flex-row gap-2 items-center'>
 					</Card>
 				))}

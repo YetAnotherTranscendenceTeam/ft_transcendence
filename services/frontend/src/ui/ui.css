@@ -541,8 +541,8 @@
 	color: var(--fg-1);
 	border-radius: 4px;
 	padding: 8px;
-	max-width: 200px;
-	min-width: 100px;
+	width: fit-content;
+	min-width: 150px;
 	display: none;
 	z-index: 1000;
 	opacity: 0;

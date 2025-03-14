@@ -4,7 +4,8 @@ import config from "../config";
 import useEffect from "babact/dist/hooks/useEffect";
 import useToast from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
-import useGamemodes from "../hooks/useGamemodes";
+
+import { GameMode, ILobby, removePlayer } from "yatt-lobbies";
 
 const LobbyContext = Babact.createContext();
 
@@ -15,21 +16,26 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const navigate = useNavigate();
 
-	const gamemodes = useGamemodes();
+	const onStateChange = (state: any) => {
+		if (state.type === 'playing')
+			createToast('Match found', 'info');
+		setLobby((lobby: ILobby) => (lobby && {
+			...lobby,
+			state
+		}));
+	};
 
 	const onModeChange = (mode: any) => {
-		createToast(`Mode changed to ${gamemodes[mode.name].name}`, 'info');
-		setLobby((lobby) => (lobby && {
+		const newMode = new GameMode(mode);
+		createToast(`Gamemode changed to ${newMode.getDisplayName()}`, 'info');
+		setLobby((lobby: ILobby) => (lobby && {
 			...lobby,
-			mode: {
-				...mode,
-				team_count: mode.type === 'ranked' ? 1 : mode.team_count
-			}
+			mode: newMode
 		}));
 	};
 
 	const onLeaderChange = (leader_account_id: any) => {
-		setLobby((lobby) => (lobby && {
+		setLobby((lobby: ILobby) => (lobby && {
 			...lobby,
 			leader_account_id
 		}));
@@ -37,31 +43,19 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const onPlayerJoin = (player: any) => {
 		createToast(`${player.profile?.username} joined the lobby`, 'info');
-		setLobby((lobby) => (lobby && {
+		setLobby((lobby: ILobby) => (lobby && {
 			...lobby,
 			players: [...lobby.players, player]
 		}));
 	};
 
 	const onPlayerLeave = (player: any) => {
-		setLobby((lobby) => (lobby && {
+		setLobby((lobby: ILobby) => (lobby && {
 			...lobby,
-			players: lobby.players.filter((p: any) => p.account_id !== player.account_id)
+			players: removePlayer(lobby.players, lobby.mode, lobby.players.findIndex((p) => p.account_id === player.account_id))
 		}));
 	};
-
-	const onPlayerConnect = (lobby) => {
-		console.log('lobby', lobby.join_secret)
-		localStorage.setItem('lobby', lobby.join_secret);
-		setLobby({
-			...lobby,
-			mode: {
-				...lobby.mode,
-				team_count: lobby.mode.type === 'ranked' ? 1 : lobby.mode.team_count
-			}
-		});
-	}
-
+	
 	const onPlayerSwap = ([id1, id2]) => {
 		setLobby((lobby) => {
 			const newPlayers = [...lobby.players];
@@ -77,7 +71,14 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			};
 		});
 	}
-
+	const onPlayerConnect = (lobby: ILobby) => {
+		localStorage.setItem('lobby', lobby.join_secret);
+		setLobby({
+			...lobby,
+			mode: new GameMode(lobby.mode),
+		});
+	}
+	
 	const onMessage = (message: string) => {
 		const msg = JSON.parse(message);
 		console.log('onMessage', msg)
@@ -101,6 +102,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}
 		else if (msg.event === 'mode_change') {
 			onModeChange(msg.data.mode);
+		}
+		else if (msg.event === 'state_change') {
+			onStateChange(msg.data.state);
 		}
 	};
 
@@ -133,7 +137,22 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	};
 
 	const leave = () => {
+		ws.send(JSON.stringify({
+			event: 'disconnect'
+		}));
 		ws.disconnect();
+	};
+
+	const queueStart = () => {
+		ws.send(JSON.stringify({
+			event: 'queue_start'
+		}));
+	};
+
+	const queueStop = () => {
+		ws.send(JSON.stringify({
+			event: 'queue_stop'
+		}));
 	};
 
 	const swapPlayers = (player1: any, player2: any) => {
@@ -178,6 +197,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				leave,
 				swapPlayers,
 				changeMode,
+				queueStart,
+				queueStop
 			}}
 		>
 			{children}
@@ -185,6 +206,15 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	);
 };
 
-export const useLobby = () => {
+export const useLobby = (): {
+	lobby: ILobby,
+	create: (mode: string) => void,
+	join: (id: string) => void,
+	leave: () => void,
+	swapPlayers: (player1: number, player2: number) => void,
+	changeMode: (mode: string) => void,
+	queueStart: () => void,
+	queueStop: () => void
+} => {
 	return Babact.useContext(LobbyContext);
 };

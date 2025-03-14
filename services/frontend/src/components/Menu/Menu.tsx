@@ -20,11 +20,14 @@ export default function Menu({
 
 	const { lobby } = useLobby();
 
-	return <Card className={`menu left flex flex-col items-center justify-center gap-2`}>
+	return <Card className={`menu bottom flex items-center justify-center gap-2`}>
 
-			<Link to='/local' className='button ghost'>
-				<i className="fa-solid fa-network-wired"></i><p>Local</p>
-			</Link>
+			<Button
+				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}
+				onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}
+			>
+				<i className="fa-solid fa-sliders"></i><p>Settings</p>
+			</Button>
 
 			<Button
 				disabled={!me || (lobby && lobby.leader_account_id !== me.account_id)}
@@ -33,16 +36,13 @@ export default function Menu({
 			>
 				<PopHover content={
 					!me ? 'You must be logged in'
-					: (lobby && lobby.leader_account_id !== me.account_id) ? 'You are not the lobby leader' : ''} className="flex items-center">
+					: (lobby && lobby.leader_account_id !== me.account_id) ? 'You must be leader of the lobbby' : ''} className="flex items-center">
 					<i className="fa-solid fa-globe"></i><p>Online</p>
 				</PopHover>
 			</Button>
 
-			<Button
-				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}
-				onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}
-			>
-				<i className="fa-solid fa-sliders"></i><p>Settings</p>
-			</Button>
+			<Link to='/local' className='button ghost'>
+				<i className="fa-solid fa-network-wired"></i><p>Local</p>
+			</Link>
 		</Card>
 }

@@ -9,6 +9,7 @@ import jwt from "@fastify/jwt";
 import { jwt_secret, matchmaking_jwt_secret } from "./env.js";
 import { fetchGameModes, GameModes } from "../GameModes.js";
 import MatchmakingConnection from "../MatchmakingConnection.js";
+import cors from "@fastify/cors";
 
 export default function build(opts = {}) {
 	const app = Fastify(opts);
@@ -18,16 +19,10 @@ export default function build(opts = {}) {
 	});
 
   if (process.env.ENV !== "production") {
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Lobbies",
-        description: "Service for managing game lobbies",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4043", description: "Development network" },
-        { url: "http://lobbies:3000", description: "Containers network" },
-      ],
+    app.register(cors, {
+      origin: true,
+      methods: ["GET", "POST", "PATCH", "DELETE"], // Allowed HTTP methods
+      credentials: true, // Allow credentials (cookies, authentication)
     });
   }
   app.register(jwt, {
