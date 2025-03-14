@@ -1,6 +1,6 @@
 import { IGameMode, GameMode, GameModeType } from './GameMode';
-import { IPlayer } from './Lobby';
-export { IGameMode, GameMode, GameModeType, IPlayer };
+import { IPlayer, LobbyStateType } from './Lobby';
+export { IGameMode, GameMode, GameModeType, LobbyStateType, IPlayer };
 export { ILobbyState, ILobby } from './Lobby';
 
 export function removePlayer(players: IPlayer[], mode: IGameMode, rm_index: number): IPlayer[] {

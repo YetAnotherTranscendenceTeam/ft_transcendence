@@ -11,12 +11,12 @@ import {
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
-import { removePlayer } from "yatt-lobbies";
+import { removePlayer, LobbyStateType } from "yatt-lobbies";
 
 export const LobbyState = {
-  waiting: () => ({ type: "waiting", joinable: true }),
-  queued: (stats) => ({ type: "queued", joinable: false, stats }),
-  playing: (match) => ({ type: "playing", joinable: false, match }),
+  waiting: () => ({ type: LobbyStateType.WAITING, joinable: true }),
+  queued: (stats) => ({ type: LobbyStateType.QUEUED, joinable: false, stats }),
+  playing: (match) => ({ type: LobbyStateType.PLAYING, joinable: false, match }),
 };
 
 // export this to be used when the secret is already used
@@ -103,7 +103,7 @@ export class Lobby {
 
   destroy() {
     console.log(`Lobby ${this.join_secret} destroyed`);
-    if (this.state.type == "queuing") this.unqueue();
+    if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
     this.lobbies.delete(this.join_secret);
   }
 
@@ -123,7 +123,7 @@ export class Lobby {
     if (rm_index == -1) throw new Error("Player not in lobby");
     if (this.isLeader(player)) this.setLeader(rm_index == 0 ? this.players[1] : this.players[0]);
     this.players = removePlayer(this.players, this.mode, rm_index);
-    if (this.state.type == "queuing") this.unqueue();
+    if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
   }
