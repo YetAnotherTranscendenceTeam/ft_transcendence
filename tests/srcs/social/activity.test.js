@@ -7,7 +7,6 @@ const mainUrl = "https://127.0.0.1:7979";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 describe('Social websocket', () => {
-
   it("connect / disconnect", async () => {
     const ws = await request(socialUrl)
       .ws(`/notify?access_token=${users[0].jwt}`)
@@ -24,12 +23,24 @@ describe('Social websocket', () => {
       .set('Authorization', `Bearer ${users[0].jwt}`)
       .expect(204);
 
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     const ws = await request(socialUrl)
       .ws(`/notify?access_token=${users[0].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
         expect(message.data.follows).toEqual([
-          { id: users[1].account_id, status: "offline" },
+          expect.objectContaining({
+            account_id: users[1].account_id,
+            profile: expect.objectContaining({
+              account_id: users[1].account_id,
+              avatar: users[1].avatar,
+              created_at: expect.any(String),
+              updated_at: expect.any(String),
+              username: users[1].username,
+            }),
+            status: "offline"
+          })
         ])
       })
       .sendJson({ event: "goodbye" });
@@ -48,13 +59,21 @@ describe('Social websocket', () => {
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
         expect(message.data.follows).toEqual(
-          expect.arrayContaining(
-            users.slice(1).map(u => ({
-              id: u.account_id,
+          expect.arrayContaining([
+            expect.objectContaining({
+              account_id: expect.any(Number),
+              profile: expect.objectContaining({
+                account_id: expect.any(Number),
+                avatar: expect.any(String),
+                created_at: expect.any(String),
+                updated_at: expect.any(String),
+                username: expect.any(String),
+              }),
               status: "offline"
-            }))
-          )
+            })
+          ])
         );
+        // Ensure the length of follows matches the expected number
         expect(message.data.follows.length).toBe(users.length - 1);
       })
       .sendJson({ event: "goodbye" });

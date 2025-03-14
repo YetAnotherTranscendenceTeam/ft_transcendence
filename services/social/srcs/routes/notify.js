@@ -37,20 +37,21 @@ export default function router(fastify, opts, done) {
       fastify.clients.disconnect(client, socket, fastify.clients);
     });
 
-    // socket.on('message', message => {
-    //   try {
-    //     const payload = JSON.parse(message);
-    //     console.log("RECIEVED:", payload);
-    //     if (payload.event === "goodbye") {
-    //       socket.close(1000, "Normal Closure");
-    //     } else if (payload.event === "status" && statuses.find(status => status === payload.data)) {
-    //       client.status = payload.data;
-    //       fastify.clients.broadcastStatus(client)
-    //     }
-    //   } catch (err) {
-    //     console.error(err);
-    //   }
-    // })
+    socket.on('message', message => {
+      try {
+        const payload = JSON.parse(message);
+        console.log("RECIEVED:", payload);
+        if (payload.event === "goodbye") {
+          socket.close(1000, "Normal Closure");
+        }
+        // else if (payload.event === "status" && statuses.find(status => status === payload.data)) {
+        //   client.status = payload.data;
+        //   fastify.clients.broadcastStatus(client)
+        // }
+      } catch (err) {
+        console.error(err);
+      }
+    })
 
     try {
       await client.welcome(fastify.clients, socket);

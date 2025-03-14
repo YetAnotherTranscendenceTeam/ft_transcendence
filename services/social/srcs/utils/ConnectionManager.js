@@ -27,7 +27,6 @@ export class ConnectionManager {
       client.disconnectTimeout = setTimeout(() => {
         clients.broadcastStatus(client, "offline");
         this.map.delete(account_id);
-        console.log("Client permanently removed:", account_id);
       }, 10000);
       console.log("GOING OFFLINE:", { account_id, in: 10000 });
     }

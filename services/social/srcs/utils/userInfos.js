@@ -9,7 +9,6 @@ export async function userInfos(account_id, clients) {
   try {
     user.profile = await YATT.fetch(`http://db-profiles:3000/${account_id}`)
   } catch (err) {
-    console.log('userinfo');
     console.error(err);
   }
   return user;
