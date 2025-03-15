@@ -24,10 +24,10 @@ export class PolygonShape extends Shape {
 			}
 		} else {
 			this._vertices = new Array<Vec2>();
-			this._vertices.push(Vec2.fromValues(-arg.halfWidth, -arg.halfHeight));
-			this._vertices.push(Vec2.fromValues(arg.halfWidth, -arg.halfHeight));
-			this._vertices.push(Vec2.fromValues(arg.halfWidth, arg.halfHeight));
 			this._vertices.push(Vec2.fromValues(-arg.halfWidth, arg.halfHeight));
+			this._vertices.push(Vec2.fromValues(arg.halfWidth, arg.halfHeight));
+			this._vertices.push(Vec2.fromValues(arg.halfWidth, -arg.halfHeight));
+			this._vertices.push(Vec2.fromValues(-arg.halfWidth, -arg.halfHeight));
 		}
 		this._normals = new Array<Vec2>();
 		for (let i = 0; i < this._vertices.length; i++) {
@@ -36,7 +36,7 @@ export class PolygonShape extends Shape {
 			if (Vec2.squaredLength(n) <= EPSILON) {
 				throw new Error("Vertices must not be coincident");
 			}
-			Vec2.normalize(n, n);
+			Vec2.normalize(n, Vec2.fromValues(-n.y, n.x));
 			if (n.x <= EPSILON) {
 				n.x = 0;
 			}
