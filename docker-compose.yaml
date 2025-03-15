@@ -196,12 +196,15 @@ services:
       - ./modules/:/modules:ro
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
       - 127.0.0.1:4004:3000
     networks:
       - settings
       - avatars
       - db-profiles
+      - credentials
+      - tokens
 
   avatars:
     build:

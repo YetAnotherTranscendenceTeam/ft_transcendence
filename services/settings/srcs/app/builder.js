@@ -5,8 +5,9 @@ import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
+import cookie from "@fastify/cookie";
 import router from "./router.js";
-import YATT, { HttpError } from "yatt-utils";
+import { HttpError } from "yatt-utils";
 import { jwt_secret } from "./env.js";
 
 export default function build(opts = {}) {
@@ -46,6 +47,7 @@ export default function build(opts = {}) {
 
   app.register(jwt, { secret: jwt_secret });
   app.register(formbody);
+  app.register(cookie);
 
   app.register(router);
 

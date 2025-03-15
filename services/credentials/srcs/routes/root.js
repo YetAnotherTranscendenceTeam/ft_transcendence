@@ -112,10 +112,7 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.delete(
-    "/:account_id",
-    { schema },
-    async function handler(request, reply) {
+  fastify.delete("/:account_id", { schema }, async function handler(request, reply) {
       const { account_id } = request.params;
 
       const result = db
