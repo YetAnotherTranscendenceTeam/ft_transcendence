@@ -101,7 +101,7 @@ export class Body {
 		this.integrateForces(dt, gravity);
 	}
 
-	public resetForce(): void {
+	public resetForces(): void {
 		Vec2.set(this._force, 0, 0);
 		this._torque = 0;
 	}
