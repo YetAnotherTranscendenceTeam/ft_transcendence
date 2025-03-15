@@ -37,9 +37,9 @@ server {
 	}
 
 	location /register {
-		rewrite ^/register/(.*)$ /$1 break;
-		proxy_pass http://registration:3000;
-	}
+	    rewrite ^/register(.*)$ /$1 break;
+        proxy_pass http://registration:3000;
+    }
 
 	location /auth {
 		proxy_set_header Host $host;
@@ -47,7 +47,7 @@ server {
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header X-Forwarded-Proto $scheme;
 
-		rewrite ^/auth/(.*)$ /$1 break;
+        rewrite ^/auth(.*)$ /$1 break;
 
 		proxy_pass http://password-auth:3000;
 	}
@@ -63,9 +63,24 @@ server {
 	}
 
 	location /users {
-		rewrite ^/users/(.*)$ /$1 break;
+		rewrite ^/users(.*)$ /$1 break;
 		proxy_pass http://users:3000;
 	}
+
+    location /lobbies/ {
+        rewrite ^/lobbies/(.*)$ /$1 break;
+        proxy_pass http://lobbies:3000;
+
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # ==== For ws ====
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        # ================
+    }
 
 	location /me {
 		proxy_pass http://users:3000;

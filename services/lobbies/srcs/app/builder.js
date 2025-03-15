@@ -5,12 +5,17 @@ import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket'
 import router from "./router.js";
 import YATT, {HttpError} from "yatt-utils";
-import bearerAuth from "@fastify/bearer-auth";
 import jwt from "@fastify/jwt";
-import { jwt_secret } from "./env.js";
+import { jwt_secret, matchmaking_jwt_secret } from "./env.js";
+import { fetchGameModes, GameModes } from "../GameModes.js";
+import MatchmakingConnection from "../MatchmakingConnection.js";
 
 export default function build(opts = {}) {
-  const app = Fastify(opts);
+	const app = Fastify(opts);
+	fetchGameModes().then(() => {
+		MatchmakingConnection.instance = new MatchmakingConnection(app);
+
+	});
 
   if (process.env.ENV !== "production") {
     YATT.setUpSwagger(app, {
@@ -25,30 +30,13 @@ export default function build(opts = {}) {
       ],
     });
   }
-
-  const serviceAuthorization = (token, request) => {
-    if (request.url == "/api-docs") return true;
-
-    try {
-      const decoded = app.jwt.verify(token)
-      request.account_id = decoded.account_id;
-    } catch (err) {
-      return false;
-    }
-    return true;
-  };
-
-  app.register(bearerAuth, {
-    auth: serviceAuthorization,
-    addHook: true,
-    errorResponse: (err) => {
-      return new HttpError.Unauthorized().json();
-    },
-  });
-
   app.register(jwt, {
     secret: jwt_secret,
   });
+  app.register(jwt, {
+	secret: matchmaking_jwt_secret,
+	namespace: "matchmaking"
+  })
   app.register(fastifyFormbody);
   app.register(websocket);
 

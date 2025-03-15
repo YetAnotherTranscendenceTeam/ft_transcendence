@@ -14,7 +14,7 @@ generate_or_use_existing_key() {
     # Check if the key already has a value in the environment
     if [ ! -z "${!key}" ]; then
         echo "$key=\"${!key}\"" >> "$TMP_FILE"
-        printf "%-${padding_length}s ✅\n" "- $key"
+        echo "- ✅ $key"
         export $key="${!key}"
     else
         # If no value is provided, prompt the user for input
@@ -25,7 +25,7 @@ generate_or_use_existing_key() {
 
         # Write the key-value pair to the environment file
         echo "$key=\"$value\"" >> "$TMP_FILE"
-        printf "%-${padding_length}s 🆕\n" "- $key"
+        echo "- 🆕 $key"
         export $key="${value}"
     fi
 }
@@ -43,10 +43,10 @@ generate() {
 
     # Write the key-value pair to the environment file
     echo "$key=\"$value\"" >> "$TMP_FILE"
-    if [ ${value} == ${!key} ]; then
-        printf "%-${padding_length}s ✅\n" "- $key"
+    if [[ -z "${!key}" || "${value}" != "${!key}" ]]; then
+        echo "- 🆕 $key"
     else
-        printf "%-${padding_length}s 🆕\n" "- $key"
+        echo "- ✅ $key"
     fi
     export $key="${value}"
 }
@@ -58,6 +58,7 @@ secret_keys=( \
     "TOKEN_MANAGER_SECRET" \
     "CDN_JWT_SECRET" \
     "PASSWORD_PEPPER" \
+    "MATCHMAKING_JWT_SECRET" \
 )  
 
 echo "[SECRETS]"
@@ -79,10 +80,14 @@ generate BACKEND_URL "https://${HOST}:7979"
 generate FRONTEND_URL "https://${HOST}:8080"
 generate CDN_URL "https://${HOST}:8181"
 
+
 printf "\n[42API OAuth]\n"
 generate_or_use_existing_key API42_CLIENT_ID ""
 generate_or_use_existing_key API42_SECRET ""
 generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
 echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
+
+printf "\n[MISC PARAMETERS] \n"
+generate MATCHMAKING_SCHEDULER_DELAY "100"
 
 mv $TMP_FILE $ENV_FILE

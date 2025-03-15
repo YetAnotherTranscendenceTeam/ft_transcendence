@@ -8,6 +8,7 @@ services:
       - frontend
       - avatars
       - settings
+      - documentation
       - social
     environment:
       - NGINX_HOST=localhost
@@ -121,6 +122,8 @@ services:
       - db-profiles
 
   lobbies:
+    depends_on:
+      - matchmaking
     build:
       context: services/lobbies/
       dockerfile: Dockerfile.dev
@@ -129,9 +132,29 @@ services:
       - ./modules/:/modules:ro
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
     ports:
       - "127.0.0.1:4043:3000"
-    # networks:
+    networks:
+      - frontend
+      - db-profiles
+
+  matchmaking:
+    build:
+      context: services/matchmaking/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/matchmaking/srcs:/services/matchmaking/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
+      - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
+    ports:
+      - "127.0.0.1:4044:3000"
+    networks:
+      - frontend
 
 
   db-profiles:
@@ -174,12 +197,15 @@ services:
       - ./modules/:/modules:ro
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
       - 127.0.0.1:4004:3000
     networks:
       - settings
       - avatars
       - db-profiles
+      - credentials
+      - tokens
 
   avatars:
     build:
@@ -219,20 +245,20 @@ services:
       - db-profiles
 
 
-  swagger:
+  documentation:
     build:
-      context: services/swagger/
+      context: services/documentation/
       dockerfile: Dockerfile.dev
     volumes:
       - ./documentation/:/documentation/:ro
-      - ./services/swagger/srcs:/services/swagger/srcs
+      - ./services/documentation/srcs:/services/documentation/srcs
       - ./modules/:/modules:ro
     environment:
       - BACKEND_URL=${BACKEND_URL}
     ports:
       - 42000:3000
     networks:
-      - swagger
+      - documentation
 
   cdn-nginx:
     build: services/CDN/nginx/
@@ -276,6 +302,8 @@ networks:
     driver: bridge
   settings:
     driver: bridge
+  documentation:
+    driver: bridge
   avatars:
     driver: bridge
   social:
@@ -287,7 +315,7 @@ networks:
 
   cdn-test:
     driver: bridge
-
+    
 volumes:
   avatars:
 

@@ -6,6 +6,7 @@ import useEffect from "./hooks/useEffect";
 import useState from "./hooks/useState";
 import useContext from "./hooks/useContext";
 import createContext from "./hooks/createContext";
+import useRef from "./hooks/useRef";
 
 const Babact = {
 	createElement,
@@ -14,6 +15,7 @@ const Babact = {
 	useState,
 	useEffect,
 	useContext,
+	useRef,
 	createContext
 }
 export default Babact;
