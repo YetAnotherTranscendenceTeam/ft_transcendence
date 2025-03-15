@@ -4,11 +4,14 @@ import crypto from "crypto";
 import request from "supertest";
 import Fastify from "fastify";
 import jwt from "@fastify/jwt"
+import { apiURL } from "../URLs";
 
 const app = Fastify();
 app.register(jwt, {
   secret: process.env.JWT_SECRET
 })
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const registerUrL = "http://127.0.0.1:4012";
 const credentialsUrl = "http://127.0.0.1:7002";
@@ -24,7 +27,10 @@ export let users = [];
 export function createUsers(count=10) {
   afterAll(async () => {
     for (const user of users) {
-      await request(credentialsUrl).delete(`/${user.account_id}`).expect(204);
+      await request(apiURL)
+        .delete(`/settings/account`)
+        .set("Authorization", `Bearer ${user.jwt}`)
+        .expect(204);
     }
   });
   const USER_COUNT = count;

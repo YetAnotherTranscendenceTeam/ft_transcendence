@@ -83,7 +83,7 @@ components:
               - expire_at
 
 paths:
-  /register/:
+  /register:
     post:
       summary: account registration
       description: Create a new account using an email address and a password
@@ -109,7 +109,7 @@ paths:
         401:
           description: Failure
 
-  /auth/:
+  /auth:
     post:
       summary: login
       description: Authenticate using an email address and a password
@@ -328,7 +328,7 @@ paths:
   /settings/profile:
     patch:
       summary: profile modification
-      description: Modify the profile associated with the JWT bearer
+      description: Modify the profile associated with the access_token bearer
       tags:
         - Settings
       requestBody:
@@ -353,5 +353,17 @@ paths:
           description: Invalid avatar
         409:
           description: Username already in use
+      security:
+        - JWT: []
+  
+  /settings/account:
+    delete:
+      summary: account deletion
+      description: Delete everything related to the access_token bearer
+      tags:
+        - Settings
+      responses:
+        204:
+          description: Sucessfull profile deletion
       security:
         - JWT: []

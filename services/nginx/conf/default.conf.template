@@ -37,7 +37,7 @@ server {
     }
 
     location /register {
-        rewrite ^/register/(.*)$ /$1 break;
+        rewrite ^/register(.*)$ /$1 break;
         proxy_pass http://registration:3000;
     }
 
@@ -47,7 +47,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        rewrite ^/auth/(.*)$ /$1 break;
+        rewrite ^/auth(.*)$ /$1 break;
 
         proxy_pass http://password-auth:3000;
     }
