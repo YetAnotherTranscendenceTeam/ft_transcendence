@@ -2,9 +2,51 @@
 
 import { HttpError, objects, properties } from "yatt-utils";
 import db from "../app/database.js";
+import { generateUsername } from "../utils/generateUsername.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
+    querystring: {
+      type: "object",
+      properties: {
+        limit: properties.limit,
+        offset: properties.offset,
+        filter: {
+          type: "object",
+          properties: {
+            username: { type: "string" },
+          },
+          additionalProperties: false,
+        }
+      },
+      additionalProperties: false,
+    },
+  };
+
+  fastify.get("/", { schema }, async function handler(request, reply) {
+    console.log(request.query);
+    const { limit, offset, filter = {} } = request.query;
+    const { username } = filter;
+
+    let sql = "SELECT * FROM profiles";
+    const params = [];
+
+    if (username) {
+      sql += " WHERE INSTR(LOWER(username), LOWER(?)) > 0";
+      params.push(username);
+    }
+
+    sql += " LIMIT ? OFFSET ?";
+    params.push(limit, offset);
+
+    try {
+      const profiles = db.prepare(sql).all(...params);
+      console.log(profiles);
+      reply.send(profiles);
+    } catch (err) {console.log(err)};
+  });
+
+  schema = {
     tags: ["Profiles"],
     summary: "Get a profile",
     description: "Retrieve a user profile by account ID",
@@ -35,10 +77,7 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.get(
-    "/:account_id",
-    { schema },
-    async function handler(request, reply) {
+  fastify.get("/:account_id", { schema }, async function handler(request, reply) {
       const { account_id } = request.params;
 
       const profile = db
@@ -74,15 +113,21 @@ export default function router(fastify, opts, done) {
   fastify.post("/", { schema }, async function handler(request, reply) {
     const { account_id } = request.body;
 
-    try {
-      const profile = db
-        .prepare("INSERT INTO profiles (account_id, avatar) VALUES (?, ?) RETURNING *")
-        .get(account_id, fastify.defaultAvatar);
-      reply.code(201).send(profile);
-    } catch (err) {
-      if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") new HttpError.Conflict().send(reply);
-      else throw err;
+    for (let i = 0; i < 5; ++i) {
+      try {
+        const profile = db
+          .prepare("INSERT INTO profiles (account_id, username, avatar) VALUES (?, ?, ?) RETURNING *")
+          .get(account_id, generateUsername() ,fastify.defaultAvatar);
+        reply.code(201).send(profile);
+      } catch (err) {
+        if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
+          return new HttpError.Conflict().send(reply);
+        } else if (err.code !== "SQLITE_CONSTRAINT_UNIQUE") {
+          throw err;
+        }
+      }
     }
+    new HttpError.ServiceUnavailable().send(reply);
   });
 
   schema = {

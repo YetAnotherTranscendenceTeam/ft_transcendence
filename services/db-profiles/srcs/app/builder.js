@@ -12,8 +12,6 @@ export default function build(opts = {}) {
 
   if (process.env.ENV !== "production") {
     // DEVELOPEMENT configuration
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-
     YATT.setUpSwagger(app, {
       info: {
         title: "[PLACEHOLDER]",
@@ -27,9 +25,7 @@ export default function build(opts = {}) {
     });
   }
 
-  app.register(jwt, {
-    secret: cdn_jwt_secret,
-  })
+  app.register(jwt, { secret: cdn_jwt_secret })
   app.register(formbody);
 
   app.register(router);
