@@ -14,7 +14,7 @@ generate_or_use_existing_key() {
     # Check if the key already has a value in the environment
     if [ ! -z "${!key}" ]; then
         echo "$key=\"${!key}\"" >> "$TMP_FILE"
-        printf "%-${padding_length}s ✅\n" "- $key"
+        echo "- ✅ $key"
         export $key="${!key}"
     else
         # If no value is provided, prompt the user for input
@@ -25,7 +25,7 @@ generate_or_use_existing_key() {
 
         # Write the key-value pair to the environment file
         echo "$key=\"$value\"" >> "$TMP_FILE"
-        printf "%-${padding_length}s 🆕\n" "- $key"
+        echo "- 🆕 $key"
         export $key="${value}"
     fi
 }
@@ -43,7 +43,11 @@ generate() {
 
     # Write the key-value pair to the environment file
     echo "$key=\"$value\"" >> "$TMP_FILE"
-    printf "%-${padding_length}s 🆕\n" "- $key"
+    if [[ -z "${!key}" || "${value}" != "${!key}" ]]; then
+        echo "- 🆕 $key"
+    else
+        echo "- ✅ $key"
+    fi
     export $key="${value}"
 }
 
@@ -71,9 +75,6 @@ fi
 
 HOST=$(hostname | cut -d'.' -f1)
 
-echo "\n[MISC PARAMETERS] \n"
-generate MATCHMAKING_SCHEDULER_DELAY "100"
-
 printf "\n[URLs]\n"
 generate BACKEND_URL "https://${HOST}:7979"
 generate FRONTEND_URL "https://${HOST}:8080"
@@ -86,5 +87,7 @@ generate_or_use_existing_key API42_SECRET ""
 generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
 echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
 
+printf "\n[MISC PARAMETERS] \n"
+generate MATCHMAKING_SCHEDULER_DELAY "100"
 
 mv $TMP_FILE $ENV_FILE
