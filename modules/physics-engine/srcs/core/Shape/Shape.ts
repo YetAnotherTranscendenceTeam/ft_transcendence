@@ -10,5 +10,5 @@ export abstract class Shape {
 	public abstract clone(): Shape;
 	public abstract computeMass(density: number): MassData;
 	public abstract setOrientation(radians: number): void;
-	public abstract type(): ShapeType;
+	public abstract get type(): ShapeType;
 }

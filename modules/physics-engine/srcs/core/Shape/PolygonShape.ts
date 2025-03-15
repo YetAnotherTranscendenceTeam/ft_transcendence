@@ -1,6 +1,7 @@
 import { Shape, ShapeType } from "./Shape";
 import { MassData } from "../properties";
 import { Vec2, Mat2 } from "gl-matrix";
+import { EPSILON } from 'gl-matrix/common';
 
 export class PolygonShape extends Shape {
 	private readonly _vertices: Array<Vec2>;
@@ -32,14 +33,14 @@ export class PolygonShape extends Shape {
 		for (let i = 0; i < this._vertices.length; i++) {
 			const n = Vec2.create();
 			Vec2.subtract(n, this._vertices[(i + 1) % this._vertices.length], this._vertices[i]);
-			if (Vec2.squaredLength(n) <= Number.EPSILON) {
+			if (Vec2.squaredLength(n) <= EPSILON) {
 				throw new Error("Vertices must not be coincident");
 			}
 			Vec2.normalize(n, n);
-			if (n.x <= Number.EPSILON) {
+			if (n.x <= EPSILON) {
 				n.x = 0;
 			}
-			if (n.y <= Number.EPSILON) {
+			if (n.y <= EPSILON) {
 				n.y = 0;
 			}
 			this._normals.push(n);
@@ -110,7 +111,7 @@ export class PolygonShape extends Shape {
 		return bestVertex;
 	}
 
-	public type(): ShapeType {
+	public get type(): ShapeType {
 		return ShapeType.POLYGON;
 	}
 

@@ -26,7 +26,7 @@ export class CircleShape extends Shape {
 
 	public setOrientation(radians: number): void {}
 
-	public type(): ShapeType {
+	public get type(): ShapeType {
 		return ShapeType.CIRCLE;
 	}
 

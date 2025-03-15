@@ -1,4 +1,4 @@
-export const EPSILON = 0.0001;
+// export const EPSILON = 0.0001;
 
 export type Material = {
   density: number;
