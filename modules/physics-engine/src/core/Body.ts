@@ -1,5 +1,5 @@
-import { Shape } from "./Shape/Shape";
-import { MassData, Material, PhysicsType } from "./properties";
+import { Shape } from "./Shape/Shape.js";
+import { MassData, Material, PhysicsType } from "./properties.js";
 import { Vec2 } from "gl-matrix";
 
 export class Body {

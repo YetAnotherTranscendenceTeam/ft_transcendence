@@ -3,6 +3,7 @@ import { Engine, Scene, Camera, ArcRotateCamera, Vector2, Vector3, HemisphericLi
 import Ball from "./Ball";
 import Wall from "./Wall";
 import { CellMaterial } from "@babylonjs/materials";
+import { CircleShape, Body } from "physics-engine";
 
 export default function createGameScene(canvas: HTMLCanvasElement, engine: Engine) : Scene {
 	const scene: Scene = new Scene(engine);
@@ -24,6 +25,9 @@ export default function createGameScene(canvas: HTMLCanvasElement, engine: Engin
 	// 	cameraTopDown.orthoTop = cameraTopDown.orthoRight * ratio;
 	// 	cameraTopDown.orthoBottom = cameraTopDown.orthoLeft * ratio;
 	// }
+
+	const circle: CircleShape = new CircleShape(1);
+	console.log(circle);
 
 	const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
 

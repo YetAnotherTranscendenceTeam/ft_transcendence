@@ -1,8 +1,8 @@
-import { Body } from './Body';
+import { Body } from './Body.js';
 import { Vec2 } from "gl-matrix";
-import { COLLISION_CALLBACKS } from './Collision';
+import { COLLISION_CALLBACKS } from './Collision.js';
 import { EPSILON } from 'gl-matrix/common';
-import { PhysicsType } from './properties';
+import { PhysicsType } from './properties.js';
 
 function floatEqual(a: number, b: number): boolean {
 	return Math.abs(a - b) < EPSILON;

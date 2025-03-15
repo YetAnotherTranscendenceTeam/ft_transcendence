@@ -1,5 +1,5 @@
-import { Shape, ShapeType } from './Shape';
-import { MassData } from '../properties';
+import { Shape, ShapeType } from './Shape.js';
+import { MassData } from '../properties.js';
 
 export class CircleShape extends Shape {
 	private readonly _radius: number;

@@ -1,5 +1,5 @@
-import { Shape, ShapeType } from "./Shape";
-import { MassData } from "../properties";
+import { Shape, ShapeType } from "./Shape.js";
+import { MassData } from "../properties.js";
 import { Vec2, Mat2 } from "gl-matrix";
 import { EPSILON } from 'gl-matrix/common';
 

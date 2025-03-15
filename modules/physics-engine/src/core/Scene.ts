@@ -1,5 +1,5 @@
-import { Body } from "./Body";
-import { Manifold } from "./Manifold";
+import { Body } from "./Body.js";
+import { Manifold } from "./Manifold.js";
 import { Vec2 } from 'gl-matrix';
 
 export class Scene {

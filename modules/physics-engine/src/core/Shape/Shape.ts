@@ -1,4 +1,4 @@
-import { MassData } from '../properties'
+import { MassData } from '../properties.js'
 
 export enum ShapeType {
 	CIRCLE = 0,

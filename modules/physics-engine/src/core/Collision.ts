@@ -1,10 +1,10 @@
 import { Vec2, Mat2 } from 'gl-matrix';
-import { ShapeType } from './Shape/Shape';
-import { CircleShape } from './Shape/CircleShape';
-import { PolygonShape } from './Shape/PolygonShape';
-import { Body } from './Body';
-import type { Manifold } from './Manifold';
-import { PhysicsType } from './properties';
+import { ShapeType } from './Shape/Shape.js';
+import { CircleShape } from './Shape/CircleShape.js';
+import { PolygonShape } from './Shape/PolygonShape.js';
+import { Body } from './Body.js';
+import type { Manifold } from './Manifold.js';
+import { PhysicsType } from './properties.js';
 import { EPSILON } from 'gl-matrix/common';
 
 export type CollisionCallback = (manifold: Manifold, bodyA: Body, bodyB: Body) => void;
