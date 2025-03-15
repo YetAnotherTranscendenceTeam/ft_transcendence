@@ -83,7 +83,7 @@ components:
               - expire_at
 
 paths:
-  /register/:
+  /register:
     post:
       summary: account registration
       description: Create a new account using an email address and a password
@@ -109,7 +109,7 @@ paths:
         401:
           description: Failure
 
-  /auth/:
+  /auth:
     post:
       summary: login
       description: Authenticate using an email address and a password

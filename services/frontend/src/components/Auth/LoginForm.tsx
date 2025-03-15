@@ -24,7 +24,7 @@ export default function LoginForm({
 	const handleSubmit = async (fields, clear) => {
 		const { 'login-email': email, 'login-password': password } = fields;
 
-		const response = await ft_fetch(`${config.API_URL}/auth/`, {
+		const response = await ft_fetch(`${config.API_URL}/auth`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
