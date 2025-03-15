@@ -74,7 +74,7 @@ describe('Account Deletion', () => {
 
     expect(response.status).toBe(201);
     expect(response.body).toHaveProperty('url');
-    dummy.uploadedAvatar = response.body.url;
+    dummy.uploadedAvatar = response.body.url.replace("cdn-nginx", "localhost");
   });
 
   it("test avatar url", async () => {
