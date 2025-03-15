@@ -1,5 +1,5 @@
 import request from "supertest";
-import { createUsers, users } from "../../dummy/dummy-accounts";
+import { createUsers, users } from "../../dummy/dummy-account";
 
 createUsers(4);
 

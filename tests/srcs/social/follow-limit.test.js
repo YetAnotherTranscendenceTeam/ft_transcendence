@@ -1,5 +1,5 @@
 import request from "supertest";
-import { createUsers, users } from "../../dummy/dummy-accounts";
+import { createUsers, users } from "../../dummy/dummy-account";
 
 const MAX_FOLLOWS = 50;
 createUsers(MAX_FOLLOWS + 2);

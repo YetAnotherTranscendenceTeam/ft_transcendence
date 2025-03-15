@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { createUsers, users } from "../../dummy/dummy-accounts";
+import { createUsers, users } from "../../dummy/dummy-account";
 
 createUsers(5);
 const socialUrl = 'ws://127.0.0.1:4123';

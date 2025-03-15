@@ -1,9 +1,9 @@
 import request from "supertest";
-import { dummy } from "../../dummy/one-dummy";
 import { avatarPNG } from "./b64avatars.js";
+import { apiURL } from "../../URLs.js";
+import { createUsers, users } from "../../dummy/dummy-account.js";
 
-const baseUrl = 'https://127.0.0.1:7979'
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+createUsers(1);
 
 describe('Avatar Creation and Deletion', () => {
   const createdAvatars = [];
@@ -11,9 +11,9 @@ describe('Avatar Creation and Deletion', () => {
   it('should create 5 avatars and then delete them', async () => {
     // Create 5 avatars
     for (let i = 0; i < 5; i++) {
-      const response = await request(baseUrl)
+      const response = await request(apiURL)
         .post('/avatars')
-        .set("Authorization", `Bearer ${dummy.jwt}`)
+        .set("Authorization", `Bearer ${users[0].jwt}`)
         .set('Content-Type', 'text/plain')
         .send(avatarPNG);
 
@@ -31,17 +31,17 @@ describe('Avatar Creation and Deletion', () => {
 
     // Delete each avatar
     for (const url of createdAvatars) {
-      const deleteResponse = await request(baseUrl)
+      const deleteResponse = await request(apiURL)
         .delete(`/avatars?url=${encodeURIComponent(url)}`)
-        .set("Authorization", `Bearer ${dummy.jwt}`);
+        .set("Authorization", `Bearer ${users[0].jwt}`);
 
       expect(deleteResponse.status).toBe(204);
     }
 
     // Verify all avatars are deleted
-    const finalResponse = await request(baseUrl)
+    const finalResponse = await request(apiURL)
       .get("/avatars")
-      .set('Authorization', `Bearer ${dummy.jwt}`);
+      .set('Authorization', `Bearer ${users[0].jwt}`);
 
     expect(finalResponse.status).toBe(200);
     expect(finalResponse.body.user.length).toBe(0);
