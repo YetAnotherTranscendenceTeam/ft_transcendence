@@ -32,8 +32,10 @@ export class ConnectionManager {
     const { account_id } = client;
 
     if (!client.deleteSocket(socket)) {
-      client.disconnectTimeout = setTimeout(() => {
+      if (client.inactiveTimeout) {
         clearTimeout(client.inactiveTimeout);
+      }
+      client.disconnectTimeout = setTimeout(() => {
         client.status = "offline"
         clients.broadcastStatus(client);
         this.map.delete(account_id);

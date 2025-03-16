@@ -38,7 +38,7 @@ export default function router(fastify, opts, done) {
     socket.on('message', message => {
       try {
         const payload = JSON.parse(message);
-        console.log("RECIEVED:", payload);
+        console.log("RECIEVED:", { account_id: client.account_id, ...payload});
         if (payload.event === "goodbye") {
           socket.close(1000, "Normal Closure");
         } else if (payload.event === "status" || payload.event === "ping") {

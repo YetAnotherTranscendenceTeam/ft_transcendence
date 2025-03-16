@@ -2,7 +2,7 @@ import db from "../app/database.js";
 import { inactivity_delay } from "../app/env.js";
 import { userInfos } from "./userInfos.js";
 
-const statuses = ['online', 'offline', 'inactive', 'playing'];
+const statuses = ['online', 'offline', 'ingame'];
 
 export class Client {
   account_id;
@@ -96,18 +96,24 @@ export class Client {
     this.sockets.forEach(socket => socket.ping());
   }
 
-  setStatus(newStatus) {
+  setStatus(status) {
     const oldStatus = this.status;
+    const newStatus = statuses.find(s => s === status) ? status : "online"
 
-    if (this.inactiveTimeout && this.status !== "inactive") {
+    // Cancel inactivity timeout
+    if (this.inactiveTimeout) {
       clearTimeout(this.inactiveTimeout);
-    } else {
-      this.status = statuses.find(status => status === newStatus) ? newStatus : "online"
     }
+    // Set new activity status
+    this.status = newStatus;
+
+    // Set inactivity timeout
     this.inactiveTimeout = setTimeout(() => {
       this.status = "inactive";
       this.allClients.broadcastStatus(this);
     }, inactivity_delay);
+
+    // Broadcast to followers if status changed
     if (oldStatus !== this.status) {
       this.allClients.broadcastStatus(this);
     }
