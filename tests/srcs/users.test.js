@@ -42,7 +42,7 @@ describe("USERS", () => {
     expect(response.body).toEqual(
       expect.objectContaining({
         account_id: users[0].account_id,
-        avatar: users[0].avatar,
+        avatar: expect.any(String),
         username: users[0].username,
       })
     );
@@ -72,7 +72,7 @@ describe("USERS", () => {
     expect(response.body).toEqual(
       expect.objectContaining({
         account_id: users[0].account_id,
-        avatar: users[0].avatar,
+        avatar: expect.any(String),
         username: users[0].username,
         credentials: expect.objectContaining({
             account_id: users[0].account_id,

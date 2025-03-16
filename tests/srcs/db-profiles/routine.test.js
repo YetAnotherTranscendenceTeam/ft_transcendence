@@ -69,8 +69,7 @@ describe("Profile creation routine", () => {
   })
 
   const dummyProfile = {
-    account_id: parseInt(Math.random() * 10000000 + 1000000),
-    username: crypto.randomBytes(5).toString("hex"),
+    account_id: parseInt(Math.random() * 10000000 + 1000000)
   };
 
   it("sucessfull profile creation", async () => {

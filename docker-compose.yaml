@@ -238,11 +238,14 @@ services:
       - ./sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
+      - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
     ports:
       - 127.0.0.1:4123:3000
     networks:
       - social
       - db-profiles
+      - settings
 
 
   documentation:

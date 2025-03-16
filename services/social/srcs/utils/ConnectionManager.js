@@ -1,4 +1,5 @@
 import db from "../app/database.js";
+import { offline_delay } from "../app/env.js";
 import { Client } from "./Client.js";
 
 export class ConnectionManager {
@@ -11,12 +12,19 @@ export class ConnectionManager {
   connect(socket, account_id) {
     let client = this.map.get(account_id);
     if (client) {
+      if (client.sockets.size >= 5) {
+        throw new Error(`Connection limit exceeded for account ${account_id}`)
+      }
       client.addSocket(socket);   
       clearTimeout(client.disconnectTimeout);
+      if (client.status === "inactive") {
+        client.status = "online";
+      }
     } else {
-      client = new Client(socket, account_id);
+      client = new Client(socket, account_id, this);
       this.map.set(account_id, client);
     }
+    
     return client;
   }
 
@@ -25,20 +33,22 @@ export class ConnectionManager {
 
     if (!client.deleteSocket(socket)) {
       client.disconnectTimeout = setTimeout(() => {
-        clients.broadcastStatus(client, "offline");
+        clearTimeout(client.inactiveTimeout);
+        client.status = "offline"
+        clients.broadcastStatus(client);
         this.map.delete(account_id);
-      }, 10000);
-      console.log("GOING OFFLINE:", { account_id, in: 10000 });
+      }, offline_delay);
+      console.log("GOING OFFLINE:", { account_id, in: offline_delay });
     }
   }
 
   #getFollowers = db.prepare(`SELECT account_id FROM follows WHERE following = ?`);
 
-  broadcastStatus(target, status = target.status) {
-    console.log("STATUS CHANGE:", { account_id: target.account_id, status });
+  broadcastStatus(target) {
+    console.log("STATUS CHANGE:", { account_id: target.account_id, status: target.status });
     const followers = this.#getFollowers.all(target.account_id);
     followers.forEach(follower => {
-      this.map.get(follower.account_id)?.statusUpdate(target.account_id, status);
+      this.map.get(follower.account_id)?.statusUpdate(target.account_id, target.status);
     });
   }
 

@@ -6,7 +6,7 @@ const profilesURL = "http://127.0.0.1:7001"
 describe("/usernames/:username", () => {
   const dummyProfile = {
     account_id: parseInt(Math.random() * 10000000 + 1000000),
-    username: crypto.randomBytes(5).toString("hex"),
+    username: `jest-${crypto.randomBytes(5).toString("hex")}`,
   };
 
   it("create dummy profile", async () => {

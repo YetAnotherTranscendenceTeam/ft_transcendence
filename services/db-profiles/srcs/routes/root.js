@@ -39,11 +39,8 @@ export default function router(fastify, opts, done) {
     sql += " LIMIT ? OFFSET ?";
     params.push(limit, offset);
 
-    try {
-      const profiles = db.prepare(sql).all(...params);
-      console.log(profiles);
-      reply.send(profiles);
-    } catch (err) {console.log(err)};
+    const profiles = db.prepare(sql).all(...params);
+    reply.send(profiles);
   });
 
   schema = {

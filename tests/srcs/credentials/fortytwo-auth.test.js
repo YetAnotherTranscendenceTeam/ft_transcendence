@@ -142,8 +142,8 @@ describe("fortytwo-auth", () => {
         .randomBytes(10)
         .toString("hex")}@jest.com`,
       intra_user_id: Math.floor(Math.random() * 2000000),
-      username: crypto.randomBytes(4).toString('hex'),
-      avatar: `https://${crypto.randomBytes(4).toString('hex')}.uri`
+      username: `ft-${crypto.randomBytes(4).toString('hex')}`,
+      avatar: `https://ft-${crypto.randomBytes(4).toString('hex')}.uri`
     });
   }
 

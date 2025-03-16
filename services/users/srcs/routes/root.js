@@ -4,6 +4,8 @@ import { HttpError, objects, properties } from "yatt-utils";
 import getInfos from "../utils/getInfos.js";
 
 export default function router(fastify, opts, done) {
+  
+
   const schema = {
     params: {
       type: "object",

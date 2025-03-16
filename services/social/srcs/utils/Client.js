@@ -1,20 +1,39 @@
 import db from "../app/database.js";
+import { inactivity_delay } from "../app/env.js";
 import { userInfos } from "./userInfos.js";
+
+const statuses = ['online', 'offline', 'inactive', 'playing'];
 
 export class Client {
   account_id;
   sockets = new Set();
-  status = "online";
-  disconnectTimeout = null;
+  status = "online"
 
-  constructor(socket, account_id) {
+  disconnectTimeout = null;
+  inactiveTimeout = null
+
+  allClients;
+
+  constructor(socket, account_id, clients) {
     this.account_id = account_id;
+    this.allClients = clients;
     this.sockets.add(socket);
+    this.inactiveTimeout = setTimeout(() => {
+      this.status = "inactive";
+      this.allClients.broadcastStatus(this);
+    }, inactivity_delay);
     console.log("NEW CLIENT:", { account_id: this.account_id, sockets: this.sockets.size });
   }
-  
+
   addSocket(socket) {
     this.sockets.add(socket);
+    if (this.inactiveTimeout) {
+      clearTimeout(this.inactiveTimeout);
+    }
+    this.inactiveTimeout = setTimeout(() => {
+      this.status = "inactive";
+      this.allClients.broadcastStatus(this);
+    }, inactivity_delay);
     console.log("CLIENT SOCKET+:", { account_id: this.account_id, sockets: this.sockets.size });
   }
 
@@ -75,5 +94,22 @@ export class Client {
 
   ping() {
     this.sockets.forEach(socket => socket.ping());
+  }
+
+  setStatus(newStatus) {
+    const oldStatus = this.status;
+
+    if (this.inactiveTimeout && this.status !== "inactive") {
+      clearTimeout(this.inactiveTimeout);
+    } else {
+      this.status = statuses.find(status => status === newStatus) ? newStatus : "online"
+    }
+    this.inactiveTimeout = setTimeout(() => {
+      this.status = "inactive";
+      this.allClients.broadcastStatus(this);
+    }, inactivity_delay);
+    if (oldStatus !== this.status) {
+      this.allClients.broadcastStatus(this);
+    }
   }
 }
