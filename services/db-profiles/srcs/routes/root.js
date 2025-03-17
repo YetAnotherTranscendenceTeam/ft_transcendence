@@ -2,9 +2,58 @@
 
 import { HttpError, objects, properties } from "yatt-utils";
 import db from "../app/database.js";
+import { generateUsername } from "../utils/generateUsername.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
+    querystring: {
+      type: "object",
+      properties: {
+        limit: properties.limit,
+        offset: properties.offset,
+        filter: {
+          type: "object",
+          properties: {
+            "username": { type: "string" },
+            "username:match" : { type: "string" },
+          },
+          additionalProperties: false,
+        }
+      },
+      additionalProperties: false,
+    },
+  };
+
+  fastify.get("/", { schema }, async function handler(request, reply) {
+    console.log(request.query);
+    const { limit, offset, filter = {} } = request.query;
+
+    let sql = "SELECT * FROM profiles";
+    const params = [];    
+    const whereConditions = [];
+
+    if (filter["username"]) {
+      whereConditions.push("username = ?");
+      params.push(filter["username"]);
+    }
+  
+    if (filter["username:match"]) {
+      whereConditions.push("INSTR(LOWER(username), LOWER(?)) > 0");
+      params.push(filter["username:match"]);
+    }
+  
+    if (whereConditions.length > 0) {
+      sql += " WHERE " + whereConditions.join(" AND ");
+    }
+
+    sql += " LIMIT ? OFFSET ?";
+    params.push(limit, offset);
+
+    const profiles = db.prepare(sql).all(...params);
+    reply.send(profiles);
+  });
+
+  schema = {
     tags: ["Profiles"],
     summary: "Get a profile",
     description: "Retrieve a user profile by account ID",
@@ -35,21 +84,18 @@ export default function router(fastify, opts, done) {
     },
   };
 
-  fastify.get(
-    "/:account_id",
-    { schema },
-    async function handler(request, reply) {
-      const { account_id } = request.params;
+  fastify.get("/:account_id", { schema }, async function handler(request, reply) {
+    const { account_id } = request.params;
 
-      const profile = db
-        .prepare("SELECT * FROM profiles WHERE account_id = ?")
-        .get(account_id);
-      if (!profile) {
-        reply.code(404).send(objects.accountNotFound);
-      } else {
-        reply.send(profile);
-      }
+    const profile = db
+      .prepare("SELECT * FROM profiles WHERE account_id = ?")
+      .get(account_id);
+    if (!profile) {
+      reply.code(404).send(objects.accountNotFound);
+    } else {
+      reply.send(profile);
     }
+  }
   );
 
   schema = {
@@ -74,15 +120,26 @@ export default function router(fastify, opts, done) {
   fastify.post("/", { schema }, async function handler(request, reply) {
     const { account_id } = request.body;
 
-    try {
-      const profile = db
-        .prepare("INSERT INTO profiles (account_id, avatar) VALUES (?, ?) RETURNING *")
-        .get(account_id, fastify.defaultAvatar);
-      reply.code(201).send(profile);
-    } catch (err) {
-      if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") new HttpError.Conflict().send(reply);
-      else throw err;
+    for (let i = 0; i < 7; ++i) {
+      try {
+        const username = fastify.usernameBank.getUsername(i >= 5);
+        const profile = db.prepare(`
+              INSERT INTO profiles (account_id, username, avatar)
+              VALUES (?, ?, ?)
+              RETURNING *
+          `).get(account_id, username, fastify.defaultAvatar);
+        reply.code(201).send(profile);
+        console.log("POST:", profile);
+        fastify.usernameBank.checkAndRefill();
+      } catch (err) {
+        if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
+          return new HttpError.Conflict().send(reply);
+        } else if (err.code !== "SQLITE_CONSTRAINT_UNIQUE") {
+          throw err;
+        }
+      }
     }
+    new HttpError.ServiceUnavailable().send(reply);
   });
 
   schema = {
@@ -105,17 +162,18 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.delete("/:account_id", { schema }, async function handler(request, reply) {
-      const { account_id } = request.params;
+    const { account_id } = request.params;
 
-      const result = db
-        .prepare(`DELETE FROM profiles WHERE account_id = ?`)
-        .run(account_id);
-      if (!result.changes) {
-        reply.code(404).send(objects.accountNotFound);
-      } else {
-        reply.code(204).send();
-      }
+    const result = db
+      .prepare(`DELETE FROM profiles WHERE account_id = ?`)
+      .run(account_id);
+    if (!result.changes) {
+      reply.code(404).send(objects.accountNotFound);
+    } else {
+      reply.code(204).send();
+      console.log("DELETE:", { account_id });
     }
+  }
   );
 
   schema = {
@@ -158,7 +216,7 @@ export default function router(fastify, opts, done) {
           RETURNING *;
         `)
         .get(...params, account_id);
-      console.log("UPDATE:", update);
+      console.log("PATCH:", update);
       reply.send(update);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") new HttpError.Conflict().send(reply);

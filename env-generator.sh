@@ -93,5 +93,7 @@ echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
 
 printf "\n[MISC PARAMETERS] \n"
 generate MATCHMAKING_SCHEDULER_DELAY "100"
+# generate SOCIAL_OFFLINE_DELAY "10000"
+# generate SOCIAL_INACTIVITY_DELAY "15000"
 
 mv $TMP_FILE $ENV_FILE

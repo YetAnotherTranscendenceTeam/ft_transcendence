@@ -4,7 +4,7 @@ const profilesProperties = {
   username: {
     type: "string",
     minLength: 4,
-    maxLength: 12,
+    maxLength: 15,
     description: "The user unique name",
   },
 
