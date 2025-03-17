@@ -94,8 +94,7 @@ export class Lobby implements ILobby {
       }
       new_players[new_index] = this.players[i];
     }
-    console.log({rm_index, rm_team_index, rm_team_position, old_team_count, team_count});
-	  this.players = new_players;
+    this.players = new_players;
     this.updateTeamNames(team_count);
     return this;
   }
