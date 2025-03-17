@@ -119,6 +119,7 @@ export default function router(fastify, opts, done) {
               RETURNING *
           `).get(account_id, username, fastify.defaultAvatar);
         reply.code(201).send(profile);
+        console.log("POST:", profile);
         fastify.usernameBank.checkAndRefill();
       } catch (err) {
         if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
@@ -160,6 +161,7 @@ export default function router(fastify, opts, done) {
       reply.code(404).send(objects.accountNotFound);
     } else {
       reply.code(204).send();
+      console.log("DELETE:", { account_id });
     }
   }
   );
@@ -204,7 +206,7 @@ export default function router(fastify, opts, done) {
           RETURNING *;
         `)
         .get(...params, account_id);
-      console.log("UPDATE:", update);
+      console.log("PATCH:", update);
       reply.send(update);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") new HttpError.Conflict().send(reply);
