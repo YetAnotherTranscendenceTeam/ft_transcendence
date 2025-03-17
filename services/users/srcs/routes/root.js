@@ -16,13 +16,7 @@ export default function router(fastify, opts, done) {
           properties: {
             "username": { type: "string" },
             "username:match": { type: "string" },
-            "account_id": {
-              type: "object",
-              properties: {
-                "nin": { type: "string" }
-              },
-              additionalProperties: false,
-            }
+            "account_id:not": { type: "string" }
           },
           additionalProperties: false,
         }
@@ -45,8 +39,8 @@ export default function router(fastify, opts, done) {
     if (filter["username:match"]) {
       url.searchParams.append('filter[username:match]', filter["username:match"]);
     }
-    if (filter.account_id?.nin) {
-      url.searchParams.append('filter[account_id][nin]', filter.account_id?.nin);
+    if (filter["account_id:not"]) {
+      url.searchParams.append('filter[account_id:not]', filter["account_id:not"]);
     }
     console.log(url.toString())
     const users = await YATT.fetch(url.toString());

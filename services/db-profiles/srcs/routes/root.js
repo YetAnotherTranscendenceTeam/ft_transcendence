@@ -16,13 +16,7 @@ export default function router(fastify, opts, done) {
           properties: {
             "username": { type: "string" },
             "username:match": { type: "string" },
-            "account_id": {
-              type: "object",
-              properties: {
-                "nin": { type: "string" }
-              },
-              additionalProperties: false,
-            }
+            "account_id:not": { type: "string" }
           },
           additionalProperties: false,
         }
@@ -49,8 +43,8 @@ export default function router(fastify, opts, done) {
       params.push(filter["username:match"]);
     }
 
-    if (filter.account_id?.nin) {
-      const ids = filter.account_id.nin.split(',');
+    if (filter["account_id:not"]) {
+      const ids = filter["account_id:not"].split(',');
       whereConditions.push(`account_id NOT IN (${Array(ids.length).fill('?').join(', ')})`)
       ids.forEach(id => params.push(id));
     }
