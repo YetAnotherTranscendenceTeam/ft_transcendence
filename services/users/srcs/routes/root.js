@@ -2,11 +2,43 @@
 
 import { HttpError, objects, properties } from "yatt-utils";
 import getInfos from "../utils/getInfos.js";
+import YATT from "../../../../modules/yatt-utils/srcs/index.js";
 
 export default function router(fastify, opts, done) {
-  
+  let schema = {
+    querystring: {
+      type: "object",
+      properties: {
+        limit: properties.limit,
+        offset: properties.offset,
+        username: properties.username,
+        filter: {
+          type: "object",
+          properties: {
+            username: { type: "string" },
+          },
+          additionalProperties: false,
+        }
+      },
+      additionalProperties: false,
+    },
+  };
 
-  const schema = {
+  fastify.get("/", { schema }, async function handler(request, reply) {
+    const { limit, offset, filter = {} } = request.query;
+
+    let url = new URL("http://db-profiles:3000");
+    url.searchParams.append('limit', limit);
+    url.searchParams.append('offset', offset);
+
+    for (const [key, value] of Object.entries(filter)) {
+      url.searchParams.append(`filter[${key}]`, value);
+    }
+    const users = await YATT.fetch(url.toString());
+    reply.send(users);
+  });
+
+  schema = {
     params: {
       type: "object",
       properties: {

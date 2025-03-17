@@ -5,20 +5,6 @@ import { usersURL } from "../URLs.js";
 createUsers(1);
 
 describe("USERS", () => {
-  it("no account_id", async () => {
-    const response = await request(usersURL)
-      .get("/")
-      .set('Authorization', `Bearer ${users[0].jwt}`)
-      .expect(400);
-
-    expect(response.body).toEqual({
-      statusCode: 400,
-      code: 'FST_ERR_VALIDATION',
-      error: 'Bad Request',
-      message: "params/account_id must be integer"
-    })
-  });
-
   it("bad account_id", async () => {
     const response = await request(usersURL)
       .get("/salut")
