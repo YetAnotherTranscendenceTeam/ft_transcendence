@@ -16,6 +16,13 @@ export default function router(fastify, opts, done) {
           properties: {
             "username": { type: "string" },
             "username:match": { type: "string" },
+            "account_id": {
+              type: "object",
+              properties: {
+                "nin": { type: "string" }
+              },
+              additionalProperties: false,
+            }
           },
           additionalProperties: false,
         }
@@ -32,11 +39,14 @@ export default function router(fastify, opts, done) {
     url.searchParams.append('limit', limit);
     url.searchParams.append('offset', offset);
 
-    if (filter["username"]) {
-      url.searchParams.append('filter[username]', filter["username"]);
+    if (filter.username) {
+      url.searchParams.append('filter[username]', filter.username);
     }
     if (filter["username:match"]) {
       url.searchParams.append('filter[username:match]', filter["username:match"]);
+    }
+    if (filter.account_id?.nin) {
+      url.searchParams.append('filter[account_id][nin]', filter.account_id?.nin);
     }
     console.log(url.toString())
     const users = await YATT.fetch(url.toString());
