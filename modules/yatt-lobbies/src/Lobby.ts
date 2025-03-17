@@ -54,12 +54,12 @@ export class Lobby implements ILobby {
   constructor(data: ILobby | string, mode?: IGameMode) {
     if (typeof data === "string") {
       this.join_secret = data;
-      this.team_names = [];
       this.players = [];
       if (!mode) {
         throw new Error("Missing mode");
       }
       this.mode = new GameMode(mode);
+      this.team_names = new Array<string>(this.getTeamCount());
       this.state = {type: LobbyStateType.WAITING, joinable: true};
       this.leader_account_id = null;
       return;
@@ -70,6 +70,11 @@ export class Lobby implements ILobby {
     this.mode = new GameMode(data.mode);
     this.state = data.state;
     this.leader_account_id = data.leader_account_id;
+  }
+
+  updateTeamNames(new_team_count: number): this {
+    this.team_names.length = new_team_count;
+    return this;
   }
 
   removePlayer(rm_index: number): this {
@@ -91,6 +96,7 @@ export class Lobby implements ILobby {
     }
     console.log({rm_index, rm_team_index, rm_team_position, old_team_count, team_count});
 	  this.players = new_players;
+    this.updateTeamNames(team_count);
     return this;
   }
 
@@ -107,6 +113,7 @@ export class Lobby implements ILobby {
       }
       new_players[old_team_count] = player;
       this.players = new_players;
+      this.updateTeamNames(team_count);
     }
     else
       this.players.push(player);
@@ -150,6 +157,7 @@ export class Lobby implements ILobby {
       this.mode = mode;
     else
       this.mode = new GameMode(mode);
+    this.updateTeamNames(this.getTeamCount());
     return this;
   }
 

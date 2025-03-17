@@ -60,7 +60,7 @@ export class Lobby extends LobbyBase {
   setTeamName(player, name) {
     const index = this.players.findIndex((p) => p.account_id == player.account_id);
     if (index == -1) throw new Error("Player not in lobby");
-    const team_index = index % this.mode.team_count;
+    const team_index = index % this.getTeamCount();
     this.team_names[team_index] = name;
     this.broadbast(new TeamNameMessage(team_index, name));
   }
@@ -151,7 +151,7 @@ export class Lobby extends LobbyBase {
     const lobby_capacity = mode.getLobbyCapacity();
     if (this.players.length > lobby_capacity)
       throw new Error("Too many players in lobby to change to this gamemode");
-    this.mode = mode;
+    super.setMode(mode);
     this.team_names.length = lobby_capacity / mode.team_size;
     this.broadbast(new LobbyModeMessage(mode));
   }
