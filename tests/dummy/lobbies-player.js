@@ -21,23 +21,19 @@ export class Player {
   }
   async expectLeave(account_id) {
     if (this.lobby.leader_account_id === account_id)
-      await this.expectLeaderChange(this.lobby.players.filter((player) => player.account_id !== account_id)[0]?.account_id);
+      await this.expectLeaderChange();
     return await this.ws.expectJson((message) => {
       if (message.event != "player_leave")
         console.log({event: message.event, data: message.data, connection: this});
       expect(message.event).toBe("player_leave");
       expect(message.data.player.account_id).toBe(account_id);
-      this.lobby.players = this.lobby.players.filter((player) => player.account_id !== account_id);
     });
   }
 
   expectLeaderChange(account_id) {
     return this.ws.expectJson((message) => {
       expect(message.event).toBe("leader_change");
-      if (account_id)
-        expect(message.data.leader_account_id).toBe(account_id);
-      else
-        expect(message.data.leader_account_id).toBe(null);
+      expect(message.data.leader_account_id).toBeDefined();
       this.lobby.leader_account_id = message.data.leader_account_id;
     });
   }

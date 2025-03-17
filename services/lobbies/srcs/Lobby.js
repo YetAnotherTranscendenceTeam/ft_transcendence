@@ -8,10 +8,9 @@ import {
   LobbyLeaderMessage,
   TeamNameMessage,
 } from "./LobbyMessages.js";
-import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
-import { removePlayer, LobbyStateType } from "yatt-lobbies";
+import { LobbyStateType, Lobby as LobbyBase} from "yatt-lobbies";
 
 export const LobbyState = {
   waiting: () => ({ type: LobbyStateType.WAITING, joinable: true }),
@@ -32,33 +31,18 @@ export function generateJoinSecret() {
 
 const LOBBY_DESTRUCTION_DELAY = 2000;
 
-export class Lobby {
-  /**
-   * @type {Player[]}
-   */
-  players = [];
-
-  /**
-   * @type {string[]}
-   */
-  team_names = [];
-
-  join_secret = generateJoinSecret();
-
-  mode = Object.values(GameModes)[0];
-  state = LobbyState.waiting();
+export class Lobby extends LobbyBase {
 
   destruction_timeout = null;
 
-  leader_account_id = null;
-
   constructor(modename, lobbies) {
-    this.lobbies = lobbies;
+    let mode = Object.values(GameModes)[0];
     if (modename) {
-      const mode = GameModes[modename];
+      mode = GameModes[modename];
       if (!mode) throw new Error("Invalid gamemode");
-      this.mode = mode;
     }
+    super(generateJoinSecret(), mode);
+    this.lobbies = lobbies;
     this.setGameMode(this.mode);
   }
 
@@ -114,7 +98,7 @@ export class Lobby {
     }
     if (this.leader_account_id === null) this.setLeader(player);
     this.broadbast(new LobbyJoinMessage(player));
-    this.players.push(player);
+    super.addPlayer(player);
     player.syncLobby();
   }
 
@@ -122,7 +106,7 @@ export class Lobby {
     const rm_index = this.players.findIndex((p) => p.account_id == player.account_id);
     if (rm_index == -1) throw new Error("Player not in lobby");
     if (this.isLeader(player)) this.setLeader(rm_index == 0 ? this.players[1] : this.players[0]);
-    this.players = removePlayer(this.players, this.mode, rm_index);
+    super.removePlayer(rm_index);
     if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
@@ -191,7 +175,7 @@ export class Lobby {
   }
 
   queue() {
-    if (this.state.type != "waiting") throw new Error("Lobby is not waiting");
+    if (this.state.type != LobbyStateType.WAITING) throw new Error("Lobby is not waiting");
     if (!MatchmakingConnection.getInstance().isReady) {
       throw new Error("Matchmaking service is currently not available");
     }
@@ -203,7 +187,7 @@ export class Lobby {
   }
 
   unqueue() {
-    if (this.state.type != "queued") throw new Error("Lobby is not queued");
+    if (this.state.type != LobbyStateType.QUEUED) throw new Error("Lobby is not queued");
     if (MatchmakingConnection.getInstance().isReady)
       MatchmakingConnection.getInstance().unqueue(this);
   }

@@ -1,7 +1,7 @@
 import { IGameMode, GameMode, GameModeType } from './GameMode';
 import { IPlayer, LobbyStateType } from './Lobby';
 export { IGameMode, GameMode, GameModeType, LobbyStateType, IPlayer };
-export { ILobbyState, ILobby } from './Lobby';
+export { ILobbyState, ILobby, Lobby } from './Lobby';
 
 export function removePlayer(players: IPlayer[], mode: IGameMode, rm_index: number): IPlayer[] {
     let team = rm_index % mode.team_size;
