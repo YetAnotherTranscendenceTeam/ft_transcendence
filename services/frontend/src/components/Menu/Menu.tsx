@@ -1,7 +1,6 @@
 import Babact from "babact";
 import './menu.css'
 import { useAuth } from "../../contexts/useAuth";
-import useEscape from "../../hooks/useEscape";
 import Card from "../../ui/Card";
 import { Link } from "babact-router-dom";
 import Button from "../../ui/Button";
@@ -20,6 +19,16 @@ export default function Menu({
 
 	const { lobby } = useLobby();
 
+	const disabledMessage = () => {
+		if (!me)
+			return 'You must be logged in';
+		if (lobby && lobby.leader_account_id !== me.account_id)
+			return 'You must be leader of the lobby';
+		if (lobby && !lobby.state?.joinable)
+			return `Cannot change mode while lobby is ${lobby.state.type}`;
+		return '';
+	}
+
 	return <Card className={`menu bottom flex items-center justify-center gap-2`}>
 
 			<Button
@@ -28,15 +37,12 @@ export default function Menu({
 			>
 				<i className="fa-solid fa-sliders"></i><p>Settings</p>
 			</Button>
-
 			<Button
-				disabled={!me || (lobby && lobby.leader_account_id !== me.account_id)}
+				disabled={!me || (lobby && lobby.leader_account_id !== me.account_id) || lobby && !lobby.state?.joinable}
 				className={`button ghost ${selected === 'online' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'online' ? 'online' : null)}
 			>
-				<PopHover content={
-					!me ? 'You must be logged in'
-					: (lobby && lobby.leader_account_id !== me.account_id) ? 'You must be leader of the lobbby' : ''} className="flex items-center">
+				<PopHover content={disabledMessage()} className="flex items-center">
 					<i className="fa-solid fa-globe"></i><p>Online</p>
 				</PopHover>
 			</Button>

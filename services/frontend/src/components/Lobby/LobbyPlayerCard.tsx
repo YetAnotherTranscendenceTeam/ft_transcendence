@@ -1,14 +1,13 @@
 import Babact from "babact";
 import Card from "../../ui/Card";
 import Avatar from "../../ui/Avatar";
-import Button from "../../ui/Button";
 
-
-function LobbyPlayerCardContent({player, isLeader}) {
-	return <div className='flex flex-row gap-2 items-center'>
+function LobbyPlayerCardContent({player, isLeader, draggable} : {player: any, isLeader: boolean, draggable?: boolean}) {
+	return <div className='lobby-player-card-content flex flex-row gap-2 items-center'>
 		<Avatar src={player.profile?.avatar} name={player.profile?.username}/>
 		{player.profile?.username}
 		{isLeader && <i className="fa-solid fa-crown"></i>}
+		{draggable && <i className="grab-icon fa-solid fa-grip-vertical"></i>}
 	</div>
 }
 
@@ -45,7 +44,7 @@ export default function LobbyPlayerCard({
 				className={`lobby-player-card flex flex-row gap-2 items-center justify-between draggable ${dragging ? 'dragging' : ''}`}
 				style={`--x: ${position.x}px; --y: ${position.y}px;`}
 				>
-				<LobbyPlayerCardContent player={player} isLeader={isLeader}/>
+				<LobbyPlayerCardContent player={player} isLeader={isLeader} draggable/>
 			</Card>
 		</div>
 

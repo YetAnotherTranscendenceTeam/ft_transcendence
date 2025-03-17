@@ -576,3 +576,20 @@
 .webcam-modal .error{
 	color: var(--danger-color)
 }
+
+
+/* ================================== */
+/* ============ Editable ============ */
+/* ================================== */
+
+.editable {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 32px;
+	gap: 8px;
+}
+
+.editable input {
+	width: 100%;
+}

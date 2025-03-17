@@ -16,6 +16,13 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const navigate = useNavigate();
 
+	const onTeamNameChange = (team_index: number, name: string) => {
+		setLobby((lobby: ILobby) => (lobby && {
+			...lobby,
+			team_names: lobby.team_names.map((team, i) => i === team_index ? name : team)
+		}));
+	};
+
 	const onStateChange = (state: any) => {
 		if (state.type === 'playing')
 			createToast('Match found', 'info');
@@ -71,6 +78,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			};
 		});
 	}
+
 	const onPlayerConnect = (lobby: ILobby) => {
 		localStorage.setItem('lobby', lobby.join_secret);
 		setLobby({
@@ -105,6 +113,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}
 		else if (msg.event === 'state_change') {
 			onStateChange(msg.data.state);
+		}
+		else if (msg.event === 'team_name') {
+			onTeamNameChange(msg.data.team_index, msg.data.name);
 		}
 	};
 
@@ -188,6 +199,15 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}));
 	};
 
+	const changeTeamName = (team_index: number, name: string) => {
+		ws.send(JSON.stringify({
+			event: 'team_name',
+			data: {
+				team_index,
+				name
+			}
+		}));
+	};
 
 	useEffect(() => {
 		const lobby = localStorage.getItem('lobby');
@@ -211,7 +231,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				changeMode,
 				queueStart,
 				queueStop,
-				kickPlayer
+				kickPlayer,
+				changeTeamName
 			}}
 		>
 			{children}
@@ -228,7 +249,8 @@ export const useLobby = (): {
 	changeMode: (mode: string) => void,
 	queueStart: () => void,
 	queueStop: () => void,
-	kickPlayer: (player: number) => void
+	kickPlayer: (player: number) => void,
+	changeTeamName: (team_index: number, name: string) => void
 } => {
 	return Babact.useContext(LobbyContext);
 };

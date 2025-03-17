@@ -26,7 +26,7 @@ export default function RegisterForm({
 	const handleSubmit = async (fields, clear) => {
 		const { 'register-email': email, 'register-password': password } = fields;
 
-		const response = await ft_fetch(`${config.API_URL}/register/`, {
+		const response = await ft_fetch(`${config.API_URL}/register`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'

@@ -3,10 +3,11 @@ import Card from "../../ui/Card";
 import LobbyPlayerCard from "./LobbyPlayerCard";
 import { useLobby } from "../../contexts/useLobby";
 import { useAuth } from "../../contexts/useAuth";
+import Editable from "../../ui/Editable";
 
 export default function LobbyTeamsList() {
 
-	const { swapPlayers, lobby } = useLobby();
+	const { swapPlayers, lobby, changeTeamName } = useLobby();
 	const switchingPlayer = Babact.useRef(null);
 	
 	const [players, setPlayers] = Babact.useState(lobby.players);
@@ -102,11 +103,17 @@ export default function LobbyTeamsList() {
 				key={'team'+i} className='lobby-team'
 				style={`--team-color: var(--team-${i % 2 + 1}-color)`}
 			>
-				<h1>Team {i + 1}</h1>
+				<Editable
+					defaultValue={lobby.team_names[i] ?? `Team ${i + 1}`}
+					disabled={!team.find((player) => player.account_id === me.account_id)}
+					onEdit={(value) => {
+						changeTeamName(i, value);
+					}}
+				/>
 				{team.map((player, i) => (
 					<LobbyPlayerCard
 						isLeader={player.account_id === lobby.leader_account_id}
-						draggable={me.account_id === lobby.leader_account_id && lobby.mode.team_size > 1}
+						draggable={(me.account_id === lobby.leader_account_id || team.find(p => p.account_id === me.account_id)) && lobby.mode.team_size > 1}
 						position={draggingPlayer === player.account_id ? transform : {x: 0, y: 0}}
 						dragging={draggingPlayer === player.account_id}
 						onMouseDown={(e) => handleMouseDown(e, player.account_id)}

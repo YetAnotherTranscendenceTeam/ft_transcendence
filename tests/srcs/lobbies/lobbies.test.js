@@ -130,15 +130,11 @@ describe("Leadership transfer (by leaving group)", () => {
         await other.expectLeave(player.user.account_id);
       }
       await Promise.all(
-        players
-          .slice(1)
-          .map((p) =>
-            p.ws
-              .sendJson({ event: "mode", data: { mode: "unranked_2v2" } })
-              .expectJson((message) => {
-                expect(message.event).toBe("error")
-              })
-          )
+        players.slice(1).map((p) =>
+          p.ws.sendJson({ event: "mode", data: { mode: "unranked_2v2" } }).expectJson((message) => {
+            expect(message.event).toBe("error");
+          })
+        )
       );
       if (players[0]) {
         players[0].ws.sendJson({ event: "mode", data: { mode: "unranked_2v2" } });
@@ -178,7 +174,7 @@ describe("Single connection tests", () => {
     lobby = await joinLobby(users[0], lobby);
     await old.ws.expectClosed(1008, "Logged in from another location").close();
   });
-  it (`User 1 attempt to join lobby`, async () => {
+  it(`User 1 attempt to join lobby`, async () => {
     const old = player;
     player = await joinLobby(users[1], player);
     await old.ws.expectClosed(1008, "Logged in from another location").close();
@@ -314,7 +310,8 @@ describe("Join full lobby", () => {
   const testgamemode = async (gamemode) => {
     let players = [];
     players.push(await createLobby(users[0], gamemode));
-    const lobby_capacity = gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    const lobby_capacity =
+      gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
     for (let i = 1; i < lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -377,7 +374,8 @@ describe("Change gamemode with too many players", () => {
         type: "unranked",
       })
     );
-    const lobby_capacity = gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+    const lobby_capacity =
+      gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
     for (let i = 1; i <= lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -473,8 +471,7 @@ describe("Team names", () => {
       expect(newPlayer.lobby.team_names[i]).toBe(name);
     }
     players.push(newPlayer);
-
-  })
+  });
   it("leave lobby", async () => {
     while (players.length > 0) {
       let player = players.pop();
@@ -484,7 +481,7 @@ describe("Team names", () => {
       }
     }
   });
-})
+});
 
 describe("Lobby unqueue on leave", () => {
   let players = [];
@@ -503,21 +500,29 @@ describe("Lobby unqueue on leave", () => {
       players.push(player);
     }
   });
-  it ("queue the lobby", async () => {
+  it("queue the lobby", async () => {
     players[0].ws.sendJson({ event: "queue_start" });
-    await Promise.all(players.map((player) => player.ws.expectJson((message) => {
-      expect(message.event).toBe("state_change");
-      expect(message.data.state.type).toBe("queued");
-    })));
+    await Promise.all(
+      players.map((player) =>
+        player.ws.expectJson((message) => {
+          expect(message.event).toBe("state_change");
+          expect(message.data.state.type).toBe("queued");
+        })
+      )
+    );
   });
   it("1 player leaves the lobby and expect unqueue", async () => {
     const player = players.pop();
     await player.close();
     await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
-    await Promise.all(players.map((player) => player.ws.expectJson((message) => {
-      expect(message.event).toBe("state_change");
-      expect(message.data.state.type).toBe("waiting");
-    })));
+    await Promise.all(
+      players.map((player) =>
+        player.ws.expectJson((message) => {
+          expect(message.event).toBe("state_change");
+          expect(message.data.state.type).toBe("waiting");
+        })
+      )
+    );
   });
   it("leave lobby", async () => {
     while (players.length > 0) {
@@ -528,7 +533,38 @@ describe("Lobby unqueue on leave", () => {
       }
     }
   });
-})
+});
+
+describe("Leave a 2v2 tournament lobby starting from differente indexes", () => {
+  const attempts = Array.from({ length: 32 }, (_, i) => i);
+  test.each(attempts)("attempt %i", async (attempt) => {
+    let players = [];
+    players.push(
+      await createLobby(users[0], {
+        name: "tournament_2v2",
+        team_size: 2,
+        team_count: 16,
+        type: "tournament",
+      })
+    );
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+      let player = await joinLobby(users[i], players[0]);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+    for (let i = 0; i < players.length; i++) {
+      const index = (i + attempt) % players.length;
+      const player = players[index];
+      await player.close();
+      players[index] = null;
+      for (let other of players) {
+        if (!other)
+            continue;
+        await other.expectLeave(player.user.account_id);
+      }
+    }
+  });
+});
 
 describe("swap team members", () => {
   let players = [];
