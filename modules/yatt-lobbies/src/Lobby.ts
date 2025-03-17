@@ -4,11 +4,16 @@ export interface IPlayer {
   account_id: number;
   profile?: {
     account_id: number;
-    name: string;
+    username: string;
     avatar: string;
     created_at: string;
     updated_at: string;
   };
+}
+
+export interface ITeam {
+  name: string | null;
+  players: IPlayer[];
 }
 
 export enum LobbyStateType {
@@ -67,7 +72,7 @@ export class Lobby implements ILobby {
     this.leader_account_id = data.leader_account_id;
   }
 
-  removePlayer(rm_index: number) {
+  removePlayer(rm_index: number): this {
     const old_team_count = this.getTeamCount();
     const team_count = this.getTeamCount() - (this.players.length % this.mode.team_size == 1 ? 1 : 0);
     const rm_team_index = rm_index % old_team_count;
@@ -91,9 +96,10 @@ export class Lobby implements ILobby {
       new_players[new_index] = this.players[i];
     }
 	  this.players = new_players;
+    return this;
   }
 
-  addPlayer(player: IPlayer) {
+  addPlayer(player: IPlayer): this {
     if (this.players.length % this.mode.team_size == 0) {
       const old_team_count = this.getTeamCount();
       const new_team = this.mode.team_size == this.mode.team_size - 1 ? 1 : 0;
@@ -110,23 +116,57 @@ export class Lobby implements ILobby {
     }
     else
       this.players.push(player);
+    return this;
   }
 
   getTeamCount(): number {
     return Math.ceil(this.players.length / this.mode.team_size);
   }
 
-  getTeams(): { team_name: string | null, players: IPlayer[] }[] {
-    let teams: { team_name: string | null, players: IPlayer[] }[] = [];
+  getTeams(): ITeam[] {
+    let teams: { name: string | null, players: IPlayer[] }[] = [];
     const team_count = this.getTeamCount();
     for (let i = 0; i < team_count; i++) {
-      let team_name = this.team_names[i] || null;
+      let name = this.team_names[i] || null;
       let team_players = [];
       for (let j = i; i < this.players.length; i += team_count) {
         team_players.push(this.players[j]);
       }
-      teams.push({ team_name, players: team_players });
+      teams.push({ name, players: team_players });
     }
     return teams;
   }
+
+  getCapacity(): number {
+    return this.mode.getLobbyCapacity();
+  }
+
+  setTeamName(team_index: number, name: string): this {
+    this.team_names[team_index] = name;
+    return this;
+  }
+
+  setState(state: ILobbyState): this {
+    this.state = state;
+    return this;
+  }
+
+  setMode(mode: IGameMode): this {
+    if (mode instanceof GameMode)
+      this.mode = mode;
+    else
+      this.mode = new GameMode(mode);
+    return this;
+  }
+
+  setLeader(leader_account_id: number): this {
+    this.leader_account_id = leader_account_id;
+    return this;
+  }
+
+  setPlayers(players: IPlayer[]): this {
+    this.players = players;
+    return this;
+  }
+
 }

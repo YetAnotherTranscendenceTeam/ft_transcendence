@@ -15,12 +15,12 @@ export default function SelectModeOverlay({
 		onClose,
 	}) {
 
-	const {create, join, lobby, changeMode } = useLobby();
+	const {create, join, lobby } = useLobby();
 
 
 	const onSelect = (mode) => {
 		if (lobby)
-			changeMode(mode);
+			lobby.changeMode(mode);
 		else
 			create(mode);
 		onClose();

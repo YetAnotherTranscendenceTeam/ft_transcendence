@@ -1,92 +1,147 @@
 import Babact from "babact";
-import useWebSocket from "../hooks/useWebSocket";
+import useWebSocket, { WebSocketHook } from "../hooks/useWebSocket";
 import config from "../config";
 import useEffect from "babact/dist/hooks/useEffect";
 import useToast from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
 
-import { GameMode, ILobby, removePlayer } from "yatt-lobbies";
+import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
+
+
+class LobbyClient extends Lobby {
+
+	ws: WebSocketHook;
+
+	constructor(lobby: ILobby, ws: WebSocketHook);
+	constructor(lobby: LobbyClient);
+	constructor(lobby: LobbyClient | ILobby, ws?: WebSocketHook) {
+		super(lobby);
+		if (ws) {
+			this.ws = ws;
+		}
+		else if (lobby instanceof LobbyClient) {
+			this.ws = lobby.ws;
+		}
+	}
+
+	leave() {
+		this.ws.send(JSON.stringify({
+			event: 'disconnect'
+		}));
+		this.ws.close();
+	};
+
+	queueStart() {
+		this.ws.send(JSON.stringify({
+			event: 'queue_start'
+		}));
+	};
+
+	queueStop() {
+		this.ws.send(JSON.stringify({
+			event: 'queue_stop'
+		}));
+	};
+
+	swapPlayers(player1: any, player2: any) {
+		this.ws.send(JSON.stringify({
+			event: 'swap_players',
+			data: {
+				account_ids: [
+					player1,
+					player2
+				]
+			}
+		}));
+	};
+
+	changeMode(mode: string) {
+		this.ws.send(JSON.stringify({
+			event: 'mode',
+			data: {
+				mode
+			}
+		}));
+	};
+
+	kickPlayer(player: number) {
+		console.log('kick', player)
+		this.ws.send(JSON.stringify({
+			event: 'kick',
+			data: {
+				account_id: player
+			}
+		}));
+	};
+
+	changeTeamName(team_index: number, name: string) {
+		this.ws.send(JSON.stringify({
+			event: 'team_name',
+			data: {
+				team_index,
+				name
+			}
+		}));
+	};
+}
 
 const LobbyContext = Babact.createContext();
 
 export const LobbyProvider = ({ children } : { children?: any }) => {
 	
-	const [lobby, setLobby] = Babact.useState(null);
+	const [lobby, setLobby] = Babact.useState<LobbyClient>(null);
 	const { createToast } = useToast();
 
 	const navigate = useNavigate();
 
 	const onTeamNameChange = (team_index: number, name: string) => {
-		setLobby((lobby: ILobby) => (lobby && {
-			...lobby,
-			team_names: lobby.team_names.map((team, i) => i === team_index ? name : team)
-		}));
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setTeamName(team_index, name)));
 	};
 
 	const onStateChange = (state: any) => {
 		if (state.type === 'playing')
 			createToast('Match found', 'info');
-		setLobby((lobby: ILobby) => (lobby && {
-			...lobby,
-			state
-		}));
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setState(state)));
 	};
 
 	const onModeChange = (mode: any) => {
 		const newMode = new GameMode(mode);
 		createToast(`Gamemode changed to ${newMode.getDisplayName()}`, 'info');
-		setLobby((lobby: ILobby) => (lobby && {
-			...lobby,
-			mode: newMode
-		}));
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setMode(mode)));
 	};
 
 	const onLeaderChange = (leader_account_id: any) => {
-		setLobby((lobby: ILobby) => (lobby && {
-			...lobby,
-			leader_account_id
-		}));
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setLeader(leader_account_id)));
 	}
 
-	const onPlayerJoin = (player: any) => {
+	const onPlayerJoin = (player: IPlayer) => {
 		createToast(`${player.profile?.username} joined the lobby`, 'info');
-		setLobby((lobby: ILobby) => (lobby && {
-			...lobby,
-			players: [...lobby.players, player]
-		}));
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.addPlayer(player)));
 	};
 
 	const onPlayerLeave = (player: any) => {
-		setLobby((lobby: ILobby) => (lobby && {
-			...lobby,
-			players: removePlayer(lobby.players, lobby.mode, lobby.players.findIndex((p) => p.account_id === player.account_id))
-		}));
+		createToast(`${player.profile?.username} left the lobby`, 'info');
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.removePlayer(lobby.players.findIndex((p) => p.account_id === player.account_id))));
 	};
-	
+
 	const onPlayerSwap = ([id1, id2]) => {
-		setLobby((lobby) => {
+		setLobby((lobby: LobbyClient) => {
+			if (!lobby) return;
 			const newPlayers = [...lobby.players];
 			const player1 = newPlayers.findIndex((p) => p.account_id === id1);
 			const player2 = newPlayers.findIndex((p) => p.account_id === id2);
 			const temp = newPlayers[player1];
 			newPlayers[player1] = newPlayers[player2];
 			newPlayers[player2] = temp;
-			console.log(lobby.players);
-			return {
-				...lobby,
-				players: newPlayers,
-			};
+			return new LobbyClient(lobby.setPlayers(newPlayers));
 		});
 	}
 
-	const onPlayerConnect = (lobby: ILobby) => {
+	const onPlayerConnect = (lobby: LobbyClient) => {
 		localStorage.setItem('lobby', lobby.join_secret);
-		setLobby({
-			...lobby,
-			mode: new GameMode(lobby.mode),
-		});
+		setLobby(new LobbyClient(lobby, ws));
 	}
-	
+
 	const onMessage = (message: string) => {
 		const msg = JSON.parse(message);
 		console.log('onMessage', msg)
@@ -149,66 +204,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}&token=${localStorage.getItem("access_token")}`);
 	};
 
-	const leave = () => {
-		ws.send(JSON.stringify({
-			event: 'disconnect'
-		}));
-		ws.disconnect();
-	};
-
-	const queueStart = () => {
-		ws.send(JSON.stringify({
-			event: 'queue_start'
-		}));
-	};
-
-	const queueStop = () => {
-		ws.send(JSON.stringify({
-			event: 'queue_stop'
-		}));
-	};
-
-	const swapPlayers = (player1: any, player2: any) => {
-		ws.send(JSON.stringify({
-			event: 'swap_players',
-			data: {
-				account_ids: [
-					player1,
-					player2
-				]
-			}
-		}));
-	};
-
-	const changeMode = (mode: string) => {
-		ws.send(JSON.stringify({
-			event: 'mode',
-			data: {
-				mode
-			}
-		}));
-	};
-
-	const kickPlayer = (player: number) => {
-		console.log('kick', player)
-		ws.send(JSON.stringify({
-			event: 'kick',
-			data: {
-				account_id: player
-			}
-		}));
-	};
-
-	const changeTeamName = (team_index: number, name: string) => {
-		ws.send(JSON.stringify({
-			event: 'team_name',
-			data: {
-				team_index,
-				name
-			}
-		}));
-	};
-
+	// TODO: Add a refresh alert to confirm leaving the lobby
 	useEffect(() => {
 		const lobby = localStorage.getItem('lobby');
 		if (lobby) {
@@ -217,22 +213,15 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	}, []);
 
 	useEffect(() => {
-		console.log('lobby', lobby)
+		console.warn('lobby', lobby);
 	}, [lobby]);
 
 	return (
 		<LobbyContext.Provider
 			value={{
-				lobby,
+				lobby: lobby,
 				create,
 				join,
-				leave,
-				swapPlayers,
-				changeMode,
-				queueStart,
-				queueStop,
-				kickPlayer,
-				changeTeamName
 			}}
 		>
 			{children}
@@ -241,16 +230,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 };
 
 export const useLobby = (): {
-	lobby: ILobby,
+	lobby: LobbyClient,
 	create: (mode: string) => void,
-	join: (id: string) => void,
-	leave: () => void,
-	swapPlayers: (player1: number, player2: number) => void,
-	changeMode: (mode: string) => void,
-	queueStart: () => void,
-	queueStop: () => void,
-	kickPlayer: (player: number) => void,
-	changeTeamName: (team_index: number, name: string) => void
+	join: (id: string) => void
 } => {
 	return Babact.useContext(LobbyContext);
 };

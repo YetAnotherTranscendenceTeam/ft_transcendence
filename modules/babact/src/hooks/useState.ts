@@ -1,6 +1,11 @@
 import BabactState from "../core/BabactState";
 
-export default function useState(initial?: any) {
+type SetState<Type> = (
+    action: 
+        Type | ((oldValue: Type) => Type)
+) => void;
+
+export default function useState<Type>(initial?: Type): [Type, action: SetState<Type>] {
     const oldHook =
 		BabactState.wipFiber.alternate &&
 		BabactState.wipFiber.alternate.hooks &&
@@ -19,7 +24,7 @@ export default function useState(initial?: any) {
     });
     hook.queue = [];
 
-    const setState = (action: any) => {
+    const setState: SetState<Type> = (action) => {
         hook.queue.push(action);
         BabactState.wipRoot = {
             dom: BabactState.currentRoot.dom,

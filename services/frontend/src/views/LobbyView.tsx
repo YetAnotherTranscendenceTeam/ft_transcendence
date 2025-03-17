@@ -1,6 +1,5 @@
 import Babact from "babact";
-import { useAuth } from "../contexts/useAuth";
-import { useNavigate, useParams } from "babact-router-dom";
+import { useParams } from "babact-router-dom";
 import LobbyTeamsList from "../components/Lobby/LobbyTeamsList";
 import { useLobby } from "../contexts/useLobby";
 import './views.css'
@@ -10,10 +9,9 @@ export default function LobbyView() {
 
 	const { code } = useParams();
 
-	const { join, leave } = useLobby();
+	const { join } = useLobby();
 	const { lobby } = useLobby();
 
-	const navigate = useNavigate();
 
 	Babact.useEffect(() => {
 		if (code && lobby === null && !localStorage.getItem('lobby')) {
@@ -24,8 +22,7 @@ export default function LobbyView() {
 
 	Babact.useEffect(() => {
 		if (lobby && lobby.join_secret !== code) {
-			// navigate(`/lobby/${lobby.join_secret}`);
-			leave();
+			lobby.leave();
 		}
 	}, [lobby])
 

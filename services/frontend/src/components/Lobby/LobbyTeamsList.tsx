@@ -4,29 +4,23 @@ import LobbyPlayerCard from "./LobbyPlayerCard";
 import { useLobby } from "../../contexts/useLobby";
 import { useAuth } from "../../contexts/useAuth";
 import Editable from "../../ui/Editable";
+import { IPlayer } from "yatt-lobbies";
+import { ITeam } from "yatt-lobbies/dist/Lobby";
 
 export default function LobbyTeamsList() {
 
-	const { swapPlayers, lobby, changeTeamName } = useLobby();
+	const { lobby } = useLobby();
 	const switchingPlayer = Babact.useRef(null);
 	
 	const [players, setPlayers] = Babact.useState(lobby.players);
-	const [teams, setTeams] = Babact.useState([]);
+	const [teams, setTeams] = Babact.useState<ITeam[]>([]);
 	const width = Babact.useRef(0);
 
 	const { me } = useAuth();
 
-	const createTeam = () => {
-		const nb_teams = Math.max(lobby.mode.type === 'ranked' ? 1 : 2, Math.min(lobby.players.length / lobby.mode.team_size, lobby.mode.team_count));
-		const teams = new Array(nb_teams).fill(null).map(() => []);
-		players.forEach((player, i) => {
-			teams[i % nb_teams].push(player);
-		})
-		return teams;
-	}
-
 	Babact.useEffect(() => {
-		setTeams(createTeam());
+		setTeams(lobby.getTeams());
+		console.log(lobby.getTeams());
 	}, [players, lobby]);
 
 	Babact.useEffect(() => {
@@ -73,7 +67,7 @@ export default function LobbyTeamsList() {
 			y: 0
 		})
 		if (switchingPlayer.current)
-			swapPlayers(draggingPlayer, switchingPlayer.current);
+			lobby.swapPlayers(draggingPlayer, switchingPlayer.current);
 		switchingPlayer.current = null;
 	}
 
@@ -104,16 +98,16 @@ export default function LobbyTeamsList() {
 				style={`--team-color: var(--team-${i % 2 + 1}-color)`}
 			>
 				<Editable
-					defaultValue={lobby.team_names[i] ?? `Team ${i + 1}`}
-					disabled={!team.find((player) => player.account_id === me.account_id)}
+					defaultValue={team.name ?? `Team ${i + 1}`}
+					disabled={!team.players.find(p => p.account_id === me.account_id)}
 					onEdit={(value) => {
-						changeTeamName(i, value);
+						lobby.changeTeamName(i, value);
 					}}
 				/>
-				{team.map((player, i) => (
+				{team.players.map((player: IPlayer, i) => (
 					<LobbyPlayerCard
 						isLeader={player.account_id === lobby.leader_account_id}
-						draggable={(me.account_id === lobby.leader_account_id || team.find(p => p.account_id === me.account_id)) && lobby.mode.team_size > 1}
+						draggable={(me.account_id === lobby.leader_account_id || team.players.find(p => p.account_id === me.account_id)) && lobby.mode.team_size > 1}
 						position={draggingPlayer === player.account_id ? transform : {x: 0, y: 0}}
 						dragging={draggingPlayer === player.account_id}
 						onMouseDown={(e) => handleMouseDown(e, player.account_id)}
@@ -124,7 +118,7 @@ export default function LobbyTeamsList() {
 						player={player}
 					/>
 				))}
-				{new Array(Math.max(lobby.mode.team_size - team.length, 0)).fill(null).map((_, index) => (
+				{new Array(Math.max(lobby.mode.team_size - team.players.length, 0)).fill(null).map((_, index) => (
 					<Card key={'empty-'+index} className='empty flex flex-row gap-2 items-center'>
 					</Card>
 				))}

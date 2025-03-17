@@ -7,19 +7,18 @@ import Avatar from "../../ui/Avatar";
 import { useNavigate } from "babact-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
-import { GameMode } from "yatt-lobbies";
 
 
 export default function LobbyCard() {
 
-	const { lobby, leave, queueStart, queueStop, kickPlayer } = useLobby();
+	const { lobby } = useLobby();
 
 	const navigate = useNavigate();
 
 	const { me } = useAuth();
 
 	const onLeave = () => {
-		leave();
+		lobby.leave();
 	}
 
 	if (lobby)
@@ -27,10 +26,10 @@ export default function LobbyCard() {
 		<div className='lobby-card-header flex items-center justify-between w-full gap-4'>
 			<div className='flex gap-4'>
 				<div className='flex flex-col gap-1'>
-					<h1>{(lobby.mode as GameMode).getDisplayName()}</h1>
+					<h1>{lobby.mode.getDisplayName()}</h1>
 					<h2>{lobby.mode.type}</h2>
 				</div>
-				{ !window.location.pathname.startsWith('/lobby')  &&
+				{ !window.location.pathname.startsWith('/lobby') &&
 					<Button
 						className="icon primary"
 						onClick={() => navigate(`/lobby/${lobby.join_secret}`)}
@@ -42,7 +41,7 @@ export default function LobbyCard() {
 			<div className='flex flex-col gap-2 items-end'>
 				<LobbyStatus state={lobby.state} />
 				<h2>
-					{lobby.players.length}/{(lobby.mode as GameMode).getLobbyCapacity()} Players
+					{lobby.players.length}/{lobby.getCapacity()} Players
 				</h2>
 			</div>
 		</div>
@@ -58,7 +57,7 @@ export default function LobbyCard() {
 							{ me && lobby.leader_account_id === me.account_id && player.account_id !== me.account_id &&
 								<Button
 									className="kick-button icon ghost"
-									onClick={() => kickPlayer(player.account_id)}
+									onClick={() => lobby.kickPlayer(player.account_id)}
 								>
 									<i className="fa-solid fa-ban"></i>
 								</Button>}
@@ -71,7 +70,7 @@ export default function LobbyCard() {
 				((lobby.state.type === 'queued' &&
 					<Button
 						className="danger"
-						onClick={queueStop}	
+						onClick={lobby.queueStop}	
 					>
 						<i className="fa-solid fa-stop"></i>
 						Stop
@@ -80,7 +79,7 @@ export default function LobbyCard() {
 				(lobby.state.type === 'waiting' &&
 					<Button
 						className="success"
-						onClick={queueStart}	
+						onClick={lobby.queueStart}	
 					>
 						<i className="fa-solid fa-play"></i>
 						Start

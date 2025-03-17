@@ -1,5 +1,12 @@
 import Babact from "babact";
 
+export type WebSocketHook = {
+	connected: boolean,
+	connect: (url: string) => void,
+	close: () => void,
+	send: (message: string) => void
+}
+
 export default function useWebSocket({
 		onMessage,
 		onError,
@@ -10,13 +17,13 @@ export default function useWebSocket({
 		onError?: (error: any) => void,
 		onClose?: (event) => void,
 		onOpen?: (event) => void,
-	} = {}) {
+	} = {}): WebSocketHook {
 	const ws = Babact.useRef(null);
 	const [connected, setConnected] = Babact.useState(false);
 
 	const connect = (url: string) => {
 		if (ws.current) {
-			disconnect();
+			close();
 		}
 		ws.current = new WebSocket(url);
 		ws.current.onopen = (event) => {
@@ -43,7 +50,7 @@ export default function useWebSocket({
 		};
 	};
 
-	const disconnect = () => {
+	const close = () => {
 		setConnected(false);
 		ws.current.close();
 	};
@@ -55,7 +62,7 @@ export default function useWebSocket({
 	return {
 		connected,
 		connect,
-		disconnect,
+		close,
 		send
 	};
 }
