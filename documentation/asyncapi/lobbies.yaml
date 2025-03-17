@@ -156,9 +156,7 @@ components:
                 type: number
                 description: Account ID of the player to kick
     swap_players:
-      description: Send this message to swap the position of 2 players
-      tags:
-        - $ref: '#/components/tags/owner'
+      description: Send this message to swap the position of 2 players, the owner can swap any players, the players can only change position within their team.
       payload:
         type: object
         required:

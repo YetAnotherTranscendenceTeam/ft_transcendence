@@ -529,3 +529,46 @@ describe("Lobby unqueue on leave", () => {
     }
   });
 })
+
+describe("swap team members", () => {
+  let players = [];
+  it("create a 2v2 unranked lobby and fill it up", async () => {
+    players.push(
+      await createLobby(users[0], {
+        name: "unranked_2v2",
+        team_size: 2,
+        team_count: 2,
+        type: "unranked",
+      })
+    );
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+      let player = await joinLobby(users[i], players[0]);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+  });
+  let swaps = [[1,3], [2,0]];
+  let failing_swaps = [[1,0], [2,3], [3,0]];
+  it.each(swaps)("swap players %i", async (a, b) => {
+    players[a].ws.sendJson({ event: "swap_players", data: { account_ids: [users[a].account_id, users[b].account_id] } });
+    await Promise.all(players.map((player) => player.ws.expectJson((message) => {
+      expect(message.event).toBe("swap_players");
+      expect(message.data.account_ids).toStrictEqual([users[a].account_id, users[b].account_id]);
+    })));
+  });
+  it.each(failing_swaps)("fail to swap players %i", async (a, b) => {
+    players[a].ws.sendJson({ event: "swap_players", data: { account_ids: [users[a].account_id, users[b].account_id] } });
+    await players[a].ws.expectJson((message) => {
+      expect(message.event).toBe("error");
+    });
+  });
+  it("leave lobby", async () => {
+    while (players.length > 0) {
+      let player = players.pop();
+      await player.close();
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
+    }
+  });
+})
