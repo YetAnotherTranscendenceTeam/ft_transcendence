@@ -128,17 +128,16 @@ describe("Profile creation routine", () => {
   })
 
   it("get by nonexisting username", async () => {
+    console
     const response = await request(profilesURL)
-      .get(`/usernames/${dummyProfile.username}`)
-      .expect(404)
-      .expect("Content-Type", /json/);
+      .get(`/?filter[username]=${dummyProfile.username}`)
 
-    expect(response.body).toEqual({
-      statusCode: 404,
-      code: 'ACCOUNT_NOT_FOUND',
-      error: 'Account Not Found',
-      message: 'The requested account does not exist'
-    });
+      console.error(response.body);
+      // .expect(200)
+      // .expect("Content-Type", /json/);
+
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toEqual([]);
   })
 
   it("delete non existing profile", async () => {

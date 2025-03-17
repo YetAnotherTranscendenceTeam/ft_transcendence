@@ -31,6 +31,11 @@ components:
         type: string
 
   schemas:
+    account_id:
+      description: An account unique ID
+      type: integer
+      example: 27017
+
     email:
       description: An email address
       type: string
@@ -60,6 +65,29 @@ components:
       description: An URI to profile picture
       type: string
       example: https://example.com/image.jpg
+  
+    limit:
+      type: integer
+      minimum: 1
+      maximum: 100
+      default: 30
+      description: Number of items to return
+
+    offset:
+      type: integer
+      minimum: 0
+      default: 0
+      description: Number of items to skip
+
+    user:
+      type: object
+      properties:
+        account_id:
+          $ref: "#/components/schemas/account_id"
+        username:
+          $ref: "#/components/schemas/username"
+        avatar:
+          $ref: "#/components/schemas/avatar"
 
   responses:
     AccountNotFound:
@@ -293,6 +321,43 @@ paths:
       security:
         - BearerAuth: []
 
+  /users:
+    get:
+      summary: get users
+      description: Get a list of user profiles with optional filtering and pagination
+      tags:
+        - Users
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            $ref: '#/components/schemas/limit'
+        - in: query
+          name: offset
+          schema:
+            $ref: '#/components/schemas/offset'
+        - in: query
+          name: filter[username]
+          schema:
+            type: string
+          description: Filters results to include only users with exact matching usernames. Case-sensitive
+        - in: query
+          name: filter[username:match]
+          schema:
+            type: string
+          description: Filters results to include users whose usernames contain the specified string. Allows partial matches and is case-insensitive.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:    
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/user'
+      security:
+        - BearerAuth: []
+
   /users/{account_id}:
     get:
       summary: get user
@@ -309,22 +374,6 @@ paths:
       security:
         - BearerAuth: []
 
-  /users/available/{username}:
-    get:
-      summary: username availability
-      description: Check wether a username is available
-      parameters:
-        - $ref: "#/components/parameters/username"
-      tags:
-        - Users
-      responses:
-        204:
-          description: Username available
-        403:
-          description: Username unavailable
-      security:
-        - BearerAuth: []
-  
   /social/follows:
     get:
       summary: get follows

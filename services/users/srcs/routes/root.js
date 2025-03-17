@@ -11,11 +11,11 @@ export default function router(fastify, opts, done) {
       properties: {
         limit: properties.limit,
         offset: properties.offset,
-        username: properties.username,
         filter: {
           type: "object",
           properties: {
-            username: { type: "string" },
+            "username": { type: "string" },
+            "username:match": { type: "string" },
           },
           additionalProperties: false,
         }
@@ -26,14 +26,19 @@ export default function router(fastify, opts, done) {
 
   fastify.get("/", { schema }, async function handler(request, reply) {
     const { limit, offset, filter = {} } = request.query;
+    console.log(filter);
 
     let url = new URL("http://db-profiles:3000");
     url.searchParams.append('limit', limit);
     url.searchParams.append('offset', offset);
 
-    for (const [key, value] of Object.entries(filter)) {
-      url.searchParams.append(`filter[${key}]`, value);
+    if (filter["username"]) {
+      url.searchParams.append('filter[username]', filter["username"]);
     }
+    if (filter["username:match"]) {
+      url.searchParams.append('filter[username:match]', filter["username:match"]);
+    }
+    console.log(url.toString())
     const users = await YATT.fetch(url.toString());
     reply.send(users);
   });

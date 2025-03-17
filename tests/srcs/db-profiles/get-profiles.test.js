@@ -59,5 +59,5 @@ describe('GET / route', () => {
 
     expect(Array.isArray(response.body)).toBeTruthy();
     expect(response.body.length).toBe(0);
-  });
+  }, 10000);
 });

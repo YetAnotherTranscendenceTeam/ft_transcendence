@@ -14,7 +14,8 @@ export default function router(fastify, opts, done) {
         filter: {
           type: "object",
           properties: {
-            username: { type: "string" },
+            "username": { type: "string" },
+            "username:match" : { type: "string" },
           },
           additionalProperties: false,
         }
@@ -26,14 +27,23 @@ export default function router(fastify, opts, done) {
   fastify.get("/", { schema }, async function handler(request, reply) {
     console.log(request.query);
     const { limit, offset, filter = {} } = request.query;
-    const { username } = filter;
 
     let sql = "SELECT * FROM profiles";
-    const params = [];
+    const params = [];    
+    const whereConditions = [];
 
-    if (username) {
-      sql += " WHERE INSTR(LOWER(username), LOWER(?)) > 0";
-      params.push(username);
+    if (filter["username"]) {
+      whereConditions.push("username = ?");
+      params.push(filter["username"]);
+    }
+  
+    if (filter["username:match"]) {
+      whereConditions.push("INSTR(LOWER(username), LOWER(?)) > 0");
+      params.push(filter["username:match"]);
+    }
+  
+    if (whereConditions.length > 0) {
+      sql += " WHERE " + whereConditions.join(" AND ");
     }
 
     sql += " LIMIT ? OFFSET ?";
