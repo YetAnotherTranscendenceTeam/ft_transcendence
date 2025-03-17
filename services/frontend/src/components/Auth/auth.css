@@ -1,7 +1,5 @@
 .auth-card {
-	position: absolute;
-	bottom: 24px;
-	right: 24px;
+	width: 100%;
 	min-width: 300px;
 	font-size: medium;
 	transition: height 0.4s;

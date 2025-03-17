@@ -1,4 +1,5 @@
 import request from "superwstest";
+import { Lobby } from "yatt-lobbies";
 
 export const lobbiesURL = "http://localhost:4043";
 
@@ -7,37 +8,39 @@ export class Player {
     this.ws = ws;
     this.join_secret = join_secret;
     this.user = user;
-    this.lobby = lobby;
+    this.lobby = new Lobby(lobby);
   }
   close() {
     return this.ws.sendJson({ event: "disconnect" }).expectClosed(1000, "Disconnected").close();
   }
+
+  getIndex() {
+    return this.lobby.players.findIndex((player) => player.account_id === this.user.account_id);
+  }
+
   expectJoin(account_id) {
     return this.ws.expectJson((message) => {
       expect(message.event).toBe("player_join");
       expect(message.data.player.account_id).toBe(account_id);
-      this.lobby.players.push(message.data.player);
+      this.lobby.addPlayer(message.data.player);
     });
   }
   async expectLeave(account_id) {
     if (this.lobby.leader_account_id === account_id)
-      await this.expectLeaderChange(this.lobby.players.filter((player) => player.account_id !== account_id)[0]?.account_id);
+      await this.expectLeaderChange(this.lobby.players[0].account_id === account_id ? this.lobby.players[1].account_id : this.lobby.players[0].account_id);
     return await this.ws.expectJson((message) => {
       if (message.event != "player_leave")
         console.log({event: message.event, data: message.data, connection: this});
       expect(message.event).toBe("player_leave");
       expect(message.data.player.account_id).toBe(account_id);
-      this.lobby.players = this.lobby.players.filter((player) => player.account_id !== account_id);
+      this.lobby.removePlayer(this.lobby.players.findIndex((player) => player.account_id === account_id));
     });
   }
 
   expectLeaderChange(account_id) {
     return this.ws.expectJson((message) => {
       expect(message.event).toBe("leader_change");
-      if (account_id)
-        expect(message.data.leader_account_id).toBe(account_id);
-      else
-        expect(message.data.leader_account_id).toBe(null);
+      expect(message.data.leader_account_id).toBe(account_id);
       this.lobby.leader_account_id = message.data.leader_account_id;
     });
   }

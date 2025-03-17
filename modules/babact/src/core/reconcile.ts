@@ -10,14 +10,18 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
     const existingFibers = new Map();
     let oldFiberIndex = 0;
     while (oldFiber != null) {
-        const key = oldFiber.props.key || oldFiberIndex;
+        const key = oldFiber.props.key != null ? oldFiber.props.key : `auto_${oldFiberIndex}`;
+        if (existingFibers.has(key)) {
+            throw new Error('Duplicate key: ' + key);
+        }
         existingFibers.set(key, oldFiber);
         oldFiber = oldFiber.sibling;
         oldFiberIndex++;
     }
+
     for (let i = 0; i < elements.length; i++) {
         const element = elements[i];
-        const key = element?.props.key || i;
+        const key = element?.props.key != null ? element.props.key : `auto_${i}`;
         let newFiber: IFiber = null;
         const oldFiber = existingFibers.get(key);
 
@@ -57,14 +61,15 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
             BabactState.deletions.push(oldFiber);
         }
 
+      
         if (i === 0) {
             wipFiber.child = newFiber;
-        } else if (element) {
+        } else {
             prevSibling.sibling = newFiber;
         }
         prevSibling = newFiber;
     }
-
+    
     existingFibers.forEach((fiber) => {
         if (fiber.effectTag !== EffectTag.Deletion) {
             fiber.effectTag = EffectTag.Deletion;

@@ -9,7 +9,7 @@ rm -f $TMP_FILE
 generate_or_use_existing_key() {
     local key="$1"
     local value="$2"
-    local padding_length="${3:-23}"  # Default padding length is 23
+    local padding_length="${3:-24}"  # Default padding length is 23
 
     # Check if the key already has a value in the environment
     if [ ! -z "${!key}" ]; then
@@ -75,8 +75,12 @@ fi
 
 HOST=$(hostname | cut -d'.' -f1)
 
+printf "\n[MISC PARAMETERS] \n"
+generate MATCHMAKING_SCHEDULER_DELAY "100"
+
 printf "\n[URLs]\n"
 generate BACKEND_URL "https://${HOST}:7979"
+generate WS_URL "wss://${HOST}:7979"
 generate FRONTEND_URL "https://${HOST}:8080"
 generate CDN_URL "https://${HOST}:8181"
 

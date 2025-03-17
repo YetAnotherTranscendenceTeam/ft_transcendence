@@ -58,7 +58,7 @@ server {
     }
 
     location /token {
-        rewrite ^/token(.*)$ /$1 break;
+        rewrite ^/token/(.*)$ /$1 break;
         proxy_pass http://token-manager:3000;
     }
 

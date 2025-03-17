@@ -8,10 +8,9 @@ import {
   LobbyLeaderMessage,
   TeamNameMessage,
 } from "./LobbyMessages.js";
-import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
-import { removePlayer, LobbyStateType } from "yatt-lobbies";
+import { LobbyStateType, Lobby as LobbyBase} from "yatt-lobbies";
 
 export const LobbyState = {
   waiting: () => ({ type: LobbyStateType.WAITING, joinable: true }),
@@ -32,33 +31,18 @@ export function generateJoinSecret() {
 
 const LOBBY_DESTRUCTION_DELAY = 2000;
 
-export class Lobby {
-  /**
-   * @type {Player[]}
-   */
-  players = [];
-
-  /**
-   * @type {string[]}
-   */
-  team_names = [];
-
-  join_secret = generateJoinSecret();
-
-  mode = Object.values(GameModes)[0];
-  state = LobbyState.waiting();
+export class Lobby extends LobbyBase {
 
   destruction_timeout = null;
 
-  leader_account_id = null;
-
   constructor(modename, lobbies) {
-    this.lobbies = lobbies;
+    let mode = Object.values(GameModes)[0];
     if (modename) {
-      const mode = GameModes[modename];
+      mode = GameModes[modename];
       if (!mode) throw new Error("Invalid gamemode");
-      this.mode = mode;
     }
+    super(generateJoinSecret(), mode);
+    this.lobbies = lobbies;
     this.setGameMode(this.mode);
   }
 
@@ -76,7 +60,7 @@ export class Lobby {
   setTeamName(player, name) {
     const index = this.players.findIndex((p) => p.account_id == player.account_id);
     if (index == -1) throw new Error("Player not in lobby");
-    const team_index = index % this.mode.team_count;
+    const team_index = index % this.getTeamCount();
     this.team_names[team_index] = name;
     this.broadbast(new TeamNameMessage(team_index, name));
   }
@@ -114,7 +98,7 @@ export class Lobby {
     }
     if (this.leader_account_id === null) this.setLeader(player);
     this.broadbast(new LobbyJoinMessage(player));
-    this.players.push(player);
+    super.addPlayer(player);
     player.syncLobby();
   }
 
@@ -122,14 +106,14 @@ export class Lobby {
     const rm_index = this.players.findIndex((p) => p.account_id == player.account_id);
     if (rm_index == -1) throw new Error("Player not in lobby");
     if (this.isLeader(player)) this.setLeader(rm_index == 0 ? this.players[1] : this.players[0]);
-    this.players = removePlayer(this.players, this.mode, rm_index);
+    super.removePlayer(rm_index);
     if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
   }
 
   // swaps the positions of 2 players
-  swapPlayers({ account_ids }) {
+  swapPlayers(sender, { account_ids }) {
     const indexes = [];
     if (!Array.isArray(account_ids) || account_ids.length != 2)
       throw new Error("Expected element 'indexes' to be an array of 2 element");
@@ -139,6 +123,11 @@ export class Lobby {
       let index = this.players.findIndex((p) => p.account_id == account_id);
       if (index == -1) throw new Error("Account_id is not part of this lobby");
       indexes.push(index);
+    }
+    if (!this.isLeader(sender)) {
+      const team_count = this.getTeamCount();
+      if (!account_ids.includes(sender.account_id) || indexes[0] % team_count != indexes[1] % team_count)
+        throw new Error("Non-leaders can only swap themselves with another player from their team");
     }
     // swap players with a temp value
     let player = this.players[indexes[0]];
@@ -162,7 +151,7 @@ export class Lobby {
     const lobby_capacity = mode.getLobbyCapacity();
     if (this.players.length > lobby_capacity)
       throw new Error("Too many players in lobby to change to this gamemode");
-    this.mode = mode;
+    super.setMode(mode);
     this.team_names.length = lobby_capacity / mode.team_size;
     this.broadbast(new LobbyModeMessage(mode));
   }
@@ -191,7 +180,7 @@ export class Lobby {
   }
 
   queue() {
-    if (this.state.type != "waiting") throw new Error("Lobby is not waiting");
+    if (this.state.type != LobbyStateType.WAITING) throw new Error("Lobby is not waiting");
     if (!MatchmakingConnection.getInstance().isReady) {
       throw new Error("Matchmaking service is currently not available");
     }
@@ -203,7 +192,7 @@ export class Lobby {
   }
 
   unqueue() {
-    if (this.state.type != "queued") throw new Error("Lobby is not queued");
+    if (this.state.type != LobbyStateType.QUEUED) throw new Error("Lobby is not queued");
     if (MatchmakingConnection.getInstance().isReady)
       MatchmakingConnection.getInstance().unqueue(this);
   }

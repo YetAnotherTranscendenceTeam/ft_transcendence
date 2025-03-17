@@ -10,6 +10,7 @@
 	opacity: 0;
 	color: var(--fg-1);
 	font-size: x-large;
+	overflow: hidden;
 }
 
 .online-select-overlay.open {
@@ -27,35 +28,87 @@
   }
 }
 
+.online-select-overlay .close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	font-size: x-large;
+	cursor: pointer;
+}
+
 
 .online-select-overlay-content {
 	gap: 16px;
+	width: 100%;
 }
 
 .mode-buttons {
-	max-width: 50vw;
+	width: 100%;
+	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
+	align-items: center;
+	gap: 16px;
 }
 
 .mode-button {
-	background-image: var(--image);
-	-webkit-filter: grayscale(100%);
-	filter: gray;
-	background-size: cover;
-	background-position: center;
-	height: 200px;
-	aspect-ratio: 4/3;
-	display: flex;
-	align-items: flex-end;
+	border-radius: 4px;
+	height: 175px;
+	aspect-ratio: 5/3;
 	padding: 16px;
-	transition: filter 0.3s;
-	transform: skew(-5deg);
 	position: relative;
-	border: 2px solid var(--primary-color);
+	border: 2px solid var(--fg-1);
+	transition: border 0.3s, transform 0.3s;
+	cursor: pointer;
+	background-color: color-mix(in srgb, var(--bg-1), transparent 20%);
+}
+
+/* .mode-button.ranked {
+	background: rgb(22,136,255);
+	background: linear-gradient(326deg, rgba(22,136,255,1) 20%, rgba(22,230,255,1) 80%);
+}
+
+.mode-button.unranked {
+	background: rgb(245,22,255);
+	background: linear-gradient(326deg, rgba(245,22,255,1) 20%, rgba(178,22,255,1) 80%);
+}
+
+.mode-button.tournament {
+	background: rgb(22,255,127);
+	background: linear-gradient(326deg, rgba(22,255,127,1) 20%, rgba(171,255,22,1) 80%);
+} */
+
+.mode-button.disabled {
+	pointer-events: none;
+	opacity: 0.5;
 }
 
 .mode-button:hover {
-	-webkit-filter: grayscale(0%);
-	filter: none;
+	border: 2px solid var(--primary-color);
+	transform: scale(1.05);
+}
+
+
+.mode-button h1 {
+	font-size: 75px;
+	color: var(--fg-1);
+	font-weight: 900;
+}
+
+.mode-button p {
+	font-size: medium;
+	color: var(--bg-4);
+	position: absolute;
+	bottom: 16px;
+	left: 16px;
+	text-transform: capitalize;
+}
+
+.online-join-form {
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 8px;
+	font-size: medium;
 }

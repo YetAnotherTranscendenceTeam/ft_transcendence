@@ -27,6 +27,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - BACKEND_URL=${BACKEND_URL}
+      - WS_URL=${WS_URL}
     ports:
       - "127.0.0.1:4242:8080"
     networks:
@@ -155,6 +156,17 @@ services:
     networks:
       - frontend
 
+  # profiles-api:
+  #   build:
+  #     context: services/profiles-api/
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - ./sqlite:/database
+  #     - ./services/profiles-api/srcs:/run/srcs
+  #   ports:
+  #     - "127.0.0.1:3003:3000"
+  #   networks:
+  #     - credentials
 
   db-profiles:
     build:

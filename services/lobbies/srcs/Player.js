@@ -3,7 +3,7 @@ import { GameModes } from "./GameModes.js";
 import { LobbyCopyMessage, LobbyErrorMessage } from "./LobbyMessages.js";
 
 export class Player {
-  static playerMessages = ["disconnect", "team_name"];
+  static playerMessages = ["disconnect", "team_name", "swap_players"];
   static messageHanlers = {
     unrecognized: () => {
       throw new Error("Unrecognized message");
@@ -36,7 +36,7 @@ export class Player {
     },
     swap_players: (msg, player) => {
       if (!msg) throw new Error("Invalid swap players message");
-      player.lobby.swapPlayers(msg);
+      player.lobby.swapPlayers(player, msg);
     },
   };
 

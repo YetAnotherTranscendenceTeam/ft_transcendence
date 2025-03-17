@@ -23,8 +23,10 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		const response = await ft_fetch(`${config.API_URL}/me`, {});
 		if (response)
 			setMe(response);
-		else
+		else{
+			console.log('logout');
 			logout();
+		}
 	};
 
 	const auth = async (token, expire_at) => {
