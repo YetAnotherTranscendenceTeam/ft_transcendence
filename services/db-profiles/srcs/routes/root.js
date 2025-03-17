@@ -75,17 +75,17 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.get("/:account_id", { schema }, async function handler(request, reply) {
-      const { account_id } = request.params;
+    const { account_id } = request.params;
 
-      const profile = db
-        .prepare("SELECT * FROM profiles WHERE account_id = ?")
-        .get(account_id);
-      if (!profile) {
-        reply.code(404).send(objects.accountNotFound);
-      } else {
-        reply.send(profile);
-      }
+    const profile = db
+      .prepare("SELECT * FROM profiles WHERE account_id = ?")
+      .get(account_id);
+    if (!profile) {
+      reply.code(404).send(objects.accountNotFound);
+    } else {
+      reply.send(profile);
     }
+  }
   );
 
   schema = {
@@ -110,12 +110,16 @@ export default function router(fastify, opts, done) {
   fastify.post("/", { schema }, async function handler(request, reply) {
     const { account_id } = request.body;
 
-    for (let i = 0; i < 5; ++i) {
+    for (let i = 0; i < 7; ++i) {
       try {
-        const profile = db
-          .prepare("INSERT INTO profiles (account_id, username, avatar) VALUES (?, ?, ?) RETURNING *")
-          .get(account_id, generateUsername() ,fastify.defaultAvatar);
+        const username = fastify.usernameBank.getUsername(i >= 5);
+        const profile = db.prepare(`
+              INSERT INTO profiles (account_id, username, avatar)
+              VALUES (?, ?, ?)
+              RETURNING *
+          `).get(account_id, username, fastify.defaultAvatar);
         reply.code(201).send(profile);
+        fastify.usernameBank.checkAndRefill();
       } catch (err) {
         if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
           return new HttpError.Conflict().send(reply);
@@ -147,17 +151,17 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.delete("/:account_id", { schema }, async function handler(request, reply) {
-      const { account_id } = request.params;
+    const { account_id } = request.params;
 
-      const result = db
-        .prepare(`DELETE FROM profiles WHERE account_id = ?`)
-        .run(account_id);
-      if (!result.changes) {
-        reply.code(404).send(objects.accountNotFound);
-      } else {
-        reply.code(204).send();
-      }
+    const result = db
+      .prepare(`DELETE FROM profiles WHERE account_id = ?`)
+      .run(account_id);
+    if (!result.changes) {
+      reply.code(404).send(objects.accountNotFound);
+    } else {
+      reply.code(204).send();
     }
+  }
   );
 
   schema = {
