@@ -15,7 +15,14 @@ export default function router(fastify, opts, done) {
           type: "object",
           properties: {
             "username": { type: "string" },
-            "username:match" : { type: "string" },
+            "username:match": { type: "string" },
+            "account_id": {
+              type: "object",
+              properties: {
+                "nin": { type: "string" }
+              },
+              additionalProperties: false,
+            }
           },
           additionalProperties: false,
         }
@@ -32,14 +39,20 @@ export default function router(fastify, opts, done) {
     const params = [];    
     const whereConditions = [];
 
-    if (filter["username"]) {
+    if (filter.username) {
       whereConditions.push("username = ?");
-      params.push(filter["username"]);
+      params.push(filter.username);
     }
   
     if (filter["username:match"]) {
       whereConditions.push("INSTR(LOWER(username), LOWER(?)) > 0");
       params.push(filter["username:match"]);
+    }
+
+    if (filter.account_id?.nin) {
+      const ids = filter.account_id.nin.split(',');
+      whereConditions.push(`account_id NOT IN (${Array(ids.length).fill('?').join(', ')})`)
+      ids.forEach(id => params.push(id));
     }
   
     if (whereConditions.length > 0) {
