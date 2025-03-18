@@ -1,8 +1,9 @@
+import { Manifold } from "./Manifold.js";
 import { Shape } from "./Shape/Shape.js";
 import { MassData, Material, PhysicsType } from "./properties.js";
 import { Vec2 } from "gl-matrix";
 
-export class Body {
+export class Body extends EventTarget {
 	private static _idCounter: number = 0;
 
 	private _id: number;
@@ -23,6 +24,7 @@ export class Body {
 	private _velocity: Vec2;
 
 	constructor(type: PhysicsType = PhysicsType.DYNAMIC, shape: Shape, material: Material, position: Vec2 = Vec2.create(), velocity: Vec2 = Vec2.create()) {
+		super();
 		this._id = Body._idCounter++;
 		this._type = type;
 		this._shape = shape;
@@ -32,7 +34,11 @@ export class Body {
 		this._torque = 0;
 		this._orientation = 0;
 		this._position = position;
+		console.log("position1", this._position);
+		console.log("position2", this._position[0], this._position[1]);
+		console.log("position3", this._position.x, this._position.y);
 		this._velocity = velocity;
+		console.log("velocity", this._velocity);
 		if (this._type === PhysicsType.DYNAMIC) {
 			this._massData = this._shape.computeMass(this._material.density);
 		} else {
@@ -104,6 +110,10 @@ export class Body {
 	public resetForces(): void {
 		Vec2.set(this._force, 0, 0);
 		this._torque = 0;
+	}
+
+	public onCollision(other: Body, manifold: Manifold): void {
+		this.dispatchEvent(new CustomEvent("collision", { detail: { emitter: this, other, manifold } }));
 	}
 
 	public get id(): number {

@@ -42,6 +42,7 @@ function circleCircleCollision(manifold: Manifold, bodyA: Body, bodyB: Body): vo
 	} else {
 		manifold.penetration = radius - distance;
 		Vec2.scale(manifold.normal, normal, 1 / distance);
+		manifold.contacts[0] = Vec2.create();
 		Vec2.scaleAndAdd(manifold.contacts[0], bodyA.position, manifold.normal, circleA.radius);
 	}
 }
@@ -90,6 +91,7 @@ function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): v
 		const normal: Vec2 = Vec2.subtract(Vec2.create(), v1, center) as Vec2;
 		Vec2.transformMat2(normal, normal, polygon.u);
 		Vec2.normalize(manifold.normal, normal);
+		manifold.contacts[0] = Vec2.create();
 		Vec2.add(manifold.contacts[0], Vec2.transformMat2(Vec2.create(), v1, polygon.u), bodyB.position);
 	} else if (dot2 <= 0) {	
 		if (Vec2.squaredLength(Vec2.subtract(Vec2.create(), center, v2)) > circle.radius * circle.radius) {
@@ -98,6 +100,7 @@ function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): v
 		const normal: Vec2 = Vec2.subtract(Vec2.create(), v2, center) as Vec2;
 		Vec2.transformMat2(normal, normal, polygon.u);
 		Vec2.normalize(manifold.normal, normal);
+		manifold.contacts[0] = Vec2.create();
 		Vec2.add(manifold.contacts[0], Vec2.transformMat2(Vec2.create(), v2, polygon.u), bodyB.position);
 	} else {
 		const normal: Vec2 = Vec2.clone(polygon.normals[faceNormal]);
@@ -106,6 +109,7 @@ function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): v
 		}
 		Vec2.transformMat2(normal, normal, polygon.u);
 		Vec2.negate(manifold.normal, normal);
+		manifold.contacts[0] = Vec2.create();
 		Vec2.scaleAndAdd(manifold.contacts[0], bodyA.position, manifold.normal, circle.radius);
 	}
 }

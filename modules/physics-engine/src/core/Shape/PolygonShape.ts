@@ -11,7 +11,7 @@ export class PolygonShape extends Shape {
 	constructor(vertices: Array<{ x: number, y: number }>);
 	constructor(vertices: Array<Vec2>);
 	constructor(halfWidth: number, halfHeight: number);
-	constructor(arg: any) {
+	constructor(arg: any, halfHeight?: number) {
 		super();
 		if (arg instanceof Array) {
 			if (arg[0] instanceof Vec2) {
@@ -23,11 +23,12 @@ export class PolygonShape extends Shape {
 				}
 			}
 		} else {
+			const halfWidth = arg;
 			this._vertices = new Array<Vec2>();
-			this._vertices.push(Vec2.fromValues(-arg.halfWidth, arg.halfHeight));
-			this._vertices.push(Vec2.fromValues(arg.halfWidth, arg.halfHeight));
-			this._vertices.push(Vec2.fromValues(arg.halfWidth, -arg.halfHeight));
-			this._vertices.push(Vec2.fromValues(-arg.halfWidth, -arg.halfHeight));
+			this._vertices.push(Vec2.fromValues(-halfWidth, halfHeight));
+			this._vertices.push(Vec2.fromValues(halfWidth, halfHeight));
+			this._vertices.push(Vec2.fromValues(halfWidth, -halfHeight));
+			this._vertices.push(Vec2.fromValues(-halfWidth, -halfHeight));
 		}
 		this._normals = new Array<Vec2>();
 		for (let i = 0; i < this._vertices.length; i++) {

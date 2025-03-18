@@ -55,6 +55,11 @@ export class Scene {
 			}
 		}
 
+		for (let i = 0; i < this._contact.length; i++) {
+			this._contact[i].bodyA.onCollision(this._contact[i].bodyB, this._contact[i]);
+			this._contact[i].bodyB.onCollision(this._contact[i].bodyA, this._contact[i]);
+		}
+
 		for (let i = 0; i < this._bodies.length; i++) {
 			this._bodies[i].integrateVelocity(this._dt, this._gravity);
 		}

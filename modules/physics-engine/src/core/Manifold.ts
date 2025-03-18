@@ -32,7 +32,7 @@ export class Manifold {
 	}
 
 	public solve(): void {
-		COLLISION_CALLBACKS[this._bodyA.shape.type][this._bodyB.shape.type](this, this._bodyA, this._bodyB);
+		COLLISION_CALLBACKS.get(this._bodyA.shape.type).get(this._bodyB.shape.type)(this, this._bodyA, this._bodyB);
 	}
 
 	public initialize(dt: number, gravity: Vec2): void {
