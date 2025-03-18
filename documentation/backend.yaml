@@ -423,7 +423,9 @@ paths:
             example: 12345
       responses:
         204:
-          description: Successfully followed the account (no content)
+          description: Successfully followed the account
+        403:
+          description: Cannot follow your own account
         409:
           description: Already following this account
       security:

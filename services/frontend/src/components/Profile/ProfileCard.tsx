@@ -4,11 +4,11 @@ import "./profile.css";
 import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
 import SocialManager from "./SocialManager";
-import { Profile } from "../../contexts/useAuth";
 import ConfirmProfileModal from "./ConfirmProfileModal";
 import useEscape from "../../hooks/useEscape";
+import { IMe } from "../../contexts/useAuth";
 
-export default function ProfileCard({ me, ...props } : { me: Profile, [key: string]: any }) {
+export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]: any }) {
 
 	const [isOpen, setIsOpen] = Babact.useState(false);
 
@@ -26,7 +26,7 @@ export default function ProfileCard({ me, ...props } : { me: Profile, [key: stri
 				<Avatar src={me.avatar} name={me.username} status="connected"/>
 				<div className='flex flex-col gap-1'>
 					<h1>{me.username}</h1>
-					<h2>{me.elo ? me.elo : '42'} Elo</h2>
+					<h2>42 Elo</h2>
 				</div>
 			</div>
 			<div className='flex flex-row items-center gap-2'>

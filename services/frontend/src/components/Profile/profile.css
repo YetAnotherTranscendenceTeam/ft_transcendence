@@ -98,12 +98,12 @@
 
 
 .social-manager-follow-card .button {
-	font-size: medium;
+	font-size: small;
 	display: none;
 }
 
 .social-manager-follow-card:hover .button {
-	display: block;
+	display: flex;
 }
 
 .social-manager-add {

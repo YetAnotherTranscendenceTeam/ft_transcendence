@@ -24,7 +24,7 @@ export default function router(fastify, opts, done) {
     const { account_id } = request.params;
 
     if (request.account_id === account_id) {
-      return new HttpError.BadRequest("Cannot follow your own account").send(reply);
+      return new HttpError.Forbidden("Cannot follow your own account").send(reply);
     }
 
     try {

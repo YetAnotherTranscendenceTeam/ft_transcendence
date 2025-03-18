@@ -171,6 +171,9 @@
 /* ================================== */
 
 .avatar {
+	--offline-color: #b3b3b3;
+	--online-color: #39df5d;
+	--inactive-color: #ff9f32;
 	aspect-ratio: 1/1;
 	position: relative;
 	border-radius: 8px;
