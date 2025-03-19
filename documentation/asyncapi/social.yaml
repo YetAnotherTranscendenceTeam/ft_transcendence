@@ -39,6 +39,8 @@ channels:
         $ref: '#/components/messages/ping'
       update_status:
         $ref: '#/components/messages/update_status'
+      send_lobby_invite:
+        $ref: '#/components/messages/send_lobby_invite'
       goodbye:
         $ref: '#/components/messages/goodbye'
   
@@ -60,6 +62,7 @@ operations:
     messages:
       - $ref: '#/channels/social/messages/ping'
       - $ref: '#/channels/social/messages/update_status'
+      - $ref: '#/channels/social/messages/send_lobby_invite'
       - $ref: '#/channels/social/messages/goodbye'
 
 components:
@@ -207,6 +210,32 @@ components:
         required:
           - event
           - data
+    
+    send_lobby_invite:
+      description: Send this message to the server to invite a player to join a lobby
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - send_lobby_invite
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              gamemode:
+                $ref: './lobbies.yaml#/components/schemas/gamemode'
+              join_secret:
+                $ref: '#/components/schemas/join_secret'
+            required:
+              - from
+              - gamemode
+        required:
+          - event
+          - data
 
     goodbye:
       description: Send this message to the server disconnect the websocket
@@ -266,4 +295,9 @@ components:
       type: string
       format: uri
       example: https://example.com/image.jpg
+    
+    join_secret:
+      description: A lobby secret ID
+      type: string
+      example: zBR43YSt
 

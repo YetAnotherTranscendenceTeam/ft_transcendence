@@ -42,6 +42,8 @@ export default function router(fastify, opts, done) {
           client.resetInactivity();
         } else if (payload.event === "update_status") {
           client.setStatus(payload.data);
+        } else if (payload.event === "send_lobby_invite") {
+          client.sendLobbyInvite(payload.data);
         }
       } catch (err) {
         console.error(err.message);

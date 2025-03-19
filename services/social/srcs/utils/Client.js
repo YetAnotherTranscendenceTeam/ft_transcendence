@@ -1,3 +1,4 @@
+import YATT from "yatt-utils";
 import db from "../app/database.js";
 import { inactivity_delay } from "../app/env.js";
 import { inactive, offline, online, parseUserStatus } from "./activityStatuses.js";
@@ -127,6 +128,18 @@ export class Client {
       return this.customStatus
     } else {
       return online;
+    }
+  }
+
+  async sendLobbyInvite(invite) {
+    this.username = await YATT.fetch(`http://db-profiles/${this.account_id}`)?.username;
+
+    const target = this.allClients.get(invite?.account_id);
+
+    if (target) {
+      target.send({ event: "receive_lobby_invite", data: { from: this.username, gamemode: invite?.gamemode, join_secret: invite?.join_secret } });
+    } else {
+      // TODO: error event
     }
   }
 }
