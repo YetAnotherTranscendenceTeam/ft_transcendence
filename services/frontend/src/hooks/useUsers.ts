@@ -1,7 +1,6 @@
 import Babact from "babact"
 import useFetch from "./useFetch"
 import config from "../config";
-import { useAuth } from "../contexts/useAuth";
 
 
 export interface IUser {
@@ -10,52 +9,52 @@ export interface IUser {
 	avatar: string,
 }
 
-export default function useUsers(): {
-		users: IUser[],
-		fetchUsersMatched: (username: string, limit?: number) => void,
-		isLoading: boolean,
-		followUser: (user: IUser) => void
-	} {
-	const [users, setUsers] = Babact.useState<IUser[]>([])
+export class User implements IUser {
+	account_id: number;
+	username: string;
+	avatar: string;
 
-	const { follows, me } = useAuth();
-
-	const { ft_fetch, isLoading } = useFetch();
-
-	const fetchUsersMatched = async (username: string = '', limit: number = 20) => {
-		const response = await ft_fetch(`${config.API_URL}/users?filter[username:match]=${username}&limit=${limit}&filter[account_id:not]=${follows.map(f => f.account_id).join(',')},${me.account_id}`);
-		if (response) {
-			setUsers(response);
-		}
+	constructor(user: IUser){
+		this.account_id = user.account_id;
+		this.username = user.username;
+		this.avatar = user.avatar;
 	}
 
-	const followUser = async (user: IUser) => {
-		const res = await ft_fetch(`${config.API_URL}/social/follows/${user.account_id}`, {
+	async follow() {
+		const { ft_fetch } = useFetch();
+		await ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
 			method: 'POST',
 		}, {
-			success_message: `You are now following ${user.username}`,
+			success_message: `You are now following ${this.username}`,
 			show_error: true,
 			error_messages: {
-				409: `You are already following ${user.username}`,
+				409: `You are already following ${this.username}`,
 				403: `You can't follow yourself`
 			}
 		});
-
-		if (res)
-			setUsers(users.filter(u => u.account_id !== user.account_id));
 	}
+}
 
-	Babact.useEffect(() => {
-		console.log(follows, me);
-		if (follows && me)
-			fetchUsersMatched();
-	}, [me, follows])
+export default function useUsers(): {
+		users: User[],
+		search: (username: string, limit?: number, account_id_not?: number[]) => void,
+		isLoading: boolean,
+	} {
+	const [users, setUsers] = Babact.useState<User[]>([])
+
+	const { ft_fetch, isLoading } = useFetch();
+
+	const search = async (username: string = '', limit: number = 20, account_id_not: number[] = []) => {
+		const response = await ft_fetch(`${config.API_URL}/users?filter[username:match]=${username}&limit=${limit}&filter[account_id:not]=${account_id_not.join(',')}`);
+		if (response) {
+			setUsers(response.map((u: IUser) => new User(u)));
+		}
+	}
 
 	return {
 		users,
-		fetchUsersMatched,
+		search,
 		isLoading,
-		followUser
 	}
 
 }

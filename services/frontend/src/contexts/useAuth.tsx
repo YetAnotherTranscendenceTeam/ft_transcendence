@@ -2,7 +2,7 @@ import Babact from "babact";
 import useFetch from "../hooks/useFetch";
 import config from "../config";
 import { IUser } from "../hooks/useUsers";
-import useFollows, { Follow, FollowStatus, IFollow } from "../hooks/useFollows";
+import useSocial, { Follow, FollowStatus } from "../hooks/useSocials";
 
 const AuthContext = Babact.createContext({});
 
@@ -25,8 +25,9 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		if (!localStorage.getItem('access_token'))
 			return;
 		const response = await ft_fetch(`${config.API_URL}/me`, {});
-		if (response)
-			setMe(response);
+		if (response){
+			setMe({...response});
+		}
 		else{
 			console.log('logout');
 			logout();
@@ -57,17 +58,22 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		fetchMe();
 	}, []);
 
-	const {follows, connect, ping, status} = useFollows();
+	const { connect, follows, ping, status } = useSocial();
 
 	Babact.useEffect(() => {
-		if (me)
-			connect();
+		connect();
 	}, [me]);
 
 	return (
 		<AuthContext.Provider
 			value={{
-				me, auth, logout, refresh, follows
+				me,
+				follows,
+				auth,
+				logout,
+				refresh,
+				ping,
+				status,
 			}}
 		>
 			{children}
@@ -77,12 +83,12 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 
 export const useAuth = (): {
 		me: IMe,
+		follows: Follow[],
 		auth: (token: string, expire_at: number) => void,
 		logout: () => void,
 		refresh: () => void,
 		ping: () => void,
 		status: (status: FollowStatus) => void,
-		follows: Follow[],
 	} => {
 	return Babact.useContext(AuthContext);
 };

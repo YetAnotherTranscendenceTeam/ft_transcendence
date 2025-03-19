@@ -12,11 +12,13 @@ export default function useWebSocket({
 		onError,
 		onClose,
 		onOpen,
+		eventHandlers = null
 	} : {
 		onMessage?: (message: string) => void,
 		onError?: (error: any) => void,
 		onClose?: (event) => void,
 		onOpen?: (event) => void,
+		eventHandlers?: { [key: string]: (event) => void }
 	} = {}): WebSocketHook {
 	const ws = Babact.useRef(null);
 	const [connected, setConnected] = Babact.useState(false);
@@ -36,6 +38,13 @@ export default function useWebSocket({
 			if (onMessage) {
 				onMessage(event.data);
 			}
+			if (eventHandlers) {
+				const msg = JSON.parse(event.data);
+				if (eventHandlers[msg.event]) {
+					eventHandlers[msg.event](msg.data);
+				}
+			}
+
 		};
 		ws.current.onerror = (error) => {
 			if (onError) {

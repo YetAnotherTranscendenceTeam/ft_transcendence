@@ -1,23 +1,42 @@
 import Babact from "babact";
 import Button from "../../ui/Button";
-import Avatar from "../../ui/Avatar";
 import Input from "../../ui/Input";
 import { Form } from "../../contexts/useForm";
-import useUsers, { IUser } from "../../hooks/useUsers";
+import useUsers from "../../hooks/useUsers";
+import { FollowStatus } from "../../hooks/useSocials";
+import SocialUserCard from "./SocialUserCard";
 import { useAuth } from "../../contexts/useAuth";
-import { FollowStatus } from "../../hooks/useFollows";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
 
 	const [selected, setSelected] = Babact.useState('follow');
 
-	const { follows } = useAuth();
+	const {users, search} = useUsers();
 
-	const {users, fetchUsersMatched, isLoading, followUser} = useUsers();
+	const { me, follows } = useAuth();
 
-	const handleSearch = (e: any) => {
-		fetchUsersMatched(e.target.value);
-	}
+	const handleSearch = (e) => {
+		search(e.target.value, 20, follows.map(f => f.account_id).concat(me.account_id));
+	};
+
+	Babact.useEffect(() => {
+		if (me)
+			search('', 20, follows.map(f => f.account_id).concat(me.account_id));
+	}, [me, follows]);
+
+	const sortFollows = (follows) => {
+		// Sort follows by status
+		// 1. INLOBBY
+		// 2. INGAME
+		// 3. ONLINE
+		// 4. INACTIVE
+		// 5. OFFLINE
+		return follows.sort((a, b) => {
+			const order = [FollowStatus.INLOBBY, FollowStatus.INGAME, FollowStatus.ONLINE, FollowStatus.INACTIVE, FollowStatus.OFFLINE];
+			return order.indexOf(a.status) - order.indexOf(b.status);
+		});
+	};
+
 
 	return <div className={`social-manager ${className}`} {...props}>
 		<div className='social-manager-tabbar flex flex-row'>
@@ -34,25 +53,15 @@ export default function SocialManager({ className = '', children, ...props }: { 
 		<div className='social-manager-content flex flex-row gap-4'>
 		<div className={`social-manager-tab scrollbar flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
 				{
-					follows.length ? follows.map((follow) => <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
-						<div className='flex flex-row items-center gap-2'>
-							<Avatar
-								src={follow.profile.avatar}
-								name={follow.profile.username}
-								status={follow.status}
-							/>
-							<div className='flex flex-col gap-1'>
-								<h1>{follow.profile.username}</h1>
-								<h2>{follow.status}</h2>
-							</div>
-						</div> 
-						<div className='flex flex-row items-center gap-2'>
-							<Button className='danger' onClick={() => follow.unfollow(follow.profile.account_id)}>
-								<i class="fa-solid fa-user-minus"></i> Unfollow
-							</Button>
-						</div>
-					</div>)
-					: <div className='flex flex-col w-full items-center justify-center h-full gap-4'>
+					follows.length ?
+					sortFollows(follows).map((follow, i) =>
+						<SocialUserCard
+							key={i}
+							user={follow.profile}
+							status={follow.status}
+							unfollow={() => follow.unfollow()}
+						/>):
+					<div className='flex flex-col w-full items-center justify-center h-full gap-4'>
 						No follows yet
 						<Button className="primary" onClick={() => setSelected('add')}>
 							Add one now <i className="fa-solid fa-plus"></i>
@@ -70,20 +79,13 @@ export default function SocialManager({ className = '', children, ...props }: { 
 				</Form>
 				<div className='social-manager-add-list flex scrollbar flex-col gap-1 h-full'>
 					{
-						users.length !== 0 && users.map((follow) => <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
-							<div className='flex flex-row items-center gap-2'>
-								<Avatar src={follow.avatar} name={follow.username}/>
-								<h1>{follow.username}</h1>
-							</div> 
-							<div className='flex flex-row items-center gap-2'>
-								<Button
-									className='success'
-									onClick={() => followUser(follow)}
-								>
-									<i class="fa-solid fa-user-plus"></i> Follow
-								</Button>
-							</div>
-						</div>)
+						users.length !== 0 &&
+						users.map((user) => (
+							<SocialUserCard
+								key={user.account_id}
+								user={user}
+							/>
+						))
 
 					}
 					{

@@ -1,6 +1,6 @@
 import Babact from "babact";
-import { IUser } from "./useUsers";
-import useWebSocket, { WebSocketHook } from "./useWebSocket";
+import { IUser, User } from "./useUsers";
+import useWebSocket from "./useWebSocket";
 import useFetch from "./useFetch";
 import config from "../config";
 
@@ -9,6 +9,7 @@ export enum FollowStatus {
 	OFFLINE = 'offline',
 	INGAME = 'ingame',
 	INACTIVE = 'inactive',
+	INLOBBY = 'inlobby',
 }
 
 export interface IFollow {
@@ -19,18 +20,18 @@ export interface IFollow {
 
 export class Follow implements IFollow {
 	account_id: number;
-	profile: IUser;
+	profile: User;
 	status: FollowStatus;
 
 	constructor(follow: IFollow){
 		this.account_id = follow.account_id;
-		this.profile = follow.profile;
+		this.profile = new User(follow.profile);
 		this.status = follow.status;
 	}
 
-	unfollow(account_id: number): void {
+	unfollow(): void {
 		const { ft_fetch } = useFetch();
-		ft_fetch(`${config.API_URL}/social/follows/${account_id}`, {
+		ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
 			method: 'DELETE',
 		}, {
 			success_message: `You unfollowed ${this.profile.username}`,
@@ -48,7 +49,7 @@ export class Follow implements IFollow {
 
 }
 
-export default function useFollows(): {
+export default function useSocial(): {
 		follows: Follow[],
 		connect: () => void
 		ping: () => void
@@ -57,11 +58,11 @@ export default function useFollows(): {
 
 	const [follows, setFollows] = Babact.useState<Follow[]>([]);
 
-	const onWelcome = (follows: IFollow[]) => {
+	const onWelcome = ({ follows }: {follows: IFollow[]}) => {
 		setFollows(follows.map(f => new Follow(f)));
 	};
 
-	const onStatusChange = (account_id: number, status: FollowStatus) => {
+	const onStatusChange = ({ account_id, status }: {account_id: number, status: FollowStatus}) => {
 		setFollows(follows => follows.map(f => {
 			if (f.account_id === account_id)
 				return f.setStatus(status);
@@ -73,29 +74,17 @@ export default function useFollows(): {
 		setFollows(follows => follows.concat(new Follow(follow)));
 	};
 
-	const onUnfollow = (account_id: number) => {
+	const onUnfollow = ({ account_id }: {account_id: number}) => {
 		setFollows(follows => follows.filter(f => f.account_id !== account_id));
 	};
 
-	const onMessage = (message: string) => {
-		const msg = JSON.parse(message);
-		console.log('onMessage', msg)
-		if (msg.event === 'welcome') {
-			onWelcome(msg.data.follows);
-		}
-		else if (msg.event === 'status') {
-			onStatusChange(msg.data.account_id, msg.data.status);
-		}
-		else if (msg.event === 'follow') {
-			onFollow(msg.data);
-		}
-		else if (msg.event === 'unfollow') {
-			onUnfollow(msg.data.account_id);
-		}
-	};
-
 	const ws = useWebSocket({
-		onMessage,
+		eventHandlers: {
+			'welcome': onWelcome,
+			'status': onStatusChange,
+			'follow': onFollow,
+			'unfollow': onUnfollow,
+		}
 	});
 
 	const connect = () => {
