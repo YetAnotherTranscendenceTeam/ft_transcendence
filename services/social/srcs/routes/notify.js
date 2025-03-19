@@ -40,7 +40,7 @@ export default function router(fastify, opts, done) {
           socket.close(1000, "Normal Closure");
         } else if (payload.event === "ping") {
           client.resetInactivity();
-        } else if (payload.event === "status") {
+        } else if (payload.event === "update_status") {
           client.setStatus(payload.data);
         }
       } catch (err) {

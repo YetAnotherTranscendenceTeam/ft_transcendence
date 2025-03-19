@@ -23,7 +23,7 @@ describe('Status changes', () => {
         expect(message.data.follows).toEqual([])
       })
 
-    const statusUpdate = { type: "ingame", data: { something: "astring" }};
+    const statusUpdate = { type: "inlobby", data: { something: "astring" }};
 
     const ws0 = await request(socialUrl)
       .ws(`/notify?access_token=${users[0].jwt}`)
@@ -43,7 +43,7 @@ describe('Status changes', () => {
           })
         ])
         setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "status", data: statusUpdate }));
+          ws1.send(JSON.stringify({ event: "update_status", data: statusUpdate }));
         }, 1000)
       })
       .expectJson((message) => {
@@ -53,7 +53,7 @@ describe('Status changes', () => {
           status: statusUpdate
         });
         setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "status", data: online }));
+          ws1.send(JSON.stringify({ event: "update_status", data: online }));
         }, 2000)
       }).expectJson((message) => {
         expect(message.event).toBe("status");

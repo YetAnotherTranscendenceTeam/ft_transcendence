@@ -27,6 +27,8 @@ channels:
     # sent from server to client
       welcome:
         $ref: '#/components/messages/welcome'
+      status:
+        $ref: '#/components/messages/status'
       follow:
         $ref: '#/components/messages/follow'
       unfollow:
@@ -35,6 +37,8 @@ channels:
     # sent from client to server
       ping:
         $ref: '#/components/messages/ping'
+      update_status:
+        $ref: '#/components/messages/update_status'
       goodbye:
         $ref: '#/components/messages/goodbye'
   
@@ -45,6 +49,7 @@ operations:
       $ref: '#/channels/social'
     messages:
       - $ref: '#/channels/social/messages/welcome'
+      - $ref: '#/channels/social/messages/status'
       - $ref: '#/channels/social/messages/follow'
       - $ref: '#/channels/social/messages/unfollow'
 
@@ -54,6 +59,7 @@ operations:
       $ref: '#/channels/social'
     messages:
       - $ref: '#/channels/social/messages/ping'
+      - $ref: '#/channels/social/messages/update_status'
       - $ref: '#/channels/social/messages/goodbye'
 
 components:
@@ -65,7 +71,7 @@ components:
         properties:
           event:
             type: string
-            description: Event type
+            description: The type of the event
             enum:
               - welcome
           data:
@@ -87,9 +93,32 @@ components:
         required:
           - event
           - data
+    
+    status:
+      description: Message sent by the server when the status of a user you are following changes
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            enum:
+              - status
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              status:
+                $ref: '#/components/schemas/status'
+            required:
+              - account_id
+              - status
+        required:
+          - event
+          - data
 
     follow:
-      description: Message sent by the server whenver the client follows another user
+      description: Message sent by the server when the client follows another user
       payload:
         type: object
         properties:
@@ -115,7 +144,7 @@ components:
           - data
       
     unfollow:
-      description: Message sent by the server whenever the client unfollows another user
+      description: Message sent by the server when the client unfollows another user
       payload:
         type: object
         properties:
@@ -135,17 +164,49 @@ components:
           - data
 
     ping:
-      description: Sending this message to the server prevent the user from going inactive
+      description: Send this message to the server to prevent the user from going inactive
       payload:
         type: object
         properties:
           event:
             type: string
-            description: Event type
+            description: The type of the event
             enum:
               - ping
         required:
           - event
+    
+    update_status:
+      description: |
+        Send this message to the server to update your own status.
+        For any other status type that `online``, an optional data object
+        is accepted to hold custom informations
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - update_status
+          data:
+            description: An activity status
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - online
+                  - ingame
+                  - inlobby
+              data:
+                type: object
+                decription: Custom information about the user activity
+            required:
+              - type
+        required:
+          - event
+          - data
 
     goodbye:
       description: Send this message to the server disconnect the websocket
@@ -154,7 +215,7 @@ components:
         properties:
           event:
             type: string
-            description: Event type
+            description: The type of the event
             enum:
               - goodbye
         required:
@@ -171,8 +232,11 @@ components:
             - online
             - offline
             - inactive
+            - ingame
+            - inlobby
         data:
           type: object
+          decription: Custom information about the user activity
       required:
         - type
 

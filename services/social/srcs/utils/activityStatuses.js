@@ -2,7 +2,7 @@ export const inactive = { type: "inactive" };
 export const offline = { type: "offline" };
 export const online = { type: "online" };
 
-const allowedTypes = ['online', 'ingame', 'inlobby'];
+const allowedTypes = ["online", "ingame", "inlobby"];
 
 const allowedKeys = ["type", "data"];
 
