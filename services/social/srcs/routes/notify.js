@@ -22,12 +22,9 @@ export default function router(fastify, opts, done) {
 
       const decoded = fastify.jwt.verify(access_token);
       // Associate the socket with an account_id
-      client = fastify.clients.connect(socket, parseInt(decoded.account_id));
-      if (client.sockets.size === 1) {
-        // Broadcast online status to the followers
-        fastify.clients.broadcastStatus(client);
-      }
+      client = await fastify.clients.connect(socket, parseInt(decoded.account_id));
     } catch (err) {
+      console.error(err);
       return socket.close(3000, "Unauthorized");
     }
 
@@ -41,15 +38,16 @@ export default function router(fastify, opts, done) {
         console.log("RECIEVED:", { account_id: client.account_id, ...payload});
         if (payload.event === "goodbye") {
           socket.close(1000, "Normal Closure");
-        } else if (payload.event === "status" || payload.event === "ping") {
+        } else if (payload.event === "ping") {
+          client.resetInactivity();
+        } else if (payload.event === "update_status") {
           client.setStatus(payload.data);
         }
       } catch (err) {
-        console.error(err);
+        console.error(err.message);
+        socket.close(1003, "Unsupported Data");
       }
     })
-
-    await client.welcome(fastify.clients, socket);
   });
 
   done();

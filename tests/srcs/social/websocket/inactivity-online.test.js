@@ -1,12 +1,13 @@
 import request from "superwstest";
-import { createUsers, users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../../dummy/dummy-account";
+import { inactive, online } from "../../../../services/social/srcs/utils/activityStatuses";
 
 createUsers(2);
 const socialUrl = 'ws://127.0.0.1:4123';
 const mainUrl = "https://127.0.0.1:7979";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-describe('Keep online', () => {
+describe('Inactivity test', () => {
   it("follow", async () => {
     await request(mainUrl)
       .post(`/social/follows/${users[1].account_id}`)
@@ -14,19 +15,12 @@ describe('Keep online', () => {
       .expect(204);
   });
 
-  it("ping to stay online", async () => {
+  it("goes inactive then back online", async () => {
     const ws1 = await request(socialUrl)
       .ws(`/notify?access_token=${users[1].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
         expect(message.data.follows).toEqual([])
-
-        setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "ping" }));
-        }, 9000)
-        setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "goodbye" }));
-        }, 15000)
       })
 
     const ws0 = await request(socialUrl)
@@ -43,7 +37,7 @@ describe('Keep online', () => {
               updated_at: expect.any(String),
               username: expect.any(String),
             }),
-            status: "online"
+            status: online
           })
         ])
       })
@@ -51,9 +45,26 @@ describe('Keep online', () => {
         expect(message.event).toBe("status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
-          status: "offline"
+          status: inactive
         });
+
+        ws1.send(JSON.stringify({ event: "ping" }));
+      })
+      .expectJson((message) => {
+        expect(message.event).toBe("status");
+        expect(message.data).toEqual({
+          account_id: users[1].account_id,
+          status: online
+        })
+      })
+      .expectJson((message) => {
+        expect(message.event).toBe("status");
+        expect(message.data).toEqual({
+          account_id: users[0].account_id,
+          status: inactive
+        })
       })
       ws0.send(JSON.stringify({ event: "goodbye" }));
-  }, 30000);
+      ws1.send(JSON.stringify({ event: "goodbye" }));
+  }, 20000);
 });

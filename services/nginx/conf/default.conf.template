@@ -37,7 +37,7 @@ server {
 	}
 
 	location /register {
-	    rewrite ^/register(.*)$ /$1 break;
+	    rewrite ^/register(/|$)(.*) /$2 break;
         proxy_pass http://registration:3000;
     }
 
@@ -47,28 +47,27 @@ server {
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header X-Forwarded-Proto $scheme;
 
-        rewrite ^/auth(.*)$ /$1 break;
-
+        rewrite ^/auth(/|$)(.*) /$2 break;
 		proxy_pass http://password-auth:3000;
 	}
 
 	location /auth/fortytwo {
-		rewrite ^/auth/fortytwo/(.*)$ /$1 break;
+		rewrite ^/auth/fortytwo(/|$)(.*) /$2 break;
 		proxy_pass http://fortytwo-auth:3000;
 	}
 
 	location /token {
-		rewrite ^/token(.*)$ /$1 break;
+		rewrite ^/token(/|$)(.*) /$2 break;
 		proxy_pass http://token-manager:3000;
 	}
 
 	location /users {
-		rewrite ^/users(.*)$ /$1 break;
+		rewrite ^/users(/|$)(.*) /$2 break;
 		proxy_pass http://users:3000;
 	}
 
     location /lobbies/ {
-        rewrite ^/lobbies/(.*)$ /$1 break;
+        rewrite ^/lobbies(/|$)(.*) /$2 break;
         proxy_pass http://lobbies:3000;
 
 
@@ -89,17 +88,17 @@ server {
 	location /avatars {
 		client_max_body_size 5M;
 
-		rewrite ^/avatars(.*)$ /$1 break;
+		rewrite ^/avatars(/|$)(.*) /$2 break;
 		proxy_pass http://avatars:3000;
 	}
 
 	location /settings {
-		rewrite ^/settings/(.*)$ /$1 break;
+		rewrite ^/settings(/|$)(.*) /$2 break;
 		proxy_pass http://settings:3000;
 	}
 
 	location /social {
-		rewrite ^/social/(.*)$ /$1 break;
+		rewrite ^/social(/|$)(.*) /$2 break;
 		proxy_pass http://social:3000;
 
 		# WebSocket-specific headers for /notify

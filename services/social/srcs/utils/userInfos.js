@@ -1,9 +1,14 @@
 import YATT from "yatt-utils";
+import { offline } from "./activityStatuses.js";
 
 export async function userInfos(account_id, clients) {
-  const user = {
-    account_id: account_id,
-    status: clients.get(account_id)?.status ?? "offline",
+  const user = { account_id };
+
+  const target =  clients.get(account_id);
+  if (target) {
+    user.status = target.status();
+  } else {
+    user.status = offline;
   }
 
   try {
