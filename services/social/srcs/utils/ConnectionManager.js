@@ -15,6 +15,9 @@ export class ConnectionManager {
       if (client.sockets.size >= 5) {
         throw new Error(`Connection limit exceeded for account ${account_id}`)
       }
+      if (client.offlineTimeout) {
+        clearTimeout(client.offlineTimeout);
+      }
     } else {
       client = new Client(account_id, this);
       this.map.set(account_id, client);
@@ -31,7 +34,7 @@ export class ConnectionManager {
       if (client.inactivityTimeout) {
         clearTimeout(client.inactivityTimeout);
       }
-      client.disconnectTimeout = setTimeout(() => {
+      client.offlineTimeout = setTimeout(() => {
         this.map.delete(client.account_id);
         client.goOffline();
       }, offline_delay);

@@ -10,7 +10,7 @@ export class Client {
   isInactive = false;
   customStatus = null;
   
-  disconnectTimeout = null;
+  offlineTimeout = null;
   inactivityTimeout = null
   
   allClients;
