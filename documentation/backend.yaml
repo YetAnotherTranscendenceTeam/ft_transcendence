@@ -4,7 +4,6 @@ info:
   version: "1.0"
 servers:
   - url: https://localhost:7979
-  - url: https://z1r2p2:7979
 
 components:
   securitySchemes:
@@ -62,7 +61,7 @@ components:
       example: "CronchCronch"
 
     avatar:
-      description: An URI to profile picture
+      description: A profile picture URI
       type: string
       example: https://example.com/image.jpg
   
@@ -450,6 +449,27 @@ paths:
           description: Not following this account
       security:
         - bearerAuth: []
+  
+  /social/notify:
+    get:
+      parameters:
+        - in: path
+          name: access_token
+          required: true
+          description: A JSON Web Token
+          schema:
+            type: string
+      tags:
+        - Websocket
+        - Social
+      summary: social notification websocket
+      description: |
+        Establishes a WebSocket connection for real-time social notifications.
+        Follow this [link](http://localhost:42000/asyncapi/social) for detailed documentation.
+      responses:
+        101:
+          description: Switching Protocol
+
 
   /settings/profile:
     patch:
