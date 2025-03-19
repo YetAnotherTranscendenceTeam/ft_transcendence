@@ -2,13 +2,13 @@ import request from "superwstest";
 import { createUsers, users } from "../../../dummy/dummy-account";
 
 createUsers(5);
-const socialUrl = 'ws://127.0.0.1:4123';
+const socialWS = 'ws://127.0.0.1:4123';
 const mainUrl = "https://127.0.0.1:7979";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 describe('Social websocket', () => {
   it("connect / disconnect", async () => {
-    const ws = await request(socialUrl)
+    const ws = await request(socialWS)
       .ws(`/notify?access_token=${users[0].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
@@ -25,7 +25,7 @@ describe('Social websocket', () => {
 
     await new Promise(resolve => setTimeout(resolve, 300));
 
-    const ws = await request(socialUrl)
+    const ws = await request(socialWS)
       .ws(`/notify?access_token=${users[0].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
@@ -54,7 +54,7 @@ describe('Social websocket', () => {
         .expect(204);
     }
 
-    const ws = await request(socialUrl)
+    const ws = await request(socialWS)
       .ws(`/notify?access_token=${users[0].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");

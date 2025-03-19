@@ -69,7 +69,7 @@ describe('Social Router', () => {
       const response = await request(baseUrl)
         .post(`/social/follows/${users[0].account_id}`)
         .set('Authorization', `Bearer ${users[0].jwt}`)
-        .expect(400);
+        .expect(403);
     });
 
     it("refollow", async () => {
@@ -121,7 +121,7 @@ describe('Social Router', () => {
       const response = await request(baseUrl)
         .post(`/social/follows/${users[0].account_id}`)
         .set('Authorization', `Bearer ${users[0].jwt}`)
-        .expect(400);
+        .expect(403);
     });
 
     it("unfollow invalid id", async () => {

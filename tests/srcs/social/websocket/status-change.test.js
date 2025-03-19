@@ -3,7 +3,7 @@ import { createUsers, users } from "../../../dummy/dummy-account";
 import { online } from "../../../../services/social/srcs/utils/activityStatuses";
 
 createUsers(2);
-const socialUrl = 'ws://127.0.0.1:4123';
+const socialWS = 'ws://127.0.0.1:4123';
 const mainUrl = "https://127.0.0.1:7979";
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
@@ -16,7 +16,7 @@ describe('Status changes', () => {
   });
 
   it("status change", async () => {
-    const ws1 = await request(socialUrl)
+    const ws1 = await request(socialWS)
       .ws(`/notify?access_token=${users[1].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
@@ -25,7 +25,7 @@ describe('Status changes', () => {
  
     const statusUpdate = { type: "ingame", data: { something: "astring" }};
 
-    const ws0 = await request(socialUrl)
+    const ws0 = await request(socialWS)
       .ws(`/notify?access_token=${users[0].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
