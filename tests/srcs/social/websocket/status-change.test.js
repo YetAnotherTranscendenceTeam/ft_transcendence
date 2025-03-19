@@ -1,5 +1,6 @@
 import request from "superwstest";
-import { createUsers, users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../../dummy/dummy-account";
+import { online } from "../../../../services/social/srcs/utils/activityStatuses";
 
 createUsers(2);
 const socialUrl = 'ws://127.0.0.1:4123';
@@ -21,6 +22,8 @@ describe('Status changes', () => {
         expect(message.event).toBe("welcome");
         expect(message.data.follows).toEqual([])
       })
+ 
+    const statusUpdate = { type: "ingame", data: { something: "astring" }};
 
     const ws0 = await request(socialUrl)
       .ws(`/notify?access_token=${users[0].jwt}`)
@@ -36,30 +39,27 @@ describe('Status changes', () => {
               updated_at: expect.any(String),
               username: expect.any(String),
             }),
-            status: "online"
+            status: online
           })
         ])
         setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "status", data: "ingame" }));
+          ws1.send(JSON.stringify({ event: "status", data: statusUpdate }));
         }, 1000)
       })
       .expectJson((message) => {
         expect(message.event).toBe("status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
-          status: "ingame"
+          status: statusUpdate
         });
         setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "status", data: "ingame" }));
+          ws1.send(JSON.stringify({ event: "status", data: online }));
         }, 1000)
-        setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "status", data: "online" }));
-        }, 2000)
       }).expectJson((message) => {
         expect(message.event).toBe("status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
-          status: "online"
+          status: online
         });
       })
       ws1.send(JSON.stringify({ event: "goodbye" }));

@@ -1,5 +1,6 @@
 import request from "superwstest";
-import { createUsers, users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../../dummy/dummy-account";
+import { inactive, offline, online } from "../../../../services/social/srcs/utils/activityStatuses";
 
 createUsers(2);
 const socialUrl = 'ws://127.0.0.1:4123';
@@ -43,15 +44,22 @@ describe('Keep online', () => {
               updated_at: expect.any(String),
               username: expect.any(String),
             }),
-            status: "online"
+            status: online
           })
         ])
       })
       .expectJson((message) => {
         expect(message.event).toBe("status");
         expect(message.data).toEqual({
+          account_id: users[0].account_id,
+          status: inactive
+        });
+      })
+      .expectJson((message) => {
+        expect(message.event).toBe("status");
+        expect(message.data).toEqual({
           account_id: users[1].account_id,
-          status: "offline"
+          status: offline
         });
       })
       ws0.send(JSON.stringify({ event: "goodbye" }));

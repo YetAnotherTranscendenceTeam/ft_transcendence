@@ -1,59 +1,48 @@
 import db from "../app/database.js";
 import { inactivity_delay } from "../app/env.js";
+import { inactive, offline, online, parseUserStatus } from "./activityStatuses.js";
 import { userInfos } from "./userInfos.js";
-
-const statuses = ['online', 'offline', 'ingame'];
 
 export class Client {
   account_id;
   sockets = new Set();
-  status = "online"
 
+  isInactive = false;
+  customStatus = null;
+  
   disconnectTimeout = null;
-  inactiveTimeout = null
-
+  inactivityTimeout = null
+  
   allClients;
+  lastBroadcast = null;
 
-  constructor(socket, account_id, clients) {
+  constructor(account_id, clients) {
     this.account_id = account_id;
     this.allClients = clients;
-    this.sockets.add(socket);
-    this.inactiveTimeout = setTimeout(() => {
-      this.status = "inactive";
-      this.allClients.broadcastStatus(this);
-    }, inactivity_delay);
     console.log("NEW CLIENT:", { account_id: this.account_id, sockets: this.sockets.size });
   }
 
   addSocket(socket) {
     this.sockets.add(socket);
-    if (this.inactiveTimeout) {
-      clearTimeout(this.inactiveTimeout);
-    }
-    this.inactiveTimeout = setTimeout(() => {
-      this.status = "inactive";
-      this.allClients.broadcastStatus(this);
-    }, inactivity_delay);
+    this.resetInactivity();
     console.log("CLIENT SOCKET+:", { account_id: this.account_id, sockets: this.sockets.size });
   }
 
   deleteSocket(socket) {
     this.sockets.delete(socket);
     console.log("CLIENT SOCKET-:", { account_id: this.account_id, sockets: this.sockets.size });
-    return this.sockets.size;
   }
 
   send(payload) {
     const data = JSON.stringify(payload);
-    this.sockets.forEach(socket => socket.send(data));
+    this.sockets.forEach((ready, socket) => {
+      if (ready)
+        socket.send(data)
+    });
   }
 
   async welcome(clients, socket) {
-    const friends = db.prepare(`
-      SELECT following
-      FROM follows
-      WHERE account_id = ?
-      `).all(this.account_id);
+    const friends = db.prepare("SELECT following FROM follows WHERE account_id = ?").all(this.account_id);
 
     const payload = {
       event: "welcome",
@@ -61,6 +50,7 @@ export class Client {
         follows: await Promise.all(friends.map(async element => {
           return userInfos(element.following, clients);
         })),
+        self: this.status(),
       }
     };
     const data = JSON.stringify(payload);
@@ -83,39 +73,60 @@ export class Client {
     this.send(payload);
   }
 
-  statusUpdate(account_id, status) {
-    const payload = {
-      event: "status",
-      data: { account_id, status },
+  goInactive() {
+    this.isInactive = true;
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
     }
-    console.log("BROADCAST:", { account_id, payload });
-    this.send(payload);
+    this.allClients.broadcastStatus(this);
   }
 
-  ping() {
-    this.sockets.forEach(socket => socket.ping());
+  resetInactivity() {
+    // Cancel previous inactivity timeout
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout)
+    }
+
+    // Start new inactivity timeout
+    this.inactivityTimeout = setTimeout(() => {
+      this.goInactive();
+    }, inactivity_delay);
+    
+    if (this.isInactive) {
+      this.isInactive = false;
+      this.allClients.broadcastStatus(this);
+      return true
+    }
+    return false
+  }
+
+  goOffline() {
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
+    }
+    this.allClients.broadcastStatus(this, offline);
   }
 
   setStatus(status) {
-    const oldStatus = this.status;
-    const newStatus = statuses.find(s => s === status) ? status : "online"
+    const { type, data } = parseUserStatus(status);
 
-    // Cancel inactivity timeout
-    if (this.inactiveTimeout) {
-      clearTimeout(this.inactiveTimeout);
+    if (type === "online") {
+      this.customStatus = null;
+    } else {
+      this.customStatus = { type, data };
     }
-    // Set new activity status
-    this.status = newStatus;
-
-    // Set inactivity timeout
-    this.inactiveTimeout = setTimeout(() => {
-      this.status = "inactive";
+    if (!this.resetInactivity()) {
       this.allClients.broadcastStatus(this);
-    }, inactivity_delay);
+    }
+  }
 
-    // Broadcast to followers if status changed
-    if (oldStatus !== this.status) {
-      this.allClients.broadcastStatus(this);
+  status() {
+    if (this.isInactive) {
+      return inactive;
+    } else if (this.customStatus) {
+      return this.customStatus
+    } else {
+      return online;
     }
   }
 }

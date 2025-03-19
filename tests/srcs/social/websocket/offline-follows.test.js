@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { createUsers, users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../../dummy/dummy-account";
 
 createUsers(5);
 const socialUrl = 'ws://127.0.0.1:4123';
@@ -39,7 +39,7 @@ describe('Social websocket', () => {
               updated_at: expect.any(String),
               username: expect.any(String),
             }),
-            status: "offline"
+            status: { type: "offline" }
           })
         ])
       })
@@ -69,7 +69,7 @@ describe('Social websocket', () => {
                 updated_at: expect.any(String),
                 username: expect.any(String),
               }),
-              status: "offline"
+              status: { type: "offline" }
             })
           ])
         );

@@ -1,5 +1,6 @@
 import request from "superwstest";
-import { createUsers, users } from "../../dummy/dummy-account";
+import { createUsers, users } from "../../../dummy/dummy-account";
+import { inactive, online } from "../../../../services/social/srcs/utils/activityStatuses";
 
 createUsers(2);
 const socialUrl = 'ws://127.0.0.1:4123';
@@ -14,7 +15,7 @@ describe('Inactivity test', () => {
       .expect(204);
   });
 
-  it("goes inactive then offline", async () => {
+  it("goes inactive then back online", async () => {
     const ws1 = await request(socialUrl)
       .ws(`/notify?access_token=${users[1].jwt}`)
       .expectJson((message) => {
@@ -36,7 +37,7 @@ describe('Inactivity test', () => {
               updated_at: expect.any(String),
               username: expect.any(String),
             }),
-            status: "online"
+            status: online
           })
         ])
       })
@@ -44,18 +45,26 @@ describe('Inactivity test', () => {
         expect(message.event).toBe("status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
-          status: "inactive"
+          status: inactive
         });
 
-        ws1.send(JSON.stringify({ event: "goodbye" }));
+        ws1.send(JSON.stringify({ event: "ping" }));
       })
       .expectJson((message) => {
         expect(message.event).toBe("status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
-          status: "offline"
+          status: online
+        })
+      })
+      .expectJson((message) => {
+        expect(message.event).toBe("status");
+        expect(message.data).toEqual({
+          account_id: users[0].account_id,
+          status: inactive
         })
       })
       ws0.send(JSON.stringify({ event: "goodbye" }));
-  }, 30000);
+      ws1.send(JSON.stringify({ event: "goodbye" }));
+  }, 20000);
 });
