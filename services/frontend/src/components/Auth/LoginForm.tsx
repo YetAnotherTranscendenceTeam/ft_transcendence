@@ -26,6 +26,7 @@ export default function LoginForm({
 
 		const response = await ft_fetch(`${config.API_URL}/auth`, {
 			method: 'POST',
+			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json'
 			},

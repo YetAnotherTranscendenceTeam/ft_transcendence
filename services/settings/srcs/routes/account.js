@@ -49,7 +49,7 @@ export default function router(fastify, opts, done) {
       YATT.fetch(`http://social:3000/follows/${follow.following}`, { method: "DELETE", headers })
     }))
 
-    reply.clearCookie("refresh_token");
+    reply.clearCookie("refresh_token", { path: "/token" });
     reply.code(204).send();
   });
 

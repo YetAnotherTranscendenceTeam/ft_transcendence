@@ -54,12 +54,12 @@ export class Lobby implements ILobby {
   constructor(data: ILobby | string, mode?: IGameMode) {
     if (typeof data === "string") {
       this.join_secret = data;
-      this.team_names = [];
       this.players = [];
       if (!mode) {
         throw new Error("Missing mode");
       }
       this.mode = new GameMode(mode);
+      this.team_names = new Array<string>(this.getTeamCount());
       this.state = {type: LobbyStateType.WAITING, joinable: true};
       this.leader_account_id = null;
       return;
@@ -72,38 +72,37 @@ export class Lobby implements ILobby {
     this.leader_account_id = data.leader_account_id;
   }
 
+  updateTeamNames(new_team_count: number): this {
+    this.team_names.length = new_team_count;
+    return this;
+  }
+
   removePlayer(rm_index: number): this {
     const old_team_count = this.getTeamCount();
     const team_count = this.getTeamCount() - (this.players.length % this.mode.team_size == 1 ? 1 : 0);
     const rm_team_index = rm_index % old_team_count;
+    const rm_team_position = Math.floor(rm_index / old_team_count);
     let new_players = new Array<IPlayer>(this.players.length - 1);
     for (let i = 0; i < this.players.length; i++) {
       let team_index = i % old_team_count;
       let team_position = Math.floor(i / old_team_count);
       if (i == rm_index)
         continue;
-      if (i > rm_index && team_index == rm_team_index) {
-        team_position--;
-      }
-      else if (team_index == team_count) {
-        team_index = rm_index % old_team_count;
-        team_position = this.mode.team_size - 1;
-      }
       let new_index = team_index + team_count * team_position;
-      if (new_index >= new_players.length) {
-        new_index = rm_index % old_team_count + team_count * team_position;
+      if (team_index == old_team_count - 1 && team_position == (new_players.length % this.mode.team_size)) {
+        new_index = rm_team_index + team_count * rm_team_position;
       }
       new_players[new_index] = this.players[i];
     }
-	  this.players = new_players;
+    this.players = new_players;
+    this.updateTeamNames(team_count);
     return this;
   }
 
   addPlayer(player: IPlayer): this {
     if (this.players.length % this.mode.team_size == 0) {
       const old_team_count = this.getTeamCount();
-      const new_team = this.mode.team_size == this.mode.team_size - 1 ? 1 : 0;
-      const team_count = this.getTeamCount() + new_team;
+      const team_count = this.getTeamCount() + 1;
       let new_players = new Array<IPlayer>(this.players.length + 1);
       for (let i = 0; i < this.players.length; i++) {
         let team_index = i % old_team_count;
@@ -111,8 +110,9 @@ export class Lobby implements ILobby {
         let new_index = team_index + team_count * team_position;
         new_players[new_index] = this.players[i];
       }
-      new_players[this.players.length] = player;
+      new_players[old_team_count] = player;
       this.players = new_players;
+      this.updateTeamNames(team_count);
     }
     else
       this.players.push(player);
@@ -128,8 +128,8 @@ export class Lobby implements ILobby {
     const team_count = this.getTeamCount();
     for (let i = 0; i < team_count; i++) {
       let name = this.team_names[i] || null;
-      let team_players = [];
-      for (let j = i; i < this.players.length; i += team_count) {
+      let team_players: IPlayer[] = [];
+      for (let j = i; j < this.players.length; j += team_count) {
         team_players.push(this.players[j]);
       }
       teams.push({ name, players: team_players });
@@ -156,6 +156,7 @@ export class Lobby implements ILobby {
       this.mode = mode;
     else
       this.mode = new GameMode(mode);
+    this.updateTeamNames(this.getTeamCount());
     return this;
   }
 
@@ -168,5 +169,4 @@ export class Lobby implements ILobby {
     this.players = players;
     return this;
   }
-
 }

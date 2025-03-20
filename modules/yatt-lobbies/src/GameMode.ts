@@ -37,7 +37,15 @@ export class GameMode implements IGameMode {
       this.team_size = oth.team_size;
       this.team_count = oth.team_count;
     }
+  }
 
+  toJSON(): IGameMode {
+    return {
+      name: this.name,
+      type: this.type,
+      team_size: this.team_size,
+      team_count: this.team_count,
+    };
   }
 
   getLobbyCapacity(): number {

@@ -39,7 +39,7 @@ export default function router(fastify, opts, done) {
   fastify.post("/revoke", { schema }, async function handler(request, reply) {
     const token = request.cookies.refresh_token;
 
-    reply.clearCookie("refresh_token");
+    reply.clearCookie("refresh_token", { path: "/token" });
     const deletion = db.prepare("DELETE FROM refresh_tokens WHERE token = ? RETURNING *").get(token);
     if (deletion) {
       console.log("REVOKE:", { account_id: deletion.account_id });

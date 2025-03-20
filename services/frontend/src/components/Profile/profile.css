@@ -125,23 +125,6 @@
 	overflow: auto;
 }
 
-/* Confirm Card */
-
-.confirm-profile-modal {
-	width: 400px;
-}
-
-.confirm-profile-modal h1 {
-	font-weight: bold;
-	font-size: x-large;
-	margin-bottom: 32px;
-}
-
-.confirm-profile-modal-footer {
-	margin-top: 4rem;
-}
-
-
 /* ======== Lobby card ========= */
 
 .follow-lobby-status {
@@ -166,6 +149,3 @@
 .follow-lobby-request:hover {
 	filter: saturate(1.5);
 }
-
-
-

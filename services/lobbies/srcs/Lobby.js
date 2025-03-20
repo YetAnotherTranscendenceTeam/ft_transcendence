@@ -60,7 +60,7 @@ export class Lobby extends LobbyBase {
   setTeamName(player, name) {
     const index = this.players.findIndex((p) => p.account_id == player.account_id);
     if (index == -1) throw new Error("Player not in lobby");
-    const team_index = index % this.mode.team_count;
+    const team_index = index % this.getTeamCount();
     this.team_names[team_index] = name;
     this.broadbast(new TeamNameMessage(team_index, name));
   }
@@ -125,7 +125,8 @@ export class Lobby extends LobbyBase {
       indexes.push(index);
     }
     if (!this.isLeader(sender)) {
-      if (!account_ids.includes(sender.account_id) || indexes[0] % this.mode.team_count != indexes[1] % this.mode.team_count)
+      const team_count = this.getTeamCount();
+      if (!account_ids.includes(sender.account_id) || indexes[0] % team_count != indexes[1] % team_count)
         throw new Error("Non-leaders can only swap themselves with another player from their team");
     }
     // swap players with a temp value
@@ -150,7 +151,7 @@ export class Lobby extends LobbyBase {
     const lobby_capacity = mode.getLobbyCapacity();
     if (this.players.length > lobby_capacity)
       throw new Error("Too many players in lobby to change to this gamemode");
-    this.mode = mode;
+    super.setMode(mode);
     this.team_names.length = lobby_capacity / mode.team_size;
     this.broadbast(new LobbyModeMessage(mode));
   }

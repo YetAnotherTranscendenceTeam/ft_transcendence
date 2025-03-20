@@ -4,7 +4,6 @@ import "./profile.css";
 import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
 import SocialManager from "./SocialManager";
-import ConfirmProfileModal from "./ConfirmProfileModal";
 import useEscape from "../../hooks/useEscape";
 import { IMe } from "../../contexts/useAuth";
 import FollowTypeText from "./FollowTypeText";
@@ -15,9 +14,6 @@ export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]:
 
 	if (!me)
 		return null;
-		
-	if (me.username === '' || !me.avatar)
-		return <ConfirmProfileModal />;
 
 	useEscape(isOpen, () => setIsOpen(false));
 

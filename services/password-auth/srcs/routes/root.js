@@ -23,7 +23,7 @@ export default function passwordRoutes(fastify, opts, done) {
         `http://credentials:3000/password/${email}`
       );
       if (await YATT.crypto.verifyPassword(password, account.hash, account.salt, pepper)) {
-        const auth = await YATT.fetch(
+        const tokens = await YATT.fetch(
           `http://token-manager:3000/${account.account_id}`,
           {
             method: "POST",
@@ -32,13 +32,13 @@ export default function passwordRoutes(fastify, opts, done) {
             },
           }
         );
-        reply.setCookie("refresh_token", auth.refresh_token, {
+        reply.setCookie("refresh_token", tokens.refresh_token, {
           httpOnly: true,
           secure: true,
           sameSite: "strict",
           path: "/token",
         });
-        return reply.send(auth);
+        return reply.send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
       }
     } catch (err) {
       if (err instanceof HttpError) {
