@@ -67,6 +67,5 @@ async function authenticate(reply, account_id) {
     sameSite: "strict",
     path: "/token",
   });
-  delete auth.refresh_token;
-  reply.code(201).send(auth);
+  reply.code(201).send({ access_token: auth.access_token, expire_at: auth.expire_at });
 }
