@@ -203,16 +203,16 @@ describe.each(matchmaking_tests)(
 
 describe("Lobby unqueue on leave", () => {
   let players = [];
-  it("create a unranked 2v2 lobby and fill it up", async () => {
+  it("create a ranked 2v2 lobby and fill it up", async () => {
     players.push(
       await createLobby(users[0], {
-        name: "unranked_2v2",
+        name: "ranked_2v2",
         team_size: 2,
         team_count: 2,
-        type: "unranked",
+        type: "ranked",
       })
     );
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
