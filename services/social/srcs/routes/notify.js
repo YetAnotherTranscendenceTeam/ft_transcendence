@@ -1,6 +1,7 @@
 "use strict";
 
 import { properties } from "yatt-utils";
+import { WsError } from "yatt-ws";
 
 const schema = {
   querystring: {
@@ -48,11 +49,12 @@ export default function router(fastify, opts, done) {
           await client.sendLobbyJoinRequest(payload.data);
         }
       } catch (err) {
-        // if (err instanceof Error) {
-        //   socket.send({ event: "error", data: {} });
-        // }
         console.error(err.message);
-        socket.close(1003, "Unsupported Data");
+        if (err instanceof WsError) {
+          err.send(socket);
+        } else {
+          socket.close(1008, "Policy Violation");
+        }
       }
     })
   });

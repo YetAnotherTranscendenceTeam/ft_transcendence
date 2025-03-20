@@ -37,6 +37,8 @@ channels:
         $ref: '#/components/messages/receive_lobby_invite'
       receive_lobby_request:
         $ref: '#/components/messages/receive_lobby_request'
+      error:
+        $ref: '#/components/messages/error'
 
     # sent from client to server
       ping:
@@ -62,6 +64,7 @@ operations:
       - $ref: '#/channels/social/messages/unfollow'
       - $ref: '#/channels/social/messages/receive_lobby_invite'
       - $ref: '#/channels/social/messages/receive_lobby_request'
+      - $ref: '#/channels/social/messages/error'
 
   subscribe:
     action: receive
@@ -221,6 +224,27 @@ components:
         required:
           - type
           - data
+    
+    error:
+      description: Message send by the server when an error occurs
+      payload:
+        type: object
+        properties:
+          code:
+            type: string
+            description: An error code
+            example: INVALID_EVENT
+          message:
+            type: string
+            description: An error message description
+            example: The event payload does not meet the required format or contains incorrect values
+          details:
+            type: object
+            description: An optional object that may hold additional information about the error
+        required:
+          - code
+          - message
+        
 
     ping:
       description: Send this message to the server to prevent the user from going inactive

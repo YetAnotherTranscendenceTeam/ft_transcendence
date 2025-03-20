@@ -28,7 +28,7 @@ export default class HttpError {
     reply.redirect(`${url}?${new URLSearchParams(this.json()).toString()}`)
   }
 
-  // Preset specific http
+  // Preset specific http errors
   static BadRequest = class BadRequest extends HttpError {
     constructor(message = httpErrMessages.get(400)) {
       super(400, "Bad Request", message);

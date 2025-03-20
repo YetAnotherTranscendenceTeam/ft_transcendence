@@ -8,15 +8,15 @@ const allowedKeys = ["type", "data"];
 
 export function parseUserStatus(payload) {
   if (!payload) {
-    throw Error("invalid event");
+    throw new WsError.InvalidEvent(payload);
   }
   Object.keys(payload).forEach(key => {
     if (!allowedKeys.includes(key)) {
-      throw Error("invalid status event");
+      throw new WsError.InvalidEvent(payload);
     }
   });
   if (!allowedTypes.includes(payload.type)) {
-    throw Error("invalid status type");
+    throw new WsError.InvalidEvent(payload);
   }
-  return { type: payload.type, data: payload.data };
+  return payload;
 }
