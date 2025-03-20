@@ -48,7 +48,7 @@ export default function router(fastify, opts, done) {
       method: "DELETE"
     });
 
-    reply.clearCookie("refresh_token");
+    reply.clearCookie("refresh_token", { path: "/token" });
     reply.code(204).send();
   });
 

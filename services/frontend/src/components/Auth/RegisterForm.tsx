@@ -28,6 +28,7 @@ export default function RegisterForm({
 
 		const response = await ft_fetch(`${config.API_URL}/register`, {
 				method: 'POST',
+				credentials: 'include',
 				headers: {
 					'Content-Type': 'application/json'
 				},
