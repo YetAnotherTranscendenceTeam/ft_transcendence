@@ -74,9 +74,9 @@ export default function SocialManager({ className = '', children, ...props }: { 
 				<div className='social-manager-add-list flex scrollbar flex-col gap-1 h-full'>
 					{
 						users.length !== 0 &&
-						users.map((user) => (
+						users.map((user, i) => (
 							<SocialUserCard
-								key={user.account_id}
+								key={i}
 								user={user}
 							/>
 						))

@@ -57,12 +57,20 @@ export class Follow implements IFollow {
 	};
 
 	invite(gamemode: GameMode, join_secret: string): void {
-		console.log('invite', gamemode, join_secret, this.ws);
 		this.ws.send({
 			event: 'send_lobby_invite',
 			data: {
 				gamemode,
 				join_secret,
+				account_id: this.account_id,
+			}
+		});
+	};
+
+	request(): void {
+		this.ws.send({
+			event: 'send_lobby_request',
+			data: {
 				account_id: this.account_id,
 			}
 		});
@@ -112,27 +120,27 @@ export default function useSocial(): {
 		setFollows(follows => follows.filter(f => f.account_id !== account_id));
 	};
 
-	const onLobbyInvite = ({ join_secret, from, gamemode}: {join_secret: string, from: string, gamemode: IGameMode}) => {
+	const onLobbyInvite = ({ join_secret, username, gamemode}: {join_secret: string, username: string, gamemode: IGameMode}) => {
 		const { createToast, removeToast } = useToast();
 		const { join } = useLobby();
 
-		if (inivites.current.includes(from))
+		if (inivites.current.includes(username))
 			return;
-		inivites.current.push(from);
+		inivites.current.push(username);
 
 		const handleAccept = (id: number) => {
 			join(join_secret);
 			removeToast(id);
-			inivites.current = inivites.current.filter(i => i !== from);
+			inivites.current = inivites.current.filter(i => i !== username);
 		};
 
 		const handleDecline = (id: number) => {
 			removeToast(id);
-			inivites.current = inivites.current.filter(i => i !== from);
+			inivites.current = inivites.current.filter(i => i !== username);
 		};
 
 		const message = (id) => <div className="flex flex-col gap-2">
-			<h1>{from} invited you to their lobby</h1>
+			<h1>{username} invited you to their lobby</h1>
 			<p>Game mode : {new GameMode(gamemode).getDisplayName()} {new GameMode(gamemode).type}</p>
 			<div className="flex gap-2">
 				<Button
@@ -153,6 +161,59 @@ export default function useSocial(): {
 		createToast(message, 'info', 0);
 	};
 
+	const onLobbyRequest = ({ username, account_id }: {username: string, account_id: number}) => {
+
+		if (inivites.current.includes(username))
+			return;
+		inivites.current.push(username);
+
+		
+		const { createToast, removeToast } = useToast();
+		
+		const handleAccept = (id: number) => {
+			const { lobby } = useLobby();
+			const follow = new Follow({
+				account_id,
+				profile: {
+					avatar: '',
+					username: username,
+					account_id,
+				},
+				status: {
+					type: StatusType.OFFLINE,
+				}
+			}, ws);
+			follow.invite(lobby.mode, lobby.join_secret);
+			removeToast(id);
+			inivites.current = inivites.current.filter(i => i !== username);
+			createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
+		};
+
+		const handleDecline = (id: number) => {
+			removeToast(id);
+			inivites.current = inivites.current.filter(i => i !== username);
+		};
+
+		const message = (id) => <div className="flex flex-col gap-2">
+			<h1>{username} requested to join your lobby</h1>
+			<div className="flex gap-2">
+				<Button
+					onClick={() => handleAccept(id)}
+					className="success w-full"
+				>
+					<i className="fa-regular fa-paper-plane"></i> Invite to lobby
+				</Button>
+				<Button
+					className="danger w-full"
+					onClick={() => handleDecline(id)}
+				>
+					<i className="fa-solid fa-xmark"></i> Decline
+				</Button>
+			</div>
+		</div>
+		
+	};
+
 	const ws = useWebSocket({
 		onEvent: {
 			'welcome': onWelcome,
@@ -160,6 +221,7 @@ export default function useSocial(): {
 			'follow': onFollow,
 			'unfollow': onUnfollow,
 			'receive_lobby_invite': onLobbyInvite,
+			'receive_lobby_request': onLobbyRequest,
 		},
 		onClose: () => {
 			console.error('Social WS closed');
