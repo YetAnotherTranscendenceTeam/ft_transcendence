@@ -215,7 +215,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		if (lobby && connected)
 			status({
 				type: StatusType.INLOBBY,
-				data: lobby
+				data: {...lobby, join_secret: null}
 			});
 		else if (!lobby && connected)
 			status({

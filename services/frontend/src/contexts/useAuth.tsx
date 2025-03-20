@@ -43,13 +43,15 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	};
 
 	const logout = async () => {
-		setMe(null);
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('expire_at');
 		await ft_fetch(`${config.API_URL}/token/revoke`, {
 			method: "POST",
 			credentials: "include",
+		}, {
+			disable_bearer: true,
 		})
+		setMe(null);
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('expire_at');
 	};
 
 	const refresh = () => {

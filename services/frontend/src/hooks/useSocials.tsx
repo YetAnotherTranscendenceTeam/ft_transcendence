@@ -8,6 +8,7 @@ import useToast from "./useToast";
 import { GameMode, IGameMode } from "yatt-lobbies";
 import Button from "../ui/Button";
 import { useLobby } from "../contexts/useLobby";
+import { join } from "path";
 
 export enum StatusType {
 	ONLINE = 'online',
@@ -203,7 +204,7 @@ export default function useSocial(): {
 					<i className="fa-regular fa-paper-plane"></i> Invite to lobby
 				</Button>
 				<Button
-					className="danger w-full"
+					className="danger"
 					onClick={() => handleDecline(id)}
 				>
 					<i className="fa-solid fa-xmark"></i> Decline
@@ -215,7 +216,11 @@ export default function useSocial(): {
 	};
 
 	const onConnect = () => {
-		status({type: StatusType.ONLINE});
+		const { lobby } = useLobby();
+		if (lobby)
+			status({type: StatusType.INLOBBY, data: {...lobby, join_secret: null}});
+		else
+			status({type: StatusType.ONLINE});
 	};
 
 	const ws = useWebSocket({
