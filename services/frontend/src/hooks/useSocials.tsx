@@ -58,14 +58,14 @@ export class Follow implements IFollow {
 
 	invite(gamemode: GameMode, join_secret: string): void {
 		console.log('invite', gamemode, join_secret, this.ws);
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'send_lobby_invite',
 			data: {
 				gamemode,
 				join_secret,
 				account_id: this.account_id,
 			}
-		}));
+		});
 	};
 
 	setStatus(status: FollowStatus): this {
@@ -77,12 +77,15 @@ export class Follow implements IFollow {
 
 export default function useSocial(): {
 		follows: Follow[],
+		connected: boolean,
 		connect: () => void
 		ping: () => void
 		status: (status: FollowStatus) => void
 	} {
 
 	const [follows, setFollows] = Babact.useState<Follow[]>([]);
+
+	const inivites = Babact.useRef([]);
 
 	const onWelcome = ({ follows, self }: {follows: IFollow[], self: FollowStatus}) => {
 		const { setMeStatus } = useAuth();
@@ -113,17 +116,36 @@ export default function useSocial(): {
 		const { createToast, removeToast } = useToast();
 		const { join } = useLobby();
 
-		const message = (id) => <div>
+		if (inivites.current.includes(from))
+			return;
+		inivites.current.push(from);
+
+		const handleAccept = (id: number) => {
+			join(join_secret);
+			removeToast(id);
+			inivites.current = inivites.current.filter(i => i !== from);
+		};
+
+		const handleDecline = (id: number) => {
+			removeToast(id);
+			inivites.current = inivites.current.filter(i => i !== from);
+		};
+
+		const message = (id) => <div className="flex flex-col gap-2">
 			<h1>{from} invited you to their lobby</h1>
-			<p>{new GameMode(gamemode).getDisplayName()}</p>
-			<div>
+			<p>Game mode : {new GameMode(gamemode).getDisplayName()} {new GameMode(gamemode).type}</p>
+			<div className="flex gap-2">
 				<Button
-					onClick={() => join(join_secret)}
+					className="success w-full"
+					onClick={() => handleAccept(id)}
 				>
-					<i className="fa-regular fa-sign-in"></i> Join
+					<i className="fa-solid fa-check"></i> Accept
 				</Button>
-				<Button onClick={() => removeToast(id)}>
-					<i className="fa-solid fa-user-minus"></i> Decline
+				<Button
+					className="danger w-full"
+					onClick={() => handleDecline(id)}
+				>
+					<i className="fa-solid fa-xmark"></i> Decline
 				</Button>
 			</div>
 		</div>;
@@ -132,7 +154,7 @@ export default function useSocial(): {
 	};
 
 	const ws = useWebSocket({
-		eventHandlers: {
+		onEvent: {
 			'welcome': onWelcome,
 			'status': onStatusChange,
 			'follow': onFollow,
@@ -144,7 +166,7 @@ export default function useSocial(): {
 		},
 		onError: (e) => {
 			console.error('Social WS error', e);
-		}
+		},
 	});
 
 	const connect = () => {
@@ -152,15 +174,16 @@ export default function useSocial(): {
 	};
 
 	const ping = () => {
-		ws.send(JSON.stringify({event: 'ping'}));
+		ws.send({event: 'ping'});
 	};
 
-	const status = (status: FollowStatus) => {
-		ws.send(JSON.stringify({event: 'update_status', data: status}));
+	const status = async (status: FollowStatus) => {
+		ws.send({event: 'update_status', data: status});
 	};
 
 	return {
 		follows,
+		connected: ws.connected,
 		connect,
 		ping,
 		status,

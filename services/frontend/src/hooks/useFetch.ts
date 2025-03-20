@@ -71,5 +71,5 @@ export default function useFetch() {
 		}
 	}
 
-	return { ft_fetch, isLoading };
+	return { ft_fetch, isLoading, refreshToken };
 }

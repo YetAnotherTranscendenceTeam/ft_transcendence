@@ -5,6 +5,7 @@ import Button from "../../ui/Button";
 import FollowTypeText from "./FollowTypeText";
 import { Lobby } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
+import useToast from "../../hooks/useToast";
 
 export default function SocialFollowCard({
 		follow,
@@ -14,10 +15,31 @@ export default function SocialFollowCard({
 		[key: string]: any
 	}) {
 
+	const { createToast } = useToast();
+
 	const inLobby = follow.status.type === StatusType.INLOBBY && follow.status.data && new Lobby(follow.status.data);
 	
 	const { lobby } = useLobby();
-	const inviteLobby = (follow.status.type === StatusType.ONLINE || follow.status.type === StatusType.INACTIVE) && lobby;
+
+	const [inviteSend, setInviteSend] = Babact.useState<boolean>(false);
+
+	const inviteLobby = (follow.status.type === StatusType.ONLINE || follow.status.type === StatusType.INACTIVE)
+		&& !inviteSend
+		&& !lobby?.players.find(p => p.account_id === follow.account_id)
+		&& lobby?.getCapacity() > lobby?.players.length
+		&& lobby;
+
+	Babact.useEffect(() => {
+		setInviteSend(false);
+	}, [lobby]);
+
+	const handleInvite = () => {
+		if(inviteLobby) {
+			follow.invite(inviteLobby.mode, inviteLobby.join_secret);
+			setInviteSend(true);
+			createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
+		}
+	}
 
 
 	return <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
@@ -45,7 +67,7 @@ export default function SocialFollowCard({
 		}
 
 		{inviteLobby && <div className='flex flex-row items-center gap-2'>
-			<Button className='info' onClick={() => follow.invite(inviteLobby.mode, inviteLobby.join_secret)}>
+			<Button className='info' onClick={() => handleInvite()}>
 				<i className="fa-regular fa-paper-plane"></i> Invite
 			</Button>
 		</div>}

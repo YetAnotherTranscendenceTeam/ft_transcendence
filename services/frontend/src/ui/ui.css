@@ -608,3 +608,7 @@
 .editable input {
 	width: 100%;
 }
+
+.editable input:disabled {
+	cursor: default;
+}

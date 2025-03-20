@@ -60,7 +60,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		fetchMe();
 	}, []);
 
-	const { connect, follows, ping, status } = useSocial();
+	const { connect, follows, ping, status, connected } = useSocial();
 
 	const setMeStatus = (status: FollowStatus) => {
 		setMe(me => ({...me, status}));
@@ -71,6 +71,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			value={{
 				me,
 				follows,
+				connected,
 				auth,
 				logout,
 				refresh,
@@ -87,6 +88,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 export const useAuth = (): {
 		me: IMe,
 		follows: Follow[],
+		connected: boolean,
 		auth: (token: string, expire_at: number) => void,
 		logout: () => void,
 		refresh: () => void,

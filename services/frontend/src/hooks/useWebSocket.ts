@@ -1,10 +1,11 @@
 import Babact from "babact";
+import useFetch from "./useFetch";
 
 export type WebSocketHook = {
 	connected: boolean,
 	connect: (url: string) => void,
 	close: () => void,
-	send: (message: string) => void
+	send: (message: string | object) => void,
 }
 
 export default function useWebSocket({
@@ -12,22 +13,24 @@ export default function useWebSocket({
 		onError,
 		onClose,
 		onOpen,
-		eventHandlers = null
+		onEvent = null
 	} : {
 		onMessage?: (message: string) => void,
 		onError?: (error: any) => void,
 		onClose?: (event) => void,
 		onOpen?: (event) => void,
-		eventHandlers?: { [key: string]: (event) => void }
+		onEvent?: { [key: string]: (event) => void }
 	} = {}): WebSocketHook {
 
 	const ws = Babact.useRef(null);
 	const [connected, setConnected] = Babact.useState(false);
+	const { refreshToken } = useFetch();
 
-	const connect = (url: string) => {
+	const connect = async (url: string) => {
 		if (ws.current) {
 			close();
 		}
+		await refreshToken();
 		ws.current = new WebSocket(url);
 		ws.current.onopen = (event) => {
 			if (onOpen) {
@@ -39,10 +42,10 @@ export default function useWebSocket({
 			if (onMessage) {
 				onMessage(event.data);
 			}
-			if (eventHandlers) {
+			if (onEvent) {
 				const msg = JSON.parse(event.data);
-				if (eventHandlers[msg.event]) {
-					eventHandlers[msg.event](msg.data);
+				if (onEvent[msg.event]) {
+					onEvent[msg.event](msg.data);
 				}
 			}
 
@@ -65,11 +68,9 @@ export default function useWebSocket({
 		ws.current.close();
 	};
 
-	const send = (message: string) => {
-		if (!ws.current) {
-			return;
-		}
-		ws.current.send(message);
+	const send = (message: string | object) => {
+		console.log('sending', message);
+		ws.current.send(JSON.stringify(message));
 	};
 
 	return {

@@ -1,12 +1,12 @@
 import Babact from "babact";
 import useWebSocket, { WebSocketHook } from "../hooks/useWebSocket";
 import config from "../config";
-import useEffect from "babact/dist/hooks/useEffect";
 import useToast from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
 
 import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
 import useSocial, { StatusType } from "../hooks/useSocials";
+import { useAuth } from "./useAuth";
 
 class LobbyClient extends Lobby {
 
@@ -25,27 +25,26 @@ class LobbyClient extends Lobby {
 	}
 
 	leave() {
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'disconnect'
-		}));
+		});
 		this.ws.close();
 	};
 
 	queueStart() {
-		console.log('queueStart', this.ws)
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'queue_start'
-		}));
+		});
 	};
 
 	queueStop() {
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'queue_stop'
-		}));
+		});
 	};
 
 	swapPlayers(player1: any, player2: any) {
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'swap_players',
 			data: {
 				account_ids: [
@@ -53,37 +52,35 @@ class LobbyClient extends Lobby {
 					player2
 				]
 			}
-		}));
+		});
 	};
 
 	changeMode(mode: string) {
-		console.log('changeMode', mode, this.ws)
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'mode',
 			data: {
 				mode
 			}
-		}));
+		});
 	};
 
 	kickPlayer(player: number) {
-		console.log('kick', player)
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'kick',
 			data: {
 				account_id: player
 			}
-		}));
+		});
 	};
 
 	changeTeamName(team_index: number, name: string) {
-		this.ws.send(JSON.stringify({
+		this.ws.send({
 			event: 'team_name',
 			data: {
 				team_index,
 				name
 			}
-		}));
+		});
 	};
 }
 
@@ -95,8 +92,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const { createToast } = useToast();
 
 	const navigate = useNavigate();
-
-	const { status } = useSocial();
 
 	const onTeamNameChange = (team_index: number, name: string) => {
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setTeamName(team_index, name)));
@@ -209,30 +204,32 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	};
 
 	// TODO: Add a refresh alert to confirm leaving the lobby
-	useEffect(() => {
+	Babact.useEffect(() => {
 		const lobby = localStorage.getItem('lobby');
 		if (lobby) {
 			ws.connect(`${config.WS_URL}/lobbies/join?secret=${lobby}&token=${localStorage.getItem("access_token")}`);
 		}
 	}, []);
 
-	useEffect(() => {
+	const { status, connected } = useAuth();
+
+	Babact.useEffect(() => {
 		console.warn('lobby', lobby);
-		if (lobby)
+		if (lobby && connected)
 			status({
 				type: StatusType.INLOBBY,
 				data: lobby
 			});
-		else
+		else if (!lobby && connected)
 			status({
-				type: StatusType.ONLINE
+				type: StatusType.ONLINE,
 			});
 	}, [lobby]);
 
 	return (
 		<LobbyContext.Provider
 			value={{
-				lobby: lobby,
+				lobby,
 				create,
 				join,
 			}}
