@@ -23,6 +23,9 @@ describe('Inactivity test', () => {
         expect(message.data.follows).toEqual([])
       })
 
+
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     const ws0 = await request(socialWS)
       .ws(`/notify?access_token=${users[0].jwt}`)
       .expectJson((message) => {
@@ -64,7 +67,7 @@ describe('Inactivity test', () => {
           status: inactive
         })
       })
-      ws0.send(JSON.stringify({ event: "goodbye" }));
-      ws1.send(JSON.stringify({ event: "goodbye" }));
+    ws0.send(JSON.stringify({ event: "goodbye" }));
+    ws1.send(JSON.stringify({ event: "goodbye" }));
   }, 20000);
 });
