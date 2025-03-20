@@ -54,18 +54,18 @@ export default function routes(fastify, opts, done) {
 }
 
 async function authenticate(reply, account_id) {
-  const auth = await YATT.fetch(`http://token-manager:3000/${account_id}`, {
+  const tokens = await YATT.fetch(`http://token-manager:3000/${account_id}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token_manager_secret}`,
       },
     }
   );
-  reply.setCookie("refresh_token", auth.refresh_token, {
+  reply.setCookie("refresh_token", tokens.refresh_token, {
     httpOnly: true,
     secure: true,
     sameSite: "strict",
     path: "/token",
   });
-  reply.code(201).send({ access_token: auth.access_token, expire_at: auth.expire_at });
+  reply.code(201).send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
 }

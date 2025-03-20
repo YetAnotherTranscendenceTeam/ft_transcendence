@@ -11,4 +11,4 @@ const task = new AsyncTask('remove-expired-tokens', async () => {
   }
 });
 
-export const removeExpiredTokens = new SimpleIntervalJob({ hour: 1 }, task, { id: 'token-cleanup' });
+export const removeExpiredTokens = new SimpleIntervalJob({ minutes: 60 }, task, { id: 'token-cleanup' });

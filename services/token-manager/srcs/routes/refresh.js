@@ -16,17 +16,15 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.post("/refresh", { schema }, async function handler(request, reply) {
-    console.log("REFRESH:", request.cookies);
     const token = request.cookies.refresh_token;
     let account_id;
 
     try {
       const decode = fastify.jwt.refresh.verify(token);
       account_id = decode.account_id;
-      console.log("DEBUG:", account_id);
     } catch (err) {
       console.error(err)
-      reply.clearCookie("refresh_token");
+      reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
     // Remove refresh_token from the white list for one-time validity
@@ -34,8 +32,7 @@ export default function router(fastify, opts, done) {
       .prepare("DELETE FROM refresh_tokens WHERE account_id = ? AND token = ?")
       .run(account_id, token);
     if (deletion.changes === 0) {
-      console.error("REFRESH: token not found in the database");
-      reply.clearCookie("refresh_token");
+      reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
 
