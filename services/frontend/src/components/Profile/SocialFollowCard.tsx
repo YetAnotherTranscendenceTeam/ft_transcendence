@@ -32,18 +32,25 @@ export default function SocialFollowCard({
 		&& lobby?.getCapacity() > lobby?.players.length
 		&& lobby;
 
-	const isRequestable = inLobby && inLobby.players.length < inLobby.getCapacity() && !inLobby.players.find(p => p.account_id === me.account_id);
+	const isRequestable = inLobby
+		&& inLobby.players.length < inLobby.getCapacity()
+		&& !inLobby.players.find(p => p.account_id === me.account_id)
+		&& !inviteSend;
 
 	Babact.useEffect(() => {
 		setInviteSend(false);
 	}, [lobby]);
 
 	const handleInvite = () => {
-		if(inviteLobby) {
-			follow.invite(inviteLobby.mode, inviteLobby.join_secret);
-			setInviteSend(true);
-			createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
-		}
+		follow.invite(inviteLobby.mode, inviteLobby.join_secret);
+		setInviteSend(true);
+		createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
+	}
+
+	const handleRequest = () => {
+		follow.request();
+		setInviteSend(true);
+		createToast(`You requested to join ${follow.profile.username}'s lobby`, 'success');
 	}
 
 
@@ -53,7 +60,13 @@ export default function SocialFollowCard({
 				src={follow.profile.avatar}
 				name={follow.profile.username}
 				status={ follow.status.type }
-			/>
+			>
+				<Button className='follow-remove icon'
+					onClick={() => follow.unfollow()}
+				>
+					<i className="fa-solid fa-user-minus"></i>
+				</Button>
+			</Avatar>
 			<div className='flex flex-col gap-1'>
 				<h1>{follow.profile.username}</h1>
 				<FollowTypeText type={follow.status.type} />
@@ -61,12 +74,13 @@ export default function SocialFollowCard({
 		</div>
 		{inLobby && isRequestable &&
 			<Button
-				onClick={() => follow.request()}
+				onClick={() => handleRequest()}
 				className="follow-lobby-request"
 			>
 				<i className="fa-regular fa-hand"></i> Request to join
 			</Button>
 		}
+
 		{ inLobby &&
 			<div className={`follow-lobby-status flex gap-4 justify-between ${isRequestable ? 'requestable' : ''}`}>
 				<div className='flex flex-col gap-1'>
@@ -86,12 +100,6 @@ export default function SocialFollowCard({
 				</Button>
 			</div>
 		}
-
-		{/* <div className='flex flex-row items-center gap-2'>
-			<Button className='danger' onClick={() => follow.unfollow()}>
-				<i class="fa-solid fa-user-minus"></i> Unfollow
-			</Button>
-		</div> */}
 	</div>
 
 }

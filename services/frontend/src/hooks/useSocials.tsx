@@ -139,7 +139,7 @@ export default function useSocial(): {
 			inivites.current = inivites.current.filter(i => i !== username);
 		};
 
-		const message = (id) => <div className="flex flex-col gap-2">
+		const message = (id: number) => <div className="flex flex-col gap-2">
 			<h1>{username} invited you to their lobby</h1>
 			<p>Game mode : {new GameMode(gamemode).getDisplayName()} {new GameMode(gamemode).type}</p>
 			<div className="flex gap-2">
@@ -162,16 +162,15 @@ export default function useSocial(): {
 	};
 
 	const onLobbyRequest = ({ username, account_id }: {username: string, account_id: number}) => {
-
-		if (inivites.current.includes(username))
+		
+		const { lobby } = useLobby();
+		if (inivites.current.includes(username) || !lobby)
 			return;
 		inivites.current.push(username);
 
-		
 		const { createToast, removeToast } = useToast();
-		
+
 		const handleAccept = (id: number) => {
-			const { lobby } = useLobby();
 			const follow = new Follow({
 				account_id,
 				profile: {
@@ -183,10 +182,10 @@ export default function useSocial(): {
 					type: StatusType.OFFLINE,
 				}
 			}, ws);
+			createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
 			follow.invite(lobby.mode, lobby.join_secret);
 			removeToast(id);
 			inivites.current = inivites.current.filter(i => i !== username);
-			createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
 		};
 
 		const handleDecline = (id: number) => {
@@ -211,7 +210,12 @@ export default function useSocial(): {
 				</Button>
 			</div>
 		</div>
-		
+
+		createToast(message, 'info', 0);
+	};
+
+	const onConnect = () => {
+		status({type: StatusType.ONLINE});
 	};
 
 	const ws = useWebSocket({
@@ -223,12 +227,7 @@ export default function useSocial(): {
 			'receive_lobby_invite': onLobbyInvite,
 			'receive_lobby_request': onLobbyRequest,
 		},
-		onClose: () => {
-			console.error('Social WS closed');
-		},
-		onError: (e) => {
-			console.error('Social WS error', e);
-		},
+		onOpen: onConnect,
 	});
 
 	const connect = () => {

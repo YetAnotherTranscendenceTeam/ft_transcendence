@@ -211,6 +211,7 @@
 }
 
 .avatar span {
+	z-index: 2;
 	position: absolute;
 	aspect-ratio: 1/1;
 	border-radius: 50%;

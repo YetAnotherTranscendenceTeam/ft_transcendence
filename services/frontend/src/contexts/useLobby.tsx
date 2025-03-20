@@ -143,7 +143,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const onMessage = (message: string) => {
 		const msg = JSON.parse(message);
-		console.log('onMessage', msg)
 		if (msg.event === 'lobby') {
 			onPlayerConnect(msg.data.lobby);
 		}
@@ -174,7 +173,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	};
 
 	const onClose = (e) => {
-		console.log('onClose', e)
 		if (window.location.pathname.startsWith('/lobby'))
 			navigate('/');
 		localStorage.removeItem('lobby');
@@ -214,7 +212,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const { status, connected } = useAuth();
 
 	Babact.useEffect(() => {
-		console.warn('lobby', lobby);
 		if (lobby && connected)
 			status({
 				type: StatusType.INLOBBY,
