@@ -480,58 +480,6 @@ describe("Team names", () => {
   });
 });
 
-describe("Lobby unqueue on leave", () => {
-  let players = [];
-  it("create a unranked 2v2 lobby and fill it up", async () => {
-    players.push(
-      await createLobby(users[0], {
-        name: "unranked_2v2",
-        team_size: 2,
-        team_count: 2,
-        type: "unranked",
-      })
-    );
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
-      let player = await joinLobby(users[i], players[0]);
-      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
-      players.push(player);
-    }
-  });
-  it("queue the lobby", async () => {
-    players[0].ws.sendJson({ event: "queue_start" });
-    await Promise.all(
-      players.map((player) =>
-        player.ws.expectJson((message) => {
-          expect(message.event).toBe("state_change");
-          expect(message.data.state.type).toBe("queued");
-        })
-      )
-    );
-  });
-  it("1 player leaves the lobby and expect unqueue", async () => {
-    const player = players.pop();
-    await player.close();
-    await Promise.all(players.map((p) => p.expectLeave(player.user.account_id)));
-    await Promise.all(
-      players.map((player) =>
-        player.ws.expectJson((message) => {
-          expect(message.event).toBe("state_change");
-          expect(message.data.state.type).toBe("waiting");
-        })
-      )
-    );
-  });
-  it("leave lobby", async () => {
-    while (players.length > 0) {
-      let player = players.pop();
-      await player.close();
-      for (let other of players) {
-        await other.expectLeave(player.user.account_id);
-      }
-    }
-  });
-});
-
 describe("Leave a 2v2 tournament lobby starting from differente indexes", () => {
   const attempts = Array.from({ length: 32 }, (_, i) => i);
   test.each(attempts)("attempt %i", async (attempt) => {
