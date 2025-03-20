@@ -5,7 +5,6 @@ import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
 import SocialManager from "./SocialManager";
 import { Profile } from "../../contexts/useAuth";
-import ConfirmProfileModal from "./ConfirmProfileModal";
 import useEscape from "../../hooks/useEscape";
 
 export default function ProfileCard({ me, ...props } : { me: Profile, [key: string]: any }) {
@@ -14,9 +13,6 @@ export default function ProfileCard({ me, ...props } : { me: Profile, [key: stri
 
 	if (!me)
 		return null;
-		
-	if (me.username === '' || !me.avatar)
-		return <ConfirmProfileModal />;
 
 	useEscape(isOpen, () => setIsOpen(false));
 
