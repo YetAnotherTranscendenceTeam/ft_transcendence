@@ -13,7 +13,7 @@ export default function build(opts = {}) {
   app.register(cors, {
     origin: true,
     methods: ['GET', 'POST'], // Allowed HTTP methods
-    // credentials: true, // Allow credentials (cookies, authentication)
+    credentials: true, // Allow credentials (cookies, authentication)
   });
 
   if (process.env.ENV !== "production") {
