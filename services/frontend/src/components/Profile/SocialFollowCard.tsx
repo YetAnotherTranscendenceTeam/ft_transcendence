@@ -6,6 +6,7 @@ import FollowTypeText from "./FollowTypeText";
 import { Lobby } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
 import useToast from "../../hooks/useToast";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function SocialFollowCard({
 		follow,
@@ -21,6 +22,8 @@ export default function SocialFollowCard({
 	
 	const { lobby } = useLobby();
 
+	const { me } = useAuth();
+
 	const [inviteSend, setInviteSend] = Babact.useState<boolean>(false);
 
 	const inviteLobby = (follow.status.type === StatusType.ONLINE || follow.status.type === StatusType.INACTIVE)
@@ -28,6 +31,8 @@ export default function SocialFollowCard({
 		&& !lobby?.players.find(p => p.account_id === follow.account_id)
 		&& lobby?.getCapacity() > lobby?.players.length
 		&& lobby;
+
+	const isRequestable = inLobby && inLobby.players.length < inLobby.getCapacity() && !inLobby.players.find(p => p.account_id === me.account_id);
 
 	Babact.useEffect(() => {
 		setInviteSend(false);
@@ -54,8 +59,16 @@ export default function SocialFollowCard({
 				<FollowTypeText type={follow.status.type} />
 			</div>
 		</div>
+		{inLobby && isRequestable &&
+			<Button
+				onClick={() => follow.request()}
+				className="follow-lobby-request"
+			>
+				<i className="fa-regular fa-hand"></i> Request to join
+			</Button>
+		}
 		{ inLobby &&
-			<div className='follow-lobby-status flex gap-4 justify-between'>
+			<div className={`follow-lobby-status flex gap-4 justify-between ${isRequestable ? 'requestable' : ''}`}>
 				<div className='flex flex-col gap-1'>
 					<h1>{inLobby.mode.getDisplayName()}</h1>
 					<h2>{inLobby.mode.type}</h2>
@@ -66,11 +79,13 @@ export default function SocialFollowCard({
 			</div>
 		}
 
-		{inviteLobby && <div className='flex flex-row items-center gap-2'>
-			<Button className='info' onClick={() => handleInvite()}>
-				<i className="fa-regular fa-paper-plane"></i> Invite
-			</Button>
-		</div>}
+		{inviteLobby &&
+			<div className='flex flex-row items-center gap-2'>
+				<Button className='info' onClick={() => handleInvite()}>
+					<i className="fa-regular fa-paper-plane"></i> Invite to lobby
+				</Button>
+			</div>
+		}
 
 		{/* <div className='flex flex-row items-center gap-2'>
 			<Button className='danger' onClick={() => follow.unfollow()}>

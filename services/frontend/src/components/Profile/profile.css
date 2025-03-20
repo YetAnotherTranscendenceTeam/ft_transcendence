@@ -136,3 +136,20 @@
 	border-left: var(--inlobby-color) 2px solid;
 	min-width: 100px;
 }
+
+
+.social-manager-follow-card .follow-lobby-request, .social-manager-follow-card:hover .follow-lobby-status.requestable {
+	display: none;
+}
+
+.social-manager-follow-card:hover .follow-lobby-request {
+	display: flex;
+	color: var(--fg-1);
+	background-color: var(--inlobby-color);
+}
+
+.follow-lobby-request:hover {
+	filter: saturate(1.5);
+}
+
+
