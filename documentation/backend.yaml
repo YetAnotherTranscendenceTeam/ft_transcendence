@@ -33,7 +33,7 @@ components:
     account_id:
       description: An account unique ID
       type: integer
-      example: 27017
+      example: 108244
 
     email:
       description: An email address

@@ -141,9 +141,23 @@ export class Client {
     const target = this.allClients.get(invite?.account_id);
 
     if (target) {
-      target.send({ event: "receive_lobby_invite", data: { from: this.username, gamemode: invite?.gamemode, join_secret: invite?.join_secret } });
+      target.send({ event: "receive_lobby_invite", data: { username: this.username, gamemode: invite?.gamemode, join_secret: invite?.join_secret } });
     } else {
       // TODO: error event
+    }
+  }
+
+  async sendLobbyJoinRequest(request) {
+    try {
+      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
+    } catch (err) {
+      console.error(err);
+    }
+
+    const target = this.allClients.get(request.account_id);
+
+    if (target) {
+      target.send({ event: "receive_lobby_request", data: { account_id: this.account_id, username: this.username} });
     }
   }
 }

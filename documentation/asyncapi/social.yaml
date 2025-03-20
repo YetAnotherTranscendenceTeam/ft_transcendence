@@ -33,6 +33,10 @@ channels:
         $ref: '#/components/messages/follow'
       unfollow:
         $ref: '#/components/messages/unfollow'
+      receive_lobby_invite:
+        $ref: '#/components/messages/receive_lobby_invite'
+      receive_lobby_request:
+        $ref: '#/components/messages/receive_lobby_request'
 
     # sent from client to server
       ping:
@@ -41,6 +45,8 @@ channels:
         $ref: '#/components/messages/update_status'
       send_lobby_invite:
         $ref: '#/components/messages/send_lobby_invite'
+      send_lobby_request:
+        $ref: '#/components/messages/send_lobby_request'
       goodbye:
         $ref: '#/components/messages/goodbye'
   
@@ -54,6 +60,8 @@ operations:
       - $ref: '#/channels/social/messages/status'
       - $ref: '#/channels/social/messages/follow'
       - $ref: '#/channels/social/messages/unfollow'
+      - $ref: '#/channels/social/messages/receive_lobby_invite'
+      - $ref: '#/channels/social/messages/receive_lobby_request'
 
   subscribe:
     action: receive
@@ -63,6 +71,7 @@ operations:
       - $ref: '#/channels/social/messages/ping'
       - $ref: '#/channels/social/messages/update_status'
       - $ref: '#/channels/social/messages/send_lobby_invite'
+      - $ref: '#/channels/social/messages/send_lobby_request'
       - $ref: '#/channels/social/messages/goodbye'
 
 components:
@@ -179,12 +188,36 @@ components:
           data:
             type: object
             properties:
-              from:
+              username:
                 $ref: '#/components/schemas/username'
               gamemode:
                 $ref: './lobbies.yaml#/components/schemas/gamemode'
               join_secret:
                 $ref: '#/components/schemas/join_secret'
+        required:
+          - type
+          - data
+
+    receive_lobby_request:
+      description: Message sent by the server when another user invite the client to join a lobby
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - receive_lobby_request
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              username:
+                $ref: '#/components/schemas/username'
+            required:
+              - account_id
+              - username
         required:
           - type
           - data
@@ -259,6 +292,27 @@ components:
         required:
           - event
           - data
+      
+    send_lobby_request:
+      description: Send this message to the server to request a lobby invitation to another player
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - send_lobby_request
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+            required:
+              - account_id
+        required:
+          - event
+          - data
 
     goodbye:
       description: Send this message to the server disconnect the websocket
@@ -306,7 +360,7 @@ components:
     account_id:
       description: An account unique ID
       type: number
-      example: 15465
+      example: 108244
     
     username:
       description: An unique username

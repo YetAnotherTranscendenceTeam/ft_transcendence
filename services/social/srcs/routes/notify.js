@@ -24,7 +24,7 @@ export default function router(fastify, opts, done) {
       // Associate the socket with an account_id
       client = await fastify.clients.connect(socket, parseInt(decoded.account_id));
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       return socket.close(3000, "Unauthorized");
     }
 
@@ -44,8 +44,13 @@ export default function router(fastify, opts, done) {
           client.setStatus(payload.data);
         } else if (payload.event === "send_lobby_invite") {
           await client.sendLobbyInvite(payload.data);
+        } else if (payload.event === "send_lobby_request") {
+          await client.sendLobbyJoinRequest(payload.data);
         }
       } catch (err) {
+        // if (err instanceof Error) {
+        //   socket.send({ event: "error", data: {} });
+        // }
         console.error(err.message);
         socket.close(1003, "Unsupported Data");
       }
