@@ -75,9 +75,6 @@ fi
 
 HOST=$(hostname | cut -d'.' -f1)
 
-printf "\n[MISC PARAMETERS] \n"
-generate MATCHMAKING_SCHEDULER_DELAY "100"
-
 printf "\n[URLs]\n"
 generate BACKEND_URL "https://${HOST}:7979"
 generate WS_URL "wss://${HOST}:7979"

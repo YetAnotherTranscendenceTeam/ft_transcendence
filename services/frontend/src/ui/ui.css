@@ -91,6 +91,21 @@
 	filter: saturate(1);
 }
 
+.button.info {
+	background-color: var(--info-color);
+	color: var(--fg-1);
+}
+
+.button.info:hover {
+	background-color: var(--info-color);
+	filter: saturate(2);
+}
+
+.button.info.disabled, .button.info.disabled:hover{
+	background-color: var(--info-color-40);
+	filter: saturate(1);
+}
+
 /* ================================== */
 /* ============= Card =============== */
 /* ================================== */
@@ -171,9 +186,6 @@
 /* ================================== */
 
 .avatar {
-	--offline-color: #b3b3b3;
-	--online-color: #39df5d;
-	--inactive-color: #ff9f32;
 	aspect-ratio: 1/1;
 	position: relative;
 	border-radius: 8px;

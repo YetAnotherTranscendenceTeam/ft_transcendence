@@ -77,7 +77,7 @@
 }
 
 .social-manager-follow-card {
-	padding: 0.5rem 1rem;
+	padding: 8px;
 	box-sizing: border-box;
 	font-size: small;
 	border-radius: 4px;
@@ -99,10 +99,6 @@
 
 .social-manager-follow-card .button {
 	font-size: small;
-	display: none;
-}
-
-.social-manager-follow-card:hover .button {
 	display: flex;
 }
 
@@ -128,4 +124,15 @@
 
 .confirm-profile-modal-footer {
 	margin-top: 4rem;
+}
+
+
+/* ======== Lobby card ========= */
+
+.follow-lobby-status {
+	background: var(--bg-1);
+	padding: 8px;
+	border-radius: 4px;
+	border-left: var(--inlobby-color) 2px solid;
+	min-width: 100px;
 }

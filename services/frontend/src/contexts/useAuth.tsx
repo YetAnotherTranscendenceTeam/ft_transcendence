@@ -13,6 +13,7 @@ interface ICredentials {
 
 export interface IMe extends IUser {
 	credentials: ICredentials,
+	status: FollowStatus,
 }
 
 export const AuthProvider = ({ children } : {children?: any}) => {
@@ -26,7 +27,8 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			return;
 		const response = await ft_fetch(`${config.API_URL}/me`, {});
 		if (response){
-			setMe({...response});
+			setMe({...response, status: null});
+			connect();
 		}
 		else{
 			console.log('logout');
@@ -60,9 +62,9 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 
 	const { connect, follows, ping, status } = useSocial();
 
-	Babact.useEffect(() => {
-		connect();
-	}, [me]);
+	const setMeStatus = (status: FollowStatus) => {
+		setMe(me => ({...me, status}));
+	};
 
 	return (
 		<AuthContext.Provider
@@ -74,6 +76,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 				refresh,
 				ping,
 				status,
+				setMeStatus,
 			}}
 		>
 			{children}
@@ -89,6 +92,7 @@ export const useAuth = (): {
 		refresh: () => void,
 		ping: () => void,
 		status: (status: FollowStatus) => void,
+		setMeStatus: (status: FollowStatus) => void,
 	} => {
 	return Babact.useContext(AuthContext);
 };

@@ -20,6 +20,7 @@ export default function useWebSocket({
 		onOpen?: (event) => void,
 		eventHandlers?: { [key: string]: (event) => void }
 	} = {}): WebSocketHook {
+
 	const ws = Babact.useRef(null);
 	const [connected, setConnected] = Babact.useState(false);
 
@@ -64,7 +65,10 @@ export default function useWebSocket({
 		ws.current.close();
 	};
 
-	const send = (message) => {
+	const send = (message: string) => {
+		if (!ws.current) {
+			return;
+		}
 		ws.current.send(message);
 	};
 

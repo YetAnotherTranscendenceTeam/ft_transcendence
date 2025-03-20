@@ -6,7 +6,7 @@ import useToast from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
 
 import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
-
+import useSocial, { StatusType } from "../hooks/useSocials";
 
 class LobbyClient extends Lobby {
 
@@ -32,6 +32,7 @@ class LobbyClient extends Lobby {
 	};
 
 	queueStart() {
+		console.log('queueStart', this.ws)
 		this.ws.send(JSON.stringify({
 			event: 'queue_start'
 		}));
@@ -56,6 +57,7 @@ class LobbyClient extends Lobby {
 	};
 
 	changeMode(mode: string) {
+		console.log('changeMode', mode, this.ws)
 		this.ws.send(JSON.stringify({
 			event: 'mode',
 			data: {
@@ -93,6 +95,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const { createToast } = useToast();
 
 	const navigate = useNavigate();
+
+	const { status } = useSocial();
 
 	const onTeamNameChange = (team_index: number, name: string) => {
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setTeamName(team_index, name)));
@@ -214,6 +218,15 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	useEffect(() => {
 		console.warn('lobby', lobby);
+		if (lobby)
+			status({
+				type: StatusType.INLOBBY,
+				data: lobby
+			});
+		else
+			status({
+				type: StatusType.ONLINE
+			});
 	}, [lobby]);
 
 	return (

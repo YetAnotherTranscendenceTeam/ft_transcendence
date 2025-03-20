@@ -50,7 +50,7 @@ export class ConnectionManager {
       event: "status",
       data: { account_id: client.account_id, status }
     }
-    console.log("BROADCASTING:", { account_id: client.account_id, payload });
+    console.log("BROADCASTING:", { account_id: client.account_id, payload: JSON.stringify(payload) });
 
     // Get accounts to broadcast to
     const targets = this.#getFollowers.all(client.account_id).map(follower => follower.account_id);

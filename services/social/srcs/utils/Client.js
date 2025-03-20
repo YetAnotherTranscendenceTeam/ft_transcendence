@@ -132,7 +132,11 @@ export class Client {
   }
 
   async sendLobbyInvite(invite) {
-    this.username = await YATT.fetch(`http://db-profiles/${this.account_id}`)?.username;
+    try {
+      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
+    } catch (err) {
+      console.error(err);
+    }
 
     const target = this.allClients.get(invite?.account_id);
 

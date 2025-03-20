@@ -1,4 +1,5 @@
 import Babact from "babact";
+import { FollowStatus } from "../hooks/useSocials";
 
 export default function Avatar({
 		className = '',

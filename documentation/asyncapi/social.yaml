@@ -166,6 +166,29 @@ components:
           - event
           - data
 
+    receive_lobby_invite:
+      description: Message sent by the server when another user invite the client to join a lobby
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - receive_lobby_invite
+          data:
+            type: object
+            properties:
+              from:
+                $ref: '#/components/schemas/username'
+              gamemode:
+                $ref: './lobbies.yaml#/components/schemas/gamemode'
+              join_secret:
+                $ref: '#/components/schemas/join_secret'
+        required:
+          - type
+          - data
+
     ping:
       description: Send this message to the server to prevent the user from going inactive
       payload:

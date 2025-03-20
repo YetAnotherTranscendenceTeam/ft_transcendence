@@ -3,9 +3,10 @@ import Button from "../../ui/Button";
 import Input from "../../ui/Input";
 import { Form } from "../../contexts/useForm";
 import useUsers from "../../hooks/useUsers";
-import { FollowStatus } from "../../hooks/useSocials";
+import { Follow, StatusType } from "../../hooks/useSocials";
 import SocialUserCard from "./SocialUserCard";
 import { useAuth } from "../../contexts/useAuth";
+import SocialFollowCard from "./SocialFollowCard";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
 
@@ -24,16 +25,10 @@ export default function SocialManager({ className = '', children, ...props }: { 
 			search('', 20, follows.map(f => f.account_id).concat(me.account_id));
 	}, [me, follows]);
 
-	const sortFollows = (follows) => {
-		// Sort follows by status
-		// 1. INLOBBY
-		// 2. INGAME
-		// 3. ONLINE
-		// 4. INACTIVE
-		// 5. OFFLINE
+	const sortFollows = (follows: Follow[]) => {
 		return follows.sort((a, b) => {
-			const order = [FollowStatus.INLOBBY, FollowStatus.INGAME, FollowStatus.ONLINE, FollowStatus.INACTIVE, FollowStatus.OFFLINE];
-			return order.indexOf(a.status) - order.indexOf(b.status);
+			const order = [StatusType.INLOBBY, StatusType.INGAME, StatusType.ONLINE, StatusType.INACTIVE, StatusType.OFFLINE];
+			return order.indexOf(a.status.type) - order.indexOf(b.status.type);
 		});
 	};
 
@@ -43,7 +38,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 			<Button className={`ghost ${selected === 'follow' ? 'selected' : ''}`} onClick={() => setSelected('follow')}>
 				<i className="fa-solid fa-user-group"></i> Follow
 				<p>
-					{follows.filter(f => f.status === FollowStatus.ONLINE).length ?? '0'}/{follows.length}
+					{follows.filter(f => f.status.type !== StatusType.OFFLINE).length ?? '0'}/{follows.length}
 				</p>
 			</Button>
 			<Button className={`ghost ${selected === 'add' ? 'selected' : ''}`} onClick={() => setSelected('add')}>
@@ -55,12 +50,11 @@ export default function SocialManager({ className = '', children, ...props }: { 
 				{
 					follows.length ?
 					sortFollows(follows).map((follow, i) =>
-						<SocialUserCard
+						<SocialFollowCard
 							key={i}
-							user={follow.profile}
-							status={follow.status}
-							unfollow={() => follow.unfollow()}
-						/>):
+							follow={follow}
+						/>
+					):
 					<div className='flex flex-col w-full items-center justify-center h-full gap-4'>
 						No follows yet
 						<Button className="primary" onClick={() => setSelected('add')}>

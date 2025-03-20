@@ -70,7 +70,7 @@ export default function LobbyCard() {
 				((lobby.state.type === 'queued' &&
 					<Button
 						className="danger"
-						onClick={lobby.queueStop}	
+						onClick={() => lobby.queueStop()}	
 					>
 						<i className="fa-solid fa-stop"></i>
 						Stop
@@ -79,7 +79,7 @@ export default function LobbyCard() {
 				(lobby.state.type === 'waiting' &&
 					<Button
 						className="success"
-						onClick={lobby.queueStart}	
+						onClick={() => lobby.queueStart()}	
 					>
 						<i className="fa-solid fa-play"></i>
 						Start

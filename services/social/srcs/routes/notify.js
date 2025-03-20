@@ -32,7 +32,7 @@ export default function router(fastify, opts, done) {
       fastify.clients.disconnect(client, socket, fastify.clients);
     });
 
-    socket.on('message', message => {
+    socket.on('message', async message => {
       try {
         const payload = JSON.parse(message);
         console.log("RECIEVED:", { account_id: client.account_id, ...payload});
@@ -43,7 +43,7 @@ export default function router(fastify, opts, done) {
         } else if (payload.event === "update_status") {
           client.setStatus(payload.data);
         } else if (payload.event === "send_lobby_invite") {
-          client.sendLobbyInvite(payload.data);
+          await client.sendLobbyInvite(payload.data);
         }
       } catch (err) {
         console.error(err.message);
