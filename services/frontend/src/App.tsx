@@ -7,6 +7,7 @@ import { UiProvider } from "./contexts/useUi";
 import { AuthProvider } from "./contexts/useAuth";
 import { LobbyProvider } from "./contexts/useLobby";
 import LobbyView from "./views/LobbyView";
+import TournamentView from "./views/TournamentView";
 
 export default function App() {
 	return <Router>
@@ -18,6 +19,7 @@ export default function App() {
 				<Routes>
 					<Route path="/fortytwo" element={<FortytwoView/>} />
 					<Route path='/lobby/:code' element={<LobbyView/>} />
+					<Route path='/tournament' element={<TournamentView/>} />
 					<Route path="/*" element={<Home />} />
 				</Routes>
 			</div>
