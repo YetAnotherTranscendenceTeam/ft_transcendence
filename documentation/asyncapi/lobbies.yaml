@@ -62,6 +62,26 @@ channels:
         $ref: '#/components/messages/team_name_update'
       error:
         $ref: '#/components/messages/error'
+
+    # sent from server (close codes)
+      close_disconnect:
+        $ref: '#/components/messages/close_disconnect'
+      close_unauthorized:
+        $ref: '#/components/messages/close_unauthorized'
+      close_not_found:
+        $ref: '#/components/messages/close_not_found'
+      close_lobby_full:
+        $ref: '#/components/messages/close_lobby_full'
+      close_inaccessible:
+        $ref: '#/components/messages/close_inaccessible'
+      close_other_location:
+        $ref: '#/components/messages/close_other_location'
+      close_invalid_format:
+        $ref: '#/components/messages/close_invalid_format'
+      close_invalid_mode:
+        $ref: '#/components/messages/close_invalid_mode'
+      close_kicked:
+        $ref: '#/components/messages/close_kicked'
 operations:
   publish:
     action: send
@@ -89,6 +109,20 @@ operations:
       - $ref: '#/channels/lobby/messages/team_name'
       - $ref: '#/channels/lobby/messages/queue_start'
       - $ref: '#/channels/lobby/messages/queue_stop'
+  close:
+    action: receive
+    channel:
+      $ref: '#/channels/lobby'
+    messages:
+      - $ref: '#/channels/lobby/messages/close_disconnect'
+      - $ref: '#/channels/lobby/messages/close_unauthorized'
+      - $ref: '#/channels/lobby/messages/close_not_found'
+      - $ref: '#/channels/lobby/messages/close_lobby_full'
+      - $ref: '#/channels/lobby/messages/close_inaccessible'
+      - $ref: '#/channels/lobby/messages/close_other_location'
+      - $ref: '#/channels/lobby/messages/close_invalid_format'
+      - $ref: '#/channels/lobby/messages/close_invalid_mode'
+      - $ref: '#/channels/lobby/messages/close_kicked'
 components:
   tags:
     owner:
@@ -437,6 +471,150 @@ components:
               message:
                 type: string
                 description: The error message
+    close_disconnect:
+      description: The close event sent when the player disconnects (response to disconnect message)
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [1000]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["DISCONNECTED"]
+    close_unauthorized:
+      description: The close event sent when the player is unauthorized (invalid token)
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [3000]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["UNAUTHORIZED"]
+    close_not_found:
+      description: The close event sent when the lobby is not found (invalid secret)
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [4000]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["NOT_FOUND"]
+    close_lobby_full:
+      description: The close event sent when the lobby is full
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [4001]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["LOBBY_FULL"]
+    close_inaccessible:
+      description: The close event sent when the lobby is not in a joinable state
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [4002]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["NOT_ACCESSIBLE"]
+    close_other_location:
+      description: The close event sent when the player logs in from another location
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [4003]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["OTHER_LOCATION"]
+    close_invalid_format:
+      description: The close event sent when the message format isn't JSON
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [4004]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["INVALID_FORMAT"]
+    close_invalid_mode:
+      description: The close event sent when the selected mode for lobby creation is invalid
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [4005]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["INVALID_MODE"]
+    close_kicked:
+      description: The close event sent when the player is kicked from the lobby
+      payload:
+        type: object
+        required:
+          - code
+          - reason
+        properties:
+          code:
+            type: number
+            description: The status code of the close
+            enum: [4006]
+          reason:
+            type: string
+            description: The message of the close
+            enum: ["KICKED"]
   schemas:
     account_id:
       type: number

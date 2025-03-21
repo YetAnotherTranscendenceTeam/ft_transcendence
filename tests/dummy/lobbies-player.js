@@ -11,7 +11,7 @@ export class Player {
     this.lobby = new Lobby(lobby);
   }
   close() {
-    return this.ws.sendJson({ event: "disconnect" }).expectClosed(1000, "Disconnected").close();
+    return this.ws.sendJson({ event: "disconnect" }).expectClosed(1000, "DISCONNECTED").close();
   }
 
   getIndex() {

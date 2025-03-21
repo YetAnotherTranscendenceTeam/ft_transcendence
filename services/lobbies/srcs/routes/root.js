@@ -2,6 +2,7 @@
 
 import { GameModes } from "../GameModes.js";
 import { ConnectionManager } from "../ConnectionManager.js";
+import { WsCloseError } from "yatt-ws";
 
 const connection_manager = new ConnectionManager();
 
@@ -15,7 +16,11 @@ export default function router(fastify, opts, done) {
         oldplayer = connect.oldplayer;
       }
       catch (err) {
-        console.error(err.message);
+        console.error(err);
+        if (err instanceof WsCloseError) {
+          err.close(socket);
+          return;
+        }
         socket.close(1008, err.message);
         return;
       }
