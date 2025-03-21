@@ -1,0 +1,10 @@
+.view {
+	width: 100dvw;
+	height: 100dvh;
+	overflow: hidden;
+}
+
+.lobby-view {
+	position: relative;
+	box-sizing: border-box;
+}

@@ -1,16 +1,16 @@
 import request from "supertest";
-import { dummy } from "../../dummy/one-dummy";
 import { avatarPNG } from "./b64avatars.js";
+import { apiURL } from "../../URLs.js";
+import { createUsers, users } from "../../dummy/dummy-account.js";
 
-const baseUrl = 'https://127.0.0.1:7979';
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+createUsers(1);
 
 describe('Avatar Router', () => {
   describe('GET /', () => {
     it("get new account avatars", async () => {
-      const response = await request(baseUrl)
+      const response = await request(apiURL)
         .get("/avatars")
-        .set('Authorization', `Bearer ${dummy.jwt}`)
+        .set('Authorization', `Bearer ${users[0].jwt}`)
         .expect(200);
 
       // Check if the response body has the correct structure
@@ -29,9 +29,9 @@ describe('Avatar Router', () => {
 
   describe('POST /', () => {
     it('should create a new avatar', async () => {
-      const response = await request(baseUrl)
+      const response = await request(apiURL)
         .post('/avatars')
-        .set("Authorization", `Bearer ${dummy.jwt}`)
+        .set("Authorization", `Bearer ${users[0].jwt}`)
         .set('Content-Type', 'text/plain')
         .send(avatarPNG);
 
@@ -40,9 +40,9 @@ describe('Avatar Router', () => {
     });
 
     it("verify avatar has been added", async () => {
-      const response = await request(baseUrl)
+      const response = await request(apiURL)
         .get("/avatars")
-        .set('Authorization', `Bearer ${dummy.jwt}`)
+        .set('Authorization', `Bearer ${users[0].jwt}`)
         .expect(200);
 
       // Check if the response body has the correct structure
@@ -60,9 +60,9 @@ describe('Avatar Router', () => {
 
     for (let i = 0; i < 4; ++i) {
       it('fill avatar slots', async () => {
-        const response = await request(baseUrl)
+        const response = await request(apiURL)
           .post('/avatars')
-          .set("Authorization", `Bearer ${dummy.jwt}`)
+          .set("Authorization", `Bearer ${users[0].jwt}`)
           .set('Content-Type', 'text/plain')
           .send(avatarPNG);
   
@@ -72,9 +72,9 @@ describe('Avatar Router', () => {
     }
 
     it('should reject when avatar limit is reached', async () => {
-      const response = await request(baseUrl)
+      const response = await request(apiURL)
         .post('/avatars')
-        .set("Authorization", `Bearer ${dummy.jwt}`)
+        .set("Authorization", `Bearer ${users[0].jwt}`)
         .set('account_id', '123')
         .set('Content-Type', 'text/plain')
         .send(avatarPNG);
@@ -83,9 +83,9 @@ describe('Avatar Router', () => {
     });
   
     it("verify user has 5 avatars", async () => {
-      const response = await request(baseUrl)
+      const response = await request(apiURL)
         .get("/avatars")
-        .set('Authorization', `Bearer ${dummy.jwt}`)
+        .set('Authorization', `Bearer ${users[0].jwt}`)
         .expect(200);
 
       // Check if the response body has the correct structure

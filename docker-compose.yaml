@@ -9,6 +9,7 @@ services:
       - avatars
       - settings
       - documentation
+      - social
     environment:
       - NGINX_HOST=localhost
     secrets:
@@ -27,6 +28,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - BACKEND_URL=${BACKEND_URL}
+      - WS_URL=${WS_URL}
     ports:
       - "127.0.0.1:4242:8080"
     networks:
@@ -119,6 +121,7 @@ services:
       - frontend
       - tokens
       - db-profiles
+      - avatars
 
   lobbies:
     depends_on:
@@ -155,6 +158,17 @@ services:
     networks:
       - frontend
 
+  # profiles-api:
+  #   build:
+  #     context: services/profiles-api/
+  #     dockerfile: Dockerfile.dev
+  #   volumes:
+  #     - ./sqlite:/database
+  #     - ./services/profiles-api/srcs:/run/srcs
+  #   ports:
+  #     - "127.0.0.1:3003:3000"
+  #   networks:
+  #     - credentials
 
   db-profiles:
     build:
@@ -227,6 +241,26 @@ services:
       cdn-nginx:
         condition: service_healthy
 
+  social:
+    build:
+      context: services/social/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/social/srcs:/services/social/srcs
+      - ./modules/:/modules:ro
+      - ./sqlite:/database
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
+      - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
+    ports:
+      - 127.0.0.1:4123:3000
+    networks:
+      - social
+      - db-profiles
+      - settings
+
+
   documentation:
     build:
       context: services/documentation/
@@ -288,7 +322,11 @@ networks:
     driver: bridge
   avatars:
     driver: bridge
+  social:
+    driver: bridge
   cdn-api:
+    driver: bridge
+  swagger:
     driver: bridge
 
   cdn-test:

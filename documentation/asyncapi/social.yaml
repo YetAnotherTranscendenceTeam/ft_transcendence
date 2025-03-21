@@ -1,0 +1,404 @@
+asyncapi: 3.0.0
+info:
+  title: Social notifications
+  version: 1.0.0
+  description: Websocket in charge of communicating live social and activity related informations
+
+servers:
+  development:
+    host: localhost:8080
+    protocol: wss
+    description: The development server
+
+channels:
+  social:
+    bindings:
+      ws:
+        query:
+          type: object
+          required:
+            - acess_token
+          properties:
+            token:
+              type: string
+              description: An JWT issued by the server authentication service
+    address: /social/notify
+    messages:
+    # sent from server to client
+      welcome:
+        $ref: '#/components/messages/welcome'
+      status:
+        $ref: '#/components/messages/status'
+      follow:
+        $ref: '#/components/messages/follow'
+      unfollow:
+        $ref: '#/components/messages/unfollow'
+      receive_lobby_invite:
+        $ref: '#/components/messages/receive_lobby_invite'
+      receive_lobby_request:
+        $ref: '#/components/messages/receive_lobby_request'
+      error:
+        $ref: '#/components/messages/error'
+
+    # sent from client to server
+      ping:
+        $ref: '#/components/messages/ping'
+      update_status:
+        $ref: '#/components/messages/update_status'
+      send_lobby_invite:
+        $ref: '#/components/messages/send_lobby_invite'
+      send_lobby_request:
+        $ref: '#/components/messages/send_lobby_request'
+      goodbye:
+        $ref: '#/components/messages/goodbye'
+  
+operations:
+  publish:
+    action: send
+    channel:
+      $ref: '#/channels/social'
+    messages:
+      - $ref: '#/channels/social/messages/welcome'
+      - $ref: '#/channels/social/messages/status'
+      - $ref: '#/channels/social/messages/follow'
+      - $ref: '#/channels/social/messages/unfollow'
+      - $ref: '#/channels/social/messages/receive_lobby_invite'
+      - $ref: '#/channels/social/messages/receive_lobby_request'
+      - $ref: '#/channels/social/messages/error'
+
+  subscribe:
+    action: receive
+    channel:
+      $ref: '#/channels/social'
+    messages:
+      - $ref: '#/channels/social/messages/ping'
+      - $ref: '#/channels/social/messages/update_status'
+      - $ref: '#/channels/social/messages/send_lobby_invite'
+      - $ref: '#/channels/social/messages/send_lobby_request'
+      - $ref: '#/channels/social/messages/goodbye'
+
+components:
+  messages:
+    welcome:
+      description: Message sent by the server uppon connection
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - welcome
+          data:
+            type: object
+            properties:
+              follows:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_id:
+                      $ref: '#/components/schemas/account_id'
+                    profile:
+                      $ref: '#/components/schemas/profile'
+                    status:
+                      $ref: '#/components/schemas/status'
+              self:
+               $ref: '#/components/schemas/status'
+        required:
+          - event
+          - data
+    
+    status:
+      description: Message sent by the server when the status of a user you are following changes
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            enum:
+              - status
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              status:
+                $ref: '#/components/schemas/status'
+            required:
+              - account_id
+              - status
+        required:
+          - event
+          - data
+
+    follow:
+      description: Message sent by the server when the client follows another user
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            enum:
+              - follow
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              profile:
+                $ref: '#/components/schemas/profile'
+              status:
+                $ref: '#/components/schemas/status'
+            required:
+              - account_id
+              - profile
+              - status
+        required:
+          - event
+          - data
+      
+    unfollow:
+      description: Message sent by the server when the client unfollows another user
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            enum:
+              - unfollow
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+            required:
+              - account_id
+        required:
+          - event
+          - data
+
+    receive_lobby_invite:
+      description: Message sent by the server when another user invite the client to join a lobby
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - receive_lobby_invite
+          data:
+            type: object
+            properties:
+              username:
+                $ref: '#/components/schemas/username'
+              gamemode:
+                $ref: './lobbies.yaml#/components/schemas/gamemode'
+              join_secret:
+                $ref: '#/components/schemas/join_secret'
+        required:
+          - type
+          - data
+
+    receive_lobby_request:
+      description: Message sent by the server when another user invite the client to join a lobby
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - receive_lobby_request
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              username:
+                $ref: '#/components/schemas/username'
+            required:
+              - account_id
+              - username
+        required:
+          - type
+          - data
+    
+    error:
+      description: Message send by the server when an error occurs
+      payload:
+        type: object
+        properties:
+          code:
+            type: string
+            description: An error code
+            example: INVALID_EVENT
+          message:
+            type: string
+            description: An error message description
+            example: The event payload does not meet the required format or contains incorrect values
+          details:
+            type: object
+            description: An optional object that may hold additional information about the error
+        required:
+          - code
+          - message
+        
+
+    ping:
+      description: Send this message to the server to prevent the user from going inactive
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - ping
+        required:
+          - event
+    
+    update_status:
+      description: |
+        Send this message to the server to update your own status.
+        For any other status type that `online``, an optional data object
+        is accepted to hold custom informations
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - update_status
+          data:
+            description: An activity status
+            type: object
+            properties:
+              type:
+                type: string
+                enum:
+                  - online
+                  - ingame
+                  - inlobby
+              data:
+                type: object
+                decription: Custom information about the user activity
+            required:
+              - type
+        required:
+          - event
+          - data
+    
+    send_lobby_invite:
+      description: Send this message to the server to invite a player to join a lobby
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - send_lobby_invite
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              gamemode:
+                $ref: './lobbies.yaml#/components/schemas/gamemode'
+              join_secret:
+                $ref: '#/components/schemas/join_secret'
+            required:
+              - from
+              - gamemode
+        required:
+          - event
+          - data
+      
+    send_lobby_request:
+      description: Send this message to the server to request a lobby invitation to another player
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - send_lobby_request
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+            required:
+              - account_id
+        required:
+          - event
+          - data
+
+    goodbye:
+      description: Send this message to the server disconnect the websocket
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - goodbye
+        required:
+          - event
+
+  schemas:
+    status:
+      description: An activity status
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - online
+            - offline
+            - inactive
+            - ingame
+            - inlobby
+        data:
+          type: object
+          decription: Custom information about the user activity
+      required:
+        - type
+
+    profile:
+      description: A user profile
+      type: object
+      properties:
+        account_id:
+          $ref: '#/components/schemas/account_id'
+        username:
+          $ref: '#/components/schemas/username'
+        avatar:
+          $ref: '#/components/schemas/avatar'
+    
+    account_id:
+      description: An account unique ID
+      type: number
+      example: 108244
+    
+    username:
+      description: An unique username
+      type: string
+      example: "GonkGonk"
+    
+    avatar:
+      description: A profile picture URI
+      type: string
+      format: uri
+      example: https://example.com/image.jpg
+    
+    join_secret:
+      description: A lobby secret ID
+      type: string
+      example: zBR43YSt
+

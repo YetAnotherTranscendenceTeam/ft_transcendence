@@ -1,19 +1,23 @@
 import Babact from "babact";
+import { FollowStatus } from "../hooks/useSocials";
 
 export default function Avatar({
 		className = '',
 		src,
 		name,
 		status,
+		children,
 		...props
 	}: {
 		className?: string,
 		src?: string,
 		name?: string,
 		status?: string,
+		children?: any,
 		[key: string]: any
 	}) {
 
+	if (typeof name !== 'string') name = 'Anonymous';
 	const initials = name.split(" ").map((n) => n[0]).join("");
 
 	const stringToColour = (str: string) => {
@@ -34,6 +38,7 @@ export default function Avatar({
 		<img key={src} src={src} alt="avatar" onError={(e) => {
 			e.target.style.display = 'none';
 		}}/>
-		<span style={`background-color: var(--success-color);`} />
+		{status && <span style={`background-color: var(--${status}-color);`} />}
+		{children && <div  className='avatar-children'>{children}</div>}
 	</div>
 }

@@ -1,27 +1,14 @@
 import request from "supertest";
-import { dummy } from "../dummy/one-dummy";
+import { createUsers, users } from "../dummy/dummy-account.js";
+import { usersURL } from "../URLs.js";
 
-const usersURL = '127.0.0.1:4003'
+createUsers(1);
 
 describe("USERS", () => {
-  it("no account_id", async () => {
-    const response = await request(usersURL)
-      .get("/")
-      .set('Authorization', `Bearer ${dummy.jwt}`)
-      .expect(400);
-
-    expect(response.body).toEqual({
-      statusCode: 400,
-      code: 'FST_ERR_VALIDATION',
-      error: 'Bad Request',
-      message: "params/account_id must be integer"
-    })
-  });
-
   it("bad account_id", async () => {
     const response = await request(usersURL)
       .get("/salut")
-      .set('Authorization', `Bearer ${dummy.jwt}`)
+      .set('Authorization', `Bearer ${users[0].jwt}`)
       .expect(400);
 
     expect(response.body).toEqual({
@@ -34,15 +21,15 @@ describe("USERS", () => {
 
   it("get profile", async () => {
     const response = await request(usersURL)
-      .get(`/${dummy.account_id}`)
-      .set('Authorization', `Bearer ${dummy.jwt}`)
+      .get(`/${users[0].account_id}`)
+      .set('Authorization', `Bearer ${users[0].jwt}`)
       .expect(200);
 
     expect(response.body).toEqual(
       expect.objectContaining({
-        account_id: dummy.account_id,
-        avatar: dummy.avatar,
-        username: dummy.username,
+        account_id: users[0].account_id,
+        avatar: expect.any(String),
+        username: users[0].username,
       })
     );
     expect(response.body.credentials).toEqual(undefined);
@@ -50,8 +37,8 @@ describe("USERS", () => {
 
   it("invalid account_id", async () => {
     const response = await request(usersURL)
-    .get(`/${dummy.account_id + 1000}`)
-      .set('Authorization', `Bearer ${dummy.jwt}`)
+    .get(`/${users[0].account_id + 1000}`)
+      .set('Authorization', `Bearer ${users[0].jwt}`)
       .expect(404);
 
       expect(response.body).toEqual({
@@ -65,18 +52,18 @@ describe("USERS", () => {
   it("/me", async () => {
     const response = await request(usersURL)
       .get(`/me`)
-      .set('Authorization', `Bearer ${dummy.jwt}`)
+      .set('Authorization', `Bearer ${users[0].jwt}`)
       .expect(200);
 
     expect(response.body).toEqual(
       expect.objectContaining({
-        account_id: dummy.account_id,
-        avatar: dummy.avatar,
-        username: dummy.username,
+        account_id: users[0].account_id,
+        avatar: expect.any(String),
+        username: users[0].username,
         credentials: expect.objectContaining({
-            account_id: dummy.account_id,
+            account_id: users[0].account_id,
             auth_method: 'password_auth',
-            email: dummy.email,
+            email: users[0].email,
         })
       })
     );

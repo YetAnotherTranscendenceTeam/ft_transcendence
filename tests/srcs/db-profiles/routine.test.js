@@ -69,8 +69,7 @@ describe("Profile creation routine", () => {
   })
 
   const dummyProfile = {
-    account_id: parseInt(Math.random() * 10000000 + 1000000),
-    username: crypto.randomBytes(5).toString("hex"),
+    account_id: parseInt(Math.random() * 10000000 + 1000000)
   };
 
   it("sucessfull profile creation", async () => {
@@ -90,7 +89,7 @@ describe("Profile creation routine", () => {
       .expect("Content-Type", /json/);
 
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
-    expect(response.body.username).toEqual("");
+    expect(response.body.username).toEqual(expect.any(String));
     expect(response.body.avatar).toEqual(expect.any(String));
   })
 
@@ -129,17 +128,16 @@ describe("Profile creation routine", () => {
   })
 
   it("get by nonexisting username", async () => {
+    console
     const response = await request(profilesURL)
-      .get(`/usernames/${dummyProfile.username}`)
-      .expect(404)
-      .expect("Content-Type", /json/);
+      .get(`/?filter[username]=${dummyProfile.username}`)
 
-    expect(response.body).toEqual({
-      statusCode: 404,
-      code: 'ACCOUNT_NOT_FOUND',
-      error: 'Account Not Found',
-      message: 'The requested account does not exist'
-    });
+      console.error(response.body);
+      // .expect(200)
+      // .expect("Content-Type", /json/);
+
+      expect(response.statusCode).toEqual(200);
+      expect(response.body).toEqual([]);
   })
 
   it("delete non existing profile", async () => {

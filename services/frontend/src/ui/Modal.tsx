@@ -23,12 +23,6 @@ export default function Modal({
 		[key: string]: any
 	}) {
 
-	if (isOpen) {
-		document.querySelector('html').style.overflow = 'hidden';
-	} else {
-		document.querySelector('html').style.overflow = 'auto';
-	}
-
 	const handleBackgroundClick = (e: any) => {
 		if (e.target === e.currentTarget && closeOnBackgroundClick) onClose();
 	}

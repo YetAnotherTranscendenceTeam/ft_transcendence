@@ -23,7 +23,8 @@ export default function router(fastify, opts, done) {
       const decode = fastify.jwt.refresh.verify(token);
       account_id = decode.account_id;
     } catch (err) {
-      reply.clearCookie("refresh_token");
+      console.error(err)
+      reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
     // Remove refresh_token from the white list for one-time validity
@@ -31,7 +32,7 @@ export default function router(fastify, opts, done) {
       .prepare("DELETE FROM refresh_tokens WHERE account_id = ? AND token = ?")
       .run(account_id, token);
     if (deletion.changes === 0) {
-      reply.clearCookie("refresh_token");
+      reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
 
@@ -43,9 +44,8 @@ export default function router(fastify, opts, done) {
       sameSite: "strict",
       path: "/token",
     });
-    delete tokens.refresh_token;
     // Send fresh access_token
-    reply.send(tokens);
+    reply.send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
     console.log("REFRESH:", { account_id });
   });
 

@@ -1,49 +1,54 @@
 import Babact from "babact";
 import './menu.css'
-import { Link } from "babact-router-dom";
-import Card from "../../ui/Card";
-import PopHover from "../../ui/PopHover";
 import { useAuth } from "../../contexts/useAuth";
+import Card from "../../ui/Card";
+import { Link } from "babact-router-dom";
 import Button from "../../ui/Button";
-import Settings from "../Settings/Settings";
-import SelectModeOverlay from "../Online/SelectModeOverlay";
+import PopHover from "../../ui/PopHover";
+import { useLobby } from "../../contexts/useLobby";
 
-export default function Menu() {
+export default function Menu({
+		selected,
+		setSelected
+	}: {
+		selected: string,
+		setSelected: (selected: string) => void
+	}){
 
 	const {me} = useAuth();
 
-	const [selected, setSelected] = Babact.useState(null)
+	const { lobby } = useLobby();
 
-	const isClosed = selected !== null;
+	const disabledMessage = () => {
+		if (!me)
+			return 'You must be logged in';
+		if (lobby && lobby.leader_account_id !== me.account_id)
+			return 'You must be leader of the lobby';
+		if (lobby && !lobby.state?.joinable)
+			return `Cannot change mode while lobby is ${lobby.state.type}`;
+		return '';
+	}
 
-	return <div className='menu-container flex'>
-		<Settings me={me} isOpen={selected === 'settings'} onClose={() => setSelected(null)} />
-		<SelectModeOverlay isOpen={selected === 'online'} onClose={() => setSelected(null)} onSelect={()=>{}} />
-		<Card className={`menu right flex flex-col items-center justify-center h-full gap-4 ${isClosed ? 'closed' : ''}`}>
-
-			<Link to='/local' className='button ghost'>
-				<i className="fa-solid fa-network-wired"></i><p>Local</p>
-			</Link>
+	return <Card className={`menu bottom flex items-center justify-center gap-2`}>
 
 			<Button
-				disabled={!me}
+				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}
+				onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}
+			>
+				<i className="fa-solid fa-sliders"></i><p>Settings</p>
+			</Button>
+			<Button
+				disabled={!me || (lobby && lobby.leader_account_id !== me.account_id) || lobby && !lobby.state?.joinable}
 				className={`button ghost ${selected === 'online' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'online' ? 'online' : null)}
 			>
-				<PopHover content={!me ? 'You must be logged in' : ''} className="flex items-center">
+				<PopHover content={disabledMessage()} className="flex items-center">
 					<i className="fa-solid fa-globe"></i><p>Online</p>
 				</PopHover>
 			</Button>
 
-			<Link to='/tournament' className={`button ghost ${!me ? 'disabled' : ''}`}>
-				<PopHover content={!me ? 'You must be logged in' : ''} className="flex items-center">
-					<i className="fa-solid fa-users"></i><p>Tournament</p>
-				</PopHover>
+			<Link to='/local' className='button ghost'>
+				<i className="fa-solid fa-network-wired"></i><p>Local</p>
 			</Link>
-
-			<Button className={`button ghost ${selected === 'settings' ? 'active' : ''}`} onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}>
-				<i className="fa-solid fa-sliders"></i><p>Settings</p>
-			</Button>
 		</Card>
-	</div>
 }

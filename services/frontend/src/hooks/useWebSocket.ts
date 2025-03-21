@@ -1,69 +1,82 @@
 import Babact from "babact";
+import useFetch from "./useFetch";
 
-export default function useWebSocket() {
+export type WebSocketHook = {
+	connected: boolean,
+	connect: (url: string) => void,
+	close: () => void,
+	send: (message: string | object) => void,
+}
+
+export default function useWebSocket({
+		onMessage,
+		onError,
+		onClose,
+		onOpen,
+		onEvent = null
+	} : {
+		onMessage?: (message: string) => void,
+		onError?: (error: any) => void,
+		onClose?: (event) => void,
+		onOpen?: (event) => void,
+		onEvent?: { [key: string]: (event) => void }
+	} = {}): WebSocketHook {
+
 	const ws = Babact.useRef(null);
 	const [connected, setConnected] = Babact.useState(false);
-	const [messages, setMessages] = Babact.useState([]);
-	const [message, setMessage] = Babact.useState('');
-	const [error, setError] = Babact.useState(null);
-	const [loading, setLoading] = Babact.useState(false);
-	const [reconnect, setReconnect] = Babact.useState(false);
-	const [reconnectInterval, setReconnectInterval] = Babact.useState(null);
+	const { refreshToken } = useFetch();
 
-	const connect = (url) => {
-		setLoading(true);
-		setError(null);
+	const connect = async (url: string) => {
+		if (ws.current) {
+			close();
+		}
+		await refreshToken();
 		ws.current = new WebSocket(url);
-		ws.current.onopen = (e) => {
-			console.log('onopen', e);
+		ws.current.onopen = (event) => {
+			if (onOpen) {
+				onOpen(event);
+			}
 			setConnected(true);
-			setLoading(false);
 		};
 		ws.current.onmessage = (event) => {
-			setMessages(messages => [...messages, event.data]);
+			if (onMessage) {
+				onMessage(event.data);
+			}
+			if (onEvent) {
+				const msg = JSON.parse(event.data);
+				if (onEvent[msg.event]) {
+					onEvent[msg.event](msg.data);
+				}
+			}
+
 		};
 		ws.current.onerror = (error) => {
-			console.log('onerror', error);
-			setError(error);
-			setLoading(false);
+			if (onError) {
+				onError(error);
+			}
 		};
-		ws.current.onclose = (e) => {
-			console.log('onclose', e);
+		ws.current.onclose = (event) => {
 			setConnected(false);
-			setLoading(false);
-			if (reconnect) {
-				setReconnectInterval(setInterval(() => {
-					connect(url);
-				}, 5000));
+			if (onClose) {
+				onClose(event);
 			}
 		};
 	};
 
-	const disconnect = () => {
-		setReconnect(false);
-		clearInterval(reconnectInterval);
+	const close = () => {
+		setConnected(false);
 		ws.current.close();
 	};
 
-	const send = (message) => {
-		ws.current.send(message);
-	};
-
-	const toggleReconnect = () => {
-		setReconnect(!reconnect);
+	const send = (message: string | object) => {
+		console.log('sending', message);
+		ws.current.send(JSON.stringify(message));
 	};
 
 	return {
 		connected,
-		messages,
-		message,
-		error,
-		loading,
-		reconnect,
 		connect,
-		disconnect,
-		send,
-		setMessage,
-		toggleReconnect
+		close,
+		send
 	};
 }

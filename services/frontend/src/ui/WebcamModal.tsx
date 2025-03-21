@@ -1,6 +1,7 @@
 import Babact from "babact";
 import Modal from "./Modal";
 import Button from "./Button";
+import useEscape from "../hooks/useEscape";
 
 export default function WebcamModal({
 		isOpen,
@@ -50,6 +51,8 @@ export default function WebcamModal({
 			onClose();
 		}
 	};
+
+	useEscape(isOpen, onClose);
 
 
 	return <Modal className="webcam-modal gap-4" isOpen={isOpen} onClose={onClose}>

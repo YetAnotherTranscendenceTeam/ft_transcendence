@@ -1,60 +1,85 @@
 import Babact from "babact";
 import useFetch from "../hooks/useFetch";
 import config from "../config";
+import { IUser } from "../hooks/useUsers";
+import useSocial, { Follow, FollowStatus } from "../hooks/useSocials";
 
 const AuthContext = Babact.createContext({});
 
-export type Profile = {
-	account_id?: number,
-	username?: string,
-	avatar?: string,
-	elo?: number
-};
+interface ICredentials {
+	account_id: number,
+	email: string,
+}
+
+export interface IMe extends IUser {
+	credentials: ICredentials,
+	status: FollowStatus,
+}
 
 export const AuthProvider = ({ children } : {children?: any}) => {
 
-	const [me, setMe] = Babact.useState(null);
+	const [me, setMe] = Babact.useState<IMe>(null);
 
 	const { ft_fetch } = useFetch();
 
-	const fetch_me = async () => {
+	const fetchMe = async () => {
 		if (!localStorage.getItem('access_token'))
 			return;
 		const response = await ft_fetch(`${config.API_URL}/me`, {});
-		if (response)
-			setMe(response);
-		else
+		if (response){
+			setMe({...response, status: null});
+			connect();
+		}
+		else{
+			console.log('logout');
 			logout();
+		}
 	};
 
 	const auth = async (token, expire_at) => {
 		localStorage.setItem('access_token', token);
 		localStorage.setItem('expire_at', expire_at);
-		fetch_me();
+		fetchMe();
 	};
 
 	const logout = async () => {
-		setMe(null);
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('expire_at');
 		await ft_fetch(`${config.API_URL}/token/revoke`, {
 			method: "POST",
 			credentials: "include",
+		}, {
+			disable_bearer: true,
 		})
+		setMe(null);
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('expire_at');
 	};
 
 	const refresh = () => {
-		fetch_me();
+		fetchMe();
 	};
 
 	Babact.useEffect(() => {
-		fetch_me();
+		fetchMe();
 	}, []);
+
+	const { connect, follows, ping, status, connected } = useSocial();
+
+	const setMeStatus = (status: FollowStatus) => {
+		setMe(me => ({...me, status}));
+	};
 
 	return (
 		<AuthContext.Provider
 			value={{
-				me, auth, logout, refresh
+				me,
+				follows,
+				connected,
+				auth,
+				logout,
+				refresh,
+				ping,
+				status,
+				setMeStatus,
 			}}
 		>
 			{children}
@@ -62,6 +87,16 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	);
 };
 
-export const useAuth = () => {
+export const useAuth = (): {
+		me: IMe,
+		follows: Follow[],
+		connected: boolean,
+		auth: (token: string, expire_at: number) => void,
+		logout: () => void,
+		refresh: () => void,
+		ping: () => void,
+		status: (status: FollowStatus) => void,
+		setMeStatus: (status: FollowStatus) => void,
+	} => {
 	return Babact.useContext(AuthContext);
 };

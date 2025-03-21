@@ -1,0 +1,186 @@
+.lobby-card {
+	width: 100%;
+}
+
+.lobby-card h1 {
+	font-size: medium;
+	font-weight: bold;
+	color: var(--fg-1);
+}
+
+.lobby-card h2 {
+	font-size: small;
+	color: var(--fg-2);
+}
+
+.lobby-card-body .leader {
+	border: 1px solid var(--primary-color);
+}
+
+.lobby-card .waiting {
+	animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+
+.lobby-card .avatar .kick-button {
+	opacity: 0;
+	background: #00000080;
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
+	border-radius: 8px;
+	transition: opacity 0.3s;
+}
+
+.lobby-card .avatar .kick-button i {
+	font-size: xx-large;
+	color: var(--danger-color);
+}
+
+.lobby-card .avatar:hover .kick-button {
+	opacity: 1;
+}
+
+/* =============== List =============== */
+
+.lobby-teams {
+	padding: 16px;
+	padding-top: calc(16px + var(--header-height));
+	padding-right: var(--aside-width);
+	width: 100%;
+	height: 100%;
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	grid-template-rows: repeat(4, 1fr);
+	gap: 1rem;
+	user-select: none;
+	overflow-x: visible;
+	box-sizing: border-box;
+	scrollbar-width: none;
+}
+
+@media (max-width: 1600px) {
+	.lobby-teams {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}
+
+@media (max-width: 1480px) {
+	.lobby-teams {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (max-width: 1215px) {
+	.lobby-teams {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 900px) {
+	.lobby-teams {
+		grid-template-columns: repeat(1, 1fr);
+	}
+}
+
+.lobby-team {
+	width: 100%;
+	height: fit-content;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 1rem;
+	background-color: var(--bg-2);
+	backdrop-filter: none;
+	position: unset;
+	border-left: 3px solid var(--team-color);
+}
+
+.lobby-team .editable {
+	font-size: large;
+	width: 100%;
+}
+
+.lobby-team .card{
+	flex-direction: row;
+	min-height: 48px;
+}
+
+.lobby-player-card.draggable {
+	cursor: grab;
+}
+
+.lobby-player-card {
+	width: 100%;
+	position: relative;
+}
+
+.lobby-player-card-content {
+	width: 100%;
+	pointer-events: none;
+}
+
+.lobby-player-card.dragging {
+	box-shadow: 10px 10px 75px 0px rgba(0,0,0,0.50);
+	z-index: 9999;
+	top: var(--y);
+	left: var(--x);
+	pointer-events: none;
+	position: absolute;
+	width: var(--width);
+}
+
+.lobby-player-card i{
+	font-size: large;
+	pointer-events: none;
+	color: var(--fg-4);
+}
+
+.grab-icon {
+	justify-self: flex-end;
+	margin-left: auto;
+}
+
+.lobby-player-card .fa-crown {
+	color: var(--warning-color);
+}
+
+.lobby-team .card.empty {
+	background-color: var(--bg-1);
+	opacity: 0.5;
+	height: 80px;
+}
+
+.lobby-player-card-wrapper {
+	width: 100%;
+	height: 80px;
+	border-radius: 4px;
+	outline: 1px solid var(--fg-5);
+}
+
+.lobby-player-card .avatar {
+	pointer-events: none;
+}
+
+/* Settings Card */
+
+.lobby-settings-card {
+	position: absolute;
+	bottom: 24px;
+	left: 24px;
+	min-height: 48px;
+	min-width: 300px;
+}
+

@@ -91,6 +91,21 @@
 	filter: saturate(1);
 }
 
+.button.info {
+	background-color: var(--info-color);
+	color: var(--fg-1);
+}
+
+.button.info:hover {
+	background-color: var(--info-color);
+	filter: saturate(2);
+}
+
+.button.info.disabled, .button.info.disabled:hover{
+	background-color: var(--info-color-40);
+	filter: saturate(1);
+}
+
 /* ================================== */
 /* ============= Card =============== */
 /* ================================== */
@@ -105,6 +120,7 @@
 	position: relative;
 	--border-radius: 4px;
 	border-radius: var(--border-radius);
+	box-sizing: border-box;
 }
 
 .card::after {
@@ -195,6 +211,7 @@
 }
 
 .avatar span {
+	z-index: 2;
 	position: absolute;
 	aspect-ratio: 1/1;
 	border-radius: 50%;
@@ -202,6 +219,15 @@
 	bottom: 0;
 	right: 0;
 	transform: translate(30%, 30%);
+}
+
+.avatar-children {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 /* ================================== */
@@ -333,7 +359,6 @@
 	top: 16px;
 	right: 16px;
 	width: 350px;
-	z-index: 1000;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -541,8 +566,8 @@
 	color: var(--fg-1);
 	border-radius: 4px;
 	padding: 8px;
-	max-width: 200px;
-	min-width: 100px;
+	width: fit-content;
+	min-width: 150px;
 	display: none;
 	z-index: 1000;
 	opacity: 0;
@@ -566,4 +591,25 @@
 
 .webcam-modal .error{
 	color: var(--danger-color)
+}
+
+
+/* ================================== */
+/* ============ Editable ============ */
+/* ================================== */
+
+.editable {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	min-height: 32px;
+	gap: 8px;
+}
+
+.editable input {
+	width: 100%;
+}
+
+.editable input:disabled {
+	cursor: default;
 }
