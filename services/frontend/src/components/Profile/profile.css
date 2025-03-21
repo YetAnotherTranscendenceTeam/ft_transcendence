@@ -77,7 +77,7 @@
 }
 
 .social-manager-follow-card {
-	padding: 0.5rem 1rem;
+	padding: 8px;
 	box-sizing: border-box;
 	font-size: small;
 	border-radius: 4px;
@@ -96,14 +96,25 @@
 	color: var(--fg-3);
 }
 
-
-.social-manager-follow-card .button {
-	font-size: medium;
+.social-manager-follow-card .avatar .follow-remove{
 	display: none;
+	background-color: rgba(133, 0, 0, 0.603);
+	width: 100%;
+	height: 100%;
+	color: white;
+	padding: 0;
+	font-size: large;
+	border-radius: 8px;
 }
 
-.social-manager-follow-card:hover .button {
-	display: block;
+.social-manager-follow-card .avatar:hover .follow-remove {
+	display: flex;
+}
+
+
+.social-manager-follow-card .button {
+	font-size: small;
+	display: flex;
 }
 
 .social-manager-add {
@@ -112,4 +123,29 @@
 
 .social-manager-add-list {
 	overflow: auto;
+}
+
+/* ======== Lobby card ========= */
+
+.follow-lobby-status {
+	background: var(--bg-1);
+	padding: 8px;
+	border-radius: 4px;
+	border-left: var(--inlobby-color) 2px solid;
+	min-width: 100px;
+}
+
+
+.social-manager-follow-card .follow-lobby-request, .social-manager-follow-card:hover .follow-lobby-status.requestable {
+	display: none;
+}
+
+.social-manager-follow-card:hover .follow-lobby-request {
+	display: flex;
+	color: var(--fg-1);
+	background-color: var(--inlobby-color);
+}
+
+.follow-lobby-request:hover {
+	filter: saturate(1.5);
 }

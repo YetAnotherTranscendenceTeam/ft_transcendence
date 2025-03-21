@@ -6,7 +6,7 @@ const sqlProperties = {
     minimum: 10,
     maximum: 100,
     default: 30,
-    description: "Number of items to return (10-100)",
+    description: "Number of items to return",
   },
 
   offset: {

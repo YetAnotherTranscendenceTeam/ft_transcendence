@@ -14,7 +14,6 @@ app.register(jwt, {
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const registerUrL = "http://127.0.0.1:4012";
-const credentialsUrl = "http://127.0.0.1:7002";
 const authUrl = "http://127.0.0.1:4022";
 const dbprofilesUrL = "http://127.0.0.1:7001"
 
@@ -42,8 +41,7 @@ export function createUsers(count=10) {
           jwt: null,
           email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
           password: crypto.randomBytes(4).toString("hex"),
-          username: crypto.randomBytes(4).toString("hex"),
-          avatar: `https://${crypto.randomBytes(8).toString("hex")}.com`,
+          username: `DUMMY-${crypto.randomBytes(4).toString("hex")}`,
         };
         users.push(request(registerUrL)
           .post("/")
@@ -77,14 +75,11 @@ export function createUsers(count=10) {
         return user;
       }));
     });
-    it("patch profiles", async () => {
+    it("patch username", async () => {
       users = await Promise.all(users.map(async (user) => {
         const response = await request(dbprofilesUrL)
           .patch(`/${user.account_id}`)
-          .send({
-            username: user.username,
-            avatar: user.avatar,
-          })
+          .send({ username: user.username })
           .set('Authorization', `Bearer ${user.jwt}`)
           .expect(200)
           .expect("Content-Type", /json/);
@@ -92,7 +87,7 @@ export function createUsers(count=10) {
         expect(response.body).toEqual(
           expect.objectContaining({
             account_id: user.account_id,
-            avatar: user.avatar,
+            avatar: expect.any(String),
             username: user.username,
           })
         );

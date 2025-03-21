@@ -28,7 +28,7 @@ export default class HttpError {
     reply.redirect(`${url}?${new URLSearchParams(this.json()).toString()}`)
   }
 
-  // Preset specific http
+  // Preset specific http errors
   static BadRequest = class BadRequest extends HttpError {
     constructor(message = httpErrMessages.get(400)) {
       super(400, "Bad Request", message);
@@ -50,6 +50,12 @@ export default class HttpError {
   static NotFound = class NotFound extends HttpError {
     constructor(message = httpErrMessages.get(404)) {
       super(404, "Not Found", message);
+    }
+  };
+
+  static NotAcceptable = class NotAcceptable extends HttpError { // Added here
+    constructor(message = httpErrMessages.get(406)) {
+      super(406, "Not Acceptable", message);
     }
   };
 
@@ -95,6 +101,7 @@ httpErrMessages.set(400, "The server cannot process the request due to a client 
 httpErrMessages.set(401, "Authentication is required and has failed or has not been provided");
 httpErrMessages.set(403, "The server understood the request but refuses to authorize it");
 httpErrMessages.set(404, "The requested resource could not be found on the server");
+httpErrMessages.set(406, "The server cannot produce a response matching the list of acceptable values defined in the request");
 httpErrMessages.set(409, "The request could not be completed due to a conflict with the current state of the target resource");
 httpErrMessages.set(429, "You're doing that too often! Try again later.");
 httpErrMessages.set(500, "An unexpected error occurred on the server");

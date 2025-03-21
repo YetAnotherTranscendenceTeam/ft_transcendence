@@ -11,7 +11,6 @@ describe('Account Deletion', () => {
     jwt: null,
     email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
     password: crypto.randomBytes(4).toString("hex"),
-    username: crypto.randomBytes(4).toString("hex"),
     avatar: null,
   };
 

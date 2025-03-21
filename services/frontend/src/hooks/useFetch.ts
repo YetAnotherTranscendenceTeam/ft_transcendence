@@ -7,6 +7,22 @@ export default function useFetch() {
 	const {createToast} = useToast();
 	const [isLoading, setIsLoading] = Babact.useState(false);
 
+	const forceRefresh = async () => {
+		const response = await ft_fetch(`${config.API_URL}/token/refresh`, {
+			method: 'POST',
+			credentials: 'include'
+		}, {
+			disable_bearer: true,
+			show_error: true,
+			success_message: 'Refreshed token'
+		});
+		if (response) {
+			localStorage.setItem('access_token', response.access_token);
+			localStorage.setItem('expire_at', response.expire_at);
+		}
+	}
+
+
 	const refreshToken = async () => {
 		const expired_at = localStorage.getItem('expire_at');
 		if (!expired_at)
@@ -71,5 +87,5 @@ export default function useFetch() {
 		}
 	}
 
-	return { ft_fetch, isLoading };
+	return { ft_fetch, isLoading, refreshToken, forceRefresh };
 }
