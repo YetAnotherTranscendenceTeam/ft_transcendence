@@ -1,8 +1,9 @@
 import Babact from "babact";
 import Overlay from "../templates/Overlay";
 import { ITeam } from "yatt-lobbies";
+import Stage from "../components/Tournament/Stage";
 
-interface Match {
+export interface Match {
 	teams_id: number[]
 	scrores: number[]
 }
@@ -35,39 +36,63 @@ export default function TournamentView() {
 	const tournament: Match[] = [
 		{
 			teams_id: [],
-			scrores: []
+			scrores: [0, 0]
 		},
 		{
 			teams_id: [5],
-			scrores: []
+			scrores: [0, 0]
 		},
 		{
 			teams_id: [3, 4],
-			scrores: []
+			scrores: [0, 0]
 		},
 		{
 			teams_id: [0, 1],
-			scrores: []
+			scrores: [0, 0]
+		},
+		{
+			teams_id: [0, 1],
+			scrores: [0, 0]
+		},
+		{
+			teams_id: [0, 1],
+			scrores: [0, 0]
 		},
 	];
 
-	let rounds: Match[][] = [];
+	let stages: Match[][] = [];
 
 	const createRound = (teams: ITeam[]) => {
 		const nbRounds = Math.log2(teams.length);
 		for(let i = 0; i < nbRounds; i++) {
 			const start = Math.pow(2, i) - 1;
 			const end = start + Math.pow(2, i);
-			rounds.push(tournament.slice(start, end));
+			stages.push(tournament.slice(start, end));
 		}
-	
 	}
 	createRound(teams)
-	console.log(rounds);
+	
+
+	const getPosition = (i): 'left' | 'right' | 'center' => {
+		if (i === 0) return 'left';
+		if (i === stages.length - 1) return 'right';
+		return 'center';
+	}
 
 	return <Overlay>
-		<div className="flex flex-col items-center justify-center h-full">
-			<h1 className="text-4xl font-bold">Tournament</h1>
+		<div className="flex h-full stages-container">
+			{
+				stages.map((stage, index) => (
+					<Stage
+						stage={stage}
+						id={index}
+						key={index}
+						positionH={getPosition(index)}
+					>
+
+					</Stage>
+				))
+			}
 		</div>
 	</Overlay>
 }

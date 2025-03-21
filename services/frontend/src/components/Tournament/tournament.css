@@ -1,0 +1,90 @@
+.stages-container {
+	padding-top: var(--header-height);
+	padding-right: var(--aside-width);
+	height: 100vh;
+	box-sizing: border-box;
+}
+
+.stage-column {
+	flex: 1;
+	color: white;
+}
+
+
+/* .stage-column:nth-child(odd) {
+	background-color: #020f3a;
+}
+
+
+.stage-column:nth-child(even) {
+	background-color: #f13a3a;
+} */
+
+.match-card-container {
+	position: relative;
+	width: 100%;
+	flex: 1;
+}
+
+
+
+.match-card-container::before {
+	content: '';
+	position: absolute;
+	top: calc(50% - 1px);
+	height: 2px;
+	background-color: rgb(255, 255, 255);
+}
+
+.match-card-container.left::before {
+	right: 0;
+	width: 50%;
+}
+
+.match-card-container.right::before {
+	left: 0;
+	width: 50%;
+}
+
+.match-card-container.right::after {
+	display: none;
+}
+
+.match-card-container.center::before {
+	right: 0;
+	width: 100%;
+}
+
+
+
+.match-card-container::after {
+	content: '';
+	position: absolute;
+	right: -1px;
+	width: 2px;
+	background-color: rgb(255, 255, 255);
+}
+
+.match-card-container.top::after {
+	top: 25%;
+	height: 25%;
+}
+
+.match-card-container.bottom::after {
+	bottom: 25%;
+	height: 25%;
+}
+
+.match-card-container.middle::after {
+	bottom: 25%;
+	height: 50%;
+}
+
+
+
+.match-card {
+	background-color: #f1f1f1;
+	border-radius: 8px;
+	padding: 8px;
+	margin: 8px;
+}
