@@ -25,9 +25,7 @@ export default class Ball {
 	}
 
 	public update(): void {
-		console.log("pre", this._physicsBody.position, this._mesh.position);
 		this._mesh.position = new BABYLON.Vector3(this._physicsBody.position.x, 0, this._physicsBody.position.y);
-		console.log("post", this._physicsBody.position, this._mesh.position);
 	}
 
 	public get mesh(): Mesh {

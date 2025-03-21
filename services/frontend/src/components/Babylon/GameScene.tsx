@@ -63,10 +63,10 @@ export default function createGameScene(canvas: HTMLCanvasElement, engine: Engin
 	physicsScene.addBody(physicalBall);
 	// physicsScene.addBody(physicalWall);
 
-	// physicalBall.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
-	// 	const { emitter, other, manifold } = event.detail;
-	// 	console.log(emitter, other, manifold);
-	// });
+	physicalBall.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
+		const { emitter, other, manifold } = event.detail;
+		console.log(emitter, other, manifold);
+	});
 
 
 	const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
