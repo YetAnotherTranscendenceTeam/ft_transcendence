@@ -20,7 +20,7 @@ export default function Overlay({
 
 	const [selected, setSelected] = Babact.useState(null);
 
-	return <div className='flex' style='pointer-events: initial;'>
+	return <div className='overlay flex'>
 			<Settings
 				me={me}
 				isOpen={selected === 'settings'}

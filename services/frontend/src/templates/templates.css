@@ -1,3 +1,7 @@
+.aside > *, .overlay > *, .template-content > * {
+	pointer-events: initial;
+}
+
 .template-content {
 	position: absolute;
 	bottom: 0;
@@ -6,9 +10,12 @@
 	height: 100vh;
 	--header-height: 64px;
 	--aside-width: 400px;
+	pointer-events: none;
 }
 
+
 .header {
+	pointer-events: initial;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -17,6 +24,7 @@
 }
 
 .aside {
+	pointer-events: none;
 	position: fixed;
 	bottom: 0;
 	right: 0;
