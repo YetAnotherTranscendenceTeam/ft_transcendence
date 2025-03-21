@@ -24,7 +24,8 @@ export default function router(fastify, opts, done) {
     const { account_id } = request.params;
 
     if (request.account_id === account_id) {
-      return new HttpError.Forbidden("Cannot follow your own account").send(reply);
+      new HttpError.Forbidden("Cannot follow your own account").setCode("SELF_FOLLOW").send(reply);
+      return;
     }
 
     try {
@@ -42,7 +43,7 @@ export default function router(fastify, opts, done) {
       if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
         new HttpError.Conflict("Already following this account").send(reply);
       } else if (err.code === "SQLITE_CONSTRAINT_TRIGGER") {
-        new HttpError.Conflict(err.message).send(reply);
+        new HttpError.Forbidden(err.message).setCode("MAX_FOLLOWS").send(reply);
       } else {
         console.error(err);
         throw err;
