@@ -121,6 +121,7 @@ services:
       - frontend
       - tokens
       - db-profiles
+      - avatars
 
   lobbies:
     depends_on:
