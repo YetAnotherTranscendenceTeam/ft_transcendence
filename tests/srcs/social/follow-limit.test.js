@@ -32,7 +32,9 @@ describe('Follow limitation', () => {
     const response = await request(baseUrl)
       .post(`/social/follows/${users[1].account_id}`)
       .set('Authorization', `Bearer ${users[0].jwt}`)
-      .expect(409);
+      .expect(403);
+
+      expect(response.body.code).toBe("MAX_FOLLOWS");
   });
 
   it("delete one", async () => {
