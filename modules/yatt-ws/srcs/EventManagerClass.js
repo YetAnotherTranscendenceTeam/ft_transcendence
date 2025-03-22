@@ -14,11 +14,11 @@ export default class EventManagerClass {
     additionalProperties: false,
   }
 
-  register(eventId, configuration) {
-    this.events.set(eventId, configuration);
+  register(eventId, config) {
+    this.events.set(eventId, config);
   }
 
-  receive(socket, payload, client = {}) {
+  receive(socket, payload, options = {}) {
     // Validate payload format
     if (!this.ajv.validate(this.eventSchema, payload)) {
       return new WsError.InvalidMessage(payload).send(socket);
@@ -36,6 +36,14 @@ export default class EventManagerClass {
     }
 
     // Execute event function
-    event.handler(socket);
+    try {
+      event.handler(socket, payload, options);
+    } catch (err) {
+      if (err instanceof WsError) {
+        err.send(socket);
+      } else {
+        throw err;
+      }
+    }
   }
 }

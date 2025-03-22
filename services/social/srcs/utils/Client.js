@@ -1,7 +1,7 @@
 import YATT from "yatt-utils";
 import db from "../app/database.js";
 import { inactivity_delay } from "../app/env.js";
-import { inactive, offline, online, parseUserStatus } from "./activityStatuses.js";
+import { inactive, offline, online } from "./activityStatuses.js";
 import { userInfos } from "./userInfos.js";
 import { WsError } from "yatt-ws";
 
@@ -110,7 +110,7 @@ export class Client {
   }
 
   setStatus(status) {
-    const { type, data } = parseUserStatus(status);
+    const { type, data } = status;
 
     if (type === "online") {
       this.customStatus = null;
