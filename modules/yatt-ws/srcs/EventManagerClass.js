@@ -18,25 +18,24 @@ export default class EventManagerClass {
     this.events.set(eventId, configuration);
   }
 
-  receive(socket, payload) {
-    // Validate the payload
-
+  receive(socket, payload, client = {}) {
+    // Validate payload format
     if (!this.ajv.validate(this.eventSchema, payload)) {
       return new WsError.InvalidMessage(payload).send(socket);
     }
 
-    // Get the matching event
+    // Search matching registered event
     const event = this.events.get(payload.event);
     if (!event) {
       return new WsError.UnknownEvent({ event: payload.event }).send(socket);
     }
 
-    // Validate the event data
+    // Validate event data
     if (event.schema && !this.ajv.validate(event.schema, payload.data)) {
       return new WsError.InvalidEvent(payload).send(socket);
     }
 
-    // Execute the event function
+    // Execute event function
     event.handler(socket);
   }
 }
