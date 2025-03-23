@@ -1,6 +1,7 @@
 import { Lobby } from "./Lobby.js";
 import { GameModes } from "./GameModes.js";
 import { LobbyCopyMessage, LobbyErrorMessage } from "./LobbyMessages.js";
+import { WsCloseError } from "yatt-ws";
 
 export class Player {
   static playerMessages = ["disconnect", "team_name", "swap_players"];
@@ -18,7 +19,7 @@ export class Player {
       if (typeof msg.account_id !== "number") throw new Error("Invalid account id");
       const target = player.lobby.players.find((player) => player.account_id == msg.account_id);
       if (!target) return;
-      target.disconnect(1000, "Kicked from lobby");
+      target.disconnect(WsCloseError.Kicked);
     },
     team_name: (msg, player) => {
       if (!msg) throw new Error("Invalid team name message");
@@ -54,13 +55,13 @@ export class Player {
     this.last_pong = Date.now();
   }
 
-  disconnect(code, reason) {
+  disconnect(close) {
     console.log(`Player ${this.account_id} disconnected`);
     this.lobby.removePlayer(this);
     this.players.delete(this.account_id);
     if (this.connected) {
-      if (code && reason) this.socket.close(code, reason);
-      else this.socket.close(code ? code : 1000, "Disconnected");
+      if (close) close.close(this.socket);
+      else this.socket.close(1000, "DISCONNECTED");
     }
     this.connected = false;
   }
