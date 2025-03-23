@@ -46,8 +46,8 @@ events.register("send_lobby_invite", {
     required: ["account_id", "gamemode", "join_secret" ],
     additionalProperties: false,
   },
-  handler: (socket, payload, options) => {
-    options.client.sendLobbyInvite(payload);
+  handler: async (socket, payload, options) => {
+    await options.client.sendLobbyInvite(payload.data);
   },
 });
 
@@ -60,7 +60,7 @@ events.register("send_lobby_request", {
     required: ["account_id"],
     additionalProperties: false,
   },
-  handler: (socket, payload, options) => {
-    options.client.sendLobbyInvite(payload);
+  handler: async (socket, payload, options) => {
+    await options.client.sendLobbyInvite(payload.data);
   },
 });

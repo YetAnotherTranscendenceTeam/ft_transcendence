@@ -44,4 +44,11 @@ export default class WsError {
       super("BAD_GATEWAY", message, details);
     }
   };
+
+  static Forbidden = class Forbidden extends WsError {
+    constructor(details) {
+      const message = "The server refused to handle the requested event";
+      super("FORBIDDEN", message, details);
+    }
+  };
 }

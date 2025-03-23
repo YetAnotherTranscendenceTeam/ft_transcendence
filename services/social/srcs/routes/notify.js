@@ -36,7 +36,7 @@ export default function router(fastify, opts, done) {
     socket.on('message', async message => {
       try {
         const payload = JSON.parse(message);
-        events.receive(socket, payload, { client });
+        await events.receive(socket, payload, { client });
       } catch (err) {
         console.error(err);
         socket.close(1008, "Policy Violation");

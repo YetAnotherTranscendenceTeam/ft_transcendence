@@ -37,8 +37,7 @@ export class Client {
 
   send(payload) {
     const data = JSON.stringify(payload);
-    this.sockets.forEach((ready, socket) => {
-      if (ready)
+    this.sockets.forEach(socket => {
         socket.send(data)
     });
   }
@@ -133,8 +132,8 @@ export class Client {
   }
 
   async sendLobbyInvite(invite) {
-    if (!invite?.gamemode) {
-      throw new WsError.InvalidEvent(invite);
+    if (invite.account_id === this.account_id) {
+      throw new WsError.UserUnavailable({ account_id: this.account_id });
     }
 
     try {
@@ -145,17 +144,21 @@ export class Client {
     }
 
     const target = this.allClients.get(invite?.account_id);
-
     if (target) {
       target.send({ event: "receive_lobby_invite", data: { username: this.username, gamemode: invite.gamemode, join_secret: invite?.join_secret } });
     } else {
-      throw new WsError.UserUnavailable({ account_id: request.account_id });
+      console.log()
+      throw new WsError.UserUnavailable({ account_id: invite.account_id });
     }
   }
 
   async sendLobbyJoinRequest(request) {
-    if (!request?.account_id) {
-      throw new WsError.InvalidEvent(request);
+    // if (!request?.account_id) {
+    //   throw new WsError.InvalidEvent(request);
+    // } // TODO: remove ?
+
+    if (this.account_id === request.account_id) {
+      throw new WsError("NOPE NOPE");
     }
 
     try {

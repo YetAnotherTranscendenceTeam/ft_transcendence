@@ -18,10 +18,10 @@ export default class EventManagerClass {
     this.events.set(eventId, config);
   }
 
-  receive(socket, payload, options = {}) {
+  async receive(socket, payload, options = {}) {
     // Validate payload format
     if (!this.ajv.validate(this.eventSchema, payload)) {
-      return new WsError.InvalidMessage(payload).send(socket);
+      return new WsError.InvalidMessage({...payload, ajv: this.ajv.errors}).send(socket);
     }
 
     // Search matching registered event
@@ -32,12 +32,12 @@ export default class EventManagerClass {
 
     // Validate event data
     if (event.schema && !this.ajv.validate(event.schema, payload.data)) {
-      return new WsError.InvalidEvent(payload).send(socket);
+      return new WsError.InvalidEvent({...payload, ajv: this.ajv.errors}).send(socket);
     }
 
     // Execute event function
     try {
-      event.handler(socket, payload, options);
+      await event.handler(socket, payload, options);
     } catch (err) {
       if (err instanceof WsError) {
         err.send(socket);
