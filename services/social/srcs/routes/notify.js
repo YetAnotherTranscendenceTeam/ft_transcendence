@@ -1,7 +1,7 @@
 "use strict";
 
 import { properties } from "yatt-utils";
-import { events } from "../utils/eventManager.js";
+import { events } from "../utils/eventsConfig.js";
 
 const schema = {
   querystring: {

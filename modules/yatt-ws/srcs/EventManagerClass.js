@@ -18,7 +18,7 @@ export default class EventManagerClass {
     this.events.set(eventId, config);
   }
 
-  async receive(socket, payload, options = {}) {
+  async receive(socket, payload, params = {}) {
     // Validate payload format
     if (!this.ajv.validate(this.eventSchema, payload)) {
       return new WsError.InvalidMessage({...payload, ajv: this.ajv.errors}).send(socket);
@@ -37,7 +37,7 @@ export default class EventManagerClass {
 
     // Execute event function
     try {
-      await event.handler(socket, payload, options);
+      await event.handler(socket, payload, params);
     } catch (err) {
       if (err instanceof WsError) {
         err.send(socket);

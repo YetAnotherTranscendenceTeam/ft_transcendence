@@ -1,15 +1,12 @@
 import request from "superwstest";
 import { createUsers, users } from "../../../dummy/dummy-account";
-import { inactive, offline, online } from "../../../../services/social/srcs/utils/activityStatuses";
+import { apiURL, socialWS } from "../../../URLs";
 
 createUsers(2);
-const socialWS = 'ws://127.0.0.1:4123';
-const mainUrl = "https://127.0.0.1:7979";
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 describe('Lobby invitations', () => {
   it("follow", async () => {
-    await request(mainUrl)
+    await request(apiURL)
       .post(`/social/follows/${users[0].account_id}`)
       .set('Authorization', `Bearer ${users[1].jwt}`)
       .expect(204);
