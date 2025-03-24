@@ -1,6 +1,13 @@
 import Ajv from "ajv"
 import WsError from "./WsError.js";
 
+/**
+ * @import {Schema, JSONSchemaType, ValidateFunction} from "ajv"
+ * @import {WebSocket as ws} from "ws"
+ * @typedef {Schema | JSONSchemaType<any> | undefined} AJVSchema
+ * @typedef {(socket: ws, payload: any) => Promise<void>} EventHandler
+ */
+
 export default class EventManagerClass {
   ajv = new Ajv();
   validate = this.ajv.compile({
@@ -12,8 +19,20 @@ export default class EventManagerClass {
     required: ["event"],
     additionalProperties: false,
   });
+  /**
+   * @type {Map<string, {
+   *  schema: AJVSchema,
+   *  handler: EventHandler,
+   *  validate: ValidateFunction | undefined
+   * }>}
+   */
   events = new Map();
   
+  /**
+   * 
+   * @param {string} eventId 
+   * @param {{schema: AJVSchema, handler: EventHandler} config 
+   */
   register(eventId, config) {
     if (config.schema) {
       config.validate = this.ajv.compile(config.schema);
