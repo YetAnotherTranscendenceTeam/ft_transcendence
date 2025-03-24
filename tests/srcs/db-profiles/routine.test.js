@@ -131,10 +131,8 @@ describe("Profile creation routine", () => {
     console
     const response = await request(profilesURL)
       .get(`/?filter[username]=${dummyProfile.username}`)
-
-      console.error(response.body);
-      // .expect(200)
-      // .expect("Content-Type", /json/);
+      .expect(200)
+      .expect("Content-Type", /json/);
 
       expect(response.statusCode).toEqual(200);
       expect(response.body).toEqual([]);
