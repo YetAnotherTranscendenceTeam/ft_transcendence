@@ -1,46 +1,77 @@
 import Babact from "babact";
-import { Match } from "../../views/TournamentView";
 import './tournament.css'
 import MatchCard from "./MatchCard";
+import { Match } from "../../views/TournamentView";
+
+
+export enum HPosition {
+	START = 'start',
+	CENTER = 'center',
+	END = 'end'
+}
+
+export enum VPosition {
+	TOP = 'top',
+	BOTTOM = 'bottom'
+}
+
 
 export default function Stage({
 		stage,
-		positionH,
-		id,
+		nextStage,
+		stageIndex,
 		...props
 	}: {
 		stage: Match[],
-		positionH: 'left' | 'right' | 'center',
-		id: number
+		nextStage: Match[],
+		stageIndex: number
 		[key: string]: any
 	}) {
 
-	const nbMaxMatch = Math.pow(2, id);
+	const nbMaxMatch = Math.pow(2, stageIndex);
 	const nbMatch = stage.length;
 
-	const getPositionV = (i: number): 'top' | 'middle' | 'bottom' => {
-		if (nbMaxMatch === 1) return 'middle';
-		if (i === 0) return 'top';
-		if (i === nbMatch - 1) return 'bottom';
-		return 'middle';
+	const getPositionV = (matchIndex: number): VPosition => {
+		if (matchIndex % 2 === 0)
+			return VPosition.TOP;
+		return VPosition.BOTTOM;
+	}
+
+	const getPositionH = (matchIndex: number): HPosition => {
+		if (stageIndex === 0)
+			return HPosition.START;
+		if (!nextStage)
+			return HPosition.END;
+
+		const limit = matchIndex * 2 + 1;
+		if (nextStage.length < limit) {
+			return HPosition.END;
+		}
+		return HPosition.CENTER;
+	
 	}
 
 	return (
 		<div
-			className='stage-column flex flex-col items-center justify-around'
+			className='stage-column flex flex-col'
+			style={`--stage-index: ${stageIndex}`}
 			{...props}
 		>
 			{stage.map((match, i) =>
 				<MatchCard
 					key={i}
 					match={match}
-					positionH={positionH}
+					positionH={getPositionH(i)}
 					positionV={getPositionV(i)}
 				/>
 			)}
 			{Array(nbMaxMatch - nbMatch).fill(null).map((_, i) =>
-				<div className='match-card-container' key={'empty' + i}>
-					
+				<div className='match-card-container empty' key={'empty' + i}>
+					<MatchCard
+						match={{teams_id: [], scrores: [0, 0], teams: []}}
+						positionH={HPosition.CENTER}
+						positionV={VPosition.TOP}
+					/>
 				</div>
 			)}
 		</div>

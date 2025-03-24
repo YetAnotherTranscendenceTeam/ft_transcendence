@@ -1,31 +1,28 @@
-.stages-container {
-	padding-top: var(--header-height);
-	padding-right: var(--aside-width);
-	height: 100vh;
+.tournament-tree {
+	width: 100%;
 	box-sizing: border-box;
+	min-height: 100%;
+	overflow-x: auto;
+	flex-direction: row-reverse;
+	--branches-color: white;
 }
 
 .stage-column {
 	flex: 1;
-	color: white;
+	min-width: 200px;
 }
 
-
-/* .stage-column:nth-child(odd) {
-	background-color: #020f3a;
-}
-
-
-.stage-column:nth-child(even) {
-	background-color: #f13a3a;
-} */
 
 .match-card-container {
 	position: relative;
 	width: 100%;
 	flex: 1;
+	min-height: 0;
 }
 
+.match-card-container.empty{
+	opacity: 0;
+}
 
 
 .match-card-container::before {
@@ -33,28 +30,27 @@
 	position: absolute;
 	top: calc(50% - 1px);
 	height: 2px;
-	background-color: rgb(255, 255, 255);
+	background-color: var(--branches-color);
 }
 
-.match-card-container.left::before {
-	right: 0;
-	width: 50%;
-}
-
-.match-card-container.right::before {
+.match-card-container.start::before {
 	left: 0;
 	width: 50%;
 }
 
-.match-card-container.right::after {
+.match-card-container.start::after {
 	display: none;
 }
 
-.match-card-container.center::before {
+.match-card-container.end::before {
 	right: 0;
-	width: 100%;
+	width: 50%;
 }
 
+.match-card-container.center::before {
+	left: 0;
+	width: 100%;
+}
 
 
 .match-card-container::after {
@@ -62,29 +58,38 @@
 	position: absolute;
 	right: -1px;
 	width: 2px;
-	background-color: rgb(255, 255, 255);
+	background-color: var(--branches-color);
 }
 
 .match-card-container.top::after {
-	top: 25%;
-	height: 25%;
-}
-
-.match-card-container.bottom::after {
-	bottom: 25%;
-	height: 25%;
-}
-
-.match-card-container.middle::after {
-	bottom: 25%;
+	top: 50%;
 	height: 50%;
 }
 
-
+.match-card-container.bottom::after {
+	top: 0;
+	height: 50%;
+}
 
 .match-card {
-	background-color: #f1f1f1;
+	padding: 0;
 	border-radius: 8px;
-	padding: 8px;
 	margin: 8px;
+	box-sizing: border-box;
+	z-index: 1;
+	overflow: hidden;
+}
+
+.match-card-team {
+	box-sizing: border-box;
+	padding: 8px;
+}
+
+.match-card-team:nth-child(odd) {
+	border-right: 2px solid var(--team-1-color);
+	flex-direction: column-reverse;
+}
+
+.match-card-team:nth-child(even) {
+	border-right: 2px solid var(--team-2-color);
 }

@@ -2,97 +2,132 @@ import Babact from "babact";
 import Overlay from "../templates/Overlay";
 import { ITeam } from "yatt-lobbies";
 import Stage from "../components/Tournament/Stage";
+import Tree from "../components/Tournament/Tree";
 
 export interface Match {
 	teams_id: number[]
 	scrores: number[]
+	teams?: ITeam[]
 }
 
 export default function TournamentView() {
 
 	const teams: ITeam[] = [
 		{
-			name: 'Team 0',
-			players: []
+			name: 'bwisniew & acancel',
+			players: [
+				{
+					account_id: 0,
+					profile: {
+						account_id: 0,
+						username: 'bwisniew',
+						avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG',
+						created_at: '2021-09-01T00:00:00Z',
+						updated_at: '2021-09-01T00:00:00Z',
+					}
+				},
+				{
+					account_id: 0,
+					profile: {
+						account_id: 0,
+						username: 'acancel',
+						avatar: 'https://cdn.intra.42.fr/users/7847d2a31e82c9c83d724fa73e847318/acancel.jpg',
+						created_at: '2021-09-01T00:00:00Z',
+						updated_at: '2021-09-01T00:00:00Z',
+					}
+				},
+			]
 		},
 		{
-			name: 'Team 1',
-			players: []
+			name: 'ibertran & anfichet',
+			players: [
+				{
+					account_id: 0,
+					profile: {
+						account_id: 0,
+						username: 'ibertran',
+						avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg',
+						created_at: '2021-09-01T00:00:00Z',
+						updated_at: '2021-09-01T00:00:00Z',
+					}
+				},
+				{
+					account_id: 0,
+					profile: {
+						account_id: 0,
+						username: 'anfichet',
+						avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG',
+						created_at: '2021-09-01T00:00:00Z',
+						updated_at: '2021-09-01T00:00:00Z',
+					}
+				},
+			]
 		},
-		{
-			name: 'Team 2',
-			players: []
-		},
-		{
-			name: 'Team 3',
-			players: []
-		},
-		{
-			name: 'Team 4',
-			players: []
-		}
 	];
 
 	const tournament: Match[] = [
 		{
-			teams_id: [],
-			scrores: [0, 0]
-		},
-		{
-			teams_id: [5],
-			scrores: [0, 0]
-		},
-		{
-			teams_id: [3, 4],
-			scrores: [0, 0]
-		},
-		{
 			teams_id: [0, 1],
 			scrores: [0, 0]
 		},
 		{
 			teams_id: [0, 1],
 			scrores: [0, 0]
-		},
-		{
+		},{
 			teams_id: [0, 1],
 			scrores: [0, 0]
-		},
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		},{
+			teams_id: [0, 1],
+			scrores: [0, 1]
+		}
+
 	];
 
-	let stages: Match[][] = [];
-
-	const createRound = (teams: ITeam[]) => {
-		const nbRounds = Math.log2(teams.length);
-		for(let i = 0; i < nbRounds; i++) {
-			const start = Math.pow(2, i) - 1;
-			const end = start + Math.pow(2, i);
-			stages.push(tournament.slice(start, end));
-		}
-	}
-	createRound(teams)
-	
-
-	const getPosition = (i): 'left' | 'right' | 'center' => {
-		if (i === 0) return 'left';
-		if (i === stages.length - 1) return 'right';
-		return 'center';
-	}
+	const matches = tournament.map((match, i) => ({
+		...match,
+		teams: match.teams_id.map(team_id => teams[team_id])
+	}))
 
 	return <Overlay>
-		<div className="flex h-full stages-container">
-			{
-				stages.map((stage, index) => (
-					<Stage
-						stage={stage}
-						id={index}
-						key={index}
-						positionH={getPosition(index)}
-					>
-
-					</Stage>
-				))
-			}
+		<div
+			className='tournament-view scrollbar'
+		>
+			<Tree
+				matches={matches}
+			/>
 		</div>
 	</Overlay>
 }

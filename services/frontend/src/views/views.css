@@ -8,3 +8,11 @@
 	position: relative;
 	box-sizing: border-box;
 }
+
+.tournament-view {
+	margin-top: var(--header-height);
+	width: 100%;
+	height: calc(100vh - var(--header-height));
+	align-items: stretch;
+	justify-content: center;
+}
