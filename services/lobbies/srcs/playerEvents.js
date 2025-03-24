@@ -44,7 +44,7 @@ events.register("team_name", {
   schema: {
     type: "object",
     properties: {
-      name: { type: "string" },
+      name: { type: "string", maxLength: 20 },
     },
     required: ["name"],
     additionalProperties: false,

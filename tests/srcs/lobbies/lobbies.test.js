@@ -480,6 +480,41 @@ describe("Team names", () => {
   });
 });
 
+describe("Invalid team name", () => {
+  let players = [];
+  test("create a 2v2 unranked lobby", async () => {
+    players.push(
+      await createLobby(users[0], {
+        name: "unranked_2v2",
+        team_size: 2,
+        team_count: 2,
+        type: "unranked",
+      })
+    );
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+      let player = await joinLobby(users[i], players[0]);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+  });
+  it("set invalid team name", async () => {
+    players[0].ws.sendJson({ event: "team_name", data: { name: "poiuytrewqpoiuytrewqw" } });
+    await players[0].ws.expectJson((message) => {
+      expect(message.event).toBe("error");
+    });
+  });
+
+  it("leave lobby", async () => {
+    while (players.length > 0) {
+      let player = players.pop();
+      await player.close();
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
+    }
+  });
+});
+
 describe("Leave a 2v2 tournament lobby starting from differente indexes", () => {
   const attempts = Array.from({ length: 32 }, (_, i) => i);
   test.each(attempts)("attempt %i", async (attempt) => {
