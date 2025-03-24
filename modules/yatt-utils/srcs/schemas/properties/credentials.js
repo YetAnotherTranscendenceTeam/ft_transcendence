@@ -43,7 +43,7 @@ const credentialsProperties = {
   intra_user_id: {
     type: "integer",
     minimum: 1,
-    description: "The 42intra user_id associated with the account",
+    description: "The 42Intra user_id associated with the account",
   },
 
   google_id: {
