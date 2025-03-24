@@ -45,7 +45,7 @@ db.exec(`
   )
 `);
 
-// 42intra authentication
+// 42Intra authentication
 db.exec(`
   CREATE TABLE IF NOT EXISTS fortytwo_auth (
     account_id INTEGER PRIMARY KEY,
