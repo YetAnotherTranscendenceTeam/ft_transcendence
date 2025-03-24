@@ -4,14 +4,14 @@ import { EventManager } from "yatt-ws";
 export const events = new EventManager();
 
 events.register("goodbye", {
-  handler: (socket, payload, params) => {
+  handler: (socket, payload, client) => {
     socket.close(1000, "Normal Closure");
   },
 });
 
 events.register("ping", {
-  handler: (socket, payload, params) => {
-    params.client.resetInactivity();
+  handler: (socket, payload, client) => {
+    client.resetInactivity();
   },
 });
 
@@ -30,8 +30,8 @@ events.register("update_status", {
     required: ["type"],
     additionalProperties: false,
   },
-  handler: (socket, payload, params) => {
-    params.client.setStatus(payload.data);
+  handler: (socket, payload, client) => {
+    client.setStatus(payload.data);
   },
 });
 
@@ -46,8 +46,8 @@ events.register("send_lobby_invite", {
     required: ["account_id", "gamemode", "join_secret" ],
     additionalProperties: false,
   },
-  handler: async (socket, payload, params) => {
-    await params.client.sendLobbyInvite(payload.data);
+  handler: async (socket, payload, client) => {
+    await client.sendLobbyInvite(payload.data);
   },
 });
 
@@ -60,7 +60,7 @@ events.register("send_lobby_request", {
     required: ["account_id"],
     additionalProperties: false,
   },
-  handler: async (socket, payload, params) => {
-    await params.client.sendLobbyJoinRequest(payload.data);
+  handler: async (socket, payload, client) => {
+    await client.sendLobbyJoinRequest(payload.data);
   },
 });
