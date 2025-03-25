@@ -21,8 +21,9 @@ enum SceneState {
 }
 
 
-export default class PongClient {
+export default class PongClient extends Pong {
 	private readonly _canvas: HTMLCanvasElement;
+	private _websocket: WebSocket;
 	private _engine: Engine;
 	// private _scene: Array<Scene>;
 	private _gameScene: { scene: Scene, sphere: Ball };
@@ -33,9 +34,8 @@ export default class PongClient {
 
 	private _updateFlag: boolean = false; // temporary
 
-	private _pong: Pong;
-
 	public constructor() {
+		super();
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
 
@@ -56,7 +56,7 @@ export default class PongClient {
 		this._activeScene = SceneState.TEST;
 		
 		// test physics
-
+		
 		const bounceMaterial: PH2D.Material = {
 			density: 1,
 			restitution: 1,
@@ -66,7 +66,7 @@ export default class PongClient {
 
 		const rectangle: PH2D.PolygonShape = new PH2D.PolygonShape(1, 5);
 		console.log(rectangle);
-
+		
 		const physicalWall: PH2D.Body = new PH2D.Body(
 			PH2D.PhysicsType.STATIC,
 			rectangle,
@@ -75,14 +75,26 @@ export default class PongClient {
 			Vec2.create(),
 		);
 		console.log(physicalWall);
-
+		
 		this._physicsScene.addBody(physicalWall);
-
+		
 		// end test physics
-
+		
 		this._engine.runRenderLoop(this.loop);
-
-		this._pong = new Pong();
+		this._websocket = new WebSocket("ws://localhost:4124");
+		this._websocket.onmessage = (ev) => {
+			const msg = JSON.parse(ev.data);
+			if (msg.event === "state") {
+				console.log({counter: msg.data.counter});
+				this.counter = msg.data.counter;
+			}
+		}
+		this._websocket.onopen = (ev) => {
+			console.log(ev);
+		}
+		this._websocket.onclose = (ev) => {
+			console.log(ev);
+		}
 		
 	}
 
@@ -103,11 +115,21 @@ export default class PongClient {
 			this._gameScene.sphere.update();
 		}
 		this._gameScene.scene.render();
-		console.log(this._pong.counter);
+		console.log(this.counter);
 	}
 
 	private resize = () => {
 		this._engine.resize();
+	}
+
+	public incrementCounter() {
+		super.incrementCounter();
+		this._websocket.send(JSON.stringify({event: "increment"}));
+	}
+
+	public decrementCounter() {
+		super.decrementCounter();
+		this._websocket.send(JSON.stringify({event: "decrement"}));
 	}
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
@@ -141,11 +163,11 @@ export default class PongClient {
 		}
 
 		if (ev.key === "ArrowUp") {
-			this._pong.incrementCounter();
+			this.incrementCounter();
 		}
 
 		if (ev.key === "ArrowDown") {
-			this._pong.decrementCounter();
+			this.decrementCounter();
 		}
 	}
 
