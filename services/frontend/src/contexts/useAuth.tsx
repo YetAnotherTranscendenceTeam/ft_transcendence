@@ -19,6 +19,7 @@ export interface IMe extends IUser {
 export const AuthProvider = ({ children } : {children?: any}) => {
 
 	const [me, setMe] = Babact.useState<IMe>(null);
+	const meRef = Babact.useRef(null);
 
 	const { ft_fetch } = useFetch();
 
@@ -62,11 +63,19 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		fetchMe();
 	}, []);
 
-	const { connect, follows, ping, status, connected } = useSocial();
+	Babact.useEffect(() => {
+		meRef.current = me;
+	}, [me]);
 
 	const setMeStatus = (status: FollowStatus) => {
 		setMe(me => ({...me, status}));
 	};
+
+	const getMe = () => {
+		return meRef.current;
+	};
+
+	const { connect, follows, ping, status, connected } = useSocial(setMeStatus, getMe);
 
 	return (
 		<AuthContext.Provider
@@ -79,7 +88,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 				refresh,
 				ping,
 				status,
-				setMeStatus,
 			}}
 		>
 			{children}
