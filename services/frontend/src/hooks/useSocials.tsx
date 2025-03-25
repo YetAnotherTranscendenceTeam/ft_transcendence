@@ -45,7 +45,7 @@ export class Follow implements IFollow {
 	}
 
 	async unfollow() {
-		await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
+		return await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
 			method: 'DELETE',
 		}, {
 			success_message: `You unfollowed ${this.profile.username}`,
@@ -114,8 +114,6 @@ export default function useSocial(): {
 	};
 
 	const onFollow = (follow: IFollow) => {
-		if (follows.find(f => f.account_id === follow.account_id))
-			return;
 		setFollows(follows => follows.concat(new Follow(follow, ws, ft_fetch)));
 	};
 

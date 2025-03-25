@@ -32,6 +32,10 @@
 	width: 16px;
 }
 
+.button.loading.icon p {
+	display: none;
+}
+
 .button.primary {
 	background-color: var(--primary-color);
 	color: var(--fg-1);

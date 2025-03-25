@@ -23,7 +23,7 @@ export class User implements IUser {
 	}
 
 	async follow() {
-		await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
+		return await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
 			method: 'POST',
 		}, {
 			success_message: `You are now following ${this.username}`,
