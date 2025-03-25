@@ -11,6 +11,11 @@ export default class HttpError {
     this.message = message;
   }
 
+  setCode(code) {
+    this.code = code
+    return this;
+  }
+
   json() {
     return {
       statusCode: this.statusCode,
