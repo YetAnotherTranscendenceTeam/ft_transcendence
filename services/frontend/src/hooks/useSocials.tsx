@@ -37,7 +37,6 @@ export class Follow implements IFollow {
 
 
 	constructor(follow: IFollow, ws: WebSocketHook){
-		console.log(follow, ws);
 		this.ws = ws;
 		this.account_id = follow.account_id;
 		this.profile = new User(follow.profile);
