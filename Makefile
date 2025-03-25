@@ -15,6 +15,7 @@ override TS_MODULES = \
 	babact-router-dom \
 	yatt-lobbies \
 	physics-engine \
+	pong \
 
 SERVICES_DEPS = $(patsubst %, services/%/node_modules, $(SERVICES))
 MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(MODULES))

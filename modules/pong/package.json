@@ -1,0 +1,16 @@
+{
+  "type": "module",
+	"name": "pong",
+	"version": "1.0.0",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+	  "build": "tsc",
+	  "dev": "tsc --watch"
+	},
+  "dependencies": {
+    "gl-matrix": "^4.0.0-beta.2",
+    "physics-engine": "file:../physics-engine",
+	  "typescript": "^5.0.0"
+  }
+}

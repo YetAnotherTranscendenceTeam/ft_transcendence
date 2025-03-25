@@ -1,7 +1,7 @@
 
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
-import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4 } from "@babylonjs/core";
+import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, InputBlock } from "@babylonjs/core";
 import Ball from "./Ball";
 import Wall from "./Wall";
 import createDefaultScene from "./DefaultScene";
@@ -10,6 +10,7 @@ import createGameScene from "./GameScene";
 // import createGroundScene from "./GroundScene";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
+import { Pong } from "pong";
 
 enum SceneState {
 	MENU,
@@ -31,6 +32,8 @@ export default class PongClient {
 	private _accumulator: number = 0; // temporary
 
 	private _updateFlag: boolean = false; // temporary
+
+	private _pong: Pong;
 
 	public constructor() {
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -78,6 +81,8 @@ export default class PongClient {
 		// end test physics
 
 		this._engine.runRenderLoop(this.loop);
+
+		this._pong = new Pong();
 		
 	}
 
@@ -98,6 +103,7 @@ export default class PongClient {
 			this._gameScene.sphere.update();
 		}
 		this._gameScene.scene.render();
+		console.log(this._pong.counter);
 	}
 
 	private resize = () => {
@@ -132,6 +138,14 @@ export default class PongClient {
 
 		if (ev.key === "f" || ev.key === "F") {
 			this._updateFlag = !this._updateFlag;
+		}
+
+		if (ev.key === "ArrowUp") {
+			this._pong.incrementCounter();
+		}
+
+		if (ev.key === "ArrowDown") {
+			this._pong.decrementCounter();
 		}
 	}
 
