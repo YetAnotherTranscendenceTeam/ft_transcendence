@@ -25,7 +25,7 @@ export class PongServer extends Pong {
 		this.clients.add(client);
 	}
 
-	removeClient() {
+	removeClient(client) {
 		this.clients.delete(client);
 	}
 }

@@ -73,6 +73,10 @@ export class Scene {
 		}
 	}
 
+	public clear(): void {
+		this._bodies = [];
+	}
+
 	public get bodies(): Body[] {
 		return this._bodies;
 	}
