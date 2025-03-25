@@ -26,7 +26,6 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.get("/", { schema }, async function handler(request, reply) {
-    console.log(request.query);
     const { limit, offset, filter = {} } = request.query;
 
     let sql = "SELECT * FROM profiles";

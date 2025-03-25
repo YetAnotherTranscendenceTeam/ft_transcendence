@@ -48,7 +48,7 @@ export default function useFetch() {
 		option: {
 			show_error?: boolean
 			success_message?: string,
-			error_messages?: { [key: number]: string },
+			error_messages?: { [key: number | string]: string },
 			disable_bearer?: boolean
 		} = {}
 	) => {
@@ -76,8 +76,8 @@ export default function useFetch() {
 				return data as any;
 			}
 			else {
-				const { message, statusCode } = await response.json();
-				throw new Error(option.error_messages?.[statusCode] || message);
+				const { message, statusCode, code } = await response.json();
+				throw new Error(option.error_messages?.[code] || option.error_messages?.[statusCode] || message);
 			}
 		}
 		catch (error) {

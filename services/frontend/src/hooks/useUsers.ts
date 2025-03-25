@@ -28,8 +28,9 @@ export class User implements IUser {
 			success_message: `You are now following ${this.username}`,
 			show_error: true,
 			error_messages: {
+				"MAX_FOLLOWS": `You can't follow more users`,
+				"SELF_FOLLOW": `You can't follow yourself`,
 				409: `You are already following ${this.username}`,
-				403: `You can't follow yourself`
 			}
 		});
 	}

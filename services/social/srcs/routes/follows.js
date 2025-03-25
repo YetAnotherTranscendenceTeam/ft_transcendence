@@ -66,7 +66,7 @@ export default function router(fastify, opts, done) {
       await fastify.clients.get(request.account_id)?.unfollow(account_id);
 
     } else {
-      new HttpError.NotAcceptable().send(reply);
+      new HttpError.NotFound().send(reply);
     }
   });
 

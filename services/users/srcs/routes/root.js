@@ -27,7 +27,6 @@ export default function router(fastify, opts, done) {
 
   fastify.get("/", { schema }, async function handler(request, reply) {
     const { limit, offset, filter = {} } = request.query;
-    console.log(filter);
 
     let url = new URL("http://db-profiles:3000");
     url.searchParams.append('limit', limit);
