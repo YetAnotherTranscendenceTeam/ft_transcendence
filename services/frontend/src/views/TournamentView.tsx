@@ -4,17 +4,24 @@ import { ITeam } from "yatt-lobbies";
 import Stage from "../components/Tournament/Stage";
 import Tree from "../components/Tournament/Tree";
 
+export enum MatchState {
+	WAITING = 'waiting',
+	PLAYING = 'playing',
+	DONE = 'done'
+}
+
 export interface Match {
 	teams_id: number[]
 	scrores: number[]
 	teams?: ITeam[]
+	state: MatchState
 }
 
 export default function TournamentView() {
 
 	const teams: ITeam[] = [
 		{
-			name: 'bwisniew & acancel',
+			name: "bwisniew's team",
 			players: [
 				{
 					account_id: 0,
@@ -67,51 +74,54 @@ export default function TournamentView() {
 
 	const tournament: Match[] = [
 		{
-			teams_id: [0, 1],
-			scrores: [0, 0]
+			teams_id: [],
+			scrores: [0, 0],
+			state: MatchState.WAITING,
 		},
 		{
-			teams_id: [0, 1],
-			scrores: [0, 0]
+			teams_id: [],
+			scrores: [0, 0],
+			state: MatchState.WAITING,
+		},{
+			teams_id: [],
+			scrores: [0, 0],
+			state: MatchState.WAITING,
+		},{
+			teams_id: [],
+			scrores: [0, 1],
+			state: MatchState.WAITING,
+		},{
+			teams_id: [],
+			scrores: [0, 1],
+			state: MatchState.WAITING,
+		},{
+			teams_id: [0],
+			scrores: [0, 1],
+			state: MatchState.WAITING,
+		},{
+			teams_id: [],
+			scrores: [0, 1],
+			state: MatchState.PLAYING,
 		},{
 			teams_id: [0, 1],
-			scrores: [0, 0]
+			scrores: [0, 1],
+			state: MatchState.PLAYING,
 		},{
 			teams_id: [0, 1],
-			scrores: [0, 1]
+			scrores: [0, 1],
+			state: MatchState.PLAYING,
 		},{
 			teams_id: [0, 1],
-			scrores: [0, 1]
+			scrores: [0, 1],
+			state: MatchState.PLAYING,
 		},{
 			teams_id: [0, 1],
-			scrores: [0, 1]
+			scrores: [0, 1],
+			state: MatchState.PLAYING,
 		},{
 			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1]
+			scrores: [3, 1],
+			state: MatchState.DONE,
 		}
 
 	];

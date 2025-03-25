@@ -1,5 +1,5 @@
 import Babact from "babact";
-import { Match } from "../../views/TournamentView";
+import { Match, MatchState } from "../../views/TournamentView";
 import { HPosition, VPosition } from "./Stage";
 import Avatar from "../../ui/Avatar";
 import Card from "../../ui/Card";
@@ -16,26 +16,46 @@ export default function MatchCard({
 		[key: string]: any
 	}) {
 
+	const getWinnerIndex = (): number => {
+		if (match.state !== MatchState.DONE)
+			return null;
+		if (match.scrores[0] > match.scrores[1])
+			return 0;
+		if (match.scrores[0] < match.scrores[1])
+			return 1;
+		return null;
+	}
 
 	return (
 		<div
 			className={`match-card-container flex items-center justify-center ${positionH} ${positionV}`}
 			{...props}
 		>
-			<Card
-				className='match-card flex flex-col items-center justify-between'
+			<div
+				className={`match-card flex flex-col items-center justify-between ${match.state}`}
 				>
 				{match.teams.map((team, i) =>
-					<div key={i} className='match-card-team flex flex-col gap-2 w-full'>
-						<h3>{team.name}</h3>
-						{/* <div className='flex gap-2'>
+					<div
+						key={i}
+						className={`match-card-team flex items-center justify-between gap-4 w-full ${getWinnerIndex() === i  ? 'winner' : ''}`}
+					>
+						<div className='flex items-center gap-2'>
 							{team.players.map((player, i) =>
-								<Avatar src={player.profile.avatar} name={player.profile.avatar} />
+								<Avatar key={i} src={player.profile.avatar} name={player.profile.username} size='xs'/>
 							)}
-						</div> */}
+							<h3>{team.name}</h3>
+							{/* {getWinnerIndex() === i && <i className="fa-solid fa-trophy"></i>} */}
+						</div>
+						<p>{match.scrores[i]}</p>
 					</div>
 				)}
-			</Card>
+				{Array(2 - match.teams.length).fill(0).map((_, i) =>
+					<div key={'noteam' + i} className='match-card-team flex justify-between gap-4 w-full'>
+						<h3>...</h3>
+						{/* <p>0</p> */}
+					</div>
+				)}
+			</div>
 		</div>
 	)
 }

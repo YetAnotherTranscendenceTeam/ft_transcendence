@@ -1,7 +1,7 @@
 import Babact from "babact";
 import './tournament.css'
 import MatchCard from "./MatchCard";
-import { Match } from "../../views/TournamentView";
+import { Match, MatchState } from "../../views/TournamentView";
 
 
 export enum HPosition {
@@ -68,7 +68,7 @@ export default function Stage({
 			{Array(nbMaxMatch - nbMatch).fill(null).map((_, i) =>
 				<div className='match-card-container empty' key={'empty' + i}>
 					<MatchCard
-						match={{teams_id: [], scrores: [0, 0], teams: []}}
+						match={{teams_id: [], scrores: [0, 0], teams: [], state: MatchState.DONE}}
 						positionH={HPosition.CENTER}
 						positionV={VPosition.TOP}
 					/>

@@ -27,4 +27,5 @@
 	padding: 16px;
 	box-sizing: border-box;
 	overflow: auto;
+	z-index: 2;
 }
