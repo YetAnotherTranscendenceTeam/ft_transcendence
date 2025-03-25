@@ -41,7 +41,7 @@ services:
     volumes:
       - ./services/credentials/srcs:/services/credentials/srcs
       - ./modules/:/modules:ro
-      - ./sqlite:/database
+      - sqlite:/database
     ports:
       - "127.0.0.1:7002:3000"
     networks:
@@ -55,7 +55,7 @@ services:
     volumes:
       - ./services/token-manager/srcs:/services/token-manager/srcs
       - ./modules/:/modules:ro
-      - ./sqlite:/database
+      - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -148,7 +148,7 @@ services:
     volumes:
       - ./services/matchmaking/srcs:/services/matchmaking/srcs
       - ./modules/:/modules:ro
-      - ./sqlite:/database
+      - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
@@ -165,7 +165,7 @@ services:
     volumes:
       - ./services/db-profiles/srcs:/services/db-profiles/srcs
       - ./modules/:/modules:ro
-      - ./sqlite:/database
+      - sqlite:/database
     environment:
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
       - CDN_URL=${CDN_URL}
@@ -215,7 +215,7 @@ services:
     volumes:
       - ./services/avatars/srcs:/services/avatars/srcs
       - ./modules/:/modules:ro
-      - ./sqlite:/database
+      - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
@@ -236,7 +236,7 @@ services:
     volumes:
       - ./services/social/srcs:/services/social/srcs
       - ./modules/:/modules:ro
-      - ./sqlite:/database
+      - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
@@ -322,6 +322,7 @@ networks:
     
 volumes:
   avatars:
+  sqlite:
 
 secrets:
   ssl-crt: 
