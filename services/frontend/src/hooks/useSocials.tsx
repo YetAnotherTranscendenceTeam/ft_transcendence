@@ -8,7 +8,6 @@ import useToast from "./useToast";
 import { GameMode, IGameMode } from "yatt-lobbies";
 import Button from "../ui/Button";
 import { useLobby } from "../contexts/useLobby";
-import { join } from "path";
 
 export enum StatusType {
 	ONLINE = 'online',
@@ -37,7 +36,6 @@ export class Follow implements IFollow {
 
 
 	constructor(follow: IFollow, ws: WebSocketHook){
-		console.log(follow, ws);
 		this.ws = ws;
 		this.account_id = follow.account_id;
 		this.profile = new User(follow.profile);

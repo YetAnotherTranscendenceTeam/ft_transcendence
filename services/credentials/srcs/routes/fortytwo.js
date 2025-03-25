@@ -6,8 +6,8 @@ import { createProfile } from "../utils/createProfile.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
-    tags: ["42intra credentials"],
-    description: "Get all 42intra based credentials",
+    tags: ["42Intra credentials"],
+    description: "Get all 42Intra based credentials",
     querystring: {
       type: "object",
       properties: {
@@ -39,8 +39,8 @@ export default function router(fastify, opts, done) {
   });
 
   schema = {
-    tags: ["42intra credentials"],
-    description: "Get the account associated with a specific 42intra user_id",
+    tags: ["42Intra credentials"],
+    description: "Get the account associated with a specific 42Intra user_id",
     params: {
       type: "object",
       required: ["intra_user_id"],
@@ -51,7 +51,7 @@ export default function router(fastify, opts, done) {
     response: {
       200: {
         description:
-          "The account credentials associtated with a 42intra user_id",
+          "The account credentials associtated with a 42Intra user_id",
         type: "object",
         properties: {
           account_id: properties.account_id,
@@ -96,8 +96,8 @@ export default function router(fastify, opts, done) {
   );
 
   schema = {
-    tags: ["42intra credentials"],
-    description: "Create a new account with 42intra credentials",
+    tags: ["42Intra credentials"],
+    description: "Create a new account with 42Intra credentials",
     body: {
       type: "object",
       properties: {
@@ -109,7 +109,7 @@ export default function router(fastify, opts, done) {
     response: {
       201: {
         description:
-          "Successfully created new account with 42intra authentication",
+          "Successfully created new account with 42Intra authentication",
         type: "object",
         properties: {
           account_id: properties.account_id,

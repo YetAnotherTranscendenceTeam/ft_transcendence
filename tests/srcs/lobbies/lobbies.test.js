@@ -107,7 +107,7 @@ describe("Lobby kick system", () => {
       for (let other of players) {
         await other.expectLeave(player.user.account_id);
       }
-      player.ws.expectClosed(1000, "Kicked from lobby").close();
+      player.ws.expectClosed(4006, "KICKED").close();
     }
   });
 });
@@ -167,17 +167,17 @@ describe("Single connection tests", () => {
   it(`User 0 attempt to join lobby`, async () => {
     const old = lobby;
     lobby = await joinLobby(users[0], lobby);
-    await old.ws.expectClosed(1008, "Logged in from another location").close();
+    await old.ws.expectClosed(4003, "OTHER_LOCATION").close();
   });
   it(`User 1 attempt to join lobby`, async () => {
     const old = player;
     player = await joinLobby(users[1], player);
-    await old.ws.expectClosed(1008, "Logged in from another location").close();
+    await old.ws.expectClosed(4003, "OTHER_LOCATION").close();
   });
   it(`User 1 attempt to create another lobby`, async () => {
     const old = player;
     player = await createLobby(users[1]);
-    await old.ws.expectClosed(1008, "Logged in from another location").close();
+    await old.ws.expectClosed(4003, "OTHER_LOCATION").close();
     lobby.expectLeave(users[1].account_id);
     // leave new lobby and join back to the old one
     player.close();
@@ -187,7 +187,7 @@ describe("Single connection tests", () => {
   it(`User 0 attempt to create another lobby`, async () => {
     const old = lobby;
     lobby = await createLobby(users[0]);
-    await old.ws.expectClosed(1008, "Logged in from another location").close();
+    await old.ws.expectClosed(4003, "OTHER_LOCATION").close();
     await player.expectLeave(users[0].account_id);
   });
   it(`Disconnect users`, async () => {
@@ -314,7 +314,7 @@ describe("Join full lobby", () => {
     }
     await request(lobbiesURL)
       .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].join_secret}`)
-      .expectClosed(1008, "Lobby is full")
+      .expectClosed(4001, "LOBBY_FULL")
       .close();
     while (players.length > 0) {
       let player = players.pop();
@@ -469,6 +469,41 @@ describe("Team names", () => {
     }
     players.push(newPlayer);
   });
+  it("leave lobby", async () => {
+    while (players.length > 0) {
+      let player = players.pop();
+      await player.close();
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
+    }
+  });
+});
+
+describe("Invalid team name", () => {
+  let players = [];
+  test("create a 2v2 unranked lobby", async () => {
+    players.push(
+      await createLobby(users[0], {
+        name: "unranked_2v2",
+        team_size: 2,
+        team_count: 2,
+        type: "unranked",
+      })
+    );
+    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+      let player = await joinLobby(users[i], players[0]);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+  });
+  it("set invalid team name", async () => {
+    players[0].ws.sendJson({ event: "team_name", data: { name: "poiuytrewqpoiuytrewqw" } });
+    await players[0].ws.expectJson((message) => {
+      expect(message.event).toBe("error");
+    });
+  });
+
   it("leave lobby", async () => {
     while (players.length > 0) {
       let player = players.pop();

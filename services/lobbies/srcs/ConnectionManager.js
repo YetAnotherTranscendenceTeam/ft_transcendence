@@ -2,6 +2,7 @@ import { Lobby } from "./Lobby.js";
 import { Player } from "./Player.js";
 import { GameModes } from "./GameModes.js";
 import YATT from "yatt-utils";
+import { WsCloseError } from "yatt-ws";
 
 export class ConnectionManager {
   /**
@@ -44,7 +45,7 @@ export class ConnectionManager {
     if (!req.query.secret) {
       let gamemode = req.query.gamemode;
       if (gamemode && !GameModes[gamemode])
-        throw new Error("Invalid gamemode");
+        throw WsCloseError.InvalidMode;
       let lobby = new Lobby(gamemode, this.lobbies);
       this.lobbies.set(lobby.join_secret, lobby);
       return lobby;
@@ -56,40 +57,40 @@ export class ConnectionManager {
   // Throws an error if the connection is invalid
   async checkConnection(socket, fastify, req) {
     if (!req.query.token)
-      throw new Error("Missing token");
+      throw WsCloseError.Unauthorized;
     try {
       const token = req.query.token;
       const decoded = fastify.jwt.verify(token);
       req.account_id = decoded.account_id;
     }
     catch (err) {
-      throw new Error("Invalid token");
+      throw WsCloseError.Unauthorized;
     }
     const lobby = this.getLobby(req);
     if (!lobby)
-      throw new Error("Invalid secret");
+      throw WsCloseError.NotFound;
     let other = this.players.get(req.account_id);
     let disconnect_other = false;
     if (!lobby.isJoinable()) {
       if (other?.lobby === lobby)
         disconnect_other = true;
       else if (lobby.isFull())
-        throw new Error("Lobby is full");
+        throw WsCloseError.LobbyFull;
       else
-        throw new Error(`Lobby is not in a joinable state: ${lobby.state.type}`);
+        throw WsCloseError.Inaccessible;
     }
     else if (other)
       disconnect_other = true;
     if (disconnect_other) {
       if (other.lobby === lobby) {
-        other.socket.close(1008, "Logged in from another location");
+        WsCloseError.OtherLocation.close(other.socket);
         other.socket = socket;
         other.connected = false;
         other.syncLobby();
         return {player: other, oldplayer: other};
       }
       else
-        other.disconnect(1008, "Logged in from another location");
+        other.disconnect(WsCloseError.OtherLocation);
     }
     const profile = await this.getProfile(req.account_id);
     let player = new Player(socket, req, lobby, this, profile);
@@ -108,7 +109,7 @@ export class ConnectionManager {
       try {
         obj = JSON.parse(message);
       } catch (e) {
-        socket.close(1000, "Invalid message format, expected JSON");
+        player.disconnect(WsCloseError.InvalidFormat);
         return;
       }
       player.receive(obj);

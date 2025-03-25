@@ -115,11 +115,8 @@ export class Lobby extends LobbyBase {
   // swaps the positions of 2 players
   swapPlayers(sender, { account_ids }) {
     const indexes = [];
-    if (!Array.isArray(account_ids) || account_ids.length != 2)
-      throw new Error("Expected element 'indexes' to be an array of 2 element");
     for (let i = 0; i < account_ids.length; i++) {
       let account_id = account_ids[i];
-      if (typeof account_id != "number") throw new Error("Invalid account_id, expected a number");
       let index = this.players.findIndex((p) => p.account_id == account_id);
       if (index == -1) throw new Error("Account_id is not part of this lobby");
       indexes.push(index);
