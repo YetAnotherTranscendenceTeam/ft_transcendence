@@ -25,6 +25,7 @@ export default function SocialFollowCard({
 	const { me } = useAuth();
 
 	const [inviteSend, setInviteSend] = Babact.useState<boolean>(false);
+	const [loading, setLoading] = Babact.useState<boolean>(false);
 
 	const inviteLobby = (follow.status.type === StatusType.ONLINE || follow.status.type === StatusType.INACTIVE)
 		&& !inviteSend
@@ -53,6 +54,13 @@ export default function SocialFollowCard({
 		createToast(`You requested to join ${follow.profile.username}'s lobby`, 'success');
 	}
 
+	const handleUnFollow = async () => {
+		setLoading(true);
+		const res = await follow.unfollow();
+		if (!res)
+			setLoading(false);
+	}
+
 
 	return <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
 		<div className='flex flex-row items-center gap-2'>
@@ -62,7 +70,8 @@ export default function SocialFollowCard({
 				status={ follow.status.type }
 			>
 				<Button className='follow-remove icon'
-					onClick={() => follow.unfollow()}
+					onClick={() => handleUnFollow()}
+					loading={loading}
 				>
 					<i className="fa-solid fa-user-minus"></i>
 				</Button>
