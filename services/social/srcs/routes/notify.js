@@ -1,7 +1,7 @@
 "use strict";
 
 import { properties } from "yatt-utils";
-import { WsError } from "yatt-ws";
+import { events } from "../utils/eventsConfig.js";
 
 const schema = {
   querystring: {
@@ -36,25 +36,10 @@ export default function router(fastify, opts, done) {
     socket.on('message', async message => {
       try {
         const payload = JSON.parse(message);
-        console.log("RECIEVED:", { account_id: client.account_id, ...payload});
-        if (payload.event === "goodbye") {
-          socket.close(1000, "Normal Closure");
-        } else if (payload.event === "ping") {
-          client.resetInactivity();
-        } else if (payload.event === "update_status") {
-          client.setStatus(payload.data);
-        } else if (payload.event === "send_lobby_invite") {
-          await client.sendLobbyInvite(payload.data);
-        } else if (payload.event === "send_lobby_request") {
-          await client.sendLobbyJoinRequest(payload.data);
-        }
+        await events.receive(socket, payload, client);
       } catch (err) {
-        console.error(err.message);
-        if (err instanceof WsError) {
-          err.send(socket);
-        } else {
-          socket.close(1008, "Policy Violation");
-        }
+        console.error(err);
+        socket.close(1008, "Policy Violation");
       }
     })
   });

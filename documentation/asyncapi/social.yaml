@@ -311,7 +311,7 @@ components:
               join_secret:
                 $ref: '#/components/schemas/join_secret'
             required:
-              - from
+              - account_id
               - gamemode
         required:
           - event
