@@ -33,18 +33,19 @@ export class Follow implements IFollow {
 	profile: User;
 	status: FollowStatus;
 	ws: WebSocketHook;
+	ft_fetch: any;
 
 
-	constructor(follow: IFollow, ws: WebSocketHook){
+	constructor(follow: IFollow, ws: WebSocketHook, ft_fetch?: any) {
+		this.ft_fetch = ft_fetch;
 		this.ws = ws;
 		this.account_id = follow.account_id;
-		this.profile = new User(follow.profile);
+		this.profile = new User(follow.profile, ft_fetch);
 		this.status = follow.status;
 	}
 
-	unfollow(): void {
-		const { ft_fetch } = useFetch();
-		ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
+	async unfollow() {
+		await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
 			method: 'DELETE',
 		}, {
 			success_message: `You unfollowed ${this.profile.username}`,
@@ -91,12 +92,13 @@ export default function useSocial(): {
 	} {
 
 	const [follows, setFollows] = Babact.useState<Follow[]>([]);
+	const { ft_fetch } = useFetch();
 
 	const inivites = Babact.useRef([]);
 
 	const onWelcome = ({ follows, self }: {follows: IFollow[], self: FollowStatus}) => {
 		const { setMeStatus } = useAuth();
-		setFollows(follows.map(f => new Follow(f, ws)));
+		setFollows(follows.map(f => new Follow(f, ws, ft_fetch)));
 		setMeStatus(self);
 	};
 
@@ -112,7 +114,9 @@ export default function useSocial(): {
 	};
 
 	const onFollow = (follow: IFollow) => {
-		setFollows(follows => follows.concat(new Follow(follow, ws)));
+		if (follows.find(f => f.account_id === follow.account_id))
+			return;
+		setFollows(follows => follows.concat(new Follow(follow, ws, ft_fetch)));
 	};
 
 	const onUnfollow = ({ account_id }: {account_id: number}) => {
@@ -161,7 +165,7 @@ export default function useSocial(): {
 	};
 
 	const onLobbyRequest = ({ username, account_id }: {username: string, account_id: number}) => {
-		
+
 		const { lobby } = useLobby();
 		if (inivites.current.includes(username) || !lobby)
 			return;
