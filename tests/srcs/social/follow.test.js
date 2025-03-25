@@ -130,7 +130,7 @@ describe('Social Router', () => {
       const response = await request(baseUrl)
         .delete(`/social/follows/42`)
         .set('Authorization', `Bearer ${users[0].jwt}`)
-        .expect(406);
+        .expect(404);
     });
   });
 });
