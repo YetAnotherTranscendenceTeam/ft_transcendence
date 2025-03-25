@@ -8,7 +8,6 @@ import useToast from "./useToast";
 import { GameMode, IGameMode } from "yatt-lobbies";
 import Button from "../ui/Button";
 import { useLobby } from "../contexts/useLobby";
-import { join } from "path";
 
 export enum StatusType {
 	ONLINE = 'online',
