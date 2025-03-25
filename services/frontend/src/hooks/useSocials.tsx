@@ -3,7 +3,7 @@ import { IUser, User } from "./useUsers";
 import useWebSocket, { WebSocketHook } from "./useWebSocket";
 import useFetch from "./useFetch";
 import config from "../config";
-import { useAuth } from "../contexts/useAuth";
+import { IMe } from "../contexts/useAuth";
 import useToast from "./useToast";
 import { GameMode, IGameMode } from "yatt-lobbies";
 import Button from "../ui/Button";
@@ -82,7 +82,7 @@ export class Follow implements IFollow {
 
 }
 
-export default function useSocial(): {
+export default function useSocial(setMeStatus: (status: FollowStatus) => void, getMe: () => IMe): {
 		follows: Follow[],
 		connected: boolean,
 		connect: () => void
@@ -95,14 +95,12 @@ export default function useSocial(): {
 	const inivites = Babact.useRef([]);
 
 	const onWelcome = ({ follows, self }: {follows: IFollow[], self: FollowStatus}) => {
-		const { setMeStatus } = useAuth();
 		setFollows(follows.map(f => new Follow(f, ws)));
 		setMeStatus(self);
 	};
 
 	const onStatusChange = ({ account_id, status }: {account_id: number, status: FollowStatus}) => {
-		const { setMeStatus, me } = useAuth();
-		if (me?.account_id === account_id)
+		if (getMe()?.account_id === account_id)
 			setMeStatus(status);
 		setFollows(follows => follows.map(f => {
 			if (f.account_id === account_id)
