@@ -9,7 +9,6 @@ rm -f $TMP_FILE
 generate_or_use_existing_key() {
     local key="$1"
     local value="$2"
-    local padding_length="${3:-24}"  # Default padding length is 23
 
     # Check if the key already has a value in the environment
     if [ ! -z "${!key}" ]; then
@@ -33,7 +32,6 @@ generate_or_use_existing_key() {
 generate() {
     local key="$1"
     local value="$2"
-    local padding_length="${3:-23}"  # Default padding length is 23
 
     # If no value is provided, prompt the user for input
     if [ -z "$value" ]; then
@@ -73,7 +71,7 @@ if [ ! -z $GITHUB_ACTION ]; then
     exit
 fi
 
-HOST=$(hostname | cut -d'.' -f1)
+HOST=${1:-$(hostname | cut -d'.' -f1)}
 
 printf "\n[URLs]\n"
 generate BACKEND_URL "https://${HOST}:7979"
