@@ -9,4 +9,4 @@ HEALTHCHECK \
   CMD (curl http://localhost:8080/ping && curl http://localhost:7979/ping) || exit 1
 
 COPY ./shared/* /etc/nginx/
-COPY ./conf/ibertran.conf.template /etc/nginx/templates/default.conf.template
+COPY ./conf/ibertran.conf /etc/nginx/templates/conf.d/default.conf
