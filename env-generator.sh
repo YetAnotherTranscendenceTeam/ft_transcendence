@@ -73,7 +73,7 @@ if [ ! -z $GITHUB_ACTION ]; then
     exit
 fi
 
-HOST=$(hostname | cut -d'.' -f1)
+HOST=$(hostname)
 
 printf "\n[URLs]\n"
 generate BACKEND_URL "https://${HOST}:7979"
