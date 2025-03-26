@@ -5,50 +5,40 @@ import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mes
 import Ball from "./Ball";
 import Wall from "./Wall";
 import createDefaultScene from "./DefaultScene";
-import createGameScene from "./GameScene";
+import GameScene from "./GameScene";
 // import * as GLMATH from "gl-matrix";
 // import createGroundScene from "./GroundScene";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { Pong } from "pong";
 
-enum SceneState {
-	MENU,
-	PLAYING,
-	GAME_OVER,
-	TEST,
-	GROUND_DEV
-}
-
-
 export default class PongClient extends Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket: WebSocket;
 	private _engine: Engine;
-	// private _scene: Array<Scene>;
-	private _gameScene: { scene: Scene, sphere: Ball };
-	private _activeScene: SceneState;
+	// private _gameScene: Scene;
+	private _gameScene: GameScene;
 
 	public constructor() {
 		super();
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
 		
-		this._gameScene = createGameScene(this._canvas, this._engine);
+		// this._gameScene = createGameScene(this._canvas, this._engine);
+		this._gameScene = new GameScene(this._canvas, this._engine);
 
-		// event listeners
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("resize", this.resize);
 		
-		// end test physics
-		
 		this._engine.runRenderLoop(this.loop);
+
 		this._websocket = new WebSocket("ws://localhost:4124");
+
 		this._websocket.onmessage = (ev) => {
 			const msg = JSON.parse(ev.data);
 			if (msg.event === "state") {
 				console.log({counter: msg.data.counter});
-				this.counter = msg.data.counter;
+				// this.counter = msg.data.counter;
 			}
 		}
 		this._websocket.onopen = (ev) => {
@@ -61,22 +51,12 @@ export default class PongClient extends Pong {
 	}
 
 	private loop = () => {
-		this._gameScene.scene.render();
-		console.log(this.counter);
+		this._gameScene.render();
+		// console.log(this.);
 	}
 
 	private resize = () => {
 		this._engine.resize();
-	}
-
-	public incrementCounter() {
-		super.incrementCounter();
-		this._websocket.send(JSON.stringify({event: "increment"}));
-	}
-
-	public decrementCounter() {
-		super.decrementCounter();
-		this._websocket.send(JSON.stringify({event: "decrement"}));
 	}
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
@@ -89,37 +69,25 @@ export default class PongClient extends Pong {
 		// 		this._scene[this._activeScene].debugLayer.show();
 		// 	}
 		// }
-		if (this._activeScene === SceneState.TEST) {
-			if (ev.key === "1") {
-				this._gameScene.scene.activeCamera = this._gameScene.scene.cameras[0];
-			} else if (ev.key === "2") {
-				this._gameScene.scene.activeCamera = this._gameScene.scene.cameras[1];
-			} else if (ev.key === "3") {
-				this._gameScene.scene.activeCamera = this._gameScene.scene.cameras[2];
-			}
-		}
-
-		if (ev.key === "t" || ev.key === "T") {
-			this._activeScene = SceneState.TEST;
-		} else if (ev.key === "g" || ev.key === "G") {
-			this._activeScene = SceneState.GROUND_DEV;
-		}
+		// if (ev.key === "1") {
+		// 	this._gameScene.activeCamera = this._gameScene.cameras[0];
+		// } else if (ev.key === "2") {
+		// 	this._gameScene.activeCamera = this._gameScene.cameras[1];
+		// } else if (ev.key === "3") {
+		// 	this._gameScene.activeCamera = this._gameScene.cameras[2];
+		// }
 
 		if (ev.key === "ArrowUp") {
-			this.incrementCounter();
+			// this.incrementCounter();
 		}
 
 		if (ev.key === "ArrowDown") {
-			this.decrementCounter();
+			// this.decrementCounter();
 		}
 	}
 
 	public destroy() {
-		// this._scene.dispose();
-		// for (let i = 0; i < this._scene.length; i++) {
-		// 	this._scene[i].dispose();
-		// }
-		this._gameScene.scene.dispose();
+		// this._gameScene.dispose();
 		this._engine.dispose();
 		window.removeEventListener("keydown", this.handleKeyDown);
 		window.removeEventListener("resize", this.resize);

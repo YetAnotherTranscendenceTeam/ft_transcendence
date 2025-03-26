@@ -14,24 +14,26 @@ export default class Wall {
 		this._position = position;
 		this._scene = scene;
 		this._size = size;
-		this.loadMaterial().then(() => {
+
+		this._material = new StandardMaterial("wallMaterial", this._scene);
+		// this.loadMaterial().then(() => {
 			this.createWallModel(name, color);
-		});
+		// });
 	}
 
-	private loadMaterial = async () => {
-		const container : BABYLON.AssetContainer = await BABYLON.LoadAssetContainerAsync(
-			"red_brick_4k.gltf",
-			this._scene,
-			{ rootUrl: "/assets/gltf/red_brick_4k/" }
-		);
-		// container.addAllToScene();
-		console.log("Texture loaded successfully.", container);
-		// return container.materials[0] as StandardMaterial;
-		this._material = (container.materials[0] as StandardMaterial).clone("wallMaterial");
-		// container.dispose();
-		this._material.backFaceCulling = true;
-	}
+	// private loadMaterial = async () => {
+	// 	const container : BABYLON.AssetContainer = await BABYLON.LoadAssetContainerAsync(
+	// 		"red_brick_4k.gltf",
+	// 		this._scene,
+	// 		{ rootUrl: "/assets/gltf/red_brick_4k/" }
+	// 	);
+	// 	// container.addAllToScene();
+	// 	console.log("Texture loaded successfully.", container);
+	// 	// return container.materials[0] as StandardMaterial;
+	// 	this._material = (container.materials[0] as StandardMaterial).clone("wallMaterial");
+	// 	// container.dispose();
+	// 	this._material.backFaceCulling = true;
+	// }
 
 	private createWallModel = (name : string, color : Color3) => {
 		const height = 0.1;

@@ -7,77 +7,79 @@ import { CellMaterial } from "@babylonjs/materials";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 
-export default function createGameScene(canvas: HTMLCanvasElement, engine: Engine) : {scene : Scene, sphere: Ball} {
-	const scene: Scene = new Scene(engine);
-
-	const cameraTopDown: ArcRotateCamera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 5, Vector3.Zero(), scene);
-	const cameraPlayerLeft: ArcRotateCamera = new ArcRotateCamera("CameraPlayerLeft", -Math.PI, Math.PI / 4, 5, Vector3.Zero(), scene);
-	const cameraPlayerRight: ArcRotateCamera = new ArcRotateCamera("CameraPlayerRight", 0, Math.PI / 4, 5, Vector3.Zero(), scene);
-	cameraTopDown.attachControl(canvas, true);
-	cameraTopDown.lowerRadiusLimit = 1.5;
-	cameraTopDown.upperRadiusLimit = 10;
-	cameraTopDown.wheelPrecision = 50;
-	// cameraTopDown.mode = Camera.ORTHOGRAPHIC_CAMERA;
-	// const width = 3 * 1.5;
-
-	// cameraTopDown.orthoLeft = (-1.2 * width) / 2;
-	// cameraTopDown.orthoRight = -cameraTopDown.orthoLeft;
-	// const ratio = canvas.height / canvas.width;
-	// if (cameraTopDown.orthoLeft && cameraTopDown.orthoRight) {
-	// 	cameraTopDown.orthoTop = cameraTopDown.orthoRight * ratio;
-	// 	cameraTopDown.orthoBottom = cameraTopDown.orthoLeft * ratio;
-	// }
-
-
-	// const bounceMaterial: PH2D.Material = {
-	// 	density: 1,
-	// 	restitution: 1,
-	// 	staticFriction: 0,
-	// 	dynamicFriction: 0
-	// };
-
-	// const circle: PH2D.CircleShape = new PH2D.CircleShape(0.1);
-	// console.log(circle);
-
-	// const physicalBall: PH2D.Body = new PH2D.Body(
-	// 	PH2D.PhysicsType.DYNAMIC,
-	// 	circle,
-	// 	bounceMaterial,
-	// 	Vec2.create(),
-	// 	new Vec2(-1, 0),
-	// );
-	// console.log(physicalBall);
-
-	// const rectangle: PH2D.PolygonShape = new PH2D.PolygonShape(1, 5);
-	// console.log(rectangle);
-
-	// const physicalWall: PH2D.Body = new PH2D.Body(
-	// 	PH2D.PhysicsType.STATIC,
-	// 	rectangle,
-	// 	bounceMaterial,
-	// 	new Vec2(-5, 0),
-	// 	Vec2.create(),
-	// );
-	// console.log(physicalWall);
-
-	// physicsScene.addBody(physicalBall);
-	// // physicsScene.addBody(physicalWall);
-
-	// physicalBall.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
-	// 	const { emitter, other, manifold } = event.detail;
-	// 	console.log(emitter, other, manifold);
-	// });
-
-
-	// const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(1, 1, 0), scene);
-
-	// const sphere: Ball = new Ball(scene, physicalBall);
-	const sphere: Ball = undefined;
-
-	// const wall1: Wall = new Wall(scene, "wall1", new Vector2(0, 1.5), new Vector2(4, 0.1));
-	// const wall2: Wall = new Wall(scene, "wall2", new Vector2(0, -1.5), new Vector2(4, 0.1));
-
-	// scene.autoClear = false;
-	// scene.clearColor = Color4.FromColor3(Color3.Black());
-	return {scene, sphere};
+export default class GameScene {
+	private _scene: Scene;
+	private _canvas: HTMLCanvasElement;
+	private _engine: Engine;
+	private _camera: ArcRotateCamera;
+	private _light: HemisphericLight;
+	private _ball: Ball;
+	private _wall1: Wall;
+	private _wall2: Wall;
+	
+	public constructor(canvas: HTMLCanvasElement, engine: Engine) {
+		this._canvas = canvas;
+		this._engine = engine;
+		this._scene = new Scene(engine);
+		
+		this._camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 7.5, Vector3.Zero(), this._scene);
+		this._camera.attachControl(canvas, true);
+		this._camera.lowerRadiusLimit = 1.5;
+		this._camera.upperRadiusLimit = 10;
+		this._camera.wheelPrecision = 50;
+		
+		this._light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._scene);
+		
+		this._ball = new Ball(this._scene);
+		this._wall1 = new Wall(this._scene, "wall1", new Vector2(0, 2), new Vector2(6, 0.25));
+		this._wall2 = new Wall(this._scene, "wall2", new Vector2(0, -2), new Vector2(6, 0.25));
+	}
+	
+	public get scene() {
+		return this._scene;
+	}
+	
+	public render() {
+		this._scene.render();
+	}
 }
+
+// export default function createGameScene(canvas: HTMLCanvasElement, engine: Engine) : Scene {
+// 	const scene: Scene = new Scene(engine);
+
+// 	const cameraTopDown: ArcRotateCamera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 7.5, Vector3.Zero(), scene);
+// 	const cameraPlayerLeft: ArcRotateCamera = new ArcRotateCamera("CameraPlayerLeft", -Math.PI, Math.PI / 3, 5, new Vector3(-2, 0, 0), scene);
+// 	const cameraPlayerRight: ArcRotateCamera = new ArcRotateCamera("CameraPlayerRight", 0, Math.PI / 3, 5, new Vector3(2, 0, 0), scene);
+// 	cameraTopDown.attachControl(canvas, true);
+// 	cameraTopDown.lowerRadiusLimit = 1.5;
+// 	cameraTopDown.upperRadiusLimit = 10;
+// 	cameraTopDown.wheelPrecision = 50;
+// 	// cameraTopDown.mode = Camera.ORTHOGRAPHIC_CAMERA;
+// 	// const width = 3 * 1.5;
+
+// 	// cameraTopDown.orthoLeft = (-1.2 * width) / 2;
+// 	// cameraTopDown.orthoRight = -cameraTopDown.orthoLeft;
+// 	// const ratio = canvas.height / canvas.width;
+// 	// if (cameraTopDown.orthoLeft && cameraTopDown.orthoRight) {
+// 	// 	cameraTopDown.orthoTop = cameraTopDown.orthoRight * ratio;
+// 	// 	cameraTopDown.orthoBottom = cameraTopDown.orthoLeft * ratio;
+// 	// }
+
+// 	// physicalBall.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
+// 	// 	const { emitter, other, manifold } = event.detail;
+// 	// 	console.log(emitter, other, manifold);
+// 	// });
+
+
+// 	const light1: HemisphericLight = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
+
+// 	// const sphere: Ball = new Ball(scene);
+// 	const sphere: Ball = undefined;
+
+// 	const wall1: Wall = new Wall(scene, "wall1", new Vector2(0, 2), new Vector2(6, 0.25));
+// 	const wall2: Wall = new Wall(scene, "wall2", new Vector2(0, -2), new Vector2(6, 0.25));
+
+// 	// scene.autoClear = false;
+// 	// scene.clearColor = Color4.FromColor3(Color3.Black());
+// 	return scene;
+// }

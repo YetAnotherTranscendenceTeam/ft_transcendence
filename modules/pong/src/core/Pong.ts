@@ -5,22 +5,23 @@ import { GameMode } from "yatt-lobbies";
 
 export class Pong {
 	private _scene: PH2D.Scene;
+
 	private _balls: PH2D.Body[] = [];
 	private _paddles: PH2D.Body[] = [];
 	private _gameMode: GameMode;
-
-	private _counter: number = 0;
 
 	public constructor() {
 		this._scene = new PH2D.Scene(Vec2.create(), DT);
 	}
 
-	private setupGame(gameMode: GameMode): void {
+	public setupGame(gameMode: GameMode): void {
 		this._scene.clear();
 		this._gameMode = gameMode;
 		// setup all
 		if (gameMode.team_size === 1) {
 			this.setup1v1();
+		} else {
+			throw new Error("Unsupported game mode");
 		}
 	}
 
@@ -76,21 +77,29 @@ export class Pong {
 		);
 		this._scene.addBody(wall1);
 		this._scene.addBody(wall2);
+
+		// temporary walls
+		const sideWallShape = new PH2D.PolygonShape(0.25, 4);
+		const sideWallMaterial = bounceMaterial;
+		const sideWall1 = new PH2D.Body(
+			PH2D.PhysicsType.STATIC,
+			sideWallShape,
+			sideWallMaterial,
+			new Vec2(-6, 0),
+			Vec2.create()
+		);
+		const sideWall2 = new PH2D.Body(
+			PH2D.PhysicsType.STATIC,
+			sideWallShape,
+			sideWallMaterial,
+			new Vec2(6, 0),
+			Vec2.create()
+		);
+		this._scene.addBody(sideWall1);
+		this._scene.addBody(sideWall2);
 	}
 
-	private incrementCounter(): void {
-		this._counter++;
-	}
-
-	private decrementCounter(): void {
-		this._counter--;
-	}
-
-	private get counter(): number {
-		return this._counter;
-	}
-
-	private set counter(value: number) {	// imagine this setter has some validation logic
-		this._counter = value;
+	public startGame(): void {
+		this._balls[0].velocity = Vec2.fromValues(ballSpeedMin, 0);
 	}
 }
