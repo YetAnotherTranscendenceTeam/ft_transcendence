@@ -3,6 +3,7 @@
 	height: 100%;
 	flex-direction: row;
 	gap: 32px;
+	border-radius: 0;
 }
 
 .menu a {
