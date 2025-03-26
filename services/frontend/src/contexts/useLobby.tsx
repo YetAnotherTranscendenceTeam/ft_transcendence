@@ -183,8 +183,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			4000: 'Lobby not found',
 			4001: 'Lobby is full',
 			4002: 'Lobby is locked',
-			4003: 'Connect from another location',
-			4006: 'Kick from the lobby'
+			4003: 'Connected from another location',
+			4006: 'Kicked from the lobby'
 		};
 		if (e.code === 1000)
 			createToast(errorMessages[e.code], 'success');
