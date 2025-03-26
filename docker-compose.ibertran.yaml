@@ -21,8 +21,8 @@ services:
       context: services/frontend/
       dockerfile: Dockerfile
       args:
-        - BACKEND_URL=${BACKEND_URL}
-        - WS_URL=${WS_URL}
+        BACKEND_URL: https://api-transcendence.ibertran.dev
+        WS_URL=: wss://api-transcendence.ibertran.dev
     image: ibertran/transcendence-frontend
     networks:
       - frontend
