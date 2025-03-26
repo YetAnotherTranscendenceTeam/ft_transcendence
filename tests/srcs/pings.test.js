@@ -54,4 +54,8 @@ describe("pings", () => {
   it("ping social", async () => {
     const response = await request(`${host}:4123`).get("/ping").expect(204);
   });
+
+  it("ping google-auth", async () => {
+    const response = await request(`${host}:4032`).get("/ping").expect(204);
+  });
 });
