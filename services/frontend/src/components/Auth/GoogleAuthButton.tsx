@@ -27,7 +27,7 @@ export default function GoogleAuthButton() {
 			data-shape="rectangular"
 			data-logo_alignment="left"
 			data-locale="en"
-			data-width="300"
+			data-width="336"
 			>
 		</div>
 	</div>
