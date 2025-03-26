@@ -20,6 +20,7 @@ services:
     build:
       context: services/frontend/
       dockerfile: Dockerfile
+    image: ibertran/transcendence-frontend
     volumes:
       - ./services/frontend/src:/services/frontend/src
       - ./services/frontend/public:/services/frontend/public
