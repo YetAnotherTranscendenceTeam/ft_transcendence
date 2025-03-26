@@ -177,10 +177,19 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			navigate('/');
 		localStorage.removeItem('lobby');
 		setLobby(null);
-		if (e.code === 1008)
-			createToast(e.reason, 'danger');
-		else if (e.code === 1000)
-			createToast('Kicked from lobby', 'danger', 10000);
+		const errorMessages = {
+			1000: 'Disconnected from lobby',
+			3000: 'Unauthorized to join lobby',
+			4000: 'Lobby not found',
+			4001: 'Lobby is full',
+			4002: 'Lobby is locked',
+			4003: 'Connected from another location',
+			4006: 'Kicked from the lobby'
+		};
+		if (e.code === 1000)
+			createToast(errorMessages[e.code], 'success');
+		else if (errorMessages[e.code])
+			createToast(errorMessages[e.code], 'danger', 6000);
 	};
 
 	const onError = (error: any) => {

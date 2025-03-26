@@ -2,7 +2,6 @@
 
 import { HttpError, objects, properties } from "yatt-utils";
 import db from "../app/database.js";
-import { generateUsername } from "../utils/generateUsername.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -26,7 +25,6 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.get("/", { schema }, async function handler(request, reply) {
-    console.log(request.query);
     const { limit, offset, filter = {} } = request.query;
 
     let sql = "SELECT * FROM profiles";

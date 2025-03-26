@@ -1,7 +1,7 @@
 import YATT from "yatt-utils";
 import db from "../app/database.js";
 import { inactivity_delay } from "../app/env.js";
-import { inactive, offline, online, parseUserStatus } from "./activityStatuses.js";
+import { inactive, offline, online } from "./activityStatuses.js";
 import { userInfos } from "./userInfos.js";
 import { WsError } from "yatt-ws";
 
@@ -11,10 +11,10 @@ export class Client {
 
   isInactive = false;
   customStatus = null;
-  
+
   offlineTimeout = null;
   inactivityTimeout = null
-  
+
   allClients;
   lastBroadcast = null;
 
@@ -37,9 +37,8 @@ export class Client {
 
   send(payload) {
     const data = JSON.stringify(payload);
-    this.sockets.forEach((ready, socket) => {
-      if (ready)
-        socket.send(data)
+    this.sockets.forEach(socket => {
+      socket.send(data);
     });
   }
 
@@ -93,7 +92,7 @@ export class Client {
     this.inactivityTimeout = setTimeout(() => {
       this.goInactive();
     }, inactivity_delay);
-    
+
     if (this.isInactive) {
       this.isInactive = false;
       this.allClients.broadcastStatus(this);
@@ -110,7 +109,7 @@ export class Client {
   }
 
   setStatus(status) {
-    const { type, data } = parseUserStatus(status);
+    const { type, data } = status;
 
     if (type === "online") {
       this.customStatus = null;
@@ -133,8 +132,13 @@ export class Client {
   }
 
   async sendLobbyInvite(invite) {
-    if (!invite?.gamemode) {
-      throw new WsError.InvalidEvent(invite);
+    if (invite.account_id === this.account_id) {
+      throw new WsError.UserUnavailable({ account_id: this.account_id });
+    }
+
+    const target = this.allClients.get(invite.account_id);
+    if (!target) {
+      throw new WsError.UserUnavailable({ account_id: invite.account_id });
     }
 
     try {
@@ -144,25 +148,18 @@ export class Client {
       throw new WsError.BadGateway();
     }
 
-    const target = this.allClients.get(invite?.account_id);
-
-    if (target) {
-      target.send({ event: "receive_lobby_invite", data: { username: this.username, gamemode: invite.gamemode, join_secret: invite?.join_secret } });
-    } else {
-      throw new WsError.UserUnavailable({ account_id: request.account_id });
-    }
+    target.send({
+      event: "receive_lobby_invite", data: {
+        username: this.username,
+        gamemode: invite.gamemode,
+        join_secret: invite.join_secret
+      }
+    });
   }
 
   async sendLobbyJoinRequest(request) {
-    if (!request?.account_id) {
-      throw new WsError.InvalidEvent(request);
-    }
-
-    try {
-      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
-    } catch (err) {
-      console.error(err);
-      throw new WsError.BadGateway();
+    if (request.account_id === this.account_id) {
+      throw new WsError.UserUnavailable({ account_id: this.account_id });
     }
 
     const target = this.allClients.get(request.account_id);
@@ -170,6 +167,18 @@ export class Client {
       throw new WsError.UserUnavailable({ account_id: request.account_id });
     }
 
-    target.send({ event: "receive_lobby_request", data: { account_id: this.account_id, username: this.username} });
+    try {
+      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
+    } catch (err) {
+      console.error(err);
+      throw new WsError.BadGateway();
+    }
+
+    target.send({
+      event: "receive_lobby_request", data: {
+        account_id: this.account_id,
+        username: this.username,
+      }
+    });
   }
 }

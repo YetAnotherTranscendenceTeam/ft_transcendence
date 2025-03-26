@@ -16,8 +16,9 @@ export default function SocialUserCard({
 
 	const handleFollow = async () => {
 		setIsLoading(true);
-		await user.follow();
-		setIsLoading(false);
+		const res = await user.follow();
+		if (!res)
+			setIsLoading(false);
 	}
 
 	return <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>

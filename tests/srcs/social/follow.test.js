@@ -70,6 +70,8 @@ describe('Social Router', () => {
         .post(`/social/follows/${users[0].account_id}`)
         .set('Authorization', `Bearer ${users[0].jwt}`)
         .expect(403);
+
+        expect(response.body.code).toBe("SELF_FOLLOW");
     });
 
     it("refollow", async () => {
@@ -128,7 +130,7 @@ describe('Social Router', () => {
       const response = await request(baseUrl)
         .delete(`/social/follows/42`)
         .set('Authorization', `Bearer ${users[0].jwt}`)
-        .expect(406);
+        .expect(404);
     });
   });
 });
