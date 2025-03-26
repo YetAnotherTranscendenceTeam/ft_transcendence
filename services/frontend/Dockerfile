@@ -13,10 +13,13 @@ HEALTHCHECK \
 WORKDIR /services/frontend/
 COPY . .
 
+ARG BACKEND_URL
+ARG WS_URL
+
 RUN npm install
 RUN npm install --global serve
 RUN npm run build
 
-ENTRYPOINT [ "serve" ]
+ENTRYPOINT [ "serve", "build", "-l", "8080" ]
 
 EXPOSE 8080

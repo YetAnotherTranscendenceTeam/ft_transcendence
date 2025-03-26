@@ -20,14 +20,10 @@ services:
     build:
       context: services/frontend/
       dockerfile: Dockerfile
+      args:
+        - BACKEND_URL=${BACKEND_URL}
+        - WS_URL=${WS_URL}
     image: ibertran/transcendence-frontend
-    volumes:
-      - ./services/frontend/src:/services/frontend/src
-      - ./services/frontend/public:/services/frontend/public
-      - ./modules/:/modules:ro
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-      - WS_URL=${WS_URL}
     networks:
       - frontend
 
