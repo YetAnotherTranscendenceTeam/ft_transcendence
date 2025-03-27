@@ -1,5 +1,5 @@
 import "@babylonjs/inspector";
-import { Engine, Scene, Camera, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Color3, Color4 } from "@babylonjs/core";
+import { Engine, Scene, Camera, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Color3, Color4, MeshBuilder, StandardMaterial } from "@babylonjs/core";
 import Ball from "./Ball";
 import Wall from "./Wall";
 import { CellMaterial } from "@babylonjs/materials";
@@ -8,11 +8,13 @@ import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 
 export default class GameScene {
-	private _scene: Scene;
 	private _canvas: HTMLCanvasElement;
 	private _engine: Engine;
+	private _scene: Scene;
+
 	private _camera: ArcRotateCamera;
 	private _light: HemisphericLight;
+
 	private _ball: Ball;
 	private _wall1: Wall;
 	private _wall2: Wall;
@@ -33,6 +35,11 @@ export default class GameScene {
 		this._ball = new Ball(this._scene);
 		this._wall1 = new Wall(this._scene, "wall1", new Vector2(0, 2), new Vector2(6, 0.25));
 		this._wall2 = new Wall(this._scene, "wall2", new Vector2(0, -2), new Vector2(6, 0.25));
+		const ground = MeshBuilder.CreateGround("ground", {width: 6, height: 4}, this._scene);
+		const material = new StandardMaterial("groundMaterial", this._scene);
+		material.diffuseColor = new Color3(0.5, 0.5, 0.5);
+		material.specularColor = new Color3(0, 0, 0);
+		ground.material = material;
 	}
 	
 	public get scene() {

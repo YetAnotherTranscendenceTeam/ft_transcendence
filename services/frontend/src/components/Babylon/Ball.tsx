@@ -15,7 +15,7 @@ export default class Ball {
 			{ diameter: 0.1 },
 			this._scene
 		);
-		this._mesh.position = new BABYLON.Vector3(0, 0, 0);
+		this._mesh.position = new BABYLON.Vector3(0, 0.05, 0);
 		const material = new StandardMaterial("ballMaterial", this._scene);
 		material.diffuseColor = Color3.White();
 		this._mesh.material = material;

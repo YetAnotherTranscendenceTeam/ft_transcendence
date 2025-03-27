@@ -56,7 +56,7 @@ export default class Wall {
 			this._scene
 		);
 		this._mesh.material = this._material;
-		this._mesh.position = new BABYLON.Vector3(this._position.x, 0, this._position.y);
+		this._mesh.position = new BABYLON.Vector3(this._position.x, height / 2, this._position.y);
 		console.log("Wall created successfully.", this._mesh);
 	}
 

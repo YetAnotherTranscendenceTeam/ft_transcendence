@@ -1,31 +1,39 @@
 import { Pong } from "pong";
+import { WsCloseError } from "yatt-ws";
 
 export class PongServer extends Pong {
 
-	clients = new Set();
-	
-	decrementCounter() {
-		super.decrementCounter();
-		this.broadcastState();
+	constructor(match_id, gamemode, teams) {
+		const players = teams.flatMap(team => team.players);
+		super(match_id, gamemode, players);
 	}
 
-	incrementCounter() {
-		super.incrementCounter();
-		this.broadcastState();
+	getPlayer(account_id) {
+		return this.players.find(player => player.account_id === account_id);
 	}
-	
-	broadcastState() {
-		const msg = JSON.stringify({event: 'state', data: {counter: this.counter}});
-		for (const client of this.clients) {
-			client.send(msg);
+
+	join(socket, account_id) {
+		const player = this.getPlayer(account_id);
+		if (!player) {
+			throw new Error("Player not part of this game");
+		}
+		if (player.socket) {
+			WsCloseError.OtherLocation.close(player.socket);
+		}
+		player.socket = socket;
+	}
+
+	removeSocket(account_id) {
+		const player = this.getPlayer(account_id);
+		if (player) {
+			player.socket = null;
 		}
 	}
 
-	addClient(client) {
-		this.clients.add(client);
-	}
-
-	removeClient(client) {
-		this.clients.delete(client);
+	broadcast(message) {
+		const messageString = JSON.stringify(message);
+		for (const client of this.clients) {
+			client.socket?.send(messageString);
+		}
 	}
 }
