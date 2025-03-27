@@ -10,7 +10,7 @@ import FollowTypeText from "./FollowTypeText";
 
 export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]: any }) {
 
-	const [isOpen, setIsOpen] = Babact.useState(false);
+	const [isOpen, setIsOpen] = Babact.useState<boolean>(false);
 
 	if (!me)
 		return null;

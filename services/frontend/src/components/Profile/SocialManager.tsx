@@ -10,7 +10,7 @@ import SocialFollowCard from "./SocialFollowCard";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
 
-	const [selected, setSelected] = Babact.useState('follow');
+	const [selected, setSelected] = Babact.useState<string>('follow');
 
 	const {users, search} = useUsers();
 

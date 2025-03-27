@@ -23,7 +23,7 @@ export default function useWebSocket({
 	} = {}): WebSocketHook {
 
 	const ws = Babact.useRef(null);
-	const [connected, setConnected] = Babact.useState(false);
+	const [connected, setConnected] = Babact.useState<boolean>(false);
 	const { refreshToken } = useFetch();
 
 	const connect = async (url: string) => {

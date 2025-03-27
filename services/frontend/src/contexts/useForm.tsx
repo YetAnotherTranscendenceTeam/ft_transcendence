@@ -1,10 +1,25 @@
 import Babact from "babact";
 
-const FormContext = Babact.createContext({});
+export interface FormField {
+	value: string | number | boolean,
+	isValid: boolean,
+	required: boolean
+}
 
-export const Form = ({ formFields = {}, className, children } : {formFields?: any, className?: string, children?: any}) => {
+export type Fields = {[key: string]: FormField};
 
-	const initFields = (fields) => fields.reduce((acc, field) => {
+const FormContext = Babact.createContext<{
+		updateField: (name: string, value: string) => void,
+		updateFieldValidity: (name: string, isValid: boolean) => void,
+		deleteField: (name: string) => void,
+		clearFields: (fieldsName?: string[]) => void,
+		checkValidity: (fieldsName: string[]) => boolean,
+		fields: Fields
+	}>();
+
+export const Form = ({ formFields = [], className, children } : {formFields: string[], className?: string, children?: any}) => {
+
+	const initFields = (fields: string[]) => fields.reduce((acc, field) => {
 		const required = field.endsWith('*');
 		field = required ? field.slice(0, -1) : field;
 		acc[field] = {
@@ -15,27 +30,27 @@ export const Form = ({ formFields = {}, className, children } : {formFields?: an
 		return acc;
 	}, {});
 
-	const [fields, setFields] = Babact.useState(initFields(formFields));
+	const [fields, setFields] = Babact.useState<Fields>(initFields(formFields));
 
-	const updateField = (name, value) => {
+	const updateField = (name: string, value: string | boolean | number) => {
 		const newFields = {...fields};
 		newFields[name].value = value;
 		setFields(newFields);
 	}
 
-	const updateFieldValidity = (name, isValid) => {
+	const updateFieldValidity = (name: string, isValid: boolean) => {
 		const newFields = {...fields};
 		newFields[name].isValid = isValid;
 		setFields(newFields);
 	}
 
-	const deleteField = (name) => {
+	const deleteField = (name: string) => {
 		const newFields = {...fields};
 		delete newFields[name];
 		setFields(newFields);
 	}
 
-	const clearFields = (fieldsName = []) => {
+	const clearFields = (fieldsName: string[] = []) => {
 		if (fieldsName.length === 0)
 			setFields(initFields(formFields));
 		else {
@@ -48,7 +63,7 @@ export const Form = ({ formFields = {}, className, children } : {formFields?: an
 		}
 	}
 
-	const checkValidity = (fieldsName) => {
+	const checkValidity = (fieldsName: string[]) => {
 		for (let name of fieldsName) {
 			const fieldValidity = fields[name]?.isValid && (fields[name]?.value || !fields[name]?.required);
 			if (!fieldValidity) {

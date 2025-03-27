@@ -12,7 +12,7 @@ export default function LobbyTeamsList() {
 	const { lobby } = useLobby();
 	const switchingPlayer = Babact.useRef(null);
 	
-	const [players, setPlayers] = Babact.useState(lobby.players);
+	const [players, setPlayers] = Babact.useState<IPlayer[]>(lobby.players);
 	const [teams, setTeams] = Babact.useState<ITeam[]>([]);
 	const width = Babact.useRef(0);
 
@@ -27,8 +27,11 @@ export default function LobbyTeamsList() {
 		setPlayers(lobby.players);
 	}, [lobby]);
 
-	const [draggingPlayer, setDraggingPlayer] = Babact.useState(null);
-	const [transform, setTransform] = Babact.useState({x: 0, y: 0});
+	const [draggingPlayer, setDraggingPlayer] = Babact.useState<number>(null);
+	const [transform, setTransform] = Babact.useState<{
+		x: number,
+		y: number
+	}>({x: 0, y: 0});
 
 	Babact.useEffect(() => {
 		if (!draggingPlayer) return;

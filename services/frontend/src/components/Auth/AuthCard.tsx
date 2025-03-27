@@ -7,7 +7,7 @@ import RegisterForm from "./RegisterForm";
 
 export default function AuthCard() {
 
-	const [selected, setSelected] = Babact.useState(null);
+	const [selected, setSelected] = Babact.useState<string>(null);
 
 	return <Card className='auth-card left'>
 

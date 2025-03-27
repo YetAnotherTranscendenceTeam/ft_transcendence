@@ -11,8 +11,8 @@ export default function Editable({
 		disabled?: boolean;
 	}) {
 
-	const [isEditing, setIsEditing] = Babact.useState(false);
-	const [value, setValue] = Babact.useState(defaultValue);
+	const [isEditing, setIsEditing] = Babact.useState<boolean>(false);
+	const [value, setValue] = Babact.useState<string>(defaultValue);
 	const isBlurred = Babact.useRef(false);
 
 	Babact.useEffect(() => {
