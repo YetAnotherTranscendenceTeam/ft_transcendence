@@ -1,16 +1,12 @@
 import db from "./app/database.js";
-import { GameMode } from "./GameModes.js";
 import { Queue } from "./Queue.js";
+import { Lobby as LobbyBase } from "yatt-lobbies";
 
 const NEW_USER_ELO = 1000;
 const WEIGHT_ELO_DIFF = 1.0;
 const WEIGHT_PLAYER_COUNT_DIFF = 1.0;
 
-export class Lobby {
-  /**
-   * @type {GameMode}
-   */
-  gamemode;
+export class Lobby extends LobbyBase {
 
   /**
    *
@@ -18,12 +14,8 @@ export class Lobby {
    * @param {Queue} queue The matchmaking queue
    */
   constructor(lobby, queue) {
-    this.gamemode = lobby.mode;
-    this.join_secret = lobby.join_secret;
-    this.players = lobby.players;
-    const maxLobbySize = this.gamemode.type === "ranked"
-      ? this.gamemode.team_size
-      : this.gamemode.team_size * this.gamemode.team_count;
+    super(lobby);
+    const maxLobbySize = this.getCapacity();
     if (this.players.length > maxLobbySize)
       throw new Error(
         `Too many players in lobby, expected max ${maxLobbySize}, got ${this.players.length}`
@@ -36,7 +28,7 @@ export class Lobby {
       )
       .all(
         this.players.map((player) => player.account_id),
-        this.gamemode.name
+        this.mode.name
       );
     for (let player of this.players) {
       let matchmaking_user = this.matchmaking_users.find(
@@ -45,7 +37,7 @@ export class Lobby {
       if (matchmaking_user) continue;
       matchmaking_user = {
         account_id: player.account_id,
-        gamemode: this.gamemode.name,
+        gamemode: this.mode.name,
         elo: NEW_USER_ELO,
       };
       this.matchmaking_users.push(matchmaking_user);
@@ -56,11 +48,12 @@ export class Lobby {
 
   toJSON() {
     return {
+      mode: this.mode,
       players: this.players,
-      matchmaking_users: this.matchmaking_users,
-      gamemode: this.gamemode,
-      tolerance: this.tolerance,
       join_secret: this.join_secret,
+      team_names: this.team_names,
+      matchmaking_users: this.matchmaking_users,
+      tolerance: this.tolerance,
     };
   }
 
