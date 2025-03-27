@@ -59,7 +59,7 @@ export default function SelectModeOverlay({
 			<Submit
 				fields={['lobby-code']}
 				onSubmit={(fields, clearFields) => {
-					join(fields['lobby-code'].value);
+					join(fields['lobby-code'].value as string);
 					clearFields();
 					onClose();
 				}}

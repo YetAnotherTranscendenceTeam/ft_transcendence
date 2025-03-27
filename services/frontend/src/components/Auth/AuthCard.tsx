@@ -8,7 +8,7 @@ import useEscape from "../../hooks/useEscape";
 
 export default function AuthCard() {
 
-	const [selected, setSelected] = Babact.useState(null);
+	const [selected, setSelected] = Babact.useState<string>(null);
 
 	useEscape(selected, () => setSelected(null));
 

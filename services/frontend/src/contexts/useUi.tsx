@@ -1,11 +1,15 @@
 import Babact from "babact";
 import Toast from "../ui/Toast";
+import { IToast } from "../hooks/useToast";
 
-const UiContext = Babact.createContext();
+const UiContext = Babact.createContext<{
+		toaster: IToast[],
+		setToaster: (toaster: IToast[] | ((toaster: IToast[]) => IToast[])) => void,
+	}>();
 
 export const UiProvider = ({ children } : {children?: any}) => {
 
-	const [toaster, setToaster] = Babact.useState([]);
+	const [toaster, setToaster] = Babact.useState<IToast[]>([]);
 
 	return (
 		<UiContext.Provider
@@ -15,7 +19,7 @@ export const UiProvider = ({ children } : {children?: any}) => {
 			}}
 		>
 			<div className='toaster'>
-				{toaster.map((toast: any) => {
+				{toaster.map((toast: IToast) => {
 					return <Toast {...toast} key={toast.id}/>
 				})}
 			</div>

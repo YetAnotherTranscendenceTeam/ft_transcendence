@@ -5,7 +5,7 @@ import Button from "../../ui/Button";
 import FollowTypeText from "./FollowTypeText";
 import { Lobby } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
-import useToast from "../../hooks/useToast";
+import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
 
 export default function SocialFollowCard({
@@ -45,13 +45,13 @@ export default function SocialFollowCard({
 	const handleInvite = () => {
 		follow.invite(inviteLobby.mode, inviteLobby.join_secret);
 		setInviteSend(true);
-		createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
+		createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
 	}
 
 	const handleRequest = () => {
 		follow.request();
 		setInviteSend(true);
-		createToast(`You requested to join ${follow.profile.username}'s lobby`, 'success');
+		createToast(`You requested to join ${follow.profile.username}'s lobby`, ToastType.SUCCESS);
 	}
 
 	const handleUnFollow = async () => {

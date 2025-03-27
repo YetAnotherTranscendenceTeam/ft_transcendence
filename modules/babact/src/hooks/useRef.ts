@@ -1,14 +1,23 @@
 import BabactState from "../core/BabactState";
+import { IHook, HookTag } from "../core/Hook";
 
-export default function useRef(initialValue: any) {
+interface ReferenceHook<Type> extends IHook {
+    current: Type;
+}
+
+export default function useRef<Type>(initialValue: Type): ReferenceHook<Type> {
     const oldHook =
+        BabactState.wipFiber &&
         BabactState.wipFiber.alternate &&
         BabactState.wipFiber.alternate.hooks &&
-        BabactState.wipFiber.alternate.hooks[BabactState.hookIndex];
+        BabactState.wipFiber.alternate.hooks[BabactState.hookIndex] as ReferenceHook<Type>;
 
-    const hook = oldHook ? oldHook : { current: initialValue };
+    const hook: ReferenceHook<Type> = oldHook ? oldHook : {
+        current: initialValue,
+        tag: HookTag.REF
+    };
 
-    BabactState.wipFiber.hooks.push(hook);
+    BabactState.wipFiber?.hooks?.push(hook);
     BabactState.hookIndex++;
 
     return hook;

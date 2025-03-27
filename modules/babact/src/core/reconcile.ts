@@ -1,11 +1,13 @@
 
-import { IFiber, EffectTag, FiberProps } from './Fiber'
+import { Fiber, EffectTag, FiberProps } from './Fiber'
 import BabactState from './BabactState'
 import { IElement } from './Element';
 
-export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
-    let oldFiber: IFiber = wipFiber.alternate && wipFiber.alternate.child;
-    let prevSibling: IFiber = null;
+export function reconcileChildren(wipFiber: Fiber, elements: IElement[]) {
+    if (!wipFiber)
+        return;
+    let oldFiber: Fiber = wipFiber.alternate && wipFiber.alternate.child;
+    let prevSibling: Fiber = null;
 
     const existingFibers = new Map();
     let oldFiberIndex = 0;
@@ -22,7 +24,7 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
     for (let i = 0; i < elements.length; i++) {
         const element = elements[i];
         const key = element?.props.key != null ? element.props.key : `auto_${i}`;
-        let newFiber: IFiber = null;
+        let newFiber: Fiber = null;
         const oldFiber = existingFibers.get(key);
 
         const sameType =
@@ -58,13 +60,13 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
         }
         if (oldFiber && !sameType) {
             oldFiber.effectTag = EffectTag.Deletion;
-            BabactState.deletions.push(oldFiber);
+            BabactState.deletions?.push(oldFiber);
         }
 
-      
         if (i === 0) {
             wipFiber.child = newFiber;
-        } else {
+        }
+        else if (prevSibling) {
             prevSibling.sibling = newFiber;
         }
         prevSibling = newFiber;
@@ -73,7 +75,7 @@ export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
     existingFibers.forEach((fiber) => {
         if (fiber.effectTag !== EffectTag.Deletion) {
             fiber.effectTag = EffectTag.Deletion;
-            BabactState.deletions.push(fiber);
+            BabactState.deletions?.push(fiber);
         }
     });
 }

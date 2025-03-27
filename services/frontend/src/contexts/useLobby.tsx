@@ -1,11 +1,11 @@
 import Babact from "babact";
 import useWebSocket, { WebSocketHook } from "../hooks/useWebSocket";
 import config from "../config";
-import useToast from "../hooks/useToast";
+import useToast, { ToastType } from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
 
 import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
-import useSocial, { StatusType } from "../hooks/useSocials";
+import { StatusType } from "../hooks/useSocials";
 import { useAuth } from "./useAuth";
 
 class LobbyClient extends Lobby {
@@ -84,7 +84,11 @@ class LobbyClient extends Lobby {
 	};
 }
 
-const LobbyContext = Babact.createContext();
+const LobbyContext = Babact.createContext<{
+		lobby: LobbyClient,
+		create: (mode: string) => void,
+		join: (id: string) => void
+	}>();
 
 export const LobbyProvider = ({ children } : { children?: any }) => {
 	
@@ -99,13 +103,13 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const onStateChange = (state: any) => {
 		if (state.type === 'playing')
-			createToast('Match found', 'info');
+			createToast('Match found', ToastType.INFO);
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setState(state)));
 	};
 
 	const onModeChange = (mode: any) => {
 		const newMode = new GameMode(mode);
-		createToast(`Gamemode changed to ${newMode.getDisplayName()}`, 'info');
+		createToast(`Gamemode changed to ${newMode.getDisplayName()}`, ToastType.INFO);
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setMode(mode)));
 	};
 
@@ -114,12 +118,12 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	}
 
 	const onPlayerJoin = (player: IPlayer) => {
-		createToast(`${player.profile?.username} joined the lobby`, 'info');
+		createToast(`${player.profile?.username} joined the lobby`, ToastType.INFO);
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.addPlayer(player)));
 	};
 
 	const onPlayerLeave = (player: any) => {
-		createToast(`${player.profile?.username} left the lobby`, 'info');
+		createToast(`${player.profile?.username} left the lobby`, ToastType.INFO);
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.removePlayer(lobby.players.findIndex((p) => p.account_id === player.account_id))));
 	};
 
@@ -159,7 +163,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			onLeaderChange(msg.data.leader_account_id);
 		}
 		else if (msg.event === 'error') {
-			createToast(msg.data.message, 'danger');
+			createToast(msg.data.message, ToastType.DANGER);
 		}
 		else if (msg.event === 'mode_change') {
 			onModeChange(msg.data.mode);
@@ -187,9 +191,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			4006: 'Kicked from the lobby'
 		};
 		if (e.code === 1000)
-			createToast(errorMessages[e.code], 'success');
+			createToast(errorMessages[e.code], ToastType.SUCCESS);
 		else if (errorMessages[e.code])
-			createToast(errorMessages[e.code], 'danger', 6000);
+			createToast(errorMessages[e.code],  ToastType.DANGER, 6000);
 	};
 
 	const onError = (error: any) => {
@@ -245,10 +249,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	);
 };
 
-export const useLobby = (): {
-	lobby: LobbyClient,
-	create: (mode: string) => void,
-	join: (id: string) => void
-} => {
+export const useLobby = () => {
 	return Babact.useContext(LobbyContext);
 };
