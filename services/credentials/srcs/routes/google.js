@@ -1,6 +1,6 @@
 'use strict';
 
-import { properties } from "yatt-utils";
+import { properties, objects } from "yatt-utils";
 import db from "../app/database.js";
 import { createProfile } from "../utils/createProfile.js";
 
