@@ -9,7 +9,6 @@ export default function GoogleAuthButton() {
 	const { auth } = useAuth();
 
 	const handleCredential = async (response: any) => {
-		console.log(response.credential);
 		const res = await ft_fetch(`${config.API_URL}/auth/google`, {
 			method: 'POST',
 			headers: {
@@ -30,7 +29,7 @@ export default function GoogleAuthButton() {
 	return <div className='w-full'>
 		<script src="https://accounts.google.com/gsi/client" async></script>
 		<div id="g_id_onload"
-			data-client_id="9744497548-ecens5hjhfugrc0l4a3nl9bqc3qr08dh.apps.googleusercontent.com"
+			data-client_id={config.GOOGLE_CLIENT_ID}
 			data-callback="handleCredential"
 			data-auto_prompt="false"
 			>
