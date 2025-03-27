@@ -153,6 +153,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
+      - MATCH_MANAGEMENT_JWT_SECRET=${MATCH_MANAGEMENT_JWT_SECRET}
     ports:
       - "127.0.0.1:4044:3000"
     networks:
@@ -304,6 +305,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - MATCH_MANAGEMENT_JWT_SECRET=${MATCH_MANAGEMENT_JWT_SECRET}
     ports:
       - 4124:3000
     # networks:
