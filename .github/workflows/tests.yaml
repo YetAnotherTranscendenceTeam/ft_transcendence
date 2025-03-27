@@ -21,6 +21,7 @@ jobs:
       FRONTEND_URL: https://localhost:8080
       BACKEND_URL: https://localhost:7979
       CDN_URL: https://cdn-nginx:8181
+      GOOGLE_CLIENT_iD: 'example'
       API42_CLIENT_ID: 'example'
       API42_SECRET: 'example'
       API42_REDIRECT_URI: 'https://fake-callback.com'
