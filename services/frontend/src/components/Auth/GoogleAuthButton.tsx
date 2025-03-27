@@ -1,9 +1,26 @@
 import Babact from "babact";
+import useFetch from "../../hooks/useFetch";
+import config from "../../config";
+import { useAuth } from "../../contexts/useAuth";
 
 export default function GoogleAuthButton() {
 
-	const handleCredential = (response: any) => {
+	const { ft_fetch } = useFetch();
+	const { auth } = useAuth();
+
+	const handleCredential = async (response: any) => {
 		console.log(response.credential);
+		const res = await ft_fetch(`${config.API_URL}/auth/google`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ token: response.credential })
+		}, {
+			show_error: true,
+		})
+		if (res)
+			auth(res.access_token, res.expire_at);
 	};
 
 	Babact.useEffect(() => {

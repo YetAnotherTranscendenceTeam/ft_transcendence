@@ -32,7 +32,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			connect();
 		}
 		else{
-			console.log('logout');
 			logout();
 		}
 	};
