@@ -1,12 +1,12 @@
 import BabactState from "./BabactState";
-import { SpecialElementTag } from "./Element";
-import { IFiber, NodeElement } from "./Fiber";
+import { IElement, SpecialElementTag } from "./Element";
+import { IFiber } from "./Fiber";
 
-export function render(element: IFiber, container: NodeElement) {
+export function render(element: IElement, container: HTMLElement) {
 	BabactState.wipRoot = {
 		dom: container,
 		props: {
-			children: [element],
+			children: [element as IFiber],
 		},
 		alternate: BabactState.currentRoot,
 		parent: null,

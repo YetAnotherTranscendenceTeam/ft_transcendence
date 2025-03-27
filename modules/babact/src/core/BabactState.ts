@@ -1,11 +1,11 @@
-import { IFiber } from "./Fiber";
+import { Fiber } from "./Fiber";
 
 export interface IBabactState {
-	nextUnitOfWork: IFiber | null;
-	wipRoot: IFiber | null;
-	currentRoot: IFiber | null;
-	deletions: IFiber[] | null;
-	wipFiber: IFiber | null;
+	nextUnitOfWork: Fiber;
+	wipRoot: Fiber;
+	currentRoot: Fiber;
+	deletions: Fiber[] | null;
+	wipFiber: Fiber;
 	hookIndex: number;
 	effects: any[];
 }
