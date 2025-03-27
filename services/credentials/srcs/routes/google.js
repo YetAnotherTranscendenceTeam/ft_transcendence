@@ -58,7 +58,7 @@ export default function router(fastify, opts, done) {
     return account;
   });
 
-  // Create an email/password based account
+  // Create a google_id based account
   fastify.post("/google", async function handler(request, reply) {
     const { email, google_id } = request.body;
 
