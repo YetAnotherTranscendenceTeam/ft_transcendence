@@ -74,18 +74,14 @@ export default function router(fastify, opts, done) {
     async function handler(request, reply) {
       const { intra_user_id } = request.params;
 
-      const account = db
-        .prepare(
-          `
-      SELECT accounts.account_id, accounts.email, fortytwo_auth.*
-      FROM accounts
-      INNER JOIN fortytwo_auth
-        ON accounts.account_id = fortytwo_auth.account_id
-      WHERE auth_method = 'fortytwo_auth'
-        AND fortytwo_auth.intra_user_id = ?;
-    `
-        )
-        .get(intra_user_id);
+      const account = db.prepare(`
+        SELECT accounts.account_id, accounts.email, fortytwo_auth.*
+        FROM accounts
+        INNER JOIN fortytwo_auth
+          ON accounts.account_id = fortytwo_auth.account_id
+        WHERE auth_method = 'fortytwo_auth'
+          AND fortytwo_auth.intra_user_id = ?;
+      `).get(intra_user_id);
 
       if (!account) {
         reply.status(404).send(objects.accountNotFound);
@@ -145,7 +141,7 @@ export default function router(fastify, opts, done) {
         return insert;
       })();
       await createProfile(result.account_id);
-      return reply.status(201).send(result);
+      reply.status(201).send(result);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
         return reply.code(409).send(objects.emailInUse);

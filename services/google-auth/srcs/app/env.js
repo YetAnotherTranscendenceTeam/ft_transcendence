@@ -11,3 +11,9 @@ if (!token_manager_secret) {
   console.error("Missing environment variable: TOKEN_MANAGER_SECRET");
   process.exit(1);
 }
+
+export const google_client_id = process.env.GOOGLE_CLIENT_ID;
+if (!google_client_id) {
+  console.error("Missing environment variable: GOOGLE_CLIENT_ID");
+  process.exit(1);
+}
