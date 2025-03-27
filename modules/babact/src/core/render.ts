@@ -1,4 +1,5 @@
 import BabactState from "./BabactState";
+import { SpecialElementTag } from "./Element";
 import { IFiber, NodeElement } from "./Fiber";
 
 export function render(element: IFiber, container: NodeElement) {
@@ -11,7 +12,7 @@ export function render(element: IFiber, container: NodeElement) {
 		parent: null,
 		child: null,
 		sibling: null,
-		tag: null,
+		tag: SpecialElementTag.ROOT,
 	};
 	BabactState.deletions = [];
 	BabactState.nextUnitOfWork = BabactState.wipRoot;

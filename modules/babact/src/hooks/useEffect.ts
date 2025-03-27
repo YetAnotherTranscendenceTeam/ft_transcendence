@@ -1,16 +1,25 @@
 import BabactState from "../core/BabactState";
+import { IFiber } from "../core/Fiber";
+import { IHook, HookTag } from "../core/Hook";
+
+interface EffectHook extends IHook {
+    effect: (() => (() => void) | void) | null;
+    cleanup: (() => void) | null;
+    deps: any[];
+}
 
 export default function useEffect(callback: () => void | (() => void), deps: any[]) {
     const oldHook =
+        BabactState.wipFiber &&
 		BabactState.wipFiber.alternate &&
 		BabactState.wipFiber.alternate.hooks &&
-		BabactState.wipFiber.alternate.hooks[BabactState.hookIndex];
+		BabactState.wipFiber.alternate.hooks[BabactState.hookIndex] as EffectHook;
 
-    const hook = {
+    const hook: EffectHook = {
         deps,
         effect: null,
         cleanup: null,
-        tag: 'effect'
+        tag: HookTag.EFFECT
     };
 
     const hasChanged = oldHook && (!oldHook.deps || oldHook.deps.some((dep, i) => dep !== deps[i]));
@@ -27,19 +36,22 @@ export default function useEffect(callback: () => void | (() => void), deps: any
         hook.cleanup = oldHook.cleanup;
     }
 
-    BabactState.wipFiber.hooks.push(hook);
+    BabactState.wipFiber?.hooks?.push(hook);
     BabactState.hookIndex++;
 }
 
 
-export function removeEffect(fiber: any) {
+export function removeEffect(fiber: IFiber | null) {
     if (!fiber)
         return;
     if (fiber.hooks) {
-        fiber.hooks.forEach(hook => {
-            if (hook.cleanup) {
-                hook.cleanup();
-                hook.cleanup = null;
+        fiber.hooks
+        .filter((hook: IHook) => hook.tag === HookTag.EFFECT)
+        .forEach(hook => {
+            const effect = hook as EffectHook;
+            if (effect.cleanup) {
+                effect.cleanup();
+                effect.cleanup = null;
             }
         });
     }
