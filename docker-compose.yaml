@@ -29,6 +29,7 @@ services:
     environment:
       - BACKEND_URL=${BACKEND_URL}
       - WS_URL=${WS_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     ports:
       - "127.0.0.1:4242:8080"
     networks:
@@ -116,6 +117,26 @@ services:
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
       - "127.0.0.1:4042:3000"
+    networks:
+      - credentials
+      - frontend
+      - tokens
+      - db-profiles
+      - avatars
+
+  google-auth:
+    build:
+      context: services/google-auth/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/google-auth/srcs:/services/google-auth/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+    ports:
+      - "127.0.0.1:4032:3000"
     networks:
       - credentials
       - frontend
