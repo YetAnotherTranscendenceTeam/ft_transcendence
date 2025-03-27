@@ -4,10 +4,13 @@ import "./auth.css"
 import Button from "../../ui/Button";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
+import useEscape from "../../hooks/useEscape";
 
 export default function AuthCard() {
 
 	const [selected, setSelected] = Babact.useState(null);
+
+	useEscape(selected, () => setSelected(null));
 
 	return <Card className='auth-card left'>
 
