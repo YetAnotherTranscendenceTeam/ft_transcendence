@@ -2,7 +2,8 @@ services:
   nginx:
     build:
       context: services/nginx/
-      dockerfile: Dockerfile.ibertran
+      args:
+        CONF_FILE: ibertran.conf
     image: ibertran/transcendence-nginx
     ports:
       - "127.0.0.1:8080:8080"
@@ -78,6 +79,20 @@ services:
       - API42_CLIENT_ID=${API42_CLIENT_ID}
       - API42_SECRET=${API42_SECRET}
       - API42_REDIRECT_URI=${API42_REDIRECT_URI}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+    networks:
+      - credentials
+      - frontend
+      - tokens
+      - db-profiles
+      - avatars
+
+  google-auth:
+    build: services/google-auth/
+    image: ibertran/transcendence.google-auth
+    environment:
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - FRONTEND_URL=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     networks:
@@ -176,7 +191,6 @@ services:
   cdn-nginx:
     build:
       context: services/CDN/nginx/
-      dockerfile: Dockerfile.ibertran
       args:
         CONF_FILE: ibertran.conf
     image: ibertran/transcendence.cdn-nginx

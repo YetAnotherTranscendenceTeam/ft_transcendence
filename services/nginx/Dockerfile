@@ -1,7 +1,10 @@
 FROM nginx:1.26.3-alpine
 
 COPY ./shared/* /etc/nginx/
-COPY ./conf/default.conf.template /etc/nginx/templates/
+
+ARG CONF_FILE=default.conf
+
+COPY ./conf/${CONF_FILE} /etc/nginx/templates/default.conf.template
 
 HEALTHCHECK \
   --interval=30s \
