@@ -4,7 +4,7 @@ services:
       context: services/nginx/
       args:
         CONF_FILE: ibertran.conf
-    image: ibertran/transcendence.nginx
+    image: ibertran/transcendence.nginx:latest
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:7979:7979"
@@ -23,13 +23,13 @@ services:
       args:
         BACKEND_URL: https://api-transcendence.ibertran.dev
         WS_URL: wss://api-transcendence.ibertran.dev
-    image: ibertran/transcendence.frontend
+    image: ibertran/transcendence.frontend:latest
     networks:
       - frontend
 
   credentials:
     build: services/credentials/
-    image: ibertran/transcendence.credentials
+    image: ibertran/transcendence.credentials:latest
     volumes:
       - sqlite:/database
     networks:
@@ -38,7 +38,7 @@ services:
 
   token-manager:
     build: services/token-manager/
-    image: ibertran/transcendence.token-manager
+    image: ibertran/transcendence.token-manager:latest
     volumes:
       - sqlite:/database
     environment:
@@ -51,7 +51,7 @@ services:
 
   registration:
     build: services/registration/
-    image: ibertran/transcendence.registration
+    image: ibertran/transcendence.registration:latest
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -61,7 +61,7 @@ services:
     
   password-auth:
     build: services/password-auth/
-    image: ibertran/transcendence.password-auth
+    image: ibertran/transcendence.password-auth:latest
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -72,7 +72,7 @@ services:
   
   fortytwo-auth:
     build: services/fortytwo-auth/
-    image: ibertran/transcendence.fortytwo-auth
+    image: ibertran/transcendence.fortytwo-auth:latest
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - JWT_SECRET=${JWT_SECRET}
@@ -90,7 +90,7 @@ services:
 
   google-auth:
     build: services/google-auth/
-    image: ibertran/transcendence.google-auth
+    image: ibertran/transcendence.google-auth:latest
     environment:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - FRONTEND_URL=${FRONTEND_URL}
@@ -104,7 +104,7 @@ services:
 
   lobbies:
     build: services/lobbies/
-    image: ibertran/transcendence.lobbies
+    image: ibertran/transcendence.lobbies:latest
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
@@ -116,7 +116,7 @@ services:
 
   matchmaking:
     build: services/matchmaking/
-    image: ibertran/transcendence.matchmaking
+    image: ibertran/transcendence.matchmaking:latest
     volumes:
       - sqlite:/database
     environment:
@@ -128,7 +128,7 @@ services:
 
   db-profiles:
     build: services/db-profiles/
-    image: ibertran/transcendence.profiles
+    image: ibertran/transcendence.profiles:latest
     volumes:
       - sqlite:/database
     environment:
@@ -139,7 +139,7 @@ services:
 
   users:
     build: services/users/
-    image: ibertran/transcendence.users
+    image: ibertran/transcendence.users:latest
     environment:
       - JWT_SECRET=${JWT_SECRET}
     networks:
@@ -148,7 +148,7 @@ services:
 
   settings:
     build: services/settings/
-    image: ibertran/transcendence.settings
+    image: ibertran/transcendence.settings:latest
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -161,7 +161,7 @@ services:
 
   avatars:
     build: services/avatars/
-    image: ibertran/transcendence.avatars
+    image: ibertran/transcendence.avatars:latest
     volumes:
       - sqlite:/database
     environment:
@@ -176,7 +176,7 @@ services:
 
   social:
     build: services/social/
-    image: ibertran/transcendence.social
+    image: ibertran/transcendence.social:latest
     volumes:
       - sqlite:/database
     environment:
@@ -193,7 +193,7 @@ services:
       context: services/CDN/nginx/
       args:
         CONF_FILE: ibertran.conf
-    image: ibertran/transcendence.cdn-nginx
+    image: ibertran/transcendence.cdn-nginx:latest
     ports:
       - "127.0.0.1:8181:8181"
     volumes:
@@ -207,7 +207,7 @@ services:
 
   cdn-api:
     build: services/CDN/api/
-    image: ibertran/transcendence.cdn-api
+    image: ibertran/transcendence.cdn-api:latest
     volumes:
       - avatars:/app/avatars/users/
       - ./services/CDN/.avatars:/app/avatars/default/:ro
