@@ -24,7 +24,7 @@ function updateHostComponent(fiber: IFiber) {
 	if (!fiber.dom) {
 		fiber.dom = createDom(fiber);
 	}
-	reconcileChildren(fiber, fiber.props.children);
+	reconcileChildren(fiber, fiber.props.children as IElement[]);
 }
 
 function updateFunctionComponent(fiber: IFiber) {
@@ -38,7 +38,7 @@ function updateFunctionComponent(fiber: IFiber) {
 	reconcileChildren(fiber, flatchildren);
 }
 
-function performUnitOfWork(fiber: IFiber): IFiber {
+function performUnitOfWork(fiber: IFiber): IFiber | null {
 	const isFunctionComponent: Boolean = fiber.tag instanceof Function;
 	if (isFunctionComponent) {
 		updateFunctionComponent(fiber);
@@ -49,7 +49,7 @@ function performUnitOfWork(fiber: IFiber): IFiber {
 	if (fiber.child) {
 		return fiber.child;
 	}
-	let nextFiber: IFiber = fiber;
+	let nextFiber: IFiber | null = fiber;
 	while (nextFiber) {
 		if (nextFiber.sibling) {
 			return nextFiber.sibling;

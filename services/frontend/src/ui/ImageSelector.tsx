@@ -1,6 +1,6 @@
 import Babact from "babact";
 import { useForm } from "../contexts/useForm";
-import useToast from "../hooks/useToast";
+import useToast, { ToastType } from "../hooks/useToast";
 import WebcamModal from "./WebcamModal";
 
 export type Image = {
@@ -34,14 +34,14 @@ export default function ImageSelector({
 
 	const { updateField, updateFieldValidity, fields } = useForm();
 
-	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState(false);
+	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState<boolean>(false);
 
 	const handleFileChange = (e: any) => {
 		const file = e.target.files[0];
 		const reader = new FileReader();
 		reader.onload = (e: any) => {
 			if (e.target.result.length > 5 * 1024 * 1024) {
-				createToast('File too large', 'danger', 7000);
+				createToast('File too large', ToastType.DANGER, 7000);
 				return;
 			}
 			onChange(e)
