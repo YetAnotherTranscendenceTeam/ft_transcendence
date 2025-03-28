@@ -1,9 +1,5 @@
 import BabactState from "../core/BabactState";
-import { IHook, HookTag } from "../core/Hook";
-
-interface ReferenceHook<Type> extends IHook {
-    current: Type;
-}
+import { HookTag, ReferenceHook } from "../core/Hook";
 
 export default function useRef<Type>(initialValue: Type): ReferenceHook<Type> {
     const oldHook =

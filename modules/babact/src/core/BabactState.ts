@@ -1,10 +1,10 @@
-import { Fiber } from "./Fiber";
+import { Fiber, IFiber } from "./Fiber";
 
 export interface IBabactState {
 	nextUnitOfWork: Fiber;
 	wipRoot: Fiber;
 	currentRoot: Fiber;
-	deletions: Fiber[] | null;
+	deletions: IFiber[];
 	wipFiber: Fiber;
 	hookIndex: number;
 	effects: any[];
@@ -14,7 +14,7 @@ const BabactState = {
 	nextUnitOfWork: null,
 	wipRoot: null,
 	currentRoot: null,
-	deletions: null,
+	deletions: [],
 	wipFiber: null,
 	hookIndex: 0,
 	effects: [],

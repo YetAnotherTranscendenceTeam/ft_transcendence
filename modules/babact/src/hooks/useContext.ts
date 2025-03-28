@@ -9,7 +9,7 @@ export default function useContext<Type>(Context: Context<Type>): Type | undefin
 	while (fiber && (!fiber.context || !fiber.context.has(Context.contextIndex))) {
 		fiber = fiber.parent;
 	}
-	if (fiber && fiber.context) {
+	if (fiber?.context) {
 		return fiber.context.get(Context.contextIndex);
 	}
 	return Context.defaultValue;
