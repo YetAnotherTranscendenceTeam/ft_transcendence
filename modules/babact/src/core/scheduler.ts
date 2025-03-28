@@ -2,23 +2,9 @@ import BabactState from './BabactState';
 import { commitRoot } from './commit';
 import { createDom } from './dom';
 import { FunctionComponent, IElement } from './Element';
-import { IFiber } from './Fiber';
+import { Fiber, IFiber } from './Fiber';
 import { reconcileChildren } from './reconcile';
 
-window.requestIdleCallback(workLoop);
-
-function workLoop(deadline: IdleDeadline) {
-	let shouldYield = false;
-	while (BabactState.nextUnitOfWork && !shouldYield) {
-		BabactState.nextUnitOfWork = performUnitOfWork(BabactState.nextUnitOfWork);
-		shouldYield = deadline.timeRemaining() < 1;
-	}
-
-	if (!BabactState.nextUnitOfWork && BabactState.wipRoot) {
-		commitRoot()
-	}
-	window.requestIdleCallback(workLoop);
-}
 
 function updateHostComponent(fiber: IFiber) {
 	if (!fiber.dom) {
@@ -38,8 +24,8 @@ function updateFunctionComponent(fiber: IFiber) {
 	reconcileChildren(fiber, flatchildren);
 }
 
-function performUnitOfWork(fiber: IFiber): IFiber | null {
-	const isFunctionComponent: Boolean = fiber.tag instanceof Function;
+function performUnitOfWork(fiber: IFiber): Fiber {
+	const isFunctionComponent: boolean = fiber.tag instanceof Function;
 	if (isFunctionComponent) {
 		updateFunctionComponent(fiber);
 	} else {
@@ -49,7 +35,7 @@ function performUnitOfWork(fiber: IFiber): IFiber | null {
 	if (fiber.child) {
 		return fiber.child;
 	}
-	let nextFiber: IFiber | null = fiber;
+	let nextFiber: Fiber = fiber;
 	while (nextFiber) {
 		if (nextFiber.sibling) {
 			return nextFiber.sibling;
@@ -58,3 +44,17 @@ function performUnitOfWork(fiber: IFiber): IFiber | null {
 	}
 	return null;
 }
+
+function workLoop(deadline: IdleDeadline) {
+	let shouldYield = false;
+	while (BabactState.nextUnitOfWork && !shouldYield) {
+		BabactState.nextUnitOfWork = performUnitOfWork(BabactState.nextUnitOfWork);
+		shouldYield = deadline.timeRemaining() < 1;
+	}
+	if (!BabactState.nextUnitOfWork && BabactState.wipRoot) {
+		commitRoot()
+	}
+	window.requestIdleCallback(workLoop);
+}
+
+window.requestIdleCallback(workLoop);

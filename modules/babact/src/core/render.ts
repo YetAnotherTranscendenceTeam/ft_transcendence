@@ -17,4 +17,3 @@ export function render(element: IElement, container: HTMLElement) {
 	BabactState.deletions = [];
 	BabactState.nextUnitOfWork = BabactState.wipRoot;
 }
-
