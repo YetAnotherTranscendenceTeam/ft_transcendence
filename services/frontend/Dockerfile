@@ -15,7 +15,7 @@ RUN apk --no-cache add curl
 
 RUN npm install --global serve
 
-COPY --from=builder /services/frontend/build .
+COPY --from=builder /services/frontend/build/ /build
 
 ENTRYPOINT [ "serve", "-s", "build", "-l", "8080" ]
 
