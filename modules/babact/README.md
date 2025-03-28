@@ -8,10 +8,10 @@ Babact is a lightweight, React-like framework built with TypeScript. It is desig
 - **Fiber Tree**: Efficient rendering performance.
 - **Reconciliation**: Fiber reconciliation by key.
 - **Hooks**: Includes many hooks for state and lifecycle management:
-  - `useState`
-  - `useRef`
-  - `useContext`
-  - `useEffect`
+  - [`useState`](https://react.dev/reference/react/useState)
+  - [`useRef`](https://react.dev/reference/react/useRef)
+  - [`useContext`](https://react.dev/reference/react/useContext)
+  - [`useEffect`](https://react.dev/reference/react/useEffect)
 
 ## Usage
 
