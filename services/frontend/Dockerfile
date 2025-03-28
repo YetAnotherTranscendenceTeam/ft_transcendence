@@ -2,6 +2,7 @@ FROM yatt-modules:latest AS builder
 
 ARG BACKEND_URL
 ARG WS_URL
+ARG NODE_ENV=production
 
 WORKDIR /services/frontend/
 COPY . .
