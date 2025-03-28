@@ -4,7 +4,7 @@ services:
       context: services/nginx/
       args:
         CONF_FILE: ibertran.conf
-    image: ibertran/transcendence-nginx
+    image: ibertran/transcendence.nginx
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:7979:7979"
@@ -23,13 +23,13 @@ services:
       args:
         BACKEND_URL: https://api-transcendence.ibertran.dev
         WS_URL: wss://api-transcendence.ibertran.dev
-    image: ibertran/transcendence-frontend
+    image: ibertran/transcendence.frontend
     networks:
       - frontend
 
   credentials:
     build: services/credentials/
-    image: ibertran/transcendence-credentials
+    image: ibertran/transcendence.credentials
     volumes:
       - sqlite:/database
     networks:
@@ -38,7 +38,7 @@ services:
 
   token-manager:
     build: services/token-manager/
-    image: ibertran/transcendence-token-manager
+    image: ibertran/transcendence.token-manager
     volumes:
       - sqlite:/database
     environment:
@@ -51,7 +51,7 @@ services:
 
   registration:
     build: services/registration/
-    image: ibertran/transcendence-registration
+    image: ibertran/transcendence.registration
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
