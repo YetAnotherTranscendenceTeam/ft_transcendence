@@ -23,6 +23,7 @@ services:
       args:
         BACKEND_URL: https://api-transcendence.ibertran.dev
         WS_URL: wss://api-transcendence.ibertran.dev
+        GOOGLE_CLIENT_ID: 9744497548-ecens5hjhfugrc0l4a3nl9bqc3qr08dh.apps.googleusercontent.com
     image: ibertran/transcendence.frontend:latest
     networks:
       - frontend

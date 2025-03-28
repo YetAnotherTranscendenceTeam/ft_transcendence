@@ -2,13 +2,14 @@ FROM yatt-modules:latest AS builder
 
 ARG BACKEND_URL
 ARG WS_URL
+ARG GOOGLE_CLIENT_ID
 ARG NODE_ENV=production
 
 WORKDIR /services/frontend/
 COPY . .
 
 RUN npm install
-RUN npm run build
+RUN npm run build > build.log
 
 FROM node:23.7-alpine3.20
 
@@ -16,6 +17,7 @@ RUN apk --no-cache add curl
 
 RUN npm install --global serve
 
+COPY --from=builder /services/frontend/build.log .
 COPY --from=builder /services/frontend/build/ /build
 
 ENTRYPOINT [ "serve", "-s", "build", "-l", "8080" ]
