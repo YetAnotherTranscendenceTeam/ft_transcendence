@@ -1,10 +1,18 @@
-FROM node:23.7-alpine3.20
+FROM yatt-modules:latest
 
 WORKDIR /services/users/
 COPY . .
 
-RUN npm install
+RUN npm install --production
 
-ENTRYPOINT [ "node",  "srcs/index.js" ]
+ENTRYPOINT [ "npm", "start" ]
 
 EXPOSE 3000
+
+HEALTHCHECK \
+  --interval=30s \
+  --timeout=5s \
+  --retries=3 \
+  --start-period=1s \
+  --start-interval=5s  \
+  CMD curl http://localhost:3000/ || exit 1

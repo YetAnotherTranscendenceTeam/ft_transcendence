@@ -124,8 +124,6 @@ services:
       - avatars
 
   lobbies:
-    depends_on:
-      - matchmaking
     build:
       context: services/lobbies/
       dockerfile: Dockerfile.dev
@@ -140,6 +138,8 @@ services:
     networks:
       - frontend
       - db-profiles
+    depends_on:
+      - matchmaking
 
   matchmaking:
     build:

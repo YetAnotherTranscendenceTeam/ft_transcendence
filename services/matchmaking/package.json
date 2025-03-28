@@ -8,5 +8,8 @@
     "yatt-utils": "file:../../modules/yatt-utils",
     "yatt-lobbies": "file:../../modules/yatt-lobbies"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

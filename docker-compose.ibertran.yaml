@@ -19,7 +19,6 @@ services:
   frontend:
     build:
       context: services/frontend/
-      dockerfile: Dockerfile
       args:
         BACKEND_URL: https://api-transcendence.ibertran.dev
         WS_URL: wss://api-transcendence.ibertran.dev
@@ -28,26 +27,18 @@ services:
       - frontend
 
   credentials:
-    build:
-      context: services/credentials/
-      dockerfile: Dockerfile.dev
+    build: services/credentials/
+    image: ibertran/transcendence-credentials
     volumes:
-      - ./services/credentials/srcs:/services/credentials/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
-    ports:
-      - "127.0.0.1:7002:3000"
     networks:
       - credentials
       - db-profiles
 
   token-manager:
-    build:
-      context: services/token-manager/
-      dockerfile: Dockerfile.dev
+    build: services/token-manager/
+    image: ibertran/transcendence-token-manager
     volumes:
-      - ./services/token-manager/srcs:/services/token-manager/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
@@ -58,12 +49,8 @@ services:
       - tokens
 
   registration:
-    build:
-      context: services/registration/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/registration/srcs:/services/registration/srcs
-      - ./modules/:/modules:ro
+    build: services/registration/
+    image: ibertran/transcendence-registration
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -72,12 +59,8 @@ services:
       - frontend
     
   password-auth:
-    build:
-      context: services/password-auth/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/password-auth/srcs:/services/password-auth/srcs
-      - ./modules/:/modules:ro
+    build: services/password-auth/
+    image: ibertran/transcendence.password-auth
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -87,12 +70,8 @@ services:
       - tokens
   
   fortytwo-auth:
-    build:
-      context: services/fortytwo-auth/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/fortytwo-auth/srcs:/services/fortytwo-auth/srcs
-      - ./modules/:/modules:ro
+    build: services/fortytwo-auth/
+    image: ibertran/transcendence.fortytwo-auth
     environment:
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - JWT_SECRET=${JWT_SECRET}
@@ -109,28 +88,21 @@ services:
       - avatars
 
   lobbies:
-    depends_on:
-      - matchmaking
-    build:
-      context: services/lobbies/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/lobbies/srcs:/services/lobbies/srcs
-      - ./modules/:/modules:ro
+    build: services/lobbies/
+    image: ibertran/transcendence.lobbies
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
     networks:
       - frontend
       - db-profiles
+    depends_on:
+      - matchmaking
 
   matchmaking:
-    build:
-      context: services/matchmaking/
-      dockerfile: Dockerfile.dev
+    build: services/matchmaking/
+    image: ibertran/transcendence.matchmaking
     volumes:
-      - ./services/matchmaking/srcs:/services/matchmaking/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
@@ -140,12 +112,9 @@ services:
       - frontend
 
   db-profiles:
-    build:
-      context: services/db-profiles/
-      dockerfile: Dockerfile.dev
+    build: services/db-profiles/
+    image: ibertran/transcendence.profiles
     volumes:
-      - ./services/db-profiles/srcs:/services/db-profiles/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
@@ -154,12 +123,8 @@ services:
       - db-profiles
 
   users:
-    build:
-      context: services/users/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/users/srcs:/services/users/srcs
-      - ./modules/:/modules:ro
+    build: services/users/
+    image: ibertran/transcendence.users
     environment:
       - JWT_SECRET=${JWT_SECRET}
     networks:
@@ -167,12 +132,8 @@ services:
      - db-profiles
 
   settings:
-    build:
-      context: services/settings/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/settings/srcs:/services/settings/srcs
-      - ./modules/:/modules:ro
+    build: services/settings/
+    image: ibertran/transcendence.settings
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -184,12 +145,9 @@ services:
       - tokens
 
   avatars:
-    build:
-      context: services/avatars/
-      dockerfile: Dockerfile.dev
+    build: services/avatars/
+    image: ibertran/transcendence.avatars
     volumes:
-      - ./services/avatars/srcs:/services/avatars/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
@@ -197,18 +155,14 @@ services:
       - CDN_URL=${CDN_URL}
     networks:
       - avatars
-      - cdn-test
     depends_on:
       cdn-nginx:
         condition: service_healthy
 
   social:
-    build:
-      context: services/social/
-      dockerfile: Dockerfile.dev
+    build: services/social/
+    image: ibertran/transcendence.social
     volumes:
-      - ./services/social/srcs:/services/social/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
@@ -219,11 +173,13 @@ services:
       - db-profiles
       - settings
 
-
   cdn-nginx:
     build:
       context: services/CDN/nginx/
       dockerfile: Dockerfile.ibertran
+      args:
+        CONF_FILE: ibertran.conf
+    image: ibertran/transcendence.cdn-nginx
     ports:
       - "127.0.0.1:8181:8181"
     volumes:
@@ -231,20 +187,16 @@ services:
       - ./services/CDN/.avatars:/app/avatars/default/:ro
     networks:
       - cdn-api
-      - cdn-test
     depends_on:
       cdn-api:
         condition: service_healthy
 
   cdn-api:
-    build:
-      context: services/CDN/api/
-      dockerfile: Dockerfile.dev
+    build: services/CDN/api/
+    image: ibertran/transcendence.cdn-api
     volumes:
       - avatars:/app/avatars/users/
       - ./services/CDN/.avatars:/app/avatars/default/:ro
-      - ./services/CDN/api/srcs:/services/CDN/api/srcs
-      - ./modules/:/modules:ro
     environment:
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
     networks:
@@ -270,9 +222,6 @@ networks:
   cdn-api:
     driver: bridge
   swagger:
-    driver: bridge
-
-  cdn-test:
     driver: bridge
     
 volumes:
