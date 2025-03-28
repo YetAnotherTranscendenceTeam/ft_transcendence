@@ -43,6 +43,7 @@ export default function LobbyPlayerCard({
 				onMouseDown={onMouseDown}
 				className={`lobby-player-card flex flex-row gap-2 items-center justify-between draggable ${dragging ? 'dragging' : ''}`}
 				// style={`--x: ${position.x}px; --y: ${position.y}px;`}
+				id={player.account_id}
 				>
 				<LobbyPlayerCardContent player={player} isLeader={isLeader} draggable/>
 			</Card>

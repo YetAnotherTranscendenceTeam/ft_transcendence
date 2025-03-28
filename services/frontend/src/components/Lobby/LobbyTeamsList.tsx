@@ -7,49 +7,92 @@ import Editable from "../../ui/Editable";
 import { IPlayer } from "yatt-lobbies";
 import { ITeam } from "yatt-lobbies/dist/Lobby";
 
+class DraggableCard {
+
+	card: HTMLElement;
+	switchCard: HTMLElement;
+	initialX: number;
+	initialY: number;
+
+	constructor(card: HTMLElement) {
+		this.card = card;
+		this.initialX = card.getBoundingClientRect().x;
+		this.initialY = card.getBoundingClientRect().y;
+		this.setPosition(this.initialX,  this.initialY);
+		this.switchCard = null;
+	}
+
+	getInitialPosition() {
+		return {
+			x: this.initialX,
+			y: this.initialY
+		}
+	}
+
+	setPosition(x: number, y: number) {
+		this.card.style.setProperty('--x', x + 'px');
+		this.card.style.setProperty('--y', y + 'px');
+	}
+
+	getPosition() {
+		return {
+			x: parseInt(this.card.style.getPropertyValue('--x')) ?? 0,
+			y: parseInt(this.card.style.getPropertyValue('--y')) ?? 0
+		}
+	}
+
+	setSwitchCard(wrapper: HTMLElement) {
+		this.switchCard = wrapper.firstChild as HTMLElement;
+		this.switchCard.style.width = `${this.card.getBoundingClientRect().width}px`;
+		this.switchCard.style.position = 'absolute';
+		this.switchCard.style.left = `${this.initialX}px`;
+		this.switchCard.style.top = `${this.initialY}px`;
+		console.log('switchCard', this.switchCard);
+	}
+
+	resetSwitchCard() {
+		if (!this.switchCard)
+			return;
+		this.switchCard.style.position = '';
+		this.switchCard.style.left = '0px';
+		this.switchCard.style.top = '0px';
+		this.switchCard.style.width = '100%';
+		this.switchCard = null;
+	}
+
+	getSwitchPlayerId() {
+		if (!this.switchCard)
+			return null;
+		return parseInt(this.switchCard.id);
+	}
+
+	resetPosition() {
+		this.card.style.removeProperty('--x');
+		this.card.style.removeProperty('--y');
+	}
+
+}
+
 export default function LobbyTeamsList() {
 
-	const switchingPlayer = Babact.useRef(null);
 	const width = Babact.useRef(0);
-	const draggingCard = Babact.useRef<HTMLElement>(null);
+	const draggingCard = Babact.useRef<DraggableCard>(null);
 	const { lobby } = useLobby();
 	
-	const [players, setPlayers] = Babact.useState<IPlayer[]>(lobby.players);
 	const [teams, setTeams] = Babact.useState<ITeam[]>([]);
 
 	const { me } = useAuth();
 
 	Babact.useEffect(() => {
-		setTeams(lobby.getTeams());
-		console.log(lobby.getTeams());
-	}, [players, lobby]);
+		console.log('teams', teams);
+	}, [teams]);
 
 	Babact.useEffect(() => {
-		setPlayers(lobby.players);
+		setTeams(lobby.getTeams());
 	}, [lobby]);
 
 	const [draggingPlayer, setDraggingPlayer] = Babact.useState<number>(null);
-	// const [transform, setTransform] = Babact.useState<{
-	// 	x: number,
-	// 	y: number
-	// }>({x: 0, y: 0});
 
-	const setCardPosition = (x: number, y: number) => {
-		if (draggingCard.current) {
-			draggingCard.current.style.setProperty('--x', x + 'px');
-			draggingCard.current.style.setProperty('--y', y + 'px');
-		}
-	}
-
-	const getCardPosition = () => {
-		if (draggingCard.current) {
-			return {
-				x: parseInt(draggingCard.current.style.getPropertyValue('--x')) ?? 0,
-				y: parseInt(draggingCard.current.style.getPropertyValue('--y')) ?? 0
-			}
-		}
-		return {x: 0, y: 0};
-	}
 
 	Babact.useEffect(() => {
 		if (!draggingPlayer) return;
@@ -62,61 +105,45 @@ export default function LobbyTeamsList() {
 	}, [draggingPlayer]);
 
 	const handleMouseMove = (e: MouseEvent) => {
-		if (draggingPlayer) {
-			// setTransform((p) => ({
-			// 	x: e.movementX + p.x,
-			// 	y: e.movementY + p.y
-			// }))
-			const {x, y} = getCardPosition();
-			setCardPosition(x + e.movementX, y + e.movementY);
+		if (draggingPlayer && draggingCard.current) {
+			const {x, y} = draggingCard.current.getPosition();
+			draggingCard.current.setPosition(x + e.movementX, y + e.movementY);
 		}
 	}
 
 	const handleMouseDown = (e: MouseEvent, account_id: number) => {
 		if (e.button !== 0) return;
-		setDraggingPlayer(account_id);
 		if (!(e.target instanceof HTMLElement))
 			return;
 		width.current = e.target.getBoundingClientRect().width;
-		// setTransform({
-		// 	x: e.target.getBoundingClientRect().x,
-		// 	y: e.target.getBoundingClientRect().y
-		// });
-		draggingCard.current = e.target;
-		setCardPosition(e.target.getBoundingClientRect().x, e.target.getBoundingClientRect().y);
+		draggingCard.current = new DraggableCard(e.target);
+		setDraggingPlayer(account_id);
 	}
 
 	const handleMouseUp = (e: MouseEvent) => {
-		setDraggingPlayer(null);
-		// setTransform({
-		// 	x: 0,
-		// 	y: 0
-		// })
-		// setCardPosition(0, 0);
-		if (switchingPlayer.current)
-			lobby.swapPlayers(draggingPlayer, switchingPlayer.current);
-		switchingPlayer.current = null;
+		if (draggingPlayer)
+			setDraggingPlayer(null);
+		if (draggingCard.current) {
+			const switchPlayerId = draggingCard.current.getSwitchPlayerId();
+			draggingCard.current?.resetSwitchCard();
+			draggingCard.current = null;
+			if (switchPlayerId) {
+				lobby.swapPlayers(draggingPlayer, switchPlayerId);
+			}
+		}
 	}
 
 	const handleMouseEnter = (e: MouseEvent, account_id: number) => {
-		console.log('enter', account_id, 'dragging', draggingPlayer);
 		if (draggingPlayer && account_id !== draggingPlayer) {
-			const newPlayers = [...players];
-			const draggingIndex = newPlayers.findIndex((p) => p.account_id === draggingPlayer);
-			const accountIndex = newPlayers.findIndex((p) => p.account_id === account_id);
-			const temp = newPlayers[draggingIndex];
-			newPlayers[draggingIndex] = newPlayers[accountIndex];
-			newPlayers[accountIndex] = temp;
-			console.log(players, newPlayers);
-			setPlayers(newPlayers);
-			switchingPlayer.current = account_id;
+			draggingCard.current?.setSwitchCard(e.target as HTMLElement);
 		}
 	}
 
 	const handleMouseLeave = (e: MouseEvent, account_id: number) => {
-		if (players != lobby.players)
-			setPlayers(lobby.players);
-		switchingPlayer.current = null;
+		if (draggingPlayer && account_id !== draggingPlayer) {
+			draggingCard.current?.resetSwitchCard();
+			setTeams(lobby.getTeams());
+		}
 	}
 
 	if (me)
@@ -124,9 +151,10 @@ export default function LobbyTeamsList() {
 		{teams.map((team, i) => (
 			<Card
 				key={'team'+i} className='lobby-team'
-				style={`--team-color: var(--team-${i % 2 + 1}-color)`}
+				style={`--team-color: var(--team-${i % 2 + 1}-color); --width: ${width.current}px;`}
 			>
 				<Editable
+					key={'editable'}
 					defaultValue={team.name ?? `Team ${i + 1}`}
 					disabled={!team.players.find(p => p.account_id === me.account_id)}
 					onEdit={(value) => {
@@ -144,12 +172,11 @@ export default function LobbyTeamsList() {
 						onMouseEnter={(e) => handleMouseEnter(e, player.account_id)}
 						onMouseLeave={(e) => handleMouseLeave(e, player.account_id)}
 						key={'player'+i}
-						style={`--width: ${width.current}px;`}
 						player={player}
 					/>
 				))}
 				{new Array(Math.max(lobby.mode.team_size - team.players.length, 0)).fill(null).map((_, index) => (
-					<Card key={'empty-'+index} className='empty flex flex-row gap-2 items-center'>
+					<Card key={'empty'+index} className='empty flex flex-row gap-2 items-center'>
 					</Card>
 				))}
 			</Card>

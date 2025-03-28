@@ -4,11 +4,13 @@ import Button from "./Button";
 export default function Editable({
 		defaultValue = '',
 		onEdit,
-		disabled = false
+		disabled = false,
+		...pros
 	}: {
-		defaultValue?: string;
-		onEdit: (value: string) => void;
-		disabled?: boolean;
+		defaultValue?: string,
+		onEdit: (value: string) => void,
+		disabled?: boolean,
+		[key: string]: any
 	}) {
 
 	const [isEditing, setIsEditing] = Babact.useState<boolean>(false);
