@@ -5,12 +5,12 @@ export default function Editable({
 		defaultValue = '',
 		onEdit,
 		disabled = false,
-		...props
+		maxLength = 100,
 	}: {
-		defaultValue?: string,
-		onEdit: (value: string) => void,
-		disabled?: boolean,
-		[key: string]: any
+		defaultValue?: string;
+		onEdit: (value: string) => void;
+		disabled?: boolean;
+		maxLength?: number;
 	}) {
 
 	const [isEditing, setIsEditing] = Babact.useState<boolean>(false);
@@ -46,6 +46,7 @@ export default function Editable({
 			onInput={(e) => setValue(e.target.value)}
 			onFocus={() => setIsEditing(true)}
 			onBlur={handleFocusOut}
+			maxLength={maxLength}
 		/>
 		{ isEditing &&
 			<Button

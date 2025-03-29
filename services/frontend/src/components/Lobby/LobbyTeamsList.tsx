@@ -165,8 +165,9 @@ export default function LobbyTeamsList() {
 					key={'editable'}
 					defaultValue={team.name ?? `Team ${i + 1}`}
 					disabled={!team.players.find(p => p.account_id === me.account_id)}
+					maxLength={20}
 					onEdit={(value) => {
-						lobby.changeTeamName(i, value);
+						lobby.changeTeamName(value);
 					}}
 				/>
 				{team.players.map((player: IPlayer, i) => (
