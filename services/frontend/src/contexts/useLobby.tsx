@@ -8,7 +8,7 @@ import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
 import { StatusType } from "../hooks/useSocials";
 import { useAuth } from "./useAuth";
 
-class LobbyClient extends Lobby {
+export class LobbyClient extends Lobby {
 
 	ws: WebSocketHook;
 

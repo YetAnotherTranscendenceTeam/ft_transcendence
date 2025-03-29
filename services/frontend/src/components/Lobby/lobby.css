@@ -124,7 +124,7 @@
 
 .lobby-player-card {
 	width: 100%;
-	position: relative;
+	/* position: relative; */
 }
 
 .lobby-player-card-content {
