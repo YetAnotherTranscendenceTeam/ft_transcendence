@@ -89,6 +89,9 @@ generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
 echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
 
 printf "\n[MISC PARAMETERS] \n"
+if [ -z $1 ]; then
+    generate DOMAIN_NAME "${HOST}"
+fi
 generate MATCHMAKING_SCHEDULER_DELAY "100"
 # generate SOCIAL_OFFLINE_DELAY "10000"
 # generate SOCIAL_INACTIVITY_DELAY "15000"

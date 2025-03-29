@@ -15,29 +15,12 @@ import { removeExpiredTokens } from "./schedules.js";
 export default function build(opts = {}) {
   const app = Fastify(opts);
 
-  if (process.env.ENV !== "production") {
-    // DEVELOPEMENT configuration
-    app.register(cors, {
-      origin: true,
-      methods: ["GET", "POST", "PATCH", "DELETE"], // Allowed HTTP methods
-      credentials: true, // Allow credentials (cookies, authentication)
-    });
-
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Token manager",
-        description: "[PLACEHOLDER]",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4002", description: "Development network" },
-        { url: "http://token-manager:3000", description: "Containers network" },
-      ],
-    });
-  } else {
-    // PRODUCTION configuration
-    // TODO: Setup cors
-  }
+  app.register(cors, {
+    origin: process.env.CORS_ORIGIN || false,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+    maxAge: 600,
+  });
 
   const keys = new Set([token_manager_secret]);
   app.register(bearerAuth, {

@@ -8,6 +8,8 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:7979:7979"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
     networks:
       - frontend
       - avatars
@@ -21,9 +23,9 @@ services:
     build:
       context: services/frontend/
       args:
-        BACKEND_URL: https://api-transcendence.ibertran.dev
-        WS_URL: wss://api-transcendence.ibertran.dev
-        GOOGLE_CLIENT_ID: 9744497548-ecens5hjhfugrc0l4a3nl9bqc3qr08dh.apps.googleusercontent.com
+        - BACKEND_URL=https://api-transcendence.ibertran.dev
+        - WS_URL=wss://api-transcendence.ibertran.dev
+        - GOOGLE_CLIENT_ID=9744497548-ecens5hjhfugrc0l4a3nl9bqc3qr08dh.apps.googleusercontent.com
     image: ibertran/transcendence.frontend:latest
     networks:
       - frontend
@@ -43,6 +45,7 @@ services:
     volumes:
       - sqlite:/database
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
@@ -54,8 +57,9 @@ services:
     build: services/registration/
     image: ibertran/transcendence.registration:latest
     environment:
-      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     networks:
       - credentials
       - frontend
@@ -64,8 +68,9 @@ services:
     build: services/password-auth/
     image: ibertran/transcendence.password-auth:latest
     environment:
-      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     networks:
       - credentials
       - frontend
@@ -75,13 +80,13 @@ services:
     build: services/fortytwo-auth/
     image: ibertran/transcendence.fortytwo-auth:latest
     environment:
-      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - API42_CLIENT_ID=${API42_CLIENT_ID}
       - API42_SECRET=${API42_SECRET}
       - API42_REDIRECT_URI=${API42_REDIRECT_URI}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     networks:
       - credentials
       - frontend
@@ -93,9 +98,10 @@ services:
     build: services/google-auth/
     image: ibertran/transcendence.google-auth:latest
     environment:
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - FRONTEND_URL=${FRONTEND_URL}
+      - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     networks:
       - credentials
       - frontend
@@ -107,6 +113,7 @@ services:
     build: services/lobbies/
     image: ibertran/transcendence.lobbies:latest
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
     networks:
@@ -142,6 +149,7 @@ services:
     build: services/users/
     image: ibertran/transcendence.users:latest
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
     networks:
      - frontend
@@ -151,6 +159,7 @@ services:
     build: services/settings/
     image: ibertran/transcendence.settings:latest
     environment:
+      - CORS_ORIGIN=${CORS_ORIGIN}
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     networks:
@@ -166,6 +175,7 @@ services:
     volumes:
       - sqlite:/database
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
       - CDN_URL=${CDN_URL}
@@ -181,6 +191,7 @@ services:
     volumes:
       - sqlite:/database
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
@@ -193,7 +204,7 @@ services:
     build:
       context: services/CDN/nginx/
       args:
-        CONF_FILE: ibertran.conf
+        - CONF_FILE=ibertran.conf
     image: ibertran/transcendence.cdn-nginx:latest
     ports:
       - "127.0.0.1:8181:8181"
@@ -213,6 +224,7 @@ services:
       - avatars:/app/avatars/users/
       - ./services/CDN/.avatars:/app/avatars/default/:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
     networks:
      - cdn-api
