@@ -1,12 +1,6 @@
 import BabactState from "../core/BabactState";
 import { IFiber } from "../core/Fiber";
-import { IHook, HookTag } from "../core/Hook";
-
-interface EffectHook extends IHook {
-    effect: (() => (() => void) | void) | null;
-    cleanup: (() => void) | null;
-    deps: any[];
-}
+import { EffectHook, HookTag, IHook } from "../core/Hook";
 
 export default function useEffect(callback: () => void | (() => void), deps: any[]) {
     const oldHook =

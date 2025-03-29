@@ -7,7 +7,7 @@ import { EffectTag, Fiber, IFiber, NodeElement } from "./Fiber";
 export function commitRoot() {
 	if (!BabactState.wipRoot)
 		return;
-	BabactState.deletions?.forEach(commitWork);
+	BabactState.deletions.forEach(commitWork);
 	commitWork(BabactState.wipRoot.child);
 	BabactState.currentRoot = BabactState.wipRoot;
 	BabactState.wipRoot = null;
@@ -25,7 +25,7 @@ export function commitRoot() {
 	BabactState.deletions = [];
 }
 
-export function commitWork(fiber: Fiber | null) {
+export function commitWork(fiber: Fiber) {
     if (!fiber) {
         return;
     }

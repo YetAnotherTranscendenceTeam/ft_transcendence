@@ -1,16 +1,11 @@
 import BabactState from "../core/BabactState";
 import { SpecialElementTag } from "../core/Element";
-import { IHook, HookTag } from "../core/Hook";
+import { HookTag, StateHook } from "../core/Hook";
 
 type SetState<Type> = (
     action: 
         Type | ((oldValue: Type) => Type)
 ) => void;
-
-interface StateHook<Type> extends IHook {
-    state?: Type;
-    queue: any[];
-}
 
 export default function useState<Type>(initial?: Type): [Type | undefined, action: SetState<Type>] {
     const oldHook =

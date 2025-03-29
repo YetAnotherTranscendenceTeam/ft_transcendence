@@ -1,18 +1,16 @@
 
-import { Fiber, EffectTag, FiberProps } from './Fiber'
+import { Fiber, EffectTag, FiberProps, IFiber } from './Fiber'
 import BabactState from './BabactState'
 import { IElement } from './Element';
 
-export function reconcileChildren(wipFiber: Fiber, elements: IElement[]) {
-    if (!wipFiber)
-        return;
-    let oldFiber: Fiber = wipFiber.alternate && wipFiber.alternate.child;
+export function reconcileChildren(wipFiber: IFiber, elements: IElement[]) {
+    let oldFiber: Fiber = wipFiber.alternate?.child ?? null;
     let prevSibling: Fiber = null;
 
-    const existingFibers = new Map();
+    const existingFibers: Map<string, IFiber> = new Map();
     let oldFiberIndex = 0;
-    while (oldFiber != null) {
-        const key = oldFiber.props.key != null ? oldFiber.props.key : `auto_${oldFiberIndex}`;
+    while (oldFiber) {
+        const key = oldFiber.props.key ?? `auto_${oldFiberIndex}`;
         if (existingFibers.has(key)) {
             throw new Error('Duplicate key: ' + key);
         }
@@ -23,7 +21,7 @@ export function reconcileChildren(wipFiber: Fiber, elements: IElement[]) {
 
     for (let i = 0; i < elements.length; i++) {
         const element = elements[i];
-        const key = element?.props.key != null ? element.props.key : `auto_${i}`;
+        const key: string = element?.props.key ?? `auto_${i}`;
         let newFiber: Fiber = null;
         const oldFiber = existingFibers.get(key);
 
@@ -60,7 +58,7 @@ export function reconcileChildren(wipFiber: Fiber, elements: IElement[]) {
         }
         if (oldFiber && !sameType) {
             oldFiber.effectTag = EffectTag.Deletion;
-            BabactState.deletions?.push(oldFiber);
+            BabactState.deletions.push(oldFiber);
         }
 
         if (i === 0) {
@@ -75,7 +73,7 @@ export function reconcileChildren(wipFiber: Fiber, elements: IElement[]) {
     existingFibers.forEach((fiber) => {
         if (fiber.effectTag !== EffectTag.Deletion) {
             fiber.effectTag = EffectTag.Deletion;
-            BabactState.deletions?.push(fiber);
+            BabactState.deletions.push(fiber);
         }
     });
 }
