@@ -18,8 +18,10 @@ class DraggableCard {
 		this.card = card;
 		this.initialX = card.getBoundingClientRect().x;
 		this.initialY = card.getBoundingClientRect().y;
-		this.setPosition(this.initialX,  this.initialY);
 		this.switchCard = null;
+		this.setPosition(this.initialX,  this.initialY);
+		this.card.style.width = `${card.getBoundingClientRect().width}px`;
+		this.card.classList.add('dragging');
 	}
 
 	getInitialPosition() {
@@ -53,10 +55,10 @@ class DraggableCard {
 	resetSwitchCard() {
 		if (!this.switchCard)
 			return;
-		this.switchCard.style.position = '';
-		this.switchCard.style.left = '0px';
-		this.switchCard.style.top = '0px';
-		this.switchCard.style.width = '100%';
+		this.switchCard.style.removeProperty('width');
+		this.switchCard.style.removeProperty('position');
+		this.switchCard.style.removeProperty('left');
+		this.switchCard.style.removeProperty('top');
 		this.switchCard = null;
 	}
 
@@ -67,6 +69,8 @@ class DraggableCard {
 	}
 
 	resetPosition() {
+		this.card.classList.remove('dragging');
+		this.card.style.removeProperty('width');
 		this.card.style.removeProperty('--x');
 		this.card.style.removeProperty('--y');
 	}
@@ -75,24 +79,31 @@ class DraggableCard {
 
 export default function LobbyTeamsList() {
 
-	const width = Babact.useRef(0);
 	const draggingCard = Babact.useRef<DraggableCard>(null);
 	const { lobby } = useLobby();
-	
+
 	const [teams, setTeams] = Babact.useState<ITeam[]>([]);
 
 	const { me } = useAuth();
 
-	Babact.useEffect(() => {
-		console.log('teams', teams);
-	}, [teams]);
+	const swapTeamPlayers = (id1: number, id2: number) => {
+		const newTeams = [...teams];
+		const player1 = newTeams.find(t => t.players.find(p => p.account_id === id1)).players.find(p => p.account_id === id1);
+		const player2 = newTeams.find(t => t.players.find(p => p.account_id === id2)).players.find(p => p.account_id === id2);
+		const team1 = newTeams.find(t => t.players.find(p => p.account_id === id1));
+		const team2 = newTeams.find(t => t.players.find(p => p.account_id === id2));
+		const index1 = team1.players.indexOf(player1);
+		const index2 = team2.players.indexOf(player2);
+		team1.players[index1] = player2;
+		team2.players[index2] = player1;
+		setTeams(newTeams);
+	};
 
 	Babact.useEffect(() => {
 		setTeams(lobby.getTeams());
 	}, [lobby]);
 
 	const [draggingPlayer, setDraggingPlayer] = Babact.useState<number>(null);
-
 
 	Babact.useEffect(() => {
 		if (!draggingPlayer) return;
@@ -115,21 +126,20 @@ export default function LobbyTeamsList() {
 		if (e.button !== 0) return;
 		if (!(e.target instanceof HTMLElement))
 			return;
-		width.current = e.target.getBoundingClientRect().width;
 		draggingCard.current = new DraggableCard(e.target);
 		setDraggingPlayer(account_id);
 	}
 
 	const handleMouseUp = (e: MouseEvent) => {
-		if (draggingPlayer)
-			setDraggingPlayer(null);
-		if (draggingCard.current) {
+		setDraggingPlayer(null);
+		if (draggingPlayer && draggingCard.current) {
 			const switchPlayerId = draggingCard.current.getSwitchPlayerId();
-			draggingCard.current?.resetSwitchCard();
-			draggingCard.current = null;
+			draggingCard.current.resetSwitchCard();
 			if (switchPlayerId) {
 				lobby.swapPlayers(draggingPlayer, switchPlayerId);
+				swapTeamPlayers(draggingPlayer, switchPlayerId);
 			}
+			draggingCard.current.resetPosition();
 		}
 	}
 
@@ -140,10 +150,8 @@ export default function LobbyTeamsList() {
 	}
 
 	const handleMouseLeave = (e: MouseEvent, account_id: number) => {
-		if (draggingPlayer && account_id !== draggingPlayer) {
-			draggingCard.current?.resetSwitchCard();
-			setTeams(lobby.getTeams());
-		}
+		draggingCard.current?.resetSwitchCard();
+		setTeams(lobby.getTeams());
 	}
 
 	if (me)
@@ -151,7 +159,7 @@ export default function LobbyTeamsList() {
 		{teams.map((team, i) => (
 			<Card
 				key={'team'+i} className='lobby-team'
-				style={`--team-color: var(--team-${i % 2 + 1}-color); --width: ${width.current}px;`}
+				style={`--team-color: var(--team-${i % 2 + 1}-color);`}
 			>
 				<Editable
 					key={'editable'}
@@ -165,9 +173,6 @@ export default function LobbyTeamsList() {
 					<LobbyPlayerCard
 						isLeader={player.account_id === lobby.leader_account_id}
 						draggable={(me.account_id === lobby.leader_account_id || team.players.find(p => p.account_id === me.account_id)) && lobby.mode.team_size > 1}
-						// position={draggingPlayer === player.account_id ? transform : {x: 0, y: 0}}
-						position={{x: 0, y: 0}}
-						dragging={draggingPlayer === player.account_id}
 						onMouseDown={(e) => handleMouseDown(e, player.account_id)}
 						onMouseEnter={(e) => handleMouseEnter(e, player.account_id)}
 						onMouseLeave={(e) => handleMouseLeave(e, player.account_id)}
