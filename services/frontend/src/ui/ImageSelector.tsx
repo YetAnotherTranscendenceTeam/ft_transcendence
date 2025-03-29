@@ -2,6 +2,7 @@ import Babact from "babact";
 import { useForm } from "../contexts/useForm";
 import useToast, { ToastType } from "../hooks/useToast";
 import WebcamModal from "./WebcamModal";
+import Spinner from "./Spinner";
 
 export type Image = {
 	url: string,
@@ -24,7 +25,7 @@ export default function ImageSelector({
 		images: Image[],
 		onChange?: (value: string) => void,
 		required?: boolean,
-		onImageRemove?: (url: string) => void,
+		onImageRemove?: (url: string) => Promise<any>,
 		defaultValue?: string,
 		webcam?: boolean,
 		[key: string]: any
@@ -55,6 +56,14 @@ export default function ImageSelector({
 		updateFieldValidity(field, true);
 	}
 
+	const [inDeletion, setInDeletion] = Babact.useState<string>(null);
+
+	const handleImageRemove = async (url: string) => {
+		setInDeletion(url);
+		await onImageRemove(url);
+		setInDeletion(null);
+	};
+
 	Babact.useEffect(() => {
 		if (defaultValue)
 			updateField(field, defaultValue);
@@ -80,13 +89,14 @@ export default function ImageSelector({
 			</label>}
 			{
 				images.map((image: Image, i: number) => (
-					<div className='image-selector-item' key={-i}>
+					<div className={`image-selector-item ${inDeletion === image.url ? 'loading' : ''}`} key={image.url}>
 						<img
 							src={image.url} alt={`image-${i}`}
 							className={fields[field].value === image.url ? 'selected' : ''}
 							onClick={() => handleImageClick(image.url)}
 						/>
-						{image.isRemovable && <i className="fa-solid fa-trash" onClick={() => onImageRemove(image.url)}/>}
+						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => handleImageRemove(image.url)}/>}
+						<Spinner />
 					</div>
 				))
 			}

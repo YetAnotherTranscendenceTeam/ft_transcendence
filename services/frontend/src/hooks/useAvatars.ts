@@ -10,7 +10,7 @@ interface IAvatar {
 export default function useAvatars(): {
 	avatars: IAvatar[],
 	uploadAvatar: (file: File) => void,
-	deleteAvatar: (url: string) => void
+	deleteAvatar: (url: string) => Promise<any>
 } {
 
 	const [avatars, setAvatars] = Babact.useState<{
@@ -81,6 +81,7 @@ export default function useAvatars(): {
 				user: avatars.user.filter(avatar => avatar !== url)
 			});
 		}
+		return response;
 	}
 
 	return {
