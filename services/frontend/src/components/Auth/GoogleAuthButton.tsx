@@ -11,6 +11,7 @@ export default function GoogleAuthButton() {
 	const handleCredential = async (response: any) => {
 		const res = await ft_fetch(`${config.API_URL}/auth/google`, {
 			method: 'POST',
+			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json'
 			},
