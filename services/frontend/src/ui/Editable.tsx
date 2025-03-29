@@ -5,7 +5,7 @@ export default function Editable({
 		defaultValue = '',
 		onEdit,
 		disabled = false,
-		...pros
+		...props
 	}: {
 		defaultValue?: string,
 		onEdit: (value: string) => void,
