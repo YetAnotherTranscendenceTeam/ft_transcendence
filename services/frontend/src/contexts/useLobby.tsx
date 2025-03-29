@@ -73,11 +73,10 @@ class LobbyClient extends Lobby {
 		});
 	};
 
-	changeTeamName(team_index: number, name: string) {
+	changeTeamName(name: string) {
 		this.ws.send({
 			event: 'team_name',
 			data: {
-				team_index,
 				name
 			}
 		});
