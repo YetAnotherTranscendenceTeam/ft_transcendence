@@ -2,7 +2,13 @@ FROM nginx:1.26.3-alpine
 
 RUN apk --no-cache add curl
 
-COPY ./shared/* /etc/nginx/
+ARG CDN_AUTOINDEX=off
+
+COPY ./shared/* /tmp/conf/
+
+RUN for file in /tmp/conf/*; do \
+    envsubst < "$file" > "/etc/nginx/$(basename "$file")"; \
+done && rm -rf /tmp/conf
 
 ARG CONF_FILE=default.conf
 

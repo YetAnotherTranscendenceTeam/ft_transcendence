@@ -13,6 +13,6 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node srcs/index.js"
+    "start": "node ./srcs/index.js"
   }
 }
