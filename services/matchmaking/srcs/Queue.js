@@ -1,6 +1,7 @@
 import { GameMode } from "./GameModes.js";
 import { Lobby } from "./Lobby.js";
 import { LobbyConnection } from "./LobbyConnection.js";
+import { Tournament } from "./Tournament.js";
 
 const LOBBY_TOLERANCE_INCREMENT = 1.0;
 
@@ -111,17 +112,37 @@ export class Queue {
     return team;
   }
 
+  /**
+   * 
+   * @param {Lobby[]} lobbies 
+   */
   matchLobbies(lobbies) {
     console.log(`Matched lobbies`);
     lobbies.forEach((lobby) => {
       this.unqueue(lobby, false);
       console.log(` - ${lobby.join_secret}`);
     });
+    // handle tournaments
+    if (this.gamemode.team_count > 2) {
+      const lobby = lobbies[0];
+      if (lobby.getTeamCount() > 2) {
+        const teams = lobby.getTeams();
+        const tournament = new Tournament(teams, this.gamemode);
+        this.lobbyConnection.send({
+          event: "match",
+          data: {
+            lobbies,
+            match: {type: "tournament", tournament},
+          },
+        });
+        return;
+      }
+    }
     this.lobbyConnection.send({
         event: "match",
         data: {
           lobbies,
-          match: match_id++, // TODO: implement matches (match server)
+          match: {type: "match", id: match_id++}, // TODO: implement matches (match server)
         },
       });
   }

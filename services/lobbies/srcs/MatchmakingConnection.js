@@ -71,7 +71,7 @@ export default class MatchmakingConnection extends EventEmitter {
         console.log("Disconnected from matchmaking server");
         console.log(event.code, event.reason);
         this.queuedLobbies.forEach((lobby) => {
-          lobby.forcedUnqueue(event.reason);
+          lobby.forcedUnqueue("Connection with matchmaking server lost");
         });
         this.queuedLobbies.clear();
         if (event.reason === "Unauthorized - Invalid GameModes") await fetchGameModes();

@@ -172,10 +172,10 @@ describe.each(matchmaking_tests)(
             expect(message.data.state.type).toBe("playing");
             expect(message.data.state.match).toBeDefined();
             if (i != 0) return;
-            let match = matches.get(message.data.state.match);
+            let match = matches.get(message.data.state.match.id);
             if (!match) {
               match = [];
-              matches.set(message.data.state.match, match);
+              matches.set(message.data.state.match.id, match);
             }
             match.push(lobby_index);
           });

@@ -6,11 +6,16 @@ const NEW_USER_ELO = 1000;
 const WEIGHT_ELO_DIFF = 1.0;
 const WEIGHT_PLAYER_COUNT_DIFF = 1.0;
 
+const rank_gamemode_remap = {
+  "custom_1v1": "ranked_1v1",
+  "custom_2v2": "ranked_2v2",
+}
+
 export class Lobby extends LobbyBase {
 
   /**
    *
-   * @param {*} lobby The lobbies service lobby intance
+   * @param {import("yatt-lobbies").ILobby} lobby The lobbies service lobby intance
    * @param {Queue} queue The matchmaking queue
    */
   constructor(lobby, queue) {
@@ -20,6 +25,7 @@ export class Lobby extends LobbyBase {
       throw new Error(
         `Too many players in lobby, expected max ${maxLobbySize}, got ${this.players.length}`
       );
+    const rank_name = rank_gamemode_remap[this.mode.name] || this.mode.name;
     this.matchmaking_users = db
       .prepare(
         `SELECT * FROM matchmaking_users WHERE account_id IN (${this.players
@@ -28,19 +34,22 @@ export class Lobby extends LobbyBase {
       )
       .all(
         this.players.map((player) => player.account_id),
-        this.mode.name
+        rank_name
       );
     for (let player of this.players) {
       let matchmaking_user = this.matchmaking_users.find(
         (matchmaking_user) => matchmaking_user.account_id === player.account_id
       );
-      if (matchmaking_user) continue;
-      matchmaking_user = {
-        account_id: player.account_id,
-        gamemode: this.mode.name,
-        elo: NEW_USER_ELO,
-      };
-      this.matchmaking_users.push(matchmaking_user);
+      if (!matchmaking_user) {
+        matchmaking_user = {
+          account_id: player.account_id,
+          gamemode: rank_name,
+          elo: NEW_USER_ELO,
+        };
+        this.matchmaking_users.push(matchmaking_user);
+      }
+      player.matchmaking_user = matchmaking_user;
+      player.elo = matchmaking_user.elo;
     }
     this.queue = queue;
     this.tolerance = 0.0;

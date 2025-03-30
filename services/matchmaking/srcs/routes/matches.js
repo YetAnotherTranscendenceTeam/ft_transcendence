@@ -8,7 +8,7 @@ export default function router(fastify, opts, done) {
       .prepare("SELECT * FROM matches WHERE match_id = ?")
       .all(request.params.match_id);
     if (!match)
-      reply.status(404).send(); // TODO: send 404 object
+      new HttpError.NotFound().send(reply);
     reply.send(match);
   });
   done();

@@ -6,8 +6,11 @@ import websocket from '@fastify/websocket'
 import router from "./router.js";
 import YATT, {HttpError} from "yatt-utils";
 import jwt from "@fastify/jwt";
+import bearerAuth from "@fastify/bearer-auth";
 import { jwt_secret } from "./env.js";
 import { matchmaking_jwt_secret } from "./env.js";
+
+import { TournamentManger } from "../TournamentManager.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -29,9 +32,31 @@ export default function build(opts = {}) {
     secret: jwt_secret,
   });
   app.register(jwt, {
-	secret: matchmaking_jwt_secret,
-	namespace: "matchmaking"
+    secret: matchmaking_jwt_secret,
+    namespace: "matchmaking"
   })
+
+  
+  const serviceAuthorization = (token, request) => {
+    try {
+      const decoded = app.jwt.verify(token);
+      request.token = token;
+      request.account_id = decoded.account_id;
+    } catch (err) {
+      return false;
+    }
+    return true;
+  };
+
+  app.register(bearerAuth, {
+    auth: serviceAuthorization,
+    addHook: false,
+    errorResponse: (err) => {
+      return new HttpError.Unauthorized().json();
+    },
+  });
+
+  app.decorate("tournaments", new TournamentManger());
   app.register(fastifyFormbody);
   app.register(websocket);
 
