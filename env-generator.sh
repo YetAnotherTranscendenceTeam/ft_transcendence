@@ -1,7 +1,9 @@
 #!/bin/bash
 
 ENV_FILE=".env"
-source .env
+source .env 2> /dev/null
+
+mv $ENV_FILE $ENV_FILE.old
 
 TMP_FILE="$ENV_FILE.tmp"
 rm -f $TMP_FILE
