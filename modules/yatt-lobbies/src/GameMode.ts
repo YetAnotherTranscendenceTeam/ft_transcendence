@@ -1,7 +1,7 @@
 export enum GameModeType {
   RANKED = "ranked",
   UNRANKED = "unranked",
-  TOURNAMENT = "tournament",
+  CUSTOM = "custom",
 }
 
 export interface IGameMode {
