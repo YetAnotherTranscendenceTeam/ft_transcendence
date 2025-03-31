@@ -32,6 +32,9 @@ export class Manifold {
 	}
 
 	public solve(): void {
+		if (this._bodyA.filter !== this._bodyB.filter) {
+			return;
+		}
 		COLLISION_CALLBACKS.get(this._bodyA.shape.type).get(this._bodyB.shape.type)(this, this._bodyA, this._bodyB);
 	}
 

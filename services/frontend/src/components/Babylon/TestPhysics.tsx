@@ -68,6 +68,9 @@ export default class TestPhysics {
 		this._physicsScene.addBody(this._physicalBall);
 		this._physicsScene.addBody(physicalWall);
 
+		physicalWall.filter = 1;
+		this._physicalBall.filter = 1;
+
 		console.log(this._physicsScene);
 
 		// end test physics
@@ -96,8 +99,8 @@ export default class TestPhysics {
 			oldPos = this._physicalBall.interpolatePosition(this._accumulator / (1 / 10)) as Vec2;
 			console.log("n pos", oldPos);
 			console.log("n vel", this._physicalBall.velocity);
+			console.log("");
 		}
-		console.log("");
 		this._scene.render();
 	}
 

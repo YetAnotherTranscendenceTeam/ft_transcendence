@@ -7,25 +7,27 @@ export class Body extends EventTarget {
 	private static _idCounter: number = 0;
 
 	private _id: number;
-
+	
 	private _type: PhysicsType;
 	private _shape: Shape;
-
+	
 	private _material: Material;
 	private _massData: MassData;
-
+	
 	private _force: Vec2;
-
+	
 	private _angularVelocity: number;
 	private _torque: number;
 	private _orientation: number;
-
+	
 	private _position: Vec2;
 	private _velocity: Vec2;
-
+	
 	private _previousPosition: Vec2;
 	private _previousOrientation: number;
 
+	public filter: number;
+	
 	constructor(type: PhysicsType = PhysicsType.DYNAMIC, shape: Shape, material: Material, position: Vec2 = Vec2.create(), velocity: Vec2 = Vec2.create()) {
 		super();
 		this._id = Body._idCounter++;
@@ -54,6 +56,7 @@ export class Body extends EventTarget {
 				invInertia: 0
 			};
 		}
+		this.filter = 0;
 	}
 
 	public applyForce(force: Vec2): void {
