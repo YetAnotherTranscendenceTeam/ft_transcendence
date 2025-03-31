@@ -88,7 +88,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		connected: boolean,
 		connect: () => void
 		ping: () => void
-		status: (status: FollowStatus) => void
+		status: (status: FollowStatus) => void,
+		disconnect: () => void
 	} {
 
 	const [follows, setFollows] = Babact.useState<Follow[]>([]);
@@ -245,11 +246,16 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		ws.send({event: 'update_status', data: status});
 	};
 
+	const disconnect = () => {
+		ws.close();
+	};
+
 	return {
 		follows,
 		connected: ws.connected,
 		connect,
 		ping,
 		status,
+		disconnect,
 	};
 }
