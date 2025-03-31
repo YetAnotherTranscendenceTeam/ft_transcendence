@@ -17,5 +17,6 @@ export type MassData = {
 export enum PhysicsType {
   STATIC = 0,
   DYNAMIC = 1,
-  KINEMATIC = 2
+  KINEMATIC = 2,
+  TRIGGER = 4,
 };

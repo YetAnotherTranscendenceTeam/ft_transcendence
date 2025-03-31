@@ -38,10 +38,10 @@ export class PolygonShape extends Shape {
 				throw new Error("Vertices must not be coincident");
 			}
 			Vec2.normalize(n, Vec2.fromValues(-n.y, n.x));
-			if (n.x <= EPSILON) {
+			if (Math.abs(n.x) <= EPSILON) {
 				n.x = 0;
 			}
-			if (n.y <= EPSILON) {
+			if (Math.abs(n.y) <= EPSILON) {
 				n.y = 0;
 			}
 			this._normals.push(n);

@@ -59,6 +59,7 @@ function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): v
 
 	for (let i = 0; i < polygon.vertices.length; i++) {
 		const s: number = Vec2.dot(polygon.normals[i], Vec2.subtract(Vec2.create(), center, polygon.vertices[i]));
+
 		if (s > circle.radius) {
 			return;
 		}

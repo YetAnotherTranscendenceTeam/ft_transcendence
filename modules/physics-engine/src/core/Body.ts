@@ -105,7 +105,7 @@ export class Body extends EventTarget {
 	}
 
 	public integrateVelocity(dt: number, gravity: Vec2): void {
-		if (this._type !== PhysicsType.DYNAMIC || this._massData.invMass === 0) {
+		if (this._type === PhysicsType.STATIC) {
 			return;
 		}
 

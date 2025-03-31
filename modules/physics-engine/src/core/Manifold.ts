@@ -59,6 +59,10 @@ export class Manifold {
 	}
 
 	public applyImpulse(): void {
+		if (this._bodyA.type === PhysicsType.TRIGGER || this._bodyB.type === PhysicsType.TRIGGER) {
+			return;
+		}
+	
 		if (floatEqual(this._bodyA.massData.invMass + this._bodyB.massData.invMass, 0)) {
 			this.infiniteMassCorrection();
 			return;
@@ -120,6 +124,10 @@ export class Manifold {
 	}
 
 	public positionalCorrection(): void {
+		if (this._bodyA.type === PhysicsType.TRIGGER || this._bodyB.type === PhysicsType.TRIGGER) {
+			return;
+		}
+
 		const slop: number = 0.01;
 		const percent: number = 0.2;
 		const correction: Vec2 = Vec2.scale(Vec2.create(), this.normal, Math.max(this.penetration - slop, 0) / (this._bodyA.massData.invMass + this._bodyB.massData.invMass) * percent) as Vec2;
