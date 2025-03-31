@@ -94,6 +94,13 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const [lobby, setLobby] = Babact.useState<LobbyClient>(null);
 	const { createToast } = useToast();
 
+	const { me } = useAuth();
+
+	Babact.useEffect(() => {
+		if (!me && lobby)
+			lobby.leave();
+	}, [me]);
+
 	const navigate = useNavigate();
 
 	const onTeamNameChange = (team_index: number, name: string) => {

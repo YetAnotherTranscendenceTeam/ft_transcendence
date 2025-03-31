@@ -11,6 +11,7 @@ export default function Editable({
 		onEdit: (value: string) => void;
 		disabled?: boolean;
 		maxLength?: number;
+		[key: string]: any;
 	}) {
 
 	const [isEditing, setIsEditing] = Babact.useState<boolean>(false);
