@@ -6,7 +6,7 @@ import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import createDefaultScene from "./DefaultScene";
 
-
+let oldPos: Vec2 = undefined;
 export default class TestPhysics {
 	private readonly _canvas: HTMLCanvasElement;
 	private _engine: Engine;
@@ -30,7 +30,7 @@ export default class TestPhysics {
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("resize", this.resize);
 		
-		this._physicsScene = new PH2D.Scene(Vec2.create(), 1 / 60);
+		this._physicsScene = new PH2D.Scene(Vec2.create(), 1 / 10);
 		
 		// test physics
 
@@ -78,24 +78,26 @@ export default class TestPhysics {
 
 	private loop = () => {
 		if (this._updateFlag) {
-			console.log("pos", this._physicalBall.position);
-			console.log("vel", this._physicalBall.velocity);
+			console.log("o pos", oldPos);
+			console.log("o vel", this._physicalBall.velocity);
 		}
 		const dt = this._engine.getDeltaTime() / 1000;
 		this._accumulator += dt;
 		if (this._accumulator > 0.2) {
 			this._accumulator = 0.2;
 		}
-		while (this._accumulator >= 1 / 60) {
+		while (this._accumulator >= 1 / 10) {
 			if (this._updateFlag) {
 				this._physicsScene.step();
 			}
-			this._accumulator -= 1 / 60;
+			this._accumulator -= 1 / 10;
 		}
 		if (this._updateFlag) {
-			console.log("pos", this._physicalBall.position);
-			console.log("vel", this._physicalBall.velocity);
+			oldPos = this._physicalBall.interpolatePosition(this._accumulator / (1 / 10)) as Vec2;
+			console.log("n pos", oldPos);
+			console.log("n vel", this._physicalBall.velocity);
 		}
+		console.log("");
 		this._scene.render();
 	}
 

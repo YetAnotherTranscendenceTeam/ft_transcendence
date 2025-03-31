@@ -1,7 +1,7 @@
 import { Manifold } from "./Manifold.js";
 import { Shape } from "./Shape/Shape.js";
 import { MassData, Material, PhysicsType } from "./properties.js";
-import { Vec2 } from "gl-matrix";
+import { Vec2, Vec2Like } from "gl-matrix";
 
 export class Body extends EventTarget {
 	private static _idCounter: number = 0;
@@ -23,6 +23,9 @@ export class Body extends EventTarget {
 	private _position: Vec2;
 	private _velocity: Vec2;
 
+	private _previousPosition: Vec2;
+	private _previousOrientation: number;
+
 	constructor(type: PhysicsType = PhysicsType.DYNAMIC, shape: Shape, material: Material, position: Vec2 = Vec2.create(), velocity: Vec2 = Vec2.create()) {
 		super();
 		this._id = Body._idCounter++;
@@ -39,6 +42,8 @@ export class Body extends EventTarget {
 		console.log("position3", this._position.x, this._position.y);
 		this._velocity = velocity;
 		console.log("velocity", this._velocity);
+		this._previousPosition = Vec2.create();
+		this._previousOrientation = 0;
 		if (this._type === PhysicsType.DYNAMIC) {
 			this._massData = this._shape.computeMass(this._material.density);
 		} else {
@@ -101,6 +106,8 @@ export class Body extends EventTarget {
 			return;
 		}
 
+		this._previousPosition = Vec2.clone(this._position);
+		this._previousOrientation = this._orientation;
 		this._position.add(Vec2.scale(Vec2.create(), this._velocity, dt));
 		this._orientation += this._angularVelocity * dt;
 		this._setOrientation(this._orientation);
@@ -114,6 +121,14 @@ export class Body extends EventTarget {
 
 	public onCollision(other: Body, manifold: Manifold): void {
 		this.dispatchEvent(new CustomEvent("collision", { detail: { emitter: this, other, manifold } }));
+	}
+
+	public interpolatePosition(alpha: number): Vec2Like {
+		return Vec2.lerp(Vec2.create(), this._previousPosition, this._position, alpha);
+	}
+
+	public interpolateOrientation(alpha: number): number {
+		return this._previousOrientation + alpha * (this._orientation - this._previousOrientation);
 	}
 
 	public get id(): number {
