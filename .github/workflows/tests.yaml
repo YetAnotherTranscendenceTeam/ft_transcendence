@@ -27,6 +27,9 @@ jobs:
       API42_REDIRECT_URI: 'https://fake-callback.com'
       MATCHMAKING_JWT_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
       MATCHMAKING_SCHEDULER_DELAY: 100
+      SOCIAL_OFFLINE_DELAY: 10000
+      SOCIAL_INACTIVITY_DELAY: 15000
+      DOMAIN_NAME: localhost
 
     steps:
       - name: Checkout repository

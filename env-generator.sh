@@ -73,13 +73,23 @@ if [ ! -z $GITHUB_ACTION ]; then
     exit
 fi
 
-HOST=${1:-$(hostname)}
 
 printf "\n[URLs]\n"
-generate BACKEND_URL "https://${HOST}:7979"
-generate WS_URL "wss://${HOST}:7979"
-generate FRONTEND_URL "https://${HOST}:8080"
-generate CDN_URL "https://${HOST}:8181"
+if [[ -z $1 || "$1" = "evaluation" ]]; then
+    HOST=$(hostname)
+    generate DOMAIN_NAME "${HOST}"
+    generate BACKEND_URL "https://${HOST}:7979"
+    generate WS_URL "wss://${HOST}:7979"
+    generate FRONTEND_URL "https://${HOST}:8080"
+    generate CDN_URL "https://${HOST}:8181"
+else
+    HOST=$1
+    generate DOMAIN_NAME "$1"
+    generate BACKEND_URL "https://api-${HOST}"
+    generate WS_URL "wss://api-${HOST}"
+    generate FRONTEND_URL "https://${HOST}"
+    generate CDN_URL "https://cdn-${HOST}"
+fi
 
 printf "\n[Google OAuth]\n"
 generate_or_use_existing_key GOOGLE_CLIENT_ID ""
@@ -87,15 +97,21 @@ generate_or_use_existing_key GOOGLE_CLIENT_ID ""
 printf "\n[42API OAuth]\n"
 generate_or_use_existing_key API42_CLIENT_ID ""
 generate_or_use_existing_key API42_SECRET ""
-generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
+if [[ -z $1 || "$1" = "evaluation" ]]; then
+    generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
+else
+    generate API42_REDIRECT_URI "https://api-${HOST}/auth/fortytwo/callback"
+fi
 echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
 
 printf "\n[MISC PARAMETERS] \n"
 if [ -z $1 ]; then
-    generate DOMAIN_NAME "${HOST}"
+    generate SOCIAL_OFFLINE_DELAY "10000"
+    generate SOCIAL_INACTIVITY_DELAY "15000"
+else
+    true
 fi
+
 generate MATCHMAKING_SCHEDULER_DELAY "100"
-# generate SOCIAL_OFFLINE_DELAY "10000"
-# generate SOCIAL_INACTIVITY_DELAY "15000"
 
 mv $TMP_FILE $ENV_FILE

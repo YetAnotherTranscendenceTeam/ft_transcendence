@@ -10,7 +10,6 @@ services:
       - frontend
       - avatars
       - settings
-      - documentation
       - social
     secrets:
       - ssl-crt
@@ -279,22 +278,6 @@ services:
       - db-profiles
       - settings
 
-
-  documentation:
-    build:
-      context: services/documentation/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./documentation/:/documentation/:ro
-      - ./services/documentation/srcs:/services/documentation/srcs
-      - ./modules/:/modules:ro
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-    ports:
-      - 42000:3000
-    networks:
-      - documentation
-
   cdn-nginx:
     build: services/CDN/nginx/
     ports:
@@ -326,6 +309,19 @@ services:
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
     networks:
      - cdn-api
+  
+  documentation:
+    build:
+      context: services/documentation/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./documentation/:/documentation/:ro
+      - ./services/documentation/srcs:/services/documentation/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    ports:
+      - 42000:3000
 
 networks:
   frontend:
@@ -337,8 +333,6 @@ networks:
   tokens:
     driver: bridge
   settings:
-    driver: bridge
-  documentation:
     driver: bridge
   avatars:
     driver: bridge

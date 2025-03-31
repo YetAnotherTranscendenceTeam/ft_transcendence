@@ -14,7 +14,6 @@ services:
       - frontend
       - avatars
       - settings
-      - documentation
       - social
     depends_on:
       - avatars
@@ -239,8 +238,6 @@ networks:
   tokens:
     driver: bridge
   settings:
-    driver: bridge
-  documentation:
     driver: bridge
   avatars:
     driver: bridge
