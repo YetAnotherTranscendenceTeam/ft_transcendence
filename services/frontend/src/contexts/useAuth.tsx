@@ -73,6 +73,8 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 
 	Babact.useEffect(() => {
 		meRef.current = me;
+		if (!me && connected)
+			disconnect();
 	}, [me]);
 
 	const setMeStatus = (status: FollowStatus) => {
@@ -83,7 +85,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		return meRef.current;
 	};
 
-	const { connect, follows, ping, status, connected } = useSocial(setMeStatus, getMe);
+	const { connect, follows, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
 
 	return (
 		<AuthContext.Provider
