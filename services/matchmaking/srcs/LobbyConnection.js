@@ -28,7 +28,7 @@ export class LobbyConnection {
 
   scheduler = null;
 
-  constructor(socket) {
+  constructor(socket, fastify) {
     this.scheduler = setInterval(() => {
       this.queues.forEach((queue) => {
         queue.matchmake();
@@ -36,7 +36,7 @@ export class LobbyConnection {
     }, matchmaking_scheduler_delay);
     Object.values(GameModes).forEach((mode) => {
       if (typeof mode !== "object") return;
-      this.queues.set(mode.name, new Queue(mode, this));
+      this.queues.set(mode.name, new Queue(mode, this, fastify));
     });
     this.socket = socket;
     this.socket.on("close", (code, reason) => {

@@ -1,11 +1,45 @@
-import { EventEmitter } from 'events';
-
 const MatchState = {
 	WAITING: 'waiting',
 	PLAYING: 'playing',
 	DONE: 'done'
 }
 
+class TournamentPlayer {
+  account_id;
+  elo;
+  matchmaking_user;
+  profile;
+  tournament;
+
+  subscriptions = new Set();
+  
+  constructor(iplayer, tournament) {
+    this.account_id = iplayer.account_id;
+    this.elo = iplayer.elo;
+    this.matchmaking_user = iplayer.matchmaking_user;
+    this.profile = iplayer.profile;
+    this.tournament = tournament;
+  }
+
+  addSubscription(subscription) {
+    this.subscriptions.add(subscription);
+    this.tournament.subscribers.add(subscription);
+  }
+
+  removeSubscription(subscription) {
+    this.subscriptions.delete(subscription);
+    this.tournament.subscribers.delete(subscription);
+  }
+
+  toJSON() {
+    return {
+      account_id: this.account_id,
+      elo: this.elo,
+      matchmaking_user: this.matchmaking_user,
+      profile: this.profile,
+    };
+  }
+}
 
 class TournamentMatch {
   state = MatchState.WAITING;
@@ -26,14 +60,16 @@ class TournamentMatch {
   }
 }
 
-export class Tournament extends EventEmitter {
+export class Tournament {
   teams = [];
   matches = [];
   subscribers = new Set();
   gamemode;
 
   constructor(teams, gamemode) {
-    super();
+    this.teams = teams.forEach((team) => {
+      team.players = team.players.map((player) => new TournamentPlayer(player, this));
+    });
     this.teams = teams.sort(
       (a, b) => a.players.reduce((a, b) => a + b.elo, 0) - b.players.reduce((a, b) => a + b.elo, 0)
     );
@@ -87,11 +123,26 @@ export class Tournament extends EventEmitter {
       teams: this.teams,
       matches: this.matches,
       gamemode: this.gamemode,
+      id: this.id,
     };
   }
 
   getPlayerFromAccountID(account_id) {
-    return this.teams.find(team => team.players.some(player => player.account_id === account_id));
+    for (let team of this.teams) {
+      for (let player of team.players) {
+        if (player.account_id === account_id) {
+          return player;
+        }
+      }
+    }
+    return null;
+  }
+
+  broadcast(event, data) {
+    const dataStr = JSON.stringify(data);
+    for (let subscriber of this.subscribers) {
+      subscriber.sse({ event, data: dataStr });
+    }
   }
 
 }

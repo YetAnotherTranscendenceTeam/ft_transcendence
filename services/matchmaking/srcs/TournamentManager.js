@@ -1,9 +1,19 @@
 export class TournamentManger {
+
+	nextTournamentID = 0;
+	tournaments = new Map();
+
 	constructor() {
-		this.tournaments = [];
+	}
+
+	getTournament(id) {
+		return this.tournaments.get(id);
 	}
 
 	registerTournament(tournament) {
-		this.tournaments.push(tournament);
+		const id = this.nextTournamentID++;
+		tournament.id = id;
+		this.tournaments.set(id, tournament);
+		return id;
 	}
 }

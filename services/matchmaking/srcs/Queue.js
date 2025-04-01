@@ -18,9 +18,10 @@ export class Queue {
    * @param {GameMode} gamemode
    * @param {LobbyConnection} lobbyConnection
    */
-  constructor(gamemode, lobbyConnection) {
+  constructor(gamemode, lobbyConnection, fastify) {
     this.gamemode = gamemode;
     this.lobbyConnection = lobbyConnection;
+    this.fastify = fastify;
   }
 
   queue(lobby) {
@@ -128,6 +129,7 @@ export class Queue {
       if (lobby.getTeamCount() > 2) {
         const teams = lobby.getTeams();
         const tournament = new Tournament(teams, this.gamemode);
+        this.fastify.tournaments.registerTournament(tournament);
         this.lobbyConnection.send({
           event: "match",
           data: {

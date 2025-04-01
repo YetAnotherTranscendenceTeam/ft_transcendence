@@ -6,6 +6,7 @@
     "@fastify/websocket": "^11.0.2",
     "better-sqlite3": "^11.8.1",
     "fastify": "^5.2.1",
+    "fastify-sse-v2": "^4.2.1",
     "yatt-lobbies": "file:../../modules/yatt-lobbies",
     "yatt-utils": "file:../../modules/yatt-utils"
   },
