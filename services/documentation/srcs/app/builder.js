@@ -1,7 +1,6 @@
 "use strict";
 
 import Fastify from "fastify";
-import cors from "@fastify/cors";
 import swagger from '@fastify/swagger'
 import swaggerUI from '@fastify/swagger-ui'
 import staticServe from '@fastify/static'
@@ -49,12 +48,6 @@ export default function build(opts = {}) {
       console.error(e);
     });
   }
-
-  app.register(cors, {
-    origin: true,
-    methods: ["GET", "POST", "PACTH", "DELETE"], // Allowed HTTP methods
-    credentials: true, // Allow credentials (cookies, authentication)
-  });
 
   app.register(swagger, {
     mode: 'static',

@@ -9,5 +9,8 @@
     "image-size": "^2.0.0",
     "yatt-utils": "file:../../modules/yatt-utils"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

@@ -9,16 +9,12 @@ import cors from "@fastify/cors";
 export default function build(opts = {}) {
   const app = Fastify(opts);
 
-  if (process.env.ENVIRONEMENT !== "production") {
-    // Dev only settings
-    app.register(cors, {
-      origin: true,
-      methods: ["GET", "POST"], // Allowed HTTP methods
-      credentials: true, // Allow credentials (cookies, authentication)
-    });
-  } else {
-    //SETUP CORS FOR PRODUCTION
-  }
+  app.register(cors, {
+    origin: process.env.CORS_ORIGIN || false,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+    maxAge: 600,
+  });
 
   app.register(fastifyCookie);
   app.register(fastifyFormbody);

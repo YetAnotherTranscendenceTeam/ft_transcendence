@@ -1,0 +1,4 @@
+services:
+  modules:
+    build: .
+    image: yatt-modules:latest

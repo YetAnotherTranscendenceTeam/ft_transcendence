@@ -9,5 +9,8 @@
     "yatt-ws": "file:../../modules/yatt-ws",
     "yatt-utils": "file:../../modules/yatt-utils"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

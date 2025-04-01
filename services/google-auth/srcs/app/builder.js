@@ -10,9 +10,10 @@ export default function build(opts = {}) {
   const app = Fastify(opts);
 
   app.register(cors, {
-    origin: true,
-    methods: ["POST"],
+    origin: process.env.CORS_ORIGIN || false,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
+    maxAge: 600,
   });
 
   app.register(formbody);
