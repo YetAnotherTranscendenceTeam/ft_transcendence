@@ -3,6 +3,7 @@
 import { hashPassword, verifyPassword } from "./crypt/crypt.js";
 import fetch from "./http/fetch.js";
 import HttpErrorClass from "./http/HttpError.js";
+import patchBodyToSql from "./http/patchBodyToSql.js";
 import reponseBodyObjects from "./schemas/objects/reponse-body.js";
 
 import credentialsProperties from "./schemas/properties/credentials.js";
@@ -18,7 +19,8 @@ const YATT = {
     crypto: {
         hashPassword,
         verifyPassword
-    }
+    },
+    patchBodyToSql
 };
 
 export default YATT;
