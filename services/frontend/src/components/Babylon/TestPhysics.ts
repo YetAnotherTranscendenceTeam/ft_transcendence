@@ -33,7 +33,7 @@ export default class TestPhysics {
 		// this._scene.createDefaultEnvironment()
 
 		// const box = MeshBuilder.CreateBox("box", {}, this._scene);
-		const camera = new ArcRotateCamera("CameraTopDown", 0, 0, 7.5, Vector3.Zero(), this._scene);
+		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 7.5, Vector3.Zero(), this._scene);
 		camera.attachControl(this._canvas, true);
 		camera.lowerRadiusLimit = 1.5;
 		camera.upperRadiusLimit = 10;

@@ -1,1 +1,1 @@
-export { Pong } from './core/Pong.js';
+export { Pong, PongState } from './core/Pong.js';

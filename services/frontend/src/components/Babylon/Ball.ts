@@ -7,23 +7,32 @@ import { Vec2 } from "gl-matrix";
 export default class Ball {
 	private _scene: Scene;
 	private _mesh: Mesh;
+	private _physicsBody: PH2D.Body; // for reference
 
-	public constructor(scene: Scene) {
+	public constructor(scene: Scene, physicsBody: PH2D.Body) {
 		this._scene = scene;
+		this._physicsBody = physicsBody;
 		this._mesh = MeshBuilder.CreateSphere(
 			"ball",
 			{ diameter: 0.1 },
 			this._scene
 		);
-		this._mesh.position = new BABYLON.Vector3(0, 0.05, 0);
+		this._mesh.position = new BABYLON.Vector3(
+			this._physicsBody.position.x,
+			0.05,
+			this._physicsBody.position.y
+		);
 		const material = new StandardMaterial("ballMaterial", this._scene);
 		material.diffuseColor = Color3.White();
+		material.specularColor = Color3.Black();
 		this._mesh.material = material;
 	}
 
-	// public update(): void {
-	// 	this._mesh.position = new BABYLON.Vector3(this._physicsBody.position.x, 0, this._physicsBody.position.y);
-	// }
+	public update(dt: number): void {
+		const ballPos = this._physicsBody.interpolatePosition(dt) as Vec2;
+		this._mesh.position.x = ballPos.x;
+		this._mesh.position.z = ballPos.y;
+	}
 
 	public get mesh(): Mesh {
 		return this._mesh;
