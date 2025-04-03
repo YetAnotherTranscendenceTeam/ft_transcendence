@@ -45,7 +45,7 @@ export default function build(opts = {}) {
   });
 
   app.addHook('onClose', (instance) => {
-    // Cleanup instructions for a gracefull shutdown
+    // Cleanup instructions for a graceful shutdown
   });
 
   const serverShutdown = (signal) => {
