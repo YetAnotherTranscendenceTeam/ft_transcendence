@@ -79,12 +79,4 @@ export class ConnectionManager {
       })
     });
   }
-
-  cleanup() {
-    this.map.forEach(client => {
-      client.sockets.forEach(socket => {
-        socket.close(1001, "Going Away")
-      });
-    });
-  }
 }
