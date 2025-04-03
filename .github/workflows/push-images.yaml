@@ -22,24 +22,15 @@ jobs:
           username: ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build
+      - name: Build image
         run: docker compose build
         working-directory: ./modules/
 
       - name: Tag image
         run: docker tag yatt-modules:latest ibertran/transcendence.yatt-modules:latest
 
-      # - name: Push
-      #   run: docker push ibertran/transcendence.yatt-modules:latest
-
-      - name: Save Docker image as tar file
-        run: docker save ibertran/transcendence.yatt-modules:latest -o yatt-modules.tar
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: yatt-modules-image
-          path: yatt-modules.tar
+      - name: Push image
+        run: docker push ibertran/transcendence.yatt-modules:latest
 
   ibertran-dot-dev:
     needs: yatt-modules
@@ -59,6 +50,6 @@ jobs:
           username: ${{ vars.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build images with docker-compose
+      - name: Build images
         run: |
           docker compose -f docker-compose.ibertran.yaml build
