@@ -1,4 +1,6 @@
-FROM yatt-modules:latest
+ARG BASE_IMAGE=yatt-modules:latest
+
+FROM $BASE_IMAGE
 
 WORKDIR /services/password-auth/
 COPY . .

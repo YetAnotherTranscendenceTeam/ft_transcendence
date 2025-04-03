@@ -1,4 +1,6 @@
-FROM yatt-modules:latest AS builder
+ARG BASE_IMAGE=yatt-modules:latest
+
+FROM $BASE_IMAGE AS builder
 
 ARG BACKEND_URL
 ARG WS_URL

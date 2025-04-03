@@ -22,6 +22,7 @@ services:
     build:
       context: services/frontend/
       args:
+        - BASE_IMAGE=${BASE_IMAGE}
         - BACKEND_URL=https://api-transcendence.ibertran.dev
         - WS_URL=wss://api-transcendence.ibertran.dev
         - GOOGLE_CLIENT_ID=9744497548-ecens5hjhfugrc0l4a3nl9bqc3qr08dh.apps.googleusercontent.com
@@ -30,7 +31,10 @@ services:
       - frontend
 
   credentials:
-    build: services/credentials/
+    build: 
+      context: services/credentials/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.credentials:latest
     volumes:
       - sqlite:/database
@@ -39,7 +43,10 @@ services:
       - db-profiles
 
   token-manager:
-    build: services/token-manager/
+    build: 
+      context: services/token-manager/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.token-manager:latest
     volumes:
       - sqlite:/database
@@ -53,7 +60,10 @@ services:
       - tokens
 
   registration:
-    build: services/registration/
+    build: 
+      context: services/registration/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.registration:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
@@ -64,7 +74,10 @@ services:
       - frontend
     
   password-auth:
-    build: services/password-auth/
+    build: 
+      context: services/password-auth/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.password-auth:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
@@ -76,7 +89,10 @@ services:
       - tokens
   
   fortytwo-auth:
-    build: services/fortytwo-auth/
+    build: 
+      context: services/fortytwo-auth/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.fortytwo-auth:latest
     environment:
       - JWT_SECRET=${JWT_SECRET}
@@ -94,7 +110,10 @@ services:
       - avatars
 
   google-auth:
-    build: services/google-auth/
+    build: 
+      context: services/google-auth/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.google-auth:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
@@ -109,7 +128,10 @@ services:
       - avatars
 
   lobbies:
-    build: services/lobbies/
+    build: 
+      context: services/lobbies/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.lobbies:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
@@ -122,7 +144,10 @@ services:
       - matchmaking
 
   matchmaking:
-    build: services/matchmaking/
+    build: 
+      context: services/matchmaking/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.matchmaking:latest
     volumes:
       - sqlite:/database
@@ -134,7 +159,10 @@ services:
       - frontend
 
   db-profiles:
-    build: services/db-profiles/
+    build: 
+      context: services/db-profiles/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.profiles:latest
     volumes:
       - sqlite:/database
@@ -145,7 +173,10 @@ services:
       - db-profiles
 
   users:
-    build: services/users/
+    build: 
+      context: services/users/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.users:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
@@ -155,7 +186,10 @@ services:
      - db-profiles
 
   settings:
-    build: services/settings/
+    build: 
+      context: services/settings/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.settings:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
@@ -169,7 +203,10 @@ services:
       - tokens
 
   avatars:
-    build: services/avatars/
+    build: 
+      context: services/avatars/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.avatars:latest
     volumes:
       - sqlite:/database
@@ -185,7 +222,10 @@ services:
         condition: service_healthy
 
   social:
-    build: services/social/
+    build: 
+      context: services/social/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.social:latest
     volumes:
       - sqlite:/database
@@ -217,7 +257,10 @@ services:
         condition: service_healthy
 
   cdn-api:
-    build: services/CDN/api/
+    build: 
+      context: services/CDN/api
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.cdn-api:latest
     volumes:
       - avatars:/app/avatars/users/
