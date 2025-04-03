@@ -10,6 +10,7 @@ import router from "./router.js";
 import { HttpError } from "yatt-utils";
 import { jwt_secret } from "./env.js";
 import { ConnectionManager } from "../utils/ConnectionManager.js";
+import db from "./database.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -49,14 +50,23 @@ export default function build(opts = {}) {
   // Create and attach the websocket manager
   app.decorate('clients', new ConnectionManager());
 
-  // Close every websocket on server exit
-  app.addHook('onClose', (instance) => {
-    instance.clients.cleanup();
-  });
-
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    db.close();
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }

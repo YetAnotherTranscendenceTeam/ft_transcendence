@@ -4,10 +4,11 @@ import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket'
 import router from "./router.js";
-import YATT, {HttpError} from "yatt-utils";
+import YATT from "yatt-utils";
 import jwt from "@fastify/jwt";
 import { jwt_secret } from "./env.js";
 import { matchmaking_jwt_secret } from "./env.js";
+import db from "./database.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -40,6 +41,21 @@ export default function build(opts = {}) {
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    // Cleanup instructions for a gracefull shutdown
+    db.close();
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }

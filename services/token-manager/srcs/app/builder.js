@@ -11,6 +11,7 @@ import router from "./router.js";
 import YATT, { HttpError } from "yatt-utils";
 import { token_manager_secret, jwt_secret, refresh_token_secret } from "./env.js";
 import { removeExpiredTokens } from "./schedules.js";
+import db from "./database.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -53,6 +54,21 @@ export default function build(opts = {}) {
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    // Cleanup instructions for a gracefull shutdown
+    db.close();
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }
