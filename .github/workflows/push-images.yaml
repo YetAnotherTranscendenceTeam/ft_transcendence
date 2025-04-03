@@ -53,3 +53,7 @@ jobs:
       - name: Build images
         run: |
           docker compose -f docker-compose.ibertran.yaml build
+
+      - name: Push images
+        run: |
+          docker compose -f docker-compose.ibertran.yaml push
