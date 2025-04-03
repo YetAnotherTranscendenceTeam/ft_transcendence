@@ -1,10 +1,10 @@
-name: Build Docker images
+name: Build Docker images for production
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+      - deploy-action
 
 jobs:
   yatt-modules:
