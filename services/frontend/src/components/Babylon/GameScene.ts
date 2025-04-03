@@ -90,6 +90,12 @@ export default class PongScene extends Pong {
 		this._ballInstances.forEach((ball: Ball) => {
 			ball.update(dt);
 		});
+
+		if (this._keyboard.get("c") === keyState.PRESSED || this._keyboard.get("c") === keyState.HELD) {
+			console.log("paddle 0 position: ", this._paddles.get(0)?.position);
+			console.log("paddle 1 position: ", this._paddles.get(1)?.position);
+			console.log("ball position: ", this._balls[0]?.position);
+		}
 	}
 	
 	public render() {

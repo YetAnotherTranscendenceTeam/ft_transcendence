@@ -22,6 +22,8 @@ export class Pong {
 	protected _balls: PH2D.Body[] = [];
 	protected _paddles: Map<number, PH2D.Body> = new Map();
 
+	protected _score: number[];
+
 	public constructor() {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), DT);
 	}
@@ -31,6 +33,7 @@ export class Pong {
 		this._balls = [];
 		this._paddles = new Map();
 		this._accumulator = 0;
+		this._score = [0, 0];
 
 		this._matchId = match_id;
 		this._gameMode = gamemode;
@@ -41,11 +44,13 @@ export class Pong {
 	}
 
 	private defaultSetup() { // temporary
+		// Ball
 		const ballShape: PH2D.CircleShape = new PH2D.CircleShape(ballSize);
 		const ballBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.DYNAMIC, ballShape, bounceMaterial, Vec2.create(), Vec2.create());
 		this._physicsScene.addBody(ballBody);
 		this._balls.push(ballBody);
 
+		// Paddles
 		const paddleShape: PH2D.PolygonShape = new PH2D.PolygonShape(paddleHalfSize[0], paddleHalfSize[1]);
 		const paddleLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, new Vec2(-5, 0), Vec2.create());
 		const paddleRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, new Vec2(5, 0), Vec2.create());
@@ -53,30 +58,61 @@ export class Pong {
 		this._physicsScene.addBody(paddleRightBody);
 		this._paddles.set(0, paddleLeftBody);
 		this._paddles.set(1, paddleRightBody);
-		
+
+		// Walls
 		const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(5, 0.1);
 		const wallTopBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, -4), Vec2.create());
 		const wallBottomBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, 4), Vec2.create());
 		this._physicsScene.addBody(wallTopBody);
 		this._physicsScene.addBody(wallBottomBody);
 
+		// Goal
+		// const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(0.1, 4);
+		// const goalLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, goalShape, bounceMaterial, new Vec2(-6.2, 0), Vec2.create());
+		// const goalRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, goalShape, bounceMaterial, new Vec2(6.2, 0), Vec2.create());
+		// this._physicsScene.addBody(goalLeftBody);
+		// this._physicsScene.addBody(goalRightBody);
+
 		ballBody.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
 			const { emitter, other, manifold } = event.detail;
 			console.log("collision " + emitter.id + "-" + other.id);
+			console.log(emitter);
+			console.log(other);
+			// console.log("emitter pos: " + emitter.position[0] + ", " + emitter.position[1]);
+			// console.log("other pos: " + other.position[0] + ", " + other.position[1]);
+			// if (other === paddleLeftBody || other === paddleRightBody) {
+			// 	const ballVelocity: Vec2 = emitter.velocity;
+			// 	const paddleVelocity: Vec2 = other.velocity;
+			// 	const normal: Vec2 = manifold.normal;
+			// 	const angle: number = Math.atan2(normal.y, normal.x);
+			// 	const speed: number = Math.max(ballSpeedMin, Vec2.length(ballVelocity));
+			// 	Vec2.scale(ballVelocity, ballVelocity, -1);
+			// 	Vec2.rotate(ballVelocity, ballVelocity, Vec2.create(), angle);
+			// 	Vec2.scale(ballVelocity, ballVelocity, speed);
+			// 	emitter.velocity = ballVelocity;
+			// 	console.log("ball velocity: " + ballVelocity[0] + ", " + ballVelocity[1]);
+			// }
+		});
+
+		paddleLeftBody.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
+			const { emitter, other, manifold } = event.detail;
+			console.log("collision " + emitter.id + "-" + other.id);
+			console.log(emitter);
+			console.log(other);
 		});
 	}
 
 	protected start() {
 		this._state = PongState.PLAYING;
-		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
-		const speed: number = 1; // speed of the ball (to normalize with)
-		const x: number = dir === 0 ? -1 : 1; // direction of the ball
-		const y: number = Math.sin(angle); // vertical component of the ball's velocity
-		const ballVelocity: Vec2 = new Vec2(x, y);
-		Vec2.normalize(ballVelocity, ballVelocity);
-		Vec2.scale(ballVelocity, ballVelocity, speed);
-		this._balls[0].velocity = ballVelocity;
+		// const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
+		// const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
+		// const speed: number = 1; // speed of the ball (to normalize with)
+		// const x: number = dir === 0 ? -1 : 1; // direction of the ball
+		// const y: number = Math.sin(angle); // vertical component of the ball's velocity
+		// const ballVelocity: Vec2 = new Vec2(x, y);
+		// Vec2.normalize(ballVelocity, ballVelocity);
+		// Vec2.scale(ballVelocity, ballVelocity, speed);
+		// this._balls[0].velocity = ballVelocity;
 	}
 
 	public toJSON() {

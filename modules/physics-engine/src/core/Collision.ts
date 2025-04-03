@@ -48,6 +48,7 @@ function circleCircleCollision(manifold: Manifold, bodyA: Body, bodyB: Body): vo
 }
 
 function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): void {
+	console.log("circlePolygonCollision");
 	const circle: CircleShape = bodyA.shape as CircleShape;
 	const polygon: PolygonShape = bodyB.shape as PolygonShape;
 
@@ -57,15 +58,53 @@ function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): v
 	let separation: number = -Number.MAX_VALUE;
 	let faceNormal: number = 0;
 
+	if (bodyB.id === 2) {
+		console.log("center", center);
+		console.log("bodyA", bodyA);
+		console.log("bodyB", bodyB);
+		console.log("polygon", polygon);
+		// console.log("polygon.vertices", polygon.vertices);
+		console.log("valeur ", polygon.vertices[0]);
+		console.log("valeur ", polygon.vertices[1]);
+		console.log("valeur ", polygon.vertices[2]);
+		console.log("valeur ", polygon.vertices[3]);
+		console.log("polygon.vertices", polygon.vertices);
+		console.log("valeur ", polygon.vertices[0]);
+		console.log("valeur ", polygon.vertices[1]);
+		console.log("valeur ", polygon.vertices[2]);
+		console.log("valeur ", polygon.vertices[3]);
+	}
+
 	for (let i = 0; i < polygon.vertices.length; i++) {
+		// let truc = polygon.vertices[i];
+		if (bodyB.id === 2) {
+			// console.log("i", i);
+			// console.log("truc", truc);
+			console.log(`av polygon.vertices[${i}]`, polygon.vertices[i]);
+			console.log(`av polygon.normals[${i}]`, polygon.normals[i]);
+		}
 		const s: number = Vec2.dot(polygon.normals[i], Vec2.subtract(Vec2.create(), center, polygon.vertices[i]));
+		if (bodyB.id === 2) {
+			// console.log("i", i);
+			// console.log(`polygon.vertices[${i}]`, polygon.vertices[i]);
+			// console.log(`polygon.normals[${i}]`, polygon.normals[i]);
+			console.log("s", s);
+		}
 
 		if (s > circle.radius) {
+			// console.log("s > circle.radius", s, circle.radius);
 			return;
 		}
 		if (s > separation) {
 			separation = s;
 			faceNormal = i;
+		}
+
+		if (bodyB.id === 2) {
+			// console.log("i", i);
+			// console.log("truc", truc);
+			console.log(`ap polygon.vertices[${i}]`, polygon.vertices[i]);
+			console.log(`ap polygon.normals[${i}]`, polygon.normals[i]);
 		}
 	}
 

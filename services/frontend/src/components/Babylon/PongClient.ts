@@ -28,6 +28,7 @@ export default class PongClient {
 		this._keyboard.set("ArrowDown", keyState.IDLE);
 		this._keyboard.set("w", keyState.IDLE);
 		this._keyboard.set("s", keyState.IDLE);
+		this._keyboard.set("c", keyState.IDLE);
 		this._gameScene = new GameScene(this._canvas, this._engine, this._keyboard);
 
 		window.addEventListener("keydown", this.handleKeyDown);
@@ -78,7 +79,7 @@ export interface IGameMode {
 */
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
-		console.log(ev);
+		// console.log(ev);
 		// Shift+Ctrl+Alt+I
 		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
 		// 	if (this._scene[this._activeScene].debugLayer.isVisible()) {
@@ -130,7 +131,7 @@ export interface IGameMode {
 	}
 
 	private handleKeyUp = (ev: KeyboardEvent) => {
-		console.log(ev);
+		// console.log(ev);
 
 		if (this._keyboard.has(ev.key)) {
 			const keyStateProbe = this._keyboard.get(ev.key);
@@ -143,7 +144,7 @@ export interface IGameMode {
 	}
 
 	private handleKeyPress = (ev: KeyboardEvent) => {
-		console.log(ev);
+		// console.log(ev);
 
 		// if (ev.key === "ArrowUp") {
 		// 	this._gameScene.playerUp(1);
