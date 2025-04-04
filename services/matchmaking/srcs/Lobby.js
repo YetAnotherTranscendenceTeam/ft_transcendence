@@ -73,7 +73,7 @@ export class Lobby extends LobbyBase {
         AND (matches.state = ? OR matches.state = ?)
       `
     ).all(
-      this.players.map((player) => player.account_id),
+      ...this.players.map((player) => player.account_id),
       MatchState.PLAYING,
       MatchState.RESERVED
     );
