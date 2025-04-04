@@ -66,6 +66,17 @@ export class LobbyConnection {
   }
 
   queue(lobby, queue) {
-    queue.queue(new Lobby(lobby, queue));
+    try {
+      queue.queue(new Lobby(lobby, queue));
+    }
+    catch (e) {
+      this.send({
+        event: "confirm_unqueue",
+        data: {
+          lobby: lobby,
+          reason: e.message,
+        },
+      })
+    }
   }
 }

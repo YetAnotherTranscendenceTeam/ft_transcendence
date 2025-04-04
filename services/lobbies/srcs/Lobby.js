@@ -195,7 +195,10 @@ export class Lobby extends LobbyBase {
       MatchmakingConnection.getInstance().unqueue(this);
   }
 
-  confirmUnqueue() {
+  confirmUnqueue(reason) {
+    if (reason) {
+      this.broadbast(new LobbyErrorMessage(reason));
+    }
     this.setState(LobbyState.waiting());
   }
 }

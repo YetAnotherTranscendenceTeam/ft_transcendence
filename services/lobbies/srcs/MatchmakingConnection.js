@@ -28,7 +28,7 @@ export default class MatchmakingConnection extends EventEmitter {
     confirm_unqueue: (message) => {
       const lobby = this.queuedLobbies.get(message.data.lobby.join_secret);
       if (lobby) {
-        lobby.confirmUnqueue();
+        lobby.confirmUnqueue(message.data.reason);
         this.queuedLobbies.delete(lobby.join_secret);
       }
     }
