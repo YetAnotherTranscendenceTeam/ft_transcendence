@@ -27,6 +27,13 @@ const sqlProperties = {
     format: "date-time",
     description: "Timestamp of the most recent update to the record",
   },
+
+  sort: {
+    type: "string",
+    enum: ["ASC", "DESC"],
+    default: "DESC",
+    description: "Sort order for the results",
+  }
 };
 
 export default sqlProperties;
