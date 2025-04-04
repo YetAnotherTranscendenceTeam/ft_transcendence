@@ -8,13 +8,14 @@ import router from "./router.js";
 import YATT, {HttpError} from "yatt-utils";
 import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
+import qs from "qs";
 import { jwt_secret } from "./env.js";
 import { matchmaking_jwt_secret } from "./env.js";
 
 import { TournamentManger } from "../TournamentManager.js";
 
 export default function build(opts = {}) {
-  const app = Fastify(opts);
+  const app = Fastify({...opts, querystringParser: (str) => qs.parse(str)});
 
   if (process.env.ENV !== "production") {
     YATT.setUpSwagger(app, {

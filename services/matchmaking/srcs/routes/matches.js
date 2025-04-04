@@ -1,13 +1,39 @@
 "use strict";
 
+import YATT, { HttpError } from "yatt-utils";
 import db from "../app/database.js";
+import { MatchState } from "../Match.js";
+import { type } from "os";
+import { GameModes } from "../GameModes.js";
 
 export default function router(fastify, opts, done) {
-  fastify.get("/:match_id", function handler(request, reply) {
+  fastify.get("/:match_id", {
+    schema: {
+      params: { type: "object", properties: { match_id: { type: "number" } } },
+    }
+  }, function handler(request, reply) {
     const match = db
-      .prepare("SELECT * FROM matches WHERE match_id = ?")
-      .all(request.params.match_id);
-    if (!match) new HttpError.NotFound().send(reply);
+      .prepare(`
+        SELECT 
+          matches.*,
+          json_group_array(
+            json_object(
+              'account_id', match_players.account_id,
+              'team_index', match_players.team_index
+            )
+          ) as players
+        FROM 
+          matches
+        JOIN 
+          match_players
+        ON 
+          matches.match_id = match_players.match_id
+        WHERE match_players.match_id = ?
+        `)
+      .get(request.params.match_id);
+    if (!match || match.match_id === null)
+      return new HttpError.NotFound().send(reply);
+    match.players = JSON.parse(match.players);
     reply.send(match);
   });
   fastify.patch(
@@ -18,20 +44,35 @@ export default function router(fastify, opts, done) {
         body: {
           type: "object",
           properties: {
-            scores: { type: "array", items: { type: "number" } },
-            state: { type: "string", enum: ["reserved", "playing", "done"] },
+            score_0: { type: "number", minimum: 0 },
+            score_1: { type: "number", minimum: 0 },
+            state: { type: "number", enum: Object.values(MatchState).filter((val) => val != MatchState.RESERVED) },
           },
-        },
+          minProperties: 1,
+          additionalProperties: false,
+        }
       },
     },
     function handler(request, reply) {
-      const { scores, state } = request.body;
-      if (!scores && !state) return new HttpError.BadRequest().send(reply);
+      const { setClause, params } = YATT.patchBodyToSql(request.body);
+      if (!setClause) new HttpError.BadRequest().send(reply);
 
-      reply.send();
+      const update = db.prepare(`
+        UPDATE matches
+        SET
+          ${setClause}
+        WHERE match_id = ?
+      `).run(...params, request.params.match_id);
+      if (update.changes === 0) {
+        return new HttpError.NotFound().send(reply);
+      }
+      if (request.body.state === MatchState.DONE) {
+        // TODO: update player ELO
+      }
+      reply.send(update);
     }
   );
-  // TODO: handle stats
+  // TODO: handle stats (move this into the origin /:match_id request)
   fastify.patch(
     "/:match_id/players/:account_id",
     {
@@ -50,7 +91,7 @@ export default function router(fastify, opts, done) {
       },
     },
     function handler(request, reply) {
-      new HttpError.NotImplemented().send();
+      new HttpError.NotImplemented().send(reply);
     }
   );
   done();
