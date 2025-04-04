@@ -57,7 +57,7 @@ describe("queue and unqueue lobby", () => {
   });
 });
 
-describe.each(matchmaking_tests.slice(0,1))(
+describe.each(matchmaking_tests)(
   "lobby match making with $lobby_player_count.length lobbies forming $expected_matches.length match(es) ($gamemode)",
   ({ lobby_player_count, gamemode, expected_matches, expected_tolerances }) => {
     let user_index = 0;
@@ -86,6 +86,9 @@ describe.each(matchmaking_tests.slice(0,1))(
       await Promise.all(
         lobbies.flat().map((player) =>
           player.ws.expectJson((message) => {
+            if (message.event !== "state_change") {
+              console.error(message, player.user.account_id);
+            }
             expect(message.event).toBe("state_change");
             expect(message.data.state.type).toBe("queued");
           })
@@ -103,11 +106,12 @@ describe.each(matchmaking_tests.slice(0,1))(
             expect(message.data.state.type).toBe("playing");
             expect(message.data.state.match).toBeDefined();
             if (i != 0) return;
-            let match = matches.get(message.data.state.match.id);
+            const match_id = message.data.state.match.match.match_id;
+            let match = matches.get(match_id);
             if (!match) {
               match = {lobbies: []};
-              match.match = message.data.state.match;
-              matches.set(message.data.state.match.id, match);
+              match.match = message.data.state.match.match;
+              matches.set(match_id, match);
             }
             match.lobbies.push(lobby_index);
           });
@@ -119,15 +123,17 @@ describe.each(matchmaking_tests.slice(0,1))(
       //expect([...matches.values()]).toStrictEqual(expected_matches);
       expect([...matches.values()].length).toBe(expected_matches.length);
     });
-    it("set match as finished", async () => {
+    it("set matches as finished", async () => {
+      let promises = [];
       for (let match of matches.values()) {
-        request(matchmakingURL)
-        .patch(`/matches/${match.match.match.match_id}`)
-        .send({ state: 2 })
-        .then((response) => {
-          expect(response.status).toBe(200);
-        });
+        promises.push(request(matchmakingURL)
+          .patch(`/matches/${match.match.match_id}`)
+          .send({ state: 2 })
+          .then((response) => {
+            expect(response.status).toBe(200);
+        }));
       }
+      await Promise.all(promises);
     });
     it("close lobbies", async () => {
       await Promise.all(
