@@ -1,6 +1,7 @@
 import request from "superwstest";
 import { matchmaking_jwt_secret } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
+import { createUsers, users } from "../../dummy/dummy-account";
 
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
@@ -13,6 +14,10 @@ app.register(jwt, {
 beforeAll(async () => {
   await app.ready();
 });
+
+createUsers(
+  6
+);
 
 describe("direct match making", () => {
   let ws;
@@ -32,7 +37,7 @@ describe("direct match making", () => {
   it("queue a 2vs2 tournament", async () => {
     const lobby = {
       team_names: [],
-      players: [{ account_id: 0 }, { account_id: 1 }, { account_id: 2 }, { account_id: 3 }, { account_id: 4 }, { account_id: 5 }],
+      players: users,
       mode: GameModes["custom_2v2"],
       join_secret: "2v2_0",
     };

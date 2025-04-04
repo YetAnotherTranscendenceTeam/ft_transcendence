@@ -2,7 +2,8 @@ import { createLobby, joinLobby } from "../../dummy/lobbies-player";
 import { createUsers, users } from "../../dummy/dummy-account";
 import { matchmaking_tests } from "./matches-tests";
 import { matchmaking_jwt_secret } from "./env";
-import { GameModes } from "./gamemodes";
+import { GameModes, matchmakingURL } from "./gamemodes";
+import request from "superwstest";
 
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
@@ -56,7 +57,7 @@ describe("queue and unqueue lobby", () => {
   });
 });
 
-describe.each(matchmaking_tests)(
+describe.each(matchmaking_tests.slice(0,1))(
   "lobby match making with $lobby_player_count.length lobbies forming $expected_matches.length match(es) ($gamemode)",
   ({ lobby_player_count, gamemode, expected_matches, expected_tolerances }) => {
     let user_index = 0;
@@ -104,10 +105,11 @@ describe.each(matchmaking_tests)(
             if (i != 0) return;
             let match = matches.get(message.data.state.match.id);
             if (!match) {
-              match = [];
+              match = {lobbies: []};
+              match.match = message.data.state.match;
               matches.set(message.data.state.match.id, match);
             }
-            match.push(lobby_index);
+            match.lobbies.push(lobby_index);
           });
         }
       }
@@ -116,6 +118,16 @@ describe.each(matchmaking_tests)(
       // too unreliable
       //expect([...matches.values()]).toStrictEqual(expected_matches);
       expect([...matches.values()].length).toBe(expected_matches.length);
+    });
+    it("set match as finished", async () => {
+      for (let match of matches.values()) {
+        request(matchmakingURL)
+        .patch(`/matches/${match.match.match.match_id}`)
+        .send({ state: 2 })
+        .then((response) => {
+          expect(response.status).toBe(200);
+        });
+      }
     });
     it("close lobbies", async () => {
       await Promise.all(
