@@ -7,11 +7,12 @@ db.pragma("journal_mode = WAL");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS matchmaking_users (
-    account_id INTEGER PRIMARY KEY,
+    account_id INTEGER NOT NULL,
     gamemode TEXT NOT NULL,
     elo INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY(account_id, gamemode)
   )`);
 db.exec(`
   CREATE TRIGGER IF NOT EXISTS update_matchmaking_users_updated_at
@@ -26,8 +27,9 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS matches (
     match_id INTEGER PRIMARY KEY AUTOINCREMENT,
     gamemode TEXT NOT NULL,
-    scores INTEGER[2] NOT NULL,
-    state TEXT NOT NULL,
+    score_0 INTEGER NOT NULL,
+    score_1 INTEGER NOT NULL,
+    state INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
@@ -47,9 +49,21 @@ db.exec(`
     match_id INTEGER NOT NULL,
     account_id INTEGER NOT NULL,
     team_index INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT,
     PRIMARY KEY (match_id, account_id),
     FOREIGN KEY (match_id) REFERENCES matches(match_id),
-    FOREIGN KEY (account_id) REFERENCES matchmaking_users(account_id)
+    UNIQUE (match_id, account_id)
   )`);
+
+  db.exec(`
+    CREATE TRIGGER IF NOT EXISTS update_match_players
+      AFTER UPDATE ON match_players
+      FOR EACH ROW
+      BEGIN
+        UPDATE match_players SET updated_at = CURRENT_TIMESTAMP where match_id = OLD.match_id AND account_id = OLD.account_id;
+        UPDATE matches SET updated_at = CURRENT_TIMESTAMP where match_id = OLD.match_id;
+      END;
+    `);
 
 export default db;

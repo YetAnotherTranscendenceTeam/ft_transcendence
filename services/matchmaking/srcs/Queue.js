@@ -1,11 +1,10 @@
 import { GameMode } from "./GameModes.js";
 import { Lobby } from "./Lobby.js";
 import { LobbyConnection } from "./LobbyConnection.js";
+import { Match } from "./Match.js";
 import { Tournament } from "./Tournament.js";
 
 const LOBBY_TOLERANCE_INCREMENT = 1.0;
-
-let match_id = 0;
 
 export class Queue {
   /**
@@ -140,12 +139,14 @@ export class Queue {
         return;
       }
     }
+    const match = new Match(lobbies.map(lobby => lobby.players).flat(), this.gamemode);
+    match.insert();
     this.lobbyConnection.send({
         event: "match",
         data: {
           lobbies,
-          match: {type: "match", id: match_id++}, // TODO: implement matches (match server)
+          match: {type: "match", match},
         },
-      });
+    });
   }
 }

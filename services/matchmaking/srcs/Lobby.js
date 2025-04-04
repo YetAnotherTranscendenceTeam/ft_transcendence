@@ -1,8 +1,9 @@
 import db from "./app/database.js";
 import { Queue } from "./Queue.js";
 import { Lobby as LobbyBase } from "yatt-lobbies";
+import { MatchmakingUser } from "./MatchmakingUser.js";
+import { MatchState } from "./Match.js";
 
-const NEW_USER_ELO = 1000;
 const WEIGHT_ELO_DIFF = 1.0;
 const WEIGHT_PLAYER_COUNT_DIFF = 1.0;
 
@@ -25,6 +26,12 @@ export class Lobby extends LobbyBase {
       throw new Error(
         `Too many players in lobby, expected max ${maxLobbySize}, got ${this.players.length}`
       );
+    const playersMatches = this.getInGamePlayer();
+    if (playersMatches.length > 0) {
+      throw new Error(
+        `This lobby contains ${playersMatches.length} active matches, please wait for them to finish`
+      );
+    }
     const rank_name = rank_gamemode_remap[this.mode.name] || this.mode.name;
     this.matchmaking_users = db
       .prepare(
@@ -41,11 +48,8 @@ export class Lobby extends LobbyBase {
         (matchmaking_user) => matchmaking_user.account_id === player.account_id
       );
       if (!matchmaking_user) {
-        matchmaking_user = {
-          account_id: player.account_id,
-          gamemode: rank_name,
-          elo: NEW_USER_ELO,
-        };
+        matchmaking_user = new MatchmakingUser(player.account_id, rank_name);
+        matchmaking_user.insert();
         this.matchmaking_users.push(matchmaking_user);
       }
       player.matchmaking_user = matchmaking_user;
@@ -53,6 +57,27 @@ export class Lobby extends LobbyBase {
     }
     this.queue = queue;
     this.tolerance = 0.0;
+  }
+
+  getInGamePlayer() {
+    const res = db.prepare(
+      `
+      SELECT * FROM
+        match_players
+      JOIN
+        matches
+      ON
+        matches.match_id = match_players.match_id
+      WHERE
+        account_id IN (${this.players.map(() => "?").join(",")})
+        AND (matches.state = ? OR matches.state = ?)
+      `
+    ).all(
+      this.players.map((player) => player.account_id),
+      MatchState.PLAYING,
+      MatchState.RESERVED
+    );
+    return res;
   }
 
   toJSON() {
