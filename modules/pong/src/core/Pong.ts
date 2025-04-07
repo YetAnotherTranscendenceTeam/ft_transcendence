@@ -75,27 +75,27 @@ export class Pong {
 
 		ballBody.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
 			const { emitter, other, manifold } = event.detail;
-			console.log("collision " + emitter.id + "-" + other.id);
-			console.log(emitter);
-			console.log(other);
-			// if (other === paddleLeftBody || other === paddleRightBody) { // control direction of the ball
-			// 	let relativePosition: number = emitter.position[1] - other.position[1];
-			// 	relativePosition /= paddleHalfSize[1];
-			// 	relativePosition = Math.max(-1, Math.min(1, relativePosition));
-			// 	const angle: number = Math.PI / 4 * relativePosition; // angle between -45 and 45 degrees
-			// 	const speed: number = emitter.velocity.magnitude;
-			// 	const x: number = other === paddleLeftBody ? 1 : -1; // direction of the ball
-			// 	const y: number = Math.sin(angle); // vertical component of the ball's velocity
-			// 	const paddleVelocity: Vec2 = new Vec2(x, y);
-			// 	Vec2.normalize(paddleVelocity, paddleVelocity);
-			// 	Vec2.scale(paddleVelocity, paddleVelocity, speed);
-			// 	// emitter.velocity = paddleVelocity;
-			// 	// blend the ball's velocity with the paddle's velocity
-			// 	Vec2.add(emitter.velocity, paddleVelocity, emitter.velocity);
-			// 	Vec2.normalize(emitter.velocity, emitter.velocity);
-			// 	Vec2.scale(emitter.velocity, emitter.velocity, speed);
-			// 	// emitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);
-			// }
+			// console.log("collision " + emitter.id + "-" + other.id);
+			// console.log(emitter);
+			// console.log(other);
+			if (other === paddleLeftBody || other === paddleRightBody) { // control direction of the ball
+				let relativePosition: number = emitter.position[1] - other.position[1];
+				relativePosition /= paddleHalfSize[1];
+				relativePosition = Math.max(-1, Math.min(1, relativePosition));
+				const angle: number = Math.PI / 4 * relativePosition; // angle between -45 and 45 degrees
+				const speed: number = emitter.velocity.magnitude;
+				const x: number = other === paddleLeftBody ? 1 : -1; // direction of the ball
+				const y: number = Math.sin(angle); // vertical component of the ball's velocity
+				const paddleVelocity: Vec2 = new Vec2(x, y);
+				Vec2.normalize(paddleVelocity, paddleVelocity);
+				Vec2.scale(paddleVelocity, paddleVelocity, speed);
+				// emitter.velocity = paddleVelocity;
+				// blend the ball's velocity with the paddle's velocity
+				Vec2.add(emitter.velocity, paddleVelocity, emitter.velocity);
+				Vec2.normalize(emitter.velocity, emitter.velocity);
+				Vec2.scale(emitter.velocity, emitter.velocity, speed);
+				// emitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);
+			}
 		});
 
 		paddleLeftBody.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
