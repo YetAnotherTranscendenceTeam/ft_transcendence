@@ -29,7 +29,7 @@ export class Lobby extends LobbyBase {
     const playersMatches = this.getInGamePlayer();
     if (playersMatches.length > 0) {
       throw new Error(
-        `This lobby contains ${playersMatches.length} active matches, please wait for them to finish`
+        `${playersMatches.length} players in this lobby are currently in a match wait for them to finish`
       );
     }
     const rank_name = rank_gamemode_remap[this.mode.name] || this.mode.name;
