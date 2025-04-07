@@ -226,6 +226,7 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     ports:
       - 127.0.0.1:4004:3000
     networks:

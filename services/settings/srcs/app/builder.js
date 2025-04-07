@@ -2,7 +2,9 @@
 
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import Ajv from "ajv";
 import jwt from "@fastify/jwt";
+import addFormats from "ajv-formats";
 import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
 import cookie from "@fastify/cookie";
@@ -39,6 +41,11 @@ export default function build(opts = {}) {
       return new HttpError.Unauthorized().json();
     },
   });
+
+  // Setup shema compiler
+  const ajv = new Ajv();
+  addFormats(ajv);
+  app.setValidatorCompiler(({ schema }) => ajv.compile(schema));
 
   app.register(jwt, { secret: jwt_secret });
   app.register(formbody);
