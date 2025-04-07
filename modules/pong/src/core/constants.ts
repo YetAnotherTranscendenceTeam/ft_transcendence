@@ -11,10 +11,10 @@ export const bounceMaterial = {
 
 export const ballSpeedMin = 0.5;
 export const ballSpeedMax = 2;
-export const ballSize = 0.1;
+export const ballSize = 0.15;
 export const paddleHalfSize = [0.1, 0.5];
 
 export const defaultBallSpeed = 1;
-export const defaultPaddleSpeed = 1;
+export const defaultPaddleSpeed = 1.5;
 export const defaultPointsToWin = 5;
 export const defaultGameMode = GameMode.ONE_VS_ONE;

@@ -16,8 +16,10 @@ export default class Wall {
 		this._size = size;
 
 		this._material = new StandardMaterial("wallMaterial", this._scene);
+		this._material.diffuseColor = color;
+		this._material.specularColor = new Color3(0, 0, 0);
 		// this.loadMaterial().then(() => {
-			this.createWallModel(name, color);
+			this.createWallModel(name);
 		// });
 	}
 
@@ -35,7 +37,7 @@ export default class Wall {
 	// 	this._material.backFaceCulling = true;
 	// }
 
-	private createWallModel = (name : string, color : Color3) => {
+	private createWallModel = (name : string) => {
 		const height = 0.1;
 		const faceUV = [];
 		faceUV[0] = new BABYLON.Vector4(0, 0, this._size.x, height); // Rear

@@ -36,7 +36,7 @@ export default class Paddle {
 	}
 
 	public move(dir: number): void {
-		const speed = 1;
+		const speed = 1.5;
 		this._physicsBody.velocity = new Vec2(0, dir * speed);
 	}
 

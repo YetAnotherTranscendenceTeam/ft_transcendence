@@ -52,8 +52,8 @@ export class Pong {
 
 		// Paddles
 		const paddleShape: PH2D.PolygonShape = new PH2D.PolygonShape(paddleHalfSize[0], paddleHalfSize[1]);
-		const paddleLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, new Vec2(-5, 0), Vec2.create());
-		const paddleRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, new Vec2(5, 0), Vec2.create());
+		const paddleLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, new Vec2(-5 + paddleHalfSize[0], 0), Vec2.create());
+		const paddleRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, new Vec2(5 - paddleHalfSize[0], 0), Vec2.create());
 		this._physicsScene.addBody(paddleLeftBody);
 		this._physicsScene.addBody(paddleRightBody);
 		this._paddles.set(0, paddleLeftBody);
@@ -67,15 +67,15 @@ export class Pong {
 		this._physicsScene.addBody(wallBottomBody);
 
 		// Goal
-		// const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(0.1, 4);
-		// const goalLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, goalShape, bounceMaterial, new Vec2(-6.2, 0), Vec2.create());
-		// const goalRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, goalShape, bounceMaterial, new Vec2(6.2, 0), Vec2.create());
-		// this._physicsScene.addBody(goalLeftBody);
-		// this._physicsScene.addBody(goalRightBody);
+		const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(0.1, 4.1);
+		const goalLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(-5.2, 0), Vec2.create());
+		const goalRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(5.2, 0), Vec2.create());
+		this._physicsScene.addBody(goalLeftBody);
+		this._physicsScene.addBody(goalRightBody);
 
 		ballBody.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
 			const { emitter, other, manifold } = event.detail;
-			// console.log("collision " + emitter.id + "-" + other.id);
+			console.log("collision " + emitter.id + "-" + other.id);
 			// console.log(emitter);
 			// console.log(other);
 			if (other === paddleLeftBody || other === paddleRightBody) { // control direction of the ball
@@ -96,13 +96,17 @@ export class Pong {
 				Vec2.scale(emitter.velocity, emitter.velocity, speed);
 				// emitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);
 			}
-		});
-
-		paddleLeftBody.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
-			const { emitter, other, manifold } = event.detail;
-			console.log("collision " + emitter.id + "-" + other.id);
-			console.log(emitter);
-			console.log(other);
+			if (other === goalLeftBody) { // left goal
+				this._score[1]++;
+				console.log("goal left");
+				console.log("total score: " + this._score[0] + "-" + this._score[1]);
+				this.start();
+			} else if (other === goalRightBody) { // right goal
+				this._score[0]++;
+				console.log("goal right");
+				console.log("total score: " + this._score[0] + "-" + this._score[1]);
+				this.start();
+			}
 		});
 	}
 
@@ -110,13 +114,14 @@ export class Pong {
 		this._state = PongState.PLAYING;
 		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
 		const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
-		const speed: number = 1; // speed of the ball (to normalize with)
+		const speed: number = 2; // speed of the ball (to normalize with)
 		const x: number = dir === 0 ? -1 : 1; // direction of the ball
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		const ballVelocity: Vec2 = new Vec2(x, y);
 		Vec2.normalize(ballVelocity, ballVelocity);
 		Vec2.scale(ballVelocity, ballVelocity, speed);
 		this._balls[0].velocity = ballVelocity;
+		this._balls[0].position = Vec2.create();
 	}
 
 	public toJSON() {

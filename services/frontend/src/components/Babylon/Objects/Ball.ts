@@ -14,7 +14,7 @@ export default class Ball {
 		this._physicsBody = physicsBody;
 		this._mesh = MeshBuilder.CreateSphere(
 			"ball",
-			{ diameter: 0.1 },
+			{ diameter: 0.3 },
 			this._scene
 		);
 		this._mesh.position = new BABYLON.Vector3(

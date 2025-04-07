@@ -2,8 +2,6 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, InputBlock } from "@babylonjs/core";
-import Ball from "./Ball";
-import Wall from "./Wall";
 import createDefaultScene from "./DefaultScene";
 import { GameMode, GameModeType, IPlayer } from 'yatt-lobbies'
 import GameScene from "./GameScene";

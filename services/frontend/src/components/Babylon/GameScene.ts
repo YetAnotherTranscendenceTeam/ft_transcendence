@@ -1,8 +1,6 @@
 import "@babylonjs/inspector";
 import { Engine, Scene, Camera, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Color3, Color4, MeshBuilder, StandardMaterial } from "@babylonjs/core";
-import Ball from "./Ball";
-import Paddle from "./Paddle";
-import Wall from "./Wall";
+import { Ball, Paddle, Wall, Trigger } from "./Objects/objects";
 import { CellMaterial } from "@babylonjs/materials";
 // import { CircleShape, Body } from "physics-engine";
 import * as PH2D from "physics-engine";
@@ -70,6 +68,9 @@ export default class PongScene extends Pong {
 		// default setup
 		const wall1: Wall = new Wall(this._babylonScene, "wall1", new Vector2(0, -4), new Vector2(10, 0.2));
 		const wall2: Wall = new Wall(this._babylonScene, "wall2", new Vector2(0, 4), new Vector2(10, 0.2));
+
+		const goal1: Trigger = new Trigger(this._babylonScene, "goal1", new Vector2(-5.2, 0), new Vector2(0.2, 8.2), Color3.Red());
+		const goal2: Trigger = new Trigger(this._babylonScene, "goal2", new Vector2(5.2, 0), new Vector2(0.2, 8.2), Color3.Red());
 	}
 
 	public startGame() {
@@ -96,12 +97,6 @@ export default class PongScene extends Pong {
 		this._ballInstances.forEach((ball: Ball) => {
 			ball.update(dt);
 		});
-
-		if (this._keyboard.get("c") === keyState.PRESSED || this._keyboard.get("c") === keyState.HELD) {
-			console.log("paddle 0 position: ", this._paddles.get(0)?.position);
-			console.log("paddle 1 position: ", this._paddles.get(1)?.position);
-			console.log("ball position: ", this._balls[0]?.position);
-		}
 	}
 	
 	public render() {
