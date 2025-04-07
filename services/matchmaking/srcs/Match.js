@@ -18,7 +18,6 @@ export class Match {
         ...player,
         team_index: Math.floor(index / gamemode.team_size),
       }));
-      console.log(this.players);
       this.gamemode = gamemode;
       // gamemode name is saved in case the gamemode doesn't exist anymore
       this.gamemode_name = gamemode.name;
