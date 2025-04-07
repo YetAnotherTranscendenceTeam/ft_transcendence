@@ -128,6 +128,7 @@ describe.each(matchmaking_tests)(
       for (let match of matches.values()) {
         promises.push(request(matchmakingURL)
           .patch(`/matches/${match.match.match_id}`)
+          .set("Authorization", `Bearer ${app.jwt.sign({})}`)
           .send({ state: 2 })
           .then((response) => {
             expect(response.status).toBe(200);

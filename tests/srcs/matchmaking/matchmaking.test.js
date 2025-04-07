@@ -87,6 +87,7 @@ describe("direct match making", () => {
         });
         const res = await request(matchmakingURL)
         .patch(`/matches/${messagedata.match.match.match_id}`)
+        .set("Authorization", `Bearer ${app.jwt.sign({})}`)
         .send({ state: 2 });
         expect(res.statusCode).toBe(200);
       }

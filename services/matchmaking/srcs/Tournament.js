@@ -194,7 +194,7 @@ export class Tournament {
   }
 
   finish() {
-    this.broadcast("tournament_finished", {
+    this.broadcast("finish", {
       tournament: this
     });
     this.manager.unregisterTournament(this);
