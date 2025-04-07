@@ -61,8 +61,8 @@ export class Pong {
 
 		// Walls
 		const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(5, 0.1);
-		const wallTopBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, -4), Vec2.create());
-		const wallBottomBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, 4), Vec2.create());
+		const wallBottomBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, -4), Vec2.create());
+		const wallTopBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, 4), Vec2.create());
 		this._physicsScene.addBody(wallTopBody);
 		this._physicsScene.addBody(wallBottomBody);
 
@@ -78,19 +78,23 @@ export class Pong {
 			console.log("collision " + emitter.id + "-" + other.id);
 			console.log(emitter);
 			console.log(other);
-			// console.log("emitter pos: " + emitter.position[0] + ", " + emitter.position[1]);
-			// console.log("other pos: " + other.position[0] + ", " + other.position[1]);
-			// if (other === paddleLeftBody || other === paddleRightBody) {
-			// 	const ballVelocity: Vec2 = emitter.velocity;
-			// 	const paddleVelocity: Vec2 = other.velocity;
-			// 	const normal: Vec2 = manifold.normal;
-			// 	const angle: number = Math.atan2(normal.y, normal.x);
-			// 	const speed: number = Math.max(ballSpeedMin, Vec2.length(ballVelocity));
-			// 	Vec2.scale(ballVelocity, ballVelocity, -1);
-			// 	Vec2.rotate(ballVelocity, ballVelocity, Vec2.create(), angle);
-			// 	Vec2.scale(ballVelocity, ballVelocity, speed);
-			// 	emitter.velocity = ballVelocity;
-			// 	console.log("ball velocity: " + ballVelocity[0] + ", " + ballVelocity[1]);
+			// if (other === paddleLeftBody || other === paddleRightBody) { // control direction of the ball
+			// 	let relativePosition: number = emitter.position[1] - other.position[1];
+			// 	relativePosition /= paddleHalfSize[1];
+			// 	relativePosition = Math.max(-1, Math.min(1, relativePosition));
+			// 	const angle: number = Math.PI / 4 * relativePosition; // angle between -45 and 45 degrees
+			// 	const speed: number = emitter.velocity.magnitude;
+			// 	const x: number = other === paddleLeftBody ? 1 : -1; // direction of the ball
+			// 	const y: number = Math.sin(angle); // vertical component of the ball's velocity
+			// 	const paddleVelocity: Vec2 = new Vec2(x, y);
+			// 	Vec2.normalize(paddleVelocity, paddleVelocity);
+			// 	Vec2.scale(paddleVelocity, paddleVelocity, speed);
+			// 	// emitter.velocity = paddleVelocity;
+			// 	// blend the ball's velocity with the paddle's velocity
+			// 	Vec2.add(emitter.velocity, paddleVelocity, emitter.velocity);
+			// 	Vec2.normalize(emitter.velocity, emitter.velocity);
+			// 	Vec2.scale(emitter.velocity, emitter.velocity, speed);
+			// 	// emitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);
 			// }
 		});
 
@@ -104,15 +108,15 @@ export class Pong {
 
 	protected start() {
 		this._state = PongState.PLAYING;
-		// const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		// const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
-		// const speed: number = 1; // speed of the ball (to normalize with)
-		// const x: number = dir === 0 ? -1 : 1; // direction of the ball
-		// const y: number = Math.sin(angle); // vertical component of the ball's velocity
-		// const ballVelocity: Vec2 = new Vec2(x, y);
-		// Vec2.normalize(ballVelocity, ballVelocity);
-		// Vec2.scale(ballVelocity, ballVelocity, speed);
-		// this._balls[0].velocity = ballVelocity;
+		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
+		const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
+		const speed: number = 1; // speed of the ball (to normalize with)
+		const x: number = dir === 0 ? -1 : 1; // direction of the ball
+		const y: number = Math.sin(angle); // vertical component of the ball's velocity
+		const ballVelocity: Vec2 = new Vec2(x, y);
+		Vec2.normalize(ballVelocity, ballVelocity);
+		Vec2.scale(ballVelocity, ballVelocity, speed);
+		this._balls[0].velocity = ballVelocity;
 	}
 
 	public toJSON() {
@@ -136,6 +140,13 @@ export class Pong {
 			this._physicsScene.step();
 			this._accumulator -= DT;
 		}
+		// this._paddles.forEach((paddle: PH2D.Body) => {
+		// 	if (paddle.position[1] > (4 - paddleHalfSize[1] - 0.1)) {
+		// 		paddle.position[1] = (4 - paddleHalfSize[1] - 0.1);
+		// 	} else if (paddle.position[1] < (-4 + paddleHalfSize[1] + 0.1)) {
+		// 		paddle.position[1] = (-4 + paddleHalfSize[1] + 0.1);
+		// 	}
+		// });
 		return this._accumulator / DT;
 	}
 }

@@ -22,6 +22,8 @@ export default class PongScene extends Pong {
 
 	private _ballInstances: Ball[];
 	private _paddleInstance: Map<number, Paddle>;
+
+	private _running: number = 0;
 	
 	public constructor(canvas: HTMLCanvasElement, engine: Engine, keyboard: Map<string, keyState>) {
 		super();
@@ -72,6 +74,7 @@ export default class PongScene extends Pong {
 
 	public startGame() {
 		this.start();
+		this._running = 1;
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
 	}
 	
@@ -80,9 +83,12 @@ export default class PongScene extends Pong {
 	}
 
 	public update() {
-		this.playerUpdate();
-
 		let dt: number = this._engine.getDeltaTime() / 1000;
+		if (this._running === 0) {
+			return;
+		}
+
+		this.playerUpdate();
 		dt = this.physicsUpdate(dt);
 		this._paddleInstance.forEach((paddle: Paddle) => {
 			paddle.update(dt);

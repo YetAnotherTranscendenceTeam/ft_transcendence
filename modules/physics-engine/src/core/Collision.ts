@@ -48,7 +48,6 @@ function circleCircleCollision(manifold: Manifold, bodyA: Body, bodyB: Body): vo
 }
 
 function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): void {
-	console.log("circlePolygonCollision");
 	const circle: CircleShape = bodyA.shape as CircleShape;
 	const polygon: PolygonShape = bodyB.shape as PolygonShape;
 
@@ -58,59 +57,21 @@ function circlePolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): v
 	let separation: number = -Number.MAX_VALUE;
 	let faceNormal: number = 0;
 
-	if (bodyB.id === 2) {
-		console.log("center", center);
-		console.log("bodyA", bodyA);
-		console.log("bodyB", bodyB);
-		console.log("polygon", polygon);
-		// console.log("polygon.vertices", polygon.vertices);
-		console.log("valeur ", polygon.vertices[0]);
-		console.log("valeur ", polygon.vertices[1]);
-		console.log("valeur ", polygon.vertices[2]);
-		console.log("valeur ", polygon.vertices[3]);
-		console.log("polygon.vertices", polygon.vertices);
-		console.log("valeur ", polygon.vertices[0]);
-		console.log("valeur ", polygon.vertices[1]);
-		console.log("valeur ", polygon.vertices[2]);
-		console.log("valeur ", polygon.vertices[3]);
-	}
-
 	for (let i = 0; i < polygon.vertices.length; i++) {
-		// let truc = polygon.vertices[i];
-		if (bodyB.id === 2) {
-			// console.log("i", i);
-			// console.log("truc", truc);
-			console.log(`av polygon.vertices[${i}]`, polygon.vertices[i]);
-			console.log(`av polygon.normals[${i}]`, polygon.normals[i]);
-		}
 		const s: number = Vec2.dot(polygon.normals[i], Vec2.subtract(Vec2.create(), center, polygon.vertices[i]));
-		if (bodyB.id === 2) {
-			// console.log("i", i);
-			// console.log(`polygon.vertices[${i}]`, polygon.vertices[i]);
-			// console.log(`polygon.normals[${i}]`, polygon.normals[i]);
-			console.log("s", s);
-		}
 
 		if (s > circle.radius) {
-			// console.log("s > circle.radius", s, circle.radius);
 			return;
 		}
 		if (s > separation) {
 			separation = s;
 			faceNormal = i;
 		}
-
-		if (bodyB.id === 2) {
-			// console.log("i", i);
-			// console.log("truc", truc);
-			console.log(`ap polygon.vertices[${i}]`, polygon.vertices[i]);
-			console.log(`ap polygon.normals[${i}]`, polygon.normals[i]);
-		}
 	}
 
-	const v1: Vec2 = polygon.vertices[faceNormal];
+	const v1: Vec2 = Vec2.clone(polygon.vertices[faceNormal]);
 	const i2: number = (faceNormal + 1) % polygon.vertices.length;
-	const v2: Vec2 = polygon.vertices[i2];
+	const v2: Vec2 = Vec2.clone(polygon.vertices[i2]);
 
 	if (separation < EPSILON) {
 		const normal: Vec2 = Vec2.clone(polygon.normals[faceNormal]);
@@ -212,11 +173,11 @@ function findIncidentFace(refBody: Body, incBody: Body, referenceIndex: number):
 		}
 	}
 
-	const v1: Vec2 = incPolygon.vertices[incidentFace];
+	const v1: Vec2 = Vec2.clone(incPolygon.vertices[incidentFace]);
 	Vec2.transformMat2(v1, v1, incPolygon.u);
 	Vec2.add(v1, v1, incBody.position);
 	const i2: number = (incidentFace + 1) % incPolygon.vertices.length;
-	const v2: Vec2 = incPolygon.vertices[i2];
+	const v2: Vec2 = Vec2.clone(incPolygon.vertices[i2]);
 	Vec2.transformMat2(v2, v2, incPolygon.u);
 	Vec2.add(v2, v2, incBody.position);
 
@@ -225,7 +186,7 @@ function findIncidentFace(refBody: Body, incBody: Body, referenceIndex: number):
 
 function clip(n: Vec2, c: number, face: [Vec2, Vec2]): number {
 	let sp:number = 0;
-	const out: Vec2[] = [face[0], face[1]];
+	const out: Vec2[] = [Vec2.clone(face[0]), Vec2.clone(face[1])];
 
 	const d1: number = Vec2.dot(n, face[0]) - c;
 	const d2: number = Vec2.dot(n, face[1]) - c;
@@ -316,7 +277,6 @@ function polygonPolygonCollision(manifold: Manifold, bodyA: Body, bodyB: Body): 
 	if (separation >= 0) {
 		manifold.contacts[cp++] = incidentFace[1];
 		manifold.penetration += -separation;
-
 		manifold.penetration /= cp;
 	}
 }
