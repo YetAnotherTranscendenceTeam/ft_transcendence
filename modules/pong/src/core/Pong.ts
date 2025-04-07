@@ -140,13 +140,13 @@ export class Pong {
 			this._physicsScene.step();
 			this._accumulator -= DT;
 		}
-		// this._paddles.forEach((paddle: PH2D.Body) => {
-		// 	if (paddle.position[1] > (4 - paddleHalfSize[1] - 0.1)) {
-		// 		paddle.position[1] = (4 - paddleHalfSize[1] - 0.1);
-		// 	} else if (paddle.position[1] < (-4 + paddleHalfSize[1] + 0.1)) {
-		// 		paddle.position[1] = (-4 + paddleHalfSize[1] + 0.1);
-		// 	}
-		// });
+		this._paddles.forEach((paddle: PH2D.Body) => {
+			if (paddle.position[1] > (4 - paddleHalfSize[1] - 0.1)) {
+				paddle.position[1] = (4 - paddleHalfSize[1] - 0.1);
+			} else if (paddle.position[1] < (-4 + paddleHalfSize[1] + 0.1)) {
+				paddle.position[1] = (-4 + paddleHalfSize[1] + 0.1);
+			}
+		});
 		return this._accumulator / DT;
 	}
 }
