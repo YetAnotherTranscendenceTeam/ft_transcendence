@@ -127,7 +127,7 @@ export class Queue {
       const lobby = lobbies[0];
       if (lobby.getTeamCount() > 2) {
         const teams = lobby.getTeams();
-        const tournament = new Tournament(teams, this.gamemode);
+        const tournament = new Tournament(teams, this.gamemode, this.fastify.tournaments);
         this.fastify.tournaments.registerTournament(tournament);
         this.lobbyConnection.send({
           event: "match",

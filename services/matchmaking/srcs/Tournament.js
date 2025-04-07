@@ -1,4 +1,6 @@
-const MatchState = {
+import { Match, MatchState } from "./Match.js";
+
+const TournamentMatchState = {
 	WAITING: 'waiting',
 	PLAYING: 'playing',
 	DONE: 'done'
@@ -42,31 +44,82 @@ class TournamentPlayer {
 }
 
 class TournamentMatch {
-  state = MatchState.WAITING;
+  state = TournamentMatchState.WAITING;
   team_ids = [];
-  scores = [0, 0];
+  tournament;
   nextMatch = null;
+  internal_match = null;
 
-  constructor(nextMatch) {
+  constructor(tournament, nextMatch) {
+    this.tournament = tournament;
     this.nextMatch = nextMatch;
+  }
+
+  setState(state) {
+    if (state === TournamentMatchState.PLAYING) {
+      this.createInternalMatch();
+    }
+    this.state = state;
+    this.tournament.broadcast("match_update", {
+      match: this
+    });
+  }
+
+  createInternalMatch() {
+    this.internal_match = new Match([
+      ...this.tournament.teams[this.team_ids[0]].players,
+      ...this.tournament.teams[this.team_ids[1]].players
+    ], this.tournament.gamemode);
+    this.internal_match.insert();
+    this.tournament.manager.registerTournamentMatch(this);
+    return this.internal_match;
+  }
+
+  updateMatch({state, score_0, score_1}) {
+    this.internal_match.score_0 = score_0;
+    this.internal_match.score_1 = score_1;
+    this.internal_match.state = state;
+    const states = {
+      [MatchState.RESERVED]: TournamentMatchState.PLAYING,
+      [MatchState.PLAYING]: TournamentMatchState.PLAYING,
+      [MatchState.DONE]: TournamentMatchState.DONE,
+    }
+    const newState = states[state];
+    const oldState = this.state;
+    this.state = newState;
+    this.tournament.broadcast("match_update", {
+      match: this
+    });
+    if (newState == TournamentMatchState.DONE && oldState != newState) {
+      this.tournament.manager.unregisterTournamentMatch(this);
+      const winner_team = this.internal_match.score_0 > this.internal_match.score_1 ? 0 : 1;
+      if (!this.nextMatch) {
+        this.tournament.finish();
+        return;
+      }
+      this.nextMatch.team_ids.push(this.team_ids[winner_team]);
+      this.nextMatch.setState(TournamentMatchState.PLAYING);
+    }
   }
 
   toJSON() {
     return {
       state: this.state,
       team_ids: this.team_ids,
-      scores: this.scores,
+      scores: [this.internal_match?.score_0, this.internal_match?.score_1],
+      match_id: this.internal_match?.match_id,
     };
   }
 }
 
 export class Tournament {
+  manager;
   teams = [];
   matches = [];
   subscribers = new Set();
   gamemode;
 
-  constructor(teams, gamemode) {
+  constructor(teams, gamemode, manager) {
     this.teams = teams.forEach((team) => {
       team.players = team.players.map((player) => new TournamentPlayer(player, this));
     });
@@ -74,6 +127,7 @@ export class Tournament {
       (a, b) => a.players.reduce((a, b) => a + b.elo, 0) - b.players.reduce((a, b) => a + b.elo, 0)
     );
     this.gamemode = gamemode;
+    this.manager = manager;
     this.createMatches();
   }
 
@@ -86,7 +140,7 @@ export class Tournament {
     for (let stage = 0; stage < stageCount; stage++) {
       const stageMatches = [];
       for (let i = 0; i < stageMatchCount; i++) {
-        const match = new TournamentMatch(previousStage ? previousStage[Math.floor(i / 2)] : null, []);
+        const match = new TournamentMatch(this, previousStage ? previousStage[Math.floor(i / 2)] : null, []);
         stageMatches.push(match);
       }
       stages.push(stageMatches);
@@ -112,6 +166,7 @@ export class Tournament {
       }
       else {
         match.team_ids = [teamIndex, team2Index];
+        match.setState(TournamentMatchState.PLAYING);
       }
       teamIndex++;
     }
@@ -136,6 +191,17 @@ export class Tournament {
       }
     }
     return null;
+  }
+
+  finish() {
+    this.broadcast("tournament_finished", {
+      tournament: this
+    });
+    this.manager.unregisterTournament(this);
+  }
+
+  getMatch(match_id) {
+    return this.matches.find(match => match.internal_match?.match_id === match_id);
   }
 
   broadcast(event, data) {

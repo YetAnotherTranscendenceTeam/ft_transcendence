@@ -3,8 +3,6 @@
 import YATT, { HttpError } from "yatt-utils";
 import db from "../app/database.js";
 import { MatchState } from "../Match.js";
-import { type } from "os";
-import { GameModes } from "../GameModes.js";
 
 export default function router(fastify, opts, done) {
   fastify.get("/:match_id", {
@@ -57,19 +55,21 @@ export default function router(fastify, opts, done) {
       const { setClause, params } = YATT.patchBodyToSql(request.body);
       if (!setClause) new HttpError.BadRequest().send(reply);
 
-      const update = db.prepare(`
+      const updated = db.prepare(`
         UPDATE matches
         SET
           ${setClause}
         WHERE match_id = ?
-      `).run(...params, request.params.match_id);
-      if (update.changes === 0) {
+        RETURNING *
+      `).get(...params, request.params.match_id);
+      if (!updated) {
         return new HttpError.NotFound().send(reply);
       }
+      fastify.tournaments.getTournamentMatch(request.params.match_id)?.updateMatch(request.body);
       if (request.body.state === MatchState.DONE) {
         // TODO: update player ELO
       }
-      reply.send(update);
+      reply.send(updated);
     }
   );
   // TODO: handle stats (move this into the origin /:match_id request)
