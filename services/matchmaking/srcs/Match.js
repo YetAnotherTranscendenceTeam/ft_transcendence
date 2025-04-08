@@ -5,6 +5,7 @@ export const MatchState = {
   RESERVED: 0,
   PLAYING: 1,
   DONE: 2,
+  CANCELLED: 3,
 };
 
 export class Match {
