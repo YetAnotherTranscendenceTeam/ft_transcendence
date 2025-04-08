@@ -1,10 +1,12 @@
 import { removeEffect } from "../hooks/useEffect";
 import BabactState from "./BabactState";
 import { ElementProps } from "./Element";
-import { EffectTag, IFiber } from "./Fiber";
+import { EffectTag, Fiber, IFiber, NodeElement } from "./Fiber";
 
 
 export function commitRoot() {
+	if (!BabactState.wipRoot)
+		return;
 	BabactState.deletions.forEach(commitWork);
 	commitWork(BabactState.wipRoot.child);
 	BabactState.currentRoot = BabactState.wipRoot;
@@ -23,18 +25,20 @@ export function commitRoot() {
 	BabactState.deletions = [];
 }
 
-export function commitWork(fiber: IFiber | null) {
+export function commitWork(fiber: Fiber) {
     if (!fiber) {
         return;
     }
-    let domParentFiber: IFiber = fiber.parent; 
-    while (!domParentFiber.dom) {
+    let domParentFiber: Fiber = fiber.parent; 
+    while (domParentFiber && !domParentFiber.dom) {
         domParentFiber = domParentFiber.parent;
     }
+	if (!domParentFiber || !domParentFiber.dom)
+		return;
     const domParent: HTMLElement | Text = domParentFiber.dom;
     if (fiber.effectTag === EffectTag.Placement && fiber.dom != null) {
 		insertFiberInOrder(fiber, domParent);
-    } else if (fiber.effectTag === EffectTag.Update && fiber.dom != null) {
+    } else if (fiber.effectTag === EffectTag.Update && fiber.dom != null && fiber.alternate) {
         updateDom(fiber.dom as HTMLElement, fiber.alternate.props, fiber.props);
     } else if (fiber.effectTag === EffectTag.Deletion) {
         commitDeletion(fiber, domParent);
@@ -48,7 +52,7 @@ export function commitWork(fiber: IFiber | null) {
     commitWork(fiber.sibling);
 }
 
-function findValidReferenceNode(fiber: IFiber, domParent: HTMLElement | Text): HTMLElement | Text {
+function findValidReferenceNode(fiber: Fiber, domParent: HTMLElement | Text): NodeElement | null {
 
 	if (!fiber) {
 		return null;
@@ -73,7 +77,9 @@ function findValidReferenceNode(fiber: IFiber, domParent: HTMLElement | Text): H
 	return null;
 }
 
-function insertFiberInOrder(fiber: IFiber, domParent: HTMLElement | Text) {
+function insertFiberInOrder(fiber: Fiber, domParent: HTMLElement | Text) {
+	if (!fiber || !fiber.dom)
+		return;
 	let startFiber = fiber;
 	while (startFiber.parent && !startFiber.sibling) {
 		startFiber = startFiber.parent;
@@ -123,7 +129,7 @@ function updateDom(dom: HTMLElement, prevProps: ElementProps, nextProps: Element
 		});
 }
 
-function commitDeletion(fiber: IFiber, domParent: HTMLElement | Text) {
+function commitDeletion(fiber: Fiber, domParent: HTMLElement | Text) {
 	if (!fiber)
 		return;
 	removeEffect(fiber);

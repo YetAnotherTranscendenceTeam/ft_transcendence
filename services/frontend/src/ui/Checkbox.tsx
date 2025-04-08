@@ -27,7 +27,7 @@ export default function Checkbox({
 	}
 
 	Babact.useEffect(() => {
-		(document.getElementById(field) as HTMLInputElement).checked = fields[field] === true;
+		(document.getElementById(field) as HTMLInputElement).checked = fields[field].value === true;
 	}, [fields[field]]);
 	
 	const isFieldValid = fields[field]?.isValid;

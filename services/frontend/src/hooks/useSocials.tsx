@@ -4,7 +4,7 @@ import useWebSocket, { WebSocketHook } from "./useWebSocket";
 import useFetch from "./useFetch";
 import config from "../config";
 import { IMe } from "../contexts/useAuth";
-import useToast from "./useToast";
+import useToast, { ToastType } from "./useToast";
 import { GameMode, IGameMode } from "yatt-lobbies";
 import Button from "../ui/Button";
 import { useLobby } from "../contexts/useLobby";
@@ -88,7 +88,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		connected: boolean,
 		connect: () => void
 		ping: () => void
-		status: (status: FollowStatus) => void
+		status: (status: FollowStatus) => void,
+		disconnect: () => void
 	} {
 
 	const [follows, setFollows] = Babact.useState<Follow[]>([]);
@@ -157,7 +158,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 			</div>
 		</div>;
 
-		createToast(message, 'info', 0);
+		createToast(message, ToastType.INFO, 0);
 	};
 
 	const onLobbyRequest = ({ username, account_id }: {username: string, account_id: number}) => {
@@ -181,7 +182,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 					type: StatusType.OFFLINE,
 				}
 			}, ws);
-			createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
+			createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
 			follow.invite(lobby.mode, lobby.join_secret);
 			removeToast(id);
 			inivites.current = inivites.current.filter(i => i !== username);
@@ -210,7 +211,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 			</div>
 		</div>
 
-		createToast(message, 'info', 0);
+		createToast(message, ToastType.INFO, 0);
 	};
 
 	const onConnect = () => {
@@ -245,11 +246,16 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		ws.send({event: 'update_status', data: status});
 	};
 
+	const disconnect = () => {
+		ws.close();
+	};
+
 	return {
 		follows,
 		connected: ws.connected,
 		connect,
 		ping,
 		status,
+		disconnect,
 	};
 }

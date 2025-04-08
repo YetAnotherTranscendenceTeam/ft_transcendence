@@ -11,5 +11,8 @@
     "yatt-lobbies": "file:../../modules/yatt-lobbies",
     "yatt-utils": "file:../../modules/yatt-utils"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

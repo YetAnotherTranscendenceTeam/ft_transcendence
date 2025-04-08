@@ -12,7 +12,7 @@ export default function SocialUserCard({
 		[key: string]: any
 	}) {
 
-	const [isLoading, setIsLoading] = Babact.useState(false);
+	const [isLoading, setIsLoading] = Babact.useState<boolean>(false);
 
 	const handleFollow = async () => {
 		setIsLoading(true);

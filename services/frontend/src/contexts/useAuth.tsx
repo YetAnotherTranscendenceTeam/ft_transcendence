@@ -4,7 +4,16 @@ import config from "../config";
 import { IUser } from "../hooks/useUsers";
 import useSocial, { Follow, FollowStatus } from "../hooks/useSocials";
 
-const AuthContext = Babact.createContext({});
+const AuthContext = Babact.createContext<{
+		me: IMe,
+		follows: Follow[],
+		connected: boolean,
+		auth: (token: string, expire_at: number) => void,
+		logout: () => void,
+		refresh: () => void,
+		ping: () => void,
+		status: (status: FollowStatus) => void,
+	}>();
 
 interface ICredentials {
 	account_id: number,
@@ -32,7 +41,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			connect();
 		}
 		else{
-			console.log('logout');
 			logout();
 		}
 	};
@@ -65,6 +73,8 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 
 	Babact.useEffect(() => {
 		meRef.current = me;
+		if (!me && connected)
+			disconnect();
 	}, [me]);
 
 	const setMeStatus = (status: FollowStatus) => {
@@ -75,7 +85,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		return meRef.current;
 	};
 
-	const { connect, follows, ping, status, connected } = useSocial(setMeStatus, getMe);
+	const { connect, follows, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
 
 	return (
 		<AuthContext.Provider
@@ -95,16 +105,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	);
 };
 
-export const useAuth = (): {
-		me: IMe,
-		follows: Follow[],
-		connected: boolean,
-		auth: (token: string, expire_at: number) => void,
-		logout: () => void,
-		refresh: () => void,
-		ping: () => void,
-		status: (status: FollowStatus) => void,
-		setMeStatus: (status: FollowStatus) => void,
-	} => {
+export const useAuth = () => {
 	return Babact.useContext(AuthContext);
 };

@@ -5,12 +5,13 @@ import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket';
 import { FastifySSEPlugin } from "fastify-sse-v2";
 import router from "./router.js";
-import YATT, {HttpError} from "yatt-utils";
+import YATT from "yatt-utils";
 import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import qs from "qs";
 import { jwt_secret } from "./env.js";
 import { matchmaking_jwt_secret } from "./env.js";
+import db from "./database.js";
 
 import { TournamentManger } from "../TournamentManager.js";
 
@@ -69,6 +70,21 @@ export default function build(opts = {}) {
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    // Cleanup instructions for a graceful shutdown
+    db.close();
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }

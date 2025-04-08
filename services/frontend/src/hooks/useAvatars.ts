@@ -2,9 +2,21 @@ import Babact from "babact";
 import useFetch from "./useFetch";
 import config from "../config";
 
-export default function useAvatars() {
+interface IAvatar {
+	url: string;
+	isRemovable: boolean;
+}
 
-	const [avatars, setAvatars] = Babact.useState(null);
+export default function useAvatars(): {
+	avatars: IAvatar[],
+	uploadAvatar: (file: File) => void,
+	deleteAvatar: (url: string) => Promise<any>
+} {
+
+	const [avatars, setAvatars] = Babact.useState<{
+		default: string[],
+		user: string[]
+	}>(null);
 	const { ft_fetch } = useFetch();
 
 	const mapAvatars = (avatars) => {
@@ -35,7 +47,7 @@ export default function useAvatars() {
 		fetchAvatars();
 	}, []);
 
-	const uploadAvatar = async (file) => {
+	const uploadAvatar = async (file: File) => {
 		const response = await ft_fetch(`${config.API_URL}/avatars`, {
 			method: 'POST',
 			body: file,
@@ -56,7 +68,7 @@ export default function useAvatars() {
 			});
 	}
 
-	const deleteAvatar = async (url) => {
+	const deleteAvatar = async (url: string) => {
 		const response = await ft_fetch(`${config.API_URL}/avatars?url=${url}`, {
 			method: 'DELETE'
 		}, {
@@ -69,6 +81,7 @@ export default function useAvatars() {
 				user: avatars.user.filter(avatar => avatar !== url)
 			});
 		}
+		return response;
 	}
 
 	return {

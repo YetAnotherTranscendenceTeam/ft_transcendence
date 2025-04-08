@@ -4,14 +4,13 @@ services:
     ports:
       - "8080:8080"
       - "7979:7979"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
     networks:
       - frontend
       - avatars
       - settings
-      - documentation
       - social
-    environment:
-      - NGINX_HOST=localhost
     secrets:
       - ssl-crt
       - ssl-key
@@ -29,6 +28,7 @@ services:
     environment:
       - BACKEND_URL=${BACKEND_URL}
       - WS_URL=${WS_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
     ports:
       - "127.0.0.1:4242:8080"
     networks:
@@ -57,6 +57,7 @@ services:
       - ./modules/:/modules:ro
       - sqlite:/database
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
@@ -74,8 +75,9 @@ services:
       - ./services/registration/srcs:/services/registration/srcs
       - ./modules/:/modules:ro
     environment:
-      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     ports:
       - "127.0.0.1:4012:3000"
     networks:
@@ -90,8 +92,9 @@ services:
       - ./services/password-auth/srcs:/services/password-auth/srcs
       - ./modules/:/modules:ro
     environment:
-      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     ports:
       - "127.0.0.1:4022:3000"
     networks:
@@ -107,13 +110,13 @@ services:
       - ./services/fortytwo-auth/srcs:/services/fortytwo-auth/srcs
       - ./modules/:/modules:ro
     environment:
-      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - JWT_SECRET=${JWT_SECRET}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
       - API42_CLIENT_ID=${API42_CLIENT_ID}
       - API42_SECRET=${API42_SECRET}
       - API42_REDIRECT_URI=${API42_REDIRECT_URI}
-      - FRONTEND_URL=${FRONTEND_URL}
-      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
       - "127.0.0.1:4042:3000"
     networks:
@@ -123,9 +126,28 @@ services:
       - db-profiles
       - avatars
 
+  google-auth:
+    build:
+      context: services/google-auth/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/google-auth/srcs:/services/google-auth/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    ports:
+      - "127.0.0.1:4032:3000"
+    networks:
+      - credentials
+      - frontend
+      - tokens
+      - db-profiles
+      - avatars
+
   lobbies:
-    depends_on:
-      - matchmaking
     build:
       context: services/lobbies/
       dockerfile: Dockerfile.dev
@@ -133,6 +155,7 @@ services:
       - ./services/lobbies/srcs:/services/lobbies/srcs
       - ./modules/:/modules:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
     ports:
@@ -140,6 +163,8 @@ services:
     networks:
       - frontend
       - db-profiles
+    depends_on:
+      - matchmaking
 
   matchmaking:
     build:
@@ -183,6 +208,7 @@ services:
       - ./services/users/srcs:/services/users/srcs
       - ./modules/:/modules:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
     ports:
       - 127.0.0.1:4003:3000
@@ -198,6 +224,7 @@ services:
       - ./services/settings/srcs:/services/settings/srcs
       - ./modules/:/modules:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
@@ -218,6 +245,8 @@ services:
       - ./modules/:/modules:ro
       - sqlite:/database
     environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
       - CDN_URL=${CDN_URL}
@@ -239,6 +268,7 @@ services:
       - ./modules/:/modules:ro
       - sqlite:/database
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - JWT_SECRET=${JWT_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
@@ -248,22 +278,6 @@ services:
       - social
       - db-profiles
       - settings
-
-
-  documentation:
-    build:
-      context: services/documentation/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./documentation/:/documentation/:ro
-      - ./services/documentation/srcs:/services/documentation/srcs
-      - ./modules/:/modules:ro
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-    ports:
-      - 42000:3000
-    networks:
-      - documentation
 
   cdn-nginx:
     build: services/CDN/nginx/
@@ -292,9 +306,23 @@ services:
       - ./services/CDN/api/srcs:/services/CDN/api/srcs
       - ./modules/:/modules:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - CDN_JWT_SECRET=${CDN_JWT_SECRET}
     networks:
      - cdn-api
+  
+  documentation:
+    build:
+      context: services/documentation/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./documentation/:/documentation/:ro
+      - ./services/documentation/srcs:/services/documentation/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    ports:
+      - 42000:3000
 
 networks:
   frontend:
@@ -306,8 +334,6 @@ networks:
   tokens:
     driver: bridge
   settings:
-    driver: bridge
-  documentation:
     driver: bridge
   avatars:
     driver: bridge

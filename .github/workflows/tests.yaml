@@ -21,11 +21,15 @@ jobs:
       FRONTEND_URL: https://localhost:8080
       BACKEND_URL: https://localhost:7979
       CDN_URL: https://cdn-nginx:8181
+      GOOGLE_CLIENT_ID: 'example'
       API42_CLIENT_ID: 'example'
       API42_SECRET: 'example'
       API42_REDIRECT_URI: 'https://fake-callback.com'
       MATCHMAKING_JWT_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
       MATCHMAKING_SCHEDULER_DELAY: 100
+      SOCIAL_OFFLINE_DELAY: 10000
+      SOCIAL_INACTIVITY_DELAY: 15000
+      DOMAIN_NAME: localhost
 
     steps:
       - name: Checkout repository

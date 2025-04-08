@@ -16,7 +16,7 @@ export function createDom(fiber: IFiber) : NodeElement {
             }
             else {
 				if (name in dom)
-					dom[name] = fiber.props[name];
+					(dom as any)[name] = fiber.props[name];
 				else
 					(dom as HTMLElement).setAttribute(name, fiber.props[name]);
             }

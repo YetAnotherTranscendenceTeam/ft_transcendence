@@ -198,7 +198,34 @@ paths:
         403:
           description: Invalid refresh_token
 
-  /auth/fortytwo/:
+  /auth/google:
+    post:
+      summary: Google Sign in remote auth
+      description: Authenticate using Google Sign in
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  description: Google Sign in JWT
+                  type: string
+                  example: eyJhbGciOiJSUzI1Ni.eyJjbGllbnRfaWQiEJpT0cxaWJE.IxvaN4ER-PlPgLYzfRh
+              additionalProperties: false
+              required:
+                - token
+      responses:
+        200:
+          $ref: "#/components/responses/AuthSuccess"
+        401:
+          description: Authentication failure
+
+
+  /auth/fortytwo:
     get:
       summary: 42API remote auth
       description: Authenticate using 42API Oauth

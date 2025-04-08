@@ -13,7 +13,7 @@ export default function WebcamModal({
 		onCapture: (e) => void
 	}) {
 	
-	const [error, setError] = Babact.useState(null);
+	const [error, setError] = Babact.useState<string>(null);
 	Babact.useEffect(() => {
 		const video = document.getElementById('webcam') as HTMLVideoElement;
 
@@ -60,7 +60,7 @@ export default function WebcamModal({
 		<video id='webcam'/>
 		<div className='flex justify-end gap-4'>
 			<Button onClick={onClose}>Cancel</Button>
-			<Button onClick={takePhoto} disabled={error} className="primary"><i className="fa-solid fa-camera"></i> Capture</Button>
+			<Button onClick={takePhoto} disabled={error !== null} className="primary"><i className="fa-solid fa-camera"></i> Capture</Button>
 		</div>
 	</Modal>
 
