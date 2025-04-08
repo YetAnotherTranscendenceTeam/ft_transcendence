@@ -53,8 +53,124 @@ operations:
 components:
   schemas:
     match:
-      type: number
-      description: The match id (WIP)
+      type: object
+      required:
+        - players
+        - gamemode
+        - gamemode_name
+        - state
+        - score_0
+        - score_1
+        - match_id
+        - created_at
+        - updated_at
+      properties:
+        players:
+          type: array
+          items:
+            $ref: "./lobbies.yaml#/components/schemas/player"
+        gamemode:
+          $ref: "./lobbies.yaml#/components/schemas/gamemode"
+        gamemode_name:
+          type: string
+          description: The name of the gamemode
+        state:
+          type: string
+          description: |
+            The state of the match
+            - RESERVED: 0 
+            - PLAYING: 1 
+            - DONE: 2
+            - CANCELLED: 3
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+        score_0:
+          type: integer
+          description: The score of team 0
+        score_1:
+          type: integer
+          description: The score of team 1
+        match_id:
+          type: number
+          description: The id of the match
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the match was created
+        updated_at:
+          type: string
+          format: date-time
+          description: The date and time the match was updated
+    tournament:
+      type: object
+      required:
+        - teams
+        - matches
+        - gamemode
+        - id
+      properties:
+        id:
+          type: number
+          description: The id of the tournament
+        teams:
+          type: array
+          minimumLength: 3
+          items:
+            type: object
+            required:
+              - name
+              - players
+            properties:
+              name:
+                type: string
+                description: The name of the team
+              players:
+                $ref: "./lobbies.yaml#/components/schemas/player"
+        matches:
+          type: array
+          items:
+            type: object
+            required:
+              - team_ids
+              - scores
+              - state
+              - stage
+              - index
+            properties:
+              team_ids:
+                type: array
+                maxLength: 2
+                items:
+                  type: integer
+                  description: The index of the team in the teams array
+              scores:
+                type: array
+                maxLength: 2
+                minLength: 2
+                items:
+                  type: integer
+                  description: The score of the team
+                  nullable: true
+              state:
+                type: string
+                description: The state of the match
+                enum:
+                  - waiting
+                  - playing
+                  - done
+              stage:
+                type: integer
+                description: The stage of the match (0 = final, 1 = semi final, 2 = quarter final, etc)
+              index:
+                type: integer
+                description: The index of the match in the matches array
+        gamemode:
+          $ref: "./lobbies.yaml#/components/schemas/gamemode"
+              
+
   messages:
     handshake:
       description: A message sent to authenticate itself
@@ -208,4 +324,18 @@ components:
                 items:
                   $ref: "./lobbies.yaml#/components/schemas/lobby"
               match:
-                $ref: "#/components/schemas/match"
+                type: object
+                required:
+                  - type
+                properties:
+                  type:
+                    type: string
+                    description: The type of match
+                    enum:
+                      - tournament
+                      - match
+                  tournament:
+                    $ref: "#/components/schemas/tournament"
+                  match:
+                    $ref: "#/components/schemas/match"
+                  
