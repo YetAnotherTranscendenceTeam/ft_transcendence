@@ -27,4 +27,8 @@ export class TournamentManger {
     this.tournaments.set(id, tournament);
     return id;
   }
+
+  unregisterTournament(tournament) {
+    this.tournaments.delete(tournament.id);
+  }
 }

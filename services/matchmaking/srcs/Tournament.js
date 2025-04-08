@@ -45,13 +45,16 @@ class TournamentPlayer {
 
 class TournamentMatch {
   state = TournamentMatchState.WAITING;
+  stage;
+  index;
   team_ids = [];
   tournament;
   nextMatch = null;
   internal_match = null;
 
-  constructor(tournament, nextMatch) {
+  constructor(tournament, stage, nextMatch) {
     this.tournament = tournament;
+    this.stage = stage;
     this.nextMatch = nextMatch;
   }
 
@@ -98,13 +101,20 @@ class TournamentMatch {
         return;
       }
       this.nextMatch.team_ids.push(this.team_ids[winner_team]);
-      this.nextMatch.setState(TournamentMatchState.PLAYING);
+      if (this.nextMatch.team_ids.length == 2)
+        this.nextMatch.setState(TournamentMatchState.PLAYING);
+      else
+        this.tournament.broadcast("match_update", {
+          match: this.nextMatch
+        })
     }
   }
 
   toJSON() {
     return {
       state: this.state,
+      stage: this.stage,
+      index: this.index,
       team_ids: this.team_ids,
       scores: [this.internal_match?.score_0, this.internal_match?.score_1],
       match_id: this.internal_match?.match_id,
@@ -140,7 +150,7 @@ export class Tournament {
     for (let stage = 0; stage < stageCount; stage++) {
       const stageMatches = [];
       for (let i = 0; i < stageMatchCount; i++) {
-        const match = new TournamentMatch(this, previousStage ? previousStage[Math.floor(i / 2)] : null, []);
+        const match = new TournamentMatch(this, stage, previousStage ? previousStage[Math.floor(i / 2)] : null, []);
         stageMatches.push(match);
       }
       stages.push(stageMatches);
@@ -160,6 +170,8 @@ export class Tournament {
         // remove this match and advance the single team to the next stage
         if (match.nextMatch) {
           match.nextMatch.team_ids.push(teamIndex);
+          if (match.nextMatch.team_ids.length == 2)
+            match.nextMatch.setState(TournamentMatchState.PLAYING);
         }
         previousStage[i] = null;
         this.matches[matchIndex] = null;
@@ -171,6 +183,7 @@ export class Tournament {
       teamIndex++;
     }
     this.matches = this.matches.filter(match => match);
+    this.matches.forEach((m, i) => m.index = i);
   }
 
   toJSON() {
@@ -198,6 +211,9 @@ export class Tournament {
       tournament: this
     });
     this.manager.unregisterTournament(this);
+    this.subscribers.forEach((subscriber) => {
+      subscriber.sseContext.source.end();
+    });
   }
 
   getMatch(match_id) {

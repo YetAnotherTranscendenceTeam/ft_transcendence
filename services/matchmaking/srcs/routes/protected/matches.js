@@ -41,7 +41,9 @@ export default function router(fastify, opts, done) {
       if (!updated) {
         return new HttpError.NotFound().send(reply);
       }
-      fastify.tournaments.getTournamentMatch(request.params.match_id)?.updateMatch(request.body);
+      const tournamentMatch = fastify.tournaments.getTournamentMatch(request.params.match_id);
+      if (tournamentMatch)
+        tournamentMatch.updateMatch(request.body);
       if (request.body.state === MatchState.DONE) {
         // TODO: update player ELO
       }
