@@ -4,6 +4,7 @@ import { GameMode, IPlayer } from 'yatt-lobbies'
 import { DT, ballSpeedMin, ballSize, bounceMaterial, paddleHalfSize, defaultBallSpeed, defaultPaddleSpeed, defaultPaddleShape } from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
+import Goal from "./Goal.js";
 import { ballCollision } from "./Behaviors.js";
 
 export enum PongState {
@@ -24,6 +25,7 @@ export class Pong {
 
 	protected _balls: Ball[] = [];
 	protected _paddles: Map<number, PH2D.Body> = new Map();
+	protected _goals: Map<number, Goal> = new Map();
 
 	protected _score: number[];
 
@@ -66,10 +68,14 @@ export class Pong {
 
 		// Goal
 		const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(0.1, 4.1);
-		const goalLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(-5.2, 0), Vec2.create());
-		const goalRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(5.2, 0), Vec2.create());
-		this._physicsScene.addBody(goalLeftBody);
-		this._physicsScene.addBody(goalRightBody);
+		// const goalLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(-5.2, 0), Vec2.create());
+		// const goalRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(5.2, 0), Vec2.create());
+		// this._physicsScene.addBody(goalLeftBody);
+		// this._physicsScene.addBody(goalRightBody);
+		const goalLeftBody: Goal = new Goal(this._physicsScene, goalShape, new Vec2(-5.2, 0), Vec2.create(), defaultBallSpeed);
+		const goalRightBody: Goal = new Goal(this._physicsScene, goalShape, new Vec2(5.2, 0), Vec2.create(), defaultBallSpeed);
+		this._goals.set(0, goalLeftBody);
+		this._goals.set(1, goalRightBody);
 
 		ball.addEventListener("collision", ballCollision);
 	}
@@ -118,5 +124,33 @@ export class Pong {
 			}
 		});
 		return this._accumulator / DT;
+	}
+
+	protected scoreUpdate() {
+		let scored: boolean = false;
+		this._goals.forEach((goal: Goal) => {
+			if (goal.contact > 0) {
+				if (goal.position.x < 0) { // left goal
+					this._score[1]++;
+				} else { // right goal
+					this._score[0]++;
+				}
+				goal.resetContact();
+				scored = true;
+			}
+		});
+		console.log("total score: " + this._score[0] + "-" + this._score[1]);
+		if (scored) {
+			this.start();
+		}
+		// check if game ended
+		if (this._score[0] == 5) {
+			this._state = PongState.ENDED;
+			console.log("game ended");
+		}
+		if (this._score[1] == 5) {
+			this._state = PongState.ENDED;
+			console.log("game ended");
+		}
 	}
 }

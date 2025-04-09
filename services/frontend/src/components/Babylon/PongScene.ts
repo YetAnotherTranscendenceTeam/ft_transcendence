@@ -83,7 +83,7 @@ export default class PongScene extends PONG.Pong {
 		return this._babylonScene;
 	}
 
-	public update() {
+	public clientUpdate() {
 		let dt: number = this._engine.getDeltaTime() / 1000;
 		if (this._running === 0) {
 			return;
@@ -97,29 +97,14 @@ export default class PongScene extends PONG.Pong {
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
 		});
+		this.scoreUpdate();
 	}
 	
 	public render() {
 		this._babylonScene.render();
 	}
-	
-	// private playerUpdate(playerId: number) {
-	// 	const paddle: ClientPaddle | undefined = this._paddleInstance.get(playerId);
-	// 	if (paddle) {
-	// 		let moveDirection: number = 0;
-	// 		let keyStateProbe: keyState = this._keyboard.get("ArrowUp") || keyState.IDLE;
-	// 		if (keyStateProbe === keyState.HELD || keyStateProbe === keyState.PRESSED) {
-	// 			moveDirection += 1;
-	// 		}
-	// 		keyStateProbe = this._keyboard.get("ArrowDown") || keyState.IDLE;
-	// 		if (keyStateProbe === keyState.HELD || keyStateProbe === keyState.PRESSED) {
-	// 			moveDirection -= 1;
-	// 		}
-	// 		paddle.move(moveDirection);
-	// 	}
-	// }
 
-	private playerUpdate() {
+	private playerUpdate() { // TODO: refactor to use playerId
 		let paddle: ClientPaddle | undefined = this._paddleInstance.get(1);
 		if (paddle) {
 			let moveDirection: number = 0;

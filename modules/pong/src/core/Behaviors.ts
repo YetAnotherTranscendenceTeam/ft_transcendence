@@ -3,6 +3,7 @@ import { Vec2 } from "gl-matrix";
 import { paddleHalfSize } from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
+import Goal from "./Goal.js";
 
 export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
 	const { emitter, other, manifold } = event.detail;
@@ -56,4 +57,13 @@ export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other:
 	// 	console.log("total score: " + this._score[0] + "-" + this._score[1]);
 	// 	this.start();
 	// }
+	if (other instanceof Goal) {
+		const goal: Goal = other as Goal;
+		goal.incrementContact();
+		if (goal.position.x < 0) { // left goal
+			console.log("goal left");
+		} else { // right goal
+			console.log("goal right");
+		}
+	}
 }

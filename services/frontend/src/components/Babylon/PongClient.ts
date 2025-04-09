@@ -4,7 +4,7 @@ import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, InputBlock } from "@babylonjs/core";
 import createDefaultScene from "./DefaultScene";
 import { GameMode, GameModeType, IPlayer } from 'yatt-lobbies'
-import GameScene from "./GameScene";
+import GameScene from "./PongScene";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
@@ -55,7 +55,7 @@ export default class PongClient {
 	}
 
 	private loop = () => {
-		this._gameScene.update();
+		this._gameScene.clientUpdate();
 		this._gameScene.render();
 		// console.log(this.);
 	}
