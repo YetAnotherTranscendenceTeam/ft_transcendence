@@ -2,7 +2,7 @@ import { MeshBuilder, Mesh, Scene, StandardMaterial, Color3 } from "@babylonjs/c
 import '@babylonjs/loaders';
 import * as BABYLON from '@babylonjs/core';
 
-export default class Wall {
+export default class ClientWall {
 	private _scene: Scene;
 	private _material: StandardMaterial;
 	private _mesh: Mesh;

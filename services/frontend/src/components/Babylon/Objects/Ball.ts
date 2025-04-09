@@ -4,7 +4,7 @@ import * as BABYLON from '@babylonjs/core';
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 
-export default class Ball {
+export default class ClientBall {
 	private _scene: Scene;
 	private _mesh: Mesh;
 	private _physicsBody: PH2D.Body; // for reference

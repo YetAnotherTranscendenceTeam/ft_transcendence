@@ -28,7 +28,7 @@ export class Body extends EventTarget {
 
 	public filter: number;
 	
-	constructor(type: PhysicsType = PhysicsType.DYNAMIC, shape: Shape, material: Material, position: Vec2 = Vec2.create(), velocity: Vec2 = Vec2.create()) {
+	constructor(type: PhysicsType = PhysicsType.DYNAMIC, shape: Shape, material: Material = {density: 1, restitution: 1, staticFriction: 0, dynamicFriction: 0}, position: Vec2 = Vec2.create(), velocity: Vec2 = Vec2.create()) {
 		super();
 		this._id = Body._idCounter++;
 		console.log("id", this._id);
@@ -39,9 +39,9 @@ export class Body extends EventTarget {
 		this._angularVelocity = 0;
 		this._torque = 0;
 		this._orientation = 0;
-		this._position = position;
+		this._position = Vec2.clone(position);
 		console.log("position", this._position[0], this._position[1]);
-		this._velocity = velocity;
+		this._velocity = Vec2.clone(velocity);
 		console.log("velocity", this._velocity);
 		this._previousPosition = Vec2.create();
 		this._previousOrientation = 0;
