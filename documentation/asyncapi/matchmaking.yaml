@@ -52,6 +52,44 @@ operations:
 
 components:
   schemas:
+    matchmaking_player:
+      type: object
+      required:
+        - account_id
+        - elo
+        - matchmaking_user
+      properties:
+        account_id:
+          $ref: "./lobbies.yaml#/components/schemas/account_id"
+        elo:
+          type: number
+          description: The elo of the player for this match
+        profile:
+          $ref: "./lobbies.yaml#/components/schemas/profile"
+        matchmaking_user:
+          type: object
+          required:
+            - account_id
+            - gamemode
+            - elo
+            - created_at
+            - updated_at
+          properties:
+            account_id:
+              $ref: "./lobbies.yaml#/components/schemas/account_id"
+            gamemode:
+              $ref: "./lobbies.yaml#/components/schemas/gamemode_name"
+            elo:
+              type: number
+              description: The elo of the player for this gamemode
+            created_at:
+              type: string
+              format: date-time
+              description: The date and time the player was created
+            updated_at:
+              type: string
+              format: date-time
+              description: The date and time the player was updated
     match:
       type: object
       required:
@@ -68,7 +106,7 @@ components:
         players:
           type: array
           items:
-            $ref: "./lobbies.yaml#/components/schemas/player"
+            $ref: "#/components/schemas/matchmaking_player"
         gamemode:
           $ref: "./lobbies.yaml#/components/schemas/gamemode"
         gamemode_name:
@@ -169,7 +207,6 @@ components:
                 description: The index of the match in the matches array
         gamemode:
           $ref: "./lobbies.yaml#/components/schemas/gamemode"
-              
 
   messages:
     handshake:
