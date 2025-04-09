@@ -1,7 +1,8 @@
 import Babact from "babact";
 import { useForm } from "../contexts/useForm";
-import useToast from "../hooks/useToast";
+import useToast, { ToastType } from "../hooks/useToast";
 import WebcamModal from "./WebcamModal";
+import Spinner from "./Spinner";
 
 export type Image = {
 	url: string,
@@ -24,7 +25,7 @@ export default function ImageSelector({
 		images: Image[],
 		onChange?: (value: string) => void,
 		required?: boolean,
-		onImageRemove?: (url: string) => void,
+		onImageRemove?: (url: string) => Promise<any>,
 		defaultValue?: string,
 		webcam?: boolean,
 		[key: string]: any
@@ -34,14 +35,14 @@ export default function ImageSelector({
 
 	const { updateField, updateFieldValidity, fields } = useForm();
 
-	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState(false);
+	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState<boolean>(false);
 
 	const handleFileChange = (e: any) => {
 		const file = e.target.files[0];
 		const reader = new FileReader();
 		reader.onload = (e: any) => {
 			if (e.target.result.length > 5 * 1024 * 1024) {
-				createToast('File too large', 'danger', 7000);
+				createToast('File too large', ToastType.DANGER, 7000);
 				return;
 			}
 			onChange(e)
@@ -54,6 +55,14 @@ export default function ImageSelector({
 		updateField(field, url);
 		updateFieldValidity(field, true);
 	}
+
+	const [inDeletion, setInDeletion] = Babact.useState<string>(null);
+
+	const handleImageRemove = async (url: string) => {
+		setInDeletion(url);
+		await onImageRemove(url);
+		setInDeletion(null);
+	};
 
 	Babact.useEffect(() => {
 		if (defaultValue)
@@ -80,13 +89,14 @@ export default function ImageSelector({
 			</label>}
 			{
 				images.map((image: Image, i: number) => (
-					<div className='image-selector-item' key={-i}>
+					<div className={`image-selector-item ${inDeletion === image.url ? 'loading' : ''}`} key={image.url}>
 						<img
 							src={image.url} alt={`image-${i}`}
 							className={fields[field].value === image.url ? 'selected' : ''}
 							onClick={() => handleImageClick(image.url)}
 						/>
-						{image.isRemovable && <i className="fa-solid fa-trash" onClick={() => onImageRemove(image.url)}/>}
+						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => handleImageRemove(image.url)}/>}
+						<Spinner />
 					</div>
 				))
 			}

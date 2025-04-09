@@ -11,33 +11,17 @@ import router from "./router.js";
 import YATT, { HttpError } from "yatt-utils";
 import { token_manager_secret, jwt_secret, refresh_token_secret } from "./env.js";
 import { removeExpiredTokens } from "./schedules.js";
+import db from "./database.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
 
-  if (process.env.ENV !== "production") {
-    // DEVELOPEMENT configuration
-    app.register(cors, {
-      origin: true,
-      methods: ["GET", "POST", "PATCH", "DELETE"], // Allowed HTTP methods
-      credentials: true, // Allow credentials (cookies, authentication)
-    });
-
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Token manager",
-        description: "[PLACEHOLDER]",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4002", description: "Development network" },
-        { url: "http://token-manager:3000", description: "Containers network" },
-      ],
-    });
-  } else {
-    // PRODUCTION configuration
-    // TODO: Setup cors
-  }
+  app.register(cors, {
+    origin: process.env.CORS_ORIGIN || false,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+    maxAge: 600,
+  });
 
   const keys = new Set([token_manager_secret]);
   app.register(bearerAuth, {
@@ -70,6 +54,21 @@ export default function build(opts = {}) {
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    // Cleanup instructions for a graceful shutdown
+    db.close();
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }

@@ -12,19 +12,12 @@ import { jwt_secret, cdn_jwt_secret } from "./env.js";
 export default function build(opts = {}) {
   const app = Fastify(opts);
 
-  if (process.env.ENV !== "production") {
-    // DEVELOPEMENT configuration
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-    
-    app.register(cors, {
-      origin: true,
-      methods: ["GET", "POST", "PATCH", "DELETE"], // Allowed HTTP methods
-      credentials: true, // Allow credentials (cookies, authentication)
-    });
-  } else {
-    // PRODUCTION configuration
-    // TODO: Setup cors
-  }
+  app.register(cors, {
+    origin: process.env.CORS_ORIGIN || false,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+    maxAge: 600,
+  });
 
   const serviceAuthorization = (token, request) => {
     try {
@@ -45,19 +38,29 @@ export default function build(opts = {}) {
     },
   });
 
-  app.register(jwt, {
-    secret: jwt_secret,
-  });
-  app.register(jwt, {
-    secret: cdn_jwt_secret,
-    namespace: "cdn",
-  });
+  app.register(jwt, { secret: jwt_secret });
+  app.register(jwt, { secret: cdn_jwt_secret, namespace: "cdn" });
   app.register(formbody);
   app.register(router);
 
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    // Cleanup instructions for a graceful shutdown
+    db.close();
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }

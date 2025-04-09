@@ -3,8 +3,8 @@ import { IUser, User } from "./useUsers";
 import useWebSocket, { WebSocketHook } from "./useWebSocket";
 import useFetch from "./useFetch";
 import config from "../config";
-import { useAuth } from "../contexts/useAuth";
-import useToast from "./useToast";
+import { IMe } from "../contexts/useAuth";
+import useToast, { ToastType } from "./useToast";
 import { GameMode, IGameMode } from "yatt-lobbies";
 import Button from "../ui/Button";
 import { useLobby } from "../contexts/useLobby";
@@ -33,18 +33,19 @@ export class Follow implements IFollow {
 	profile: User;
 	status: FollowStatus;
 	ws: WebSocketHook;
+	ft_fetch: any;
 
 
-	constructor(follow: IFollow, ws: WebSocketHook){
+	constructor(follow: IFollow, ws: WebSocketHook, ft_fetch?: any) {
+		this.ft_fetch = ft_fetch;
 		this.ws = ws;
 		this.account_id = follow.account_id;
-		this.profile = new User(follow.profile);
+		this.profile = new User(follow.profile, ft_fetch);
 		this.status = follow.status;
 	}
 
-	unfollow(): void {
-		const { ft_fetch } = useFetch();
-		ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
+	async unfollow() {
+		return await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
 			method: 'DELETE',
 		}, {
 			success_message: `You unfollowed ${this.profile.username}`,
@@ -82,27 +83,27 @@ export class Follow implements IFollow {
 
 }
 
-export default function useSocial(): {
+export default function useSocial(setMeStatus: (status: FollowStatus) => void, getMe: () => IMe): {
 		follows: Follow[],
 		connected: boolean,
 		connect: () => void
 		ping: () => void
-		status: (status: FollowStatus) => void
+		status: (status: FollowStatus) => void,
+		disconnect: () => void
 	} {
 
 	const [follows, setFollows] = Babact.useState<Follow[]>([]);
+	const { ft_fetch } = useFetch();
 
 	const inivites = Babact.useRef([]);
 
 	const onWelcome = ({ follows, self }: {follows: IFollow[], self: FollowStatus}) => {
-		const { setMeStatus } = useAuth();
-		setFollows(follows.map(f => new Follow(f, ws)));
+		setFollows(follows.map(f => new Follow(f, ws, ft_fetch)));
 		setMeStatus(self);
 	};
 
 	const onStatusChange = ({ account_id, status }: {account_id: number, status: FollowStatus}) => {
-		const { setMeStatus, me } = useAuth();
-		if (me?.account_id === account_id)
+		if (getMe()?.account_id === account_id)
 			setMeStatus(status);
 		setFollows(follows => follows.map(f => {
 			if (f.account_id === account_id)
@@ -112,7 +113,7 @@ export default function useSocial(): {
 	};
 
 	const onFollow = (follow: IFollow) => {
-		setFollows(follows => follows.concat(new Follow(follow, ws)));
+		setFollows(follows => follows.concat(new Follow(follow, ws, ft_fetch)));
 	};
 
 	const onUnfollow = ({ account_id }: {account_id: number}) => {
@@ -157,11 +158,11 @@ export default function useSocial(): {
 			</div>
 		</div>;
 
-		createToast(message, 'info', 0);
+		createToast(message, ToastType.INFO, 0);
 	};
 
 	const onLobbyRequest = ({ username, account_id }: {username: string, account_id: number}) => {
-		
+
 		const { lobby } = useLobby();
 		if (inivites.current.includes(username) || !lobby)
 			return;
@@ -181,7 +182,7 @@ export default function useSocial(): {
 					type: StatusType.OFFLINE,
 				}
 			}, ws);
-			createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
+			createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
 			follow.invite(lobby.mode, lobby.join_secret);
 			removeToast(id);
 			inivites.current = inivites.current.filter(i => i !== username);
@@ -210,7 +211,7 @@ export default function useSocial(): {
 			</div>
 		</div>
 
-		createToast(message, 'info', 0);
+		createToast(message, ToastType.INFO, 0);
 	};
 
 	const onConnect = () => {
@@ -245,11 +246,16 @@ export default function useSocial(): {
 		ws.send({event: 'update_status', data: status});
 	};
 
+	const disconnect = () => {
+		ws.close();
+	};
+
 	return {
 		follows,
 		connected: ws.connected,
 		connect,
 		ping,
 		status,
+		disconnect,
 	};
 }

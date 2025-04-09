@@ -25,8 +25,8 @@ export default function Settings({
 			</Button>
 		</div>
 		<div className='settings-content flex scrollbar flex-col gap-8 w-full'>
-			{me && <AccountForm onLogout={onClose} me={me} />}
 			{me && <ProfileForm me={me} />}
+			{me && <AccountForm onLogout={onClose} me={me} />}
 		</div>
 	</Card>
 }

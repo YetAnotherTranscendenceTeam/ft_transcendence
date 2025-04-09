@@ -11,9 +11,10 @@ export default function build(opts = {}) {
   const app = Fastify(opts);
 
   app.register(cors, {
-    origin: true,
-    methods: ['GET', 'POST'], // Allowed HTTP methods
-    credentials: true, // Allow credentials (cookies, authentication)
+    origin: process.env.CORS_ORIGIN || false,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+    maxAge: 600,
   });
 
   if (process.env.ENV !== "production") {
@@ -38,6 +39,20 @@ export default function build(opts = {}) {
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    // Cleanup instructions for a graceful shutdown
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }

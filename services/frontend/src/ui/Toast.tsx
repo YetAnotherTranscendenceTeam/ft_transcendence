@@ -1,14 +1,15 @@
 import Babact from "babact";
 import Card from "./Card";
+import { ToastType } from "../hooks/useToast";
 
 export default function Toast({
 		message,
-		type = 'info',
+		type,
 		timeout,
-		...props 
+		...props
 	}: {
 		message: string,
-		type?: 'info' | 'success' | 'error',
+		type: ToastType,
 		timeout?: number,
 		[key: string]: any
 	}) {

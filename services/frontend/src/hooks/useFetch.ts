@@ -1,11 +1,11 @@
 import Babact from "babact";
-import useToast from "./useToast";
+import useToast, { ToastType } from "./useToast";
 import config from "../config";
 
 export default function useFetch() {
 
 	const {createToast} = useToast();
-	const [isLoading, setIsLoading] = Babact.useState(false);
+	const [isLoading, setIsLoading] = Babact.useState<boolean>(false);
 
 	const forceRefresh = async () => {
 		const response = await ft_fetch(`${config.API_URL}/token/refresh`, {
@@ -71,7 +71,7 @@ export default function useFetch() {
 					data = await response.json();
 				}
 				if (option.success_message)
-					createToast(option.success_message, 'success', 7000);
+					createToast(option.success_message, ToastType.SUCCESS, 7000);
 				setIsLoading(false);
 				return data as any;
 			}
@@ -82,7 +82,7 @@ export default function useFetch() {
 		}
 		catch (error) {
 			if (option.show_error)
-				createToast(error.message, 'danger', 7000);
+				createToast(error.message, ToastType.DANGER, 7000);
 			setIsLoading(false);
 		}
 	}

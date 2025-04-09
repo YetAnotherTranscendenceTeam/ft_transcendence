@@ -30,12 +30,12 @@ export default function routes(fastify, opts, done) {
         const account = await YATT.fetch(`http://credentials:3000/fortytwo/${user.id}`);
         // Authenticate user
         tokens = await authenticate(account.account_id);
-      } catch (err) {
-        if (err instanceof HttpError && err.statusCode == 404) {
+      } catch (err2) {
+        if (err2 instanceof HttpError && err2.statusCode == 404) {
           // Create an account
           tokens = await createAccount(user);
         } else {
-          throw err;
+          throw err2;
         }
       }
       // Redirect back to frontend
@@ -57,22 +57,6 @@ export default function routes(fastify, opts, done) {
   });
 
   done();
-}
-
-const userSchema = {
-  type: "object",
-  properties: {
-    id: { type: "integer" },
-    email: { type: "string", format: "email" },
-    login: { type: "string" },
-    image: {
-      type: "object",
-      properties: {
-        link: {}
-      }
-    }
-  }
-
 }
 
 async function getIntraUser(code) {

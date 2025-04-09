@@ -132,6 +132,7 @@ dist
 
 # Misc
 secrets/
-sqlite/
+sqlite
 services/nginx/package-lock.json
 .DS_Store
+.env.old

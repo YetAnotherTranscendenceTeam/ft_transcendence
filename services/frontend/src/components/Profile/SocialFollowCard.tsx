@@ -5,7 +5,7 @@ import Button from "../../ui/Button";
 import FollowTypeText from "./FollowTypeText";
 import { Lobby } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
-import useToast from "../../hooks/useToast";
+import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
 
 export default function SocialFollowCard({
@@ -25,6 +25,7 @@ export default function SocialFollowCard({
 	const { me } = useAuth();
 
 	const [inviteSend, setInviteSend] = Babact.useState<boolean>(false);
+	const [loading, setLoading] = Babact.useState<boolean>(false);
 
 	const inviteLobby = (follow.status.type === StatusType.ONLINE || follow.status.type === StatusType.INACTIVE)
 		&& !inviteSend
@@ -44,13 +45,20 @@ export default function SocialFollowCard({
 	const handleInvite = () => {
 		follow.invite(inviteLobby.mode, inviteLobby.join_secret);
 		setInviteSend(true);
-		createToast(`You invited ${follow.profile.username} to your lobby`, 'success');
+		createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
 	}
 
 	const handleRequest = () => {
 		follow.request();
 		setInviteSend(true);
-		createToast(`You requested to join ${follow.profile.username}'s lobby`, 'success');
+		createToast(`You requested to join ${follow.profile.username}'s lobby`, ToastType.SUCCESS);
+	}
+
+	const handleUnFollow = async () => {
+		setLoading(true);
+		const res = await follow.unfollow();
+		if (!res)
+			setLoading(false);
 	}
 
 
@@ -62,7 +70,8 @@ export default function SocialFollowCard({
 				status={ follow.status.type }
 			>
 				<Button className='follow-remove icon'
-					onClick={() => follow.unfollow()}
+					onClick={() => handleUnFollow()}
+					loading={loading}
 				>
 					<i className="fa-solid fa-user-minus"></i>
 				</Button>

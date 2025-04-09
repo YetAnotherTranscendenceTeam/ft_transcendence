@@ -1,6 +1,6 @@
 import Babact from "babact";
 import Button from "./Button";
-import { useForm } from "../contexts/useForm";
+import { Fields, useForm } from "../contexts/useForm";
 
 export default function Submit({
 		fields,
@@ -13,8 +13,8 @@ export default function Submit({
 		fields: any,
 		className?: string,
 		children?: any,
-		onSubmit?: (fields: string[], clearFields: () => void) => void,
-		disabled?: (fields: string[]) => boolean,
+		onSubmit?: (fields: Fields, clearFields: () => void) => void,
+		disabled?: (fields: Fields) => boolean,
 		[key: string]: any
 	}) {
 

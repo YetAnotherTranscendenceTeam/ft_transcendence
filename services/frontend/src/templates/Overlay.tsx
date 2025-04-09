@@ -18,7 +18,7 @@ export default function Overlay({
 	const { me } = useAuth()
 	const { lobby } = useLobby();
 
-	const [selected, setSelected] = Babact.useState(null);
+	const [selected, setSelected] = Babact.useState<string>(null);
 
 	return <div className='overlay flex'>
 			<Settings

@@ -4,7 +4,16 @@ import config from "../config";
 import { IUser } from "../hooks/useUsers";
 import useSocial, { Follow, FollowStatus } from "../hooks/useSocials";
 
-const AuthContext = Babact.createContext({});
+const AuthContext = Babact.createContext<{
+		me: IMe,
+		follows: Follow[],
+		connected: boolean,
+		auth: (token: string, expire_at: number) => void,
+		logout: () => void,
+		refresh: () => void,
+		ping: () => void,
+		status: (status: FollowStatus) => void,
+	}>();
 
 interface ICredentials {
 	account_id: number,
@@ -19,6 +28,7 @@ export interface IMe extends IUser {
 export const AuthProvider = ({ children } : {children?: any}) => {
 
 	const [me, setMe] = Babact.useState<IMe>(null);
+	const meRef = Babact.useRef(null);
 
 	const { ft_fetch } = useFetch();
 
@@ -31,7 +41,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			connect();
 		}
 		else{
-			console.log('logout');
 			logout();
 		}
 	};
@@ -62,11 +71,21 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		fetchMe();
 	}, []);
 
-	const { connect, follows, ping, status, connected } = useSocial();
+	Babact.useEffect(() => {
+		meRef.current = me;
+		if (!me && connected)
+			disconnect();
+	}, [me]);
 
 	const setMeStatus = (status: FollowStatus) => {
 		setMe(me => ({...me, status}));
 	};
+
+	const getMe = () => {
+		return meRef.current;
+	};
+
+	const { connect, follows, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
 
 	return (
 		<AuthContext.Provider
@@ -79,7 +98,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 				refresh,
 				ping,
 				status,
-				setMeStatus,
 			}}
 		>
 			{children}
@@ -87,16 +105,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	);
 };
 
-export const useAuth = (): {
-		me: IMe,
-		follows: Follow[],
-		connected: boolean,
-		auth: (token: string, expire_at: number) => void,
-		logout: () => void,
-		refresh: () => void,
-		ping: () => void,
-		status: (status: FollowStatus) => void,
-		setMeStatus: (status: FollowStatus) => void,
-	} => {
+export const useAuth = () => {
 	return Babact.useContext(AuthContext);
 };
