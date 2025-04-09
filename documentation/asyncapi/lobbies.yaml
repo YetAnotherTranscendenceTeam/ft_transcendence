@@ -760,7 +760,7 @@ components:
                       enum:
                         - tournament
                     tournament:
-                      $ref: './matchmaking.yaml#/components/schemas/tournament'
+                      $ref: './tournament.yaml#/components/schemas/tournament'
                   required:
                     - type
                     - tournament

@@ -142,71 +142,6 @@ components:
           type: string
           format: date-time
           description: The date and time the match was updated
-    tournament:
-      type: object
-      required:
-        - teams
-        - matches
-        - gamemode
-        - id
-      properties:
-        id:
-          type: number
-          description: The id of the tournament
-        teams:
-          type: array
-          minimumLength: 3
-          items:
-            type: object
-            required:
-              - name
-              - players
-            properties:
-              name:
-                type: string
-                description: The name of the team
-              players:
-                $ref: "./lobbies.yaml#/components/schemas/player"
-        matches:
-          type: array
-          items:
-            type: object
-            required:
-              - team_ids
-              - scores
-              - state
-              - stage
-              - index
-            properties:
-              team_ids:
-                type: array
-                maxLength: 2
-                items:
-                  type: integer
-                  description: The index of the team in the teams array
-              scores:
-                type: array
-                maxLength: 2
-                minLength: 2
-                items:
-                  type: integer
-                  description: The score of the team
-                  nullable: true
-              state:
-                type: string
-                description: The state of the match
-                enum:
-                  - waiting
-                  - playing
-                  - done
-              stage:
-                type: integer
-                description: The stage of the match (0 = final, 1 = semi final, 2 = quarter final, etc)
-              index:
-                type: integer
-                description: The index of the match in the matches array
-        gamemode:
-          $ref: "./lobbies.yaml#/components/schemas/gamemode"
 
   messages:
     handshake:
@@ -372,7 +307,7 @@ components:
                       - tournament
                       - match
                   tournament:
-                    $ref: "#/components/schemas/tournament"
+                    $ref: "./tournament.yaml#/components/schemas/tournament"
                   match:
                     $ref: "#/components/schemas/match"
                   
