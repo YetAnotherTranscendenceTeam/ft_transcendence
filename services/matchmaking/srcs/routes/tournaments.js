@@ -27,7 +27,7 @@ export default function router(fastify, opts, done) {
     const player = tournament.getPlayerFromAccountID(request.account_id);
     if (!player)
       return new HttpError.Forbidden().send(reply);
-    reply.sse({event: "sync", data: JSON.stringify(tournament)});
+    reply.sse({event: "sync", data: JSON.stringify({tournament})});
     player.addSubscription(reply);
     request.socket.on("close", () => {
       player.removeSubscription(reply);

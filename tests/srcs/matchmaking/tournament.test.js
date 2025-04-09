@@ -147,12 +147,13 @@ describe.each(
   it("connect to SSE and expect tournament sync", async () => {
     sse = createTestSSE(`${matchmakingURL}/tournaments/${tournament.id}/notify?token=${users[0].jwt}`,);
     await sse.expectJson("sync", (event) => {
-      expect(event).toBeDefined();
-      expect(event.teams).toBeDefined();
-      expect(event.matches).toBeDefined();
-      expect(event.matches.length).toBeGreaterThanOrEqual(Math.ceil(Math.log2(team_count)));
-      expect(event.gamemode).toBeDefined();
-      expect(event.id).toBeDefined();
+      const event_tournament = event.tournament;
+      expect(event_tournament).toBeDefined();
+      expect(event_tournament.teams).toBeDefined();
+      expect(event_tournament.matches).toBeDefined();
+      expect(event_tournament.matches.length).toBeGreaterThanOrEqual(Math.ceil(Math.log2(team_count)));
+      expect(event_tournament.gamemode).toBeDefined();
+      expect(event_tournament.id).toBeDefined();
       expect(tournament.teams.length).toBe(team_count);
     });
   });
