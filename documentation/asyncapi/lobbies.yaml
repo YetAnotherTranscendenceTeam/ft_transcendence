@@ -659,10 +659,12 @@ components:
       type: string
       description: The name of the gamemode
       enum:
-        - unranked_2v2
-        - ranked_2v2
         - unranked_1v1
+        - unranked_2v2
         - ranked_1v1
+        - ranked_2v2
+        - custom_1v1
+        - custom_2v2
     gamemode:
       type: object
       required:
@@ -673,7 +675,7 @@ components:
       description: |
         The mode of the lobby, this also determines the lobby capacity\* which can be obtained this way:
         ```
-        capacity = type == 'ranked' ? team_size : team_size * team_count
+        capacity = type == 'custom' ? team_size * team_count : team_size
         ```
         \**capacity* is the maximum number of players that can be in the lobby
       properties:
