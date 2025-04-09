@@ -32,9 +32,9 @@ export default function build(opts = {}) {
           continue;
       }
     }
-    catch (e) {console.error(e)}
+    catch (e) {}
     console.log(`Generating documentation for ${filename}`);
-    const generator = new Generator("@asyncapi/html-template", `${asyncapi_build_dir}/${dir_name}`, 
+    const generator = new Generator("@asyncapi/html-template@3.2.1", `${asyncapi_build_dir}/${dir_name}`, 
       {
         templateParams: {
           singleFile: true
