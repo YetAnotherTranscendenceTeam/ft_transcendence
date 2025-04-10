@@ -65,11 +65,10 @@ function createTestSSE(url) {
           if (closeCallback)
             closeCallback();
           closeCallback = null;
-          object.close();
         }
       }),
       close() {
-        this.sse.close();
+        return this.sse.close();
       },
       expectJson(eventName, callback) {
         return new Promise(async (resolve) => {
@@ -187,7 +186,6 @@ describe.each(
     }
     stages.reverse();
   });
-  let isFinished = false;
   it.each(Array.from({ length: Math.ceil(Math.log2(team_count)) }, (_, index) => index))
     ("complete tournament stage %i", async (stageIndex) => {
       const stage = stages[stageIndex];
@@ -213,10 +211,6 @@ describe.each(
           match.match_id = event.match.match_id;
         });
         if (match.stage == 0) {
-          await sse.expectJson("finish", async () => {
-            isFinished = true;
-            await sse.expectClose();
-          });
           break;
         }
         const next_stage_match = stages[stageIndex + 1][Math.floor(matchIndex / 2)];
@@ -245,7 +239,9 @@ describe.each(
       }
   });
   it("expect tournament finished", async () => {
-    expect(isFinished).toBe(true);
+    await sse.expectJson("finish", async () => {
+      await sse.expectClose();
+    });
   });
 });
 
