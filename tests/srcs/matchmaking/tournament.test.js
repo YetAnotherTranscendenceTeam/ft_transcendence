@@ -1,8 +1,11 @@
 import request from "superwstest";
 import { matchmaking_jwt_secret } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
+import { apiURL } from "../../URLs.js"
 import { createUsers, users } from "../../dummy/dummy-account";
 import { createEventSource } from 'eventsource-client'
+
+import { Agent } from "undici"
 
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
@@ -30,49 +33,66 @@ function finishMatch(match_id, winner) {
 }
 
 function createTestSSE(url) {
-  const messages = [];
-  let closeCallback;
+  return new Promise((resolve, reject) => {
+    const messages = [];
+    let closeCallback;
 
-  const object = {
-    messages,
-    sse: createEventSource({
-      url,
-      onMessage: (message) => {
-        messages.push(message);
-      },
-      onDisconnect() {
-        expect(messages.length).toBe(0);
-        if (closeCallback)
-          closeCallback();
-        closeCallback = null;
-        object.close();
-      }
-    }),
-    close() {
-      this.sse.close();
-    },
-    expectJson(eventName, callback) {
-      return new Promise(async (resolve) => {
-        let event = this.messages.shift();
-        if (!event) {
-          for await (event of this.sse)
-            break;
-          this.messages.shift();
+    const object = {
+      messages,
+      sse: createEventSource({
+        url,
+        fetch: (url, options) => {
+          return fetch(url, {
+            ...options,
+            dispatcher: new Agent({
+              connect: {
+                rejectUnauthorized: false,
+              },
+            }),
+          }).catch((error) => {
+            reject(error);
+            throw error;
+          })
+        },
+        onConnect: () => {
+          resolve(object);
+        },
+        onMessage: (message) => {
+          messages.push(message);
+        },
+        onDisconnect() {
+          expect(messages.length).toBe(0);
+          if (closeCallback)
+            closeCallback();
+          closeCallback = null;
+          object.close();
         }
-        expect(event.event).toBe(eventName);
-        const data = JSON.parse(event.data);
-        if (callback)
-          await callback(data);
-        resolve(data);
-      });
-    },
-    expectClose() {
-      return new Promise((resolve) => {
-        closeCallback = resolve;
-      });
-    }
-  };
-  return object;
+      }),
+      close() {
+        this.sse.close();
+      },
+      expectJson(eventName, callback) {
+        return new Promise(async (resolve) => {
+          let event = this.messages.shift();
+          if (!event) {
+            for await (event of this.sse)
+              break;
+            this.messages.shift();
+          }
+          expect(event.event).toBe(eventName);
+          const data = JSON.parse(event.data);
+          if (callback)
+            await callback(data);
+          resolve(data);
+        });
+      },
+      expectClose() {
+        return new Promise((resolve) => {
+          closeCallback = resolve;
+        });
+      }
+    };
+  });
 }
 
 let ws;
@@ -145,7 +165,7 @@ describe.each(
     });
   });
   it("connect to SSE and expect tournament sync", async () => {
-    sse = createTestSSE(`${matchmakingURL}/tournaments/${tournament.id}/notify?token=${users[0].jwt}`,);
+    sse = await createTestSSE(`${apiURL}/matchmaking/tournaments/${tournament.id}/notify?token=${users[0].jwt}`,);
     await sse.expectJson("sync", (event) => {
       const event_tournament = event.tournament;
       expect(event_tournament).toBeDefined();
