@@ -3,7 +3,7 @@
 import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket';
-import { FastifySSEPlugin } from "fastify-sse-v2";
+import sse from "yatt-sse"
 import router from "./router.js";
 import YATT from "yatt-utils";
 import jwt from "@fastify/jwt";
@@ -39,8 +39,7 @@ export default function build(opts = {}) {
     namespace: "matchmaking"
   });
 
-  app.register(FastifySSEPlugin);
-
+  app.register(sse);
   
   const serviceAuthorization = (token, request) => {
     try {

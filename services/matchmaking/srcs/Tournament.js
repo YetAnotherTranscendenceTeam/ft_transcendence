@@ -207,12 +207,11 @@ export class Tournament {
   }
 
   finish() {
+    this.manager.unregisterTournament(this);
     this.broadcast("finish", {
       tournament: this
-    });
-    this.manager.unregisterTournament(this);
-    this.subscribers.forEach((subscriber) => {
-      subscriber.sseContext.source.end();
+    }, (subscriber) => {
+      subscriber.raw.end();
     });
   }
 
@@ -220,10 +219,11 @@ export class Tournament {
     return this.matches.find(match => match.internal_match?.match_id === match_id);
   }
 
-  broadcast(event, data) {
+  broadcast(event, data, cb) {
     const dataStr = JSON.stringify(data);
     for (let subscriber of this.subscribers) {
       subscriber.sse({ event, data: dataStr });
+      cb?.(subscriber);
     }
   }
 

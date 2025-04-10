@@ -23,7 +23,7 @@ export default function router(fastify, opts, done) {
     }
     const tournament = fastify.tournaments.getTournament(request.params.id);
     if (!tournament)
-      return new HttpError.NotFound().send(reply);
+      return reply.status(204).send();
     const player = tournament.getPlayerFromAccountID(request.account_id);
     if (!player)
       return new HttpError.Forbidden().send(reply);
