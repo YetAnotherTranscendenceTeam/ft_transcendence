@@ -59,6 +59,7 @@ secret_keys=( \
     "CDN_JWT_SECRET" \
     "PASSWORD_PEPPER" \
     "MATCHMAKING_JWT_SECRET" \
+    "MATCH_MANAGEMENT_JWT_SECRET" \
 )  
 
 echo "[SECRETS]"

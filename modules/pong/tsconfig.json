@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"outDir": "dist",
+		"module": "NodeNext",
+		"target": "ES6",
+	  	"declaration": true,
+		"esModuleInterop": true,
+		"lib": ["ES2015", "DOM", "ES6", "ES5", "ES2019"],
+		"strict": false,
+		"moduleResolution": "nodenext"
+	},
+	"include": ["src"]
+}

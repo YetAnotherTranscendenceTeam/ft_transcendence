@@ -1,7 +1,29 @@
-import Babact from "babact"
+import Babact from "babact";
+import PongClient from "./PongClient";
+import TestPhysics from "./TestPhysics";
+import useWebSocket from "../../hooks/useWebSocket";
+
 
 export default function Babylon() {
+    Babact.useEffect(() => {
+        const app = new PongClient();
 
-	return <div style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; background-image: url(https://st5.depositphotos.com/23188010/77062/i/450/depositphotos_770624600-stock-photo-green-field-morning-render-illustration.jpg); background-size: cover; background-position: center;">
-	</div>
+        return () => {
+            app.destroy();
+        }
+    }, []);
+
+
+
+
+
+    // Babact.useEffect(() => {
+    //     const app = new TestPhysics();
+    //     return () => {
+    //         app.destroy();
+    //     }
+    // }, []);
+
+	return <canvas style="width: 100vw; height: 100vh; touch-action: none; position: absolute; top: 0; left: 0; z-index: -1" id="gameCanvas">
+	</canvas>
 }
