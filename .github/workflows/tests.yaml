@@ -18,6 +18,8 @@ jobs:
       CDN_JWT_SECRET: oLYZA7wpxoGcA6W638ZOk+LuD5RP3ofiNzpD5e83M/t0oHaRVQlwqE70GFcH1dG7G6UdKyZab6hTpbh03iQuxQ==
       PASSWORD_PEPPER: 5Y3olSUbsMA5baaa7yBqVtnJC9OGhXqdoB+krlM1URXASVchDTNyq+jTawZ4FslyR51QNCSJ5bojjRKJZc4iaQ==
       TOKEN_MANAGER_SECRET: 7r+j+FVvFO74Upc5DhBY62QWNr0qVzxaCkXm0vhxwABX2zDmJwQUNxFl4oBvB9CH5fhN5WgRg2pqKn8kFh/tMw==
+      MATCHMAKING_JWT_SECRET: CVLcmZjOZc8Uixe0oApeMobT3OF7G+pY5LNioK5PQ+WgojXjpjv+voWrfF6u7F6CE7qmkcSheZH82cyGGEwzEg==
+      MATCH_MANAGEMENT_JWT_SECRET: ZmCCT7xAT8mEx4N7gQcVlLggpH/41ctm1HXDvjz5f5/Wb+HPSenhnTQQkB1XoAdQFHBGkjtCQVRuUDP6WCrYtQ==
       FRONTEND_URL: https://localhost:8080
       BACKEND_URL: https://localhost:7979
       CDN_URL: https://cdn-nginx:8181
@@ -25,7 +27,6 @@ jobs:
       API42_CLIENT_ID: 'example'
       API42_SECRET: 'example'
       API42_REDIRECT_URI: 'https://fake-callback.com'
-      MATCHMAKING_JWT_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
       MATCHMAKING_SCHEDULER_DELAY: 100
       SOCIAL_OFFLINE_DELAY: 10000
       SOCIAL_INACTIVITY_DELAY: 15000
