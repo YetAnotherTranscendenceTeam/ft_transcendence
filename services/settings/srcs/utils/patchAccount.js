@@ -21,14 +21,14 @@ async function patchPasswordAuth(request, reply, currentEmail) {
   // Remove unnecessary keys
   keysToDelete.forEach(key => delete request.body[key]);
   if (!Object.keys(request.body).length) {
-    return;
+    throw new HttpError.BadRequest();
   }
   
   // Hash new password
-  request.body.password &&= YATT.crypto.hashPassword(request.body.password, credentials.salt).hash;
+  request.body.password &&= await YATT.crypto.hashPassword(request.body.password, password_pepper);
 
   // Update credential database
-  const patch = YATT.fetch(`http://credentials:3000/password/${request.account_id}`, {
+  await YATT.fetch(`http://credentials:3000/password/${request.account_id}`, {
     method: "PATCH",
     headers: {
       "Content-type": "application/json",
