@@ -21,7 +21,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	};
 
 	Babact.useEffect(() => {
-		if (me && follows.length)
+		if (me)
 			search('', 20, follows.map(f => f.account_id).concat(me.account_id));
 	}, [me, follows]);
 

@@ -7,19 +7,24 @@ import SocialManager from "./SocialManager";
 import useEscape from "../../hooks/useEscape";
 import { IMe } from "../../contexts/useAuth";
 import FollowTypeText from "./FollowTypeText";
+import { useNavigate } from "babact-router-dom";
 
 export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]: any }) {
 
 	const [isOpen, setIsOpen] = Babact.useState<boolean>(false);
 
+	const navigate = useNavigate();
+	useEscape(isOpen, () => setIsOpen(false));
+	
 	if (!me)
 		return null;
-
-	useEscape(isOpen, () => setIsOpen(false));
-
+	
 	return <Card className={`profile-card left flex flex-col`} {...props}>
-		<div className='profile-card-header flex items-center gap-2 justify-between'>
-			<div className='flex flex-row items-center gap-2'>
+		<div className='profile-card-header flex items-center gap-2 justify-between pointer'>
+			<div
+				className='flex flex-row items-center gap-2'
+				onClick={() => navigate(`/profile/${me.account_id}`)}
+			>
 				<Avatar src={me.avatar} name={me.username} status={me.status?.type}/>
 				<div className='flex flex-col gap-1'>
 					<h1>{me.username}</h1>

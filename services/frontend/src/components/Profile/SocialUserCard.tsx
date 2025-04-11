@@ -3,6 +3,7 @@ import { FollowStatus } from "../../hooks/useSocials";
 import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
 import { User } from "../../hooks/useUsers";
+import { useNavigate } from "babact-router-dom";
 
 export default function SocialUserCard({
 		user,
@@ -14,14 +15,20 @@ export default function SocialUserCard({
 
 	const [isLoading, setIsLoading] = Babact.useState<boolean>(false);
 
-	const handleFollow = async () => {
+	const navigate = useNavigate();
+
+	const handleFollow = async (e) => {
+		e.stopPropagation();
 		setIsLoading(true);
 		const res = await user.follow();
 		if (!res)
 			setIsLoading(false);
 	}
 
-	return <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
+	return <div
+		className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'
+		onClick={() => navigate(`/profile/${user.account_id}`)}
+	>
 		<div className='flex flex-row items-center gap-2'>
 			<Avatar
 				src={user.avatar}
@@ -34,7 +41,7 @@ export default function SocialUserCard({
 		<div className='flex flex-row items-center gap-2'>
 			<Button
 				className='success'
-				onClick={() => handleFollow()}
+				onClick={(e) => handleFollow(e)}
 				loading={isLoading}
 			>
 				<i class="fa-solid fa-user-plus"></i> Follow
