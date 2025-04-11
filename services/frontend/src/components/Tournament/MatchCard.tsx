@@ -2,7 +2,6 @@ import Babact from "babact";
 import { Match, MatchState } from "../../views/TournamentView";
 import { HPosition, VPosition } from "./Stage";
 import Avatar from "../../ui/Avatar";
-import Card from "../../ui/Card";
 
 export default function MatchCard({
 		match,
@@ -19,9 +18,9 @@ export default function MatchCard({
 	const getWinnerIndex = (): number => {
 		if (match.state !== MatchState.DONE)
 			return null;
-		if (match.scrores[0] > match.scrores[1])
+		if (match.scores[0] > match.scores[1])
 			return 0;
-		if (match.scrores[0] < match.scrores[1])
+		if (match.scores[0] < match.scores[1])
 			return 1;
 		return null;
 	}
@@ -43,10 +42,10 @@ export default function MatchCard({
 							{team.players.map((player, i) =>
 								<Avatar key={i} src={player.profile.avatar} name={player.profile.username} size='xs'/>
 							)}
-							<h3>{team.name}</h3>
+							<h3>{team.name ?? team.players[0].profile.username}</h3>
 							{/* {getWinnerIndex() === i && <i className="fa-solid fa-trophy"></i>} */}
 						</div>
-						<p>{match.scrores[i]}</p>
+						<p>{match.scores[i]}</p>
 					</div>
 				)}
 				{Array(2 - match.teams.length).fill(0).map((_, i) =>

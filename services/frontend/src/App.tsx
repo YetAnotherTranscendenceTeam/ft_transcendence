@@ -19,7 +19,7 @@ export default function App() {
 				<Routes>
 					<Route path="/fortytwo" element={<FortytwoView/>} />
 					<Route path='/lobby/:code' element={<LobbyView/>} />
-					<Route path='/tournament' element={<TournamentView/>} />
+					<Route path='/tournaments/:id' element={<TournamentView/>} />
 					<Route path="/*" element={<Home />} />
 				</Routes>
 			</div>

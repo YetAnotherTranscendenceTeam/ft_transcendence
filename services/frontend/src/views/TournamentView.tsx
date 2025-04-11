@@ -1,8 +1,13 @@
 import Babact from "babact";
 import Overlay from "../templates/Overlay";
 import { ITeam } from "yatt-lobbies";
-import Stage from "../components/Tournament/Stage";
 import Tree from "../components/Tournament/Tree";
+import useFetch from "../hooks/useFetch";
+import useSSE from "../hooks/useSSE";
+import { IGameMode } from "yatt-lobbies";
+import config from "../config";
+import { useNavigate, useParams } from "babact-router-dom";
+import { useAuth } from "../contexts/useAuth";
 
 export enum MatchState {
 	WAITING = 'waiting',
@@ -11,133 +16,83 @@ export enum MatchState {
 }
 
 export interface Match {
-	teams_id: number[]
-	scrores: number[]
+	team_ids: number[]
+	scores: number[]
 	teams?: ITeam[]
+	match_id?: number
 	state: MatchState
+	stage: number
+	index: number
+}
+
+export interface Tournament {
+	matches: Match[]
+	teams: ITeam[]
+	gamemode: IGameMode
+	id: number
 }
 
 export default function TournamentView() {
 
-	const teams: ITeam[] = [
-		{
-			name: "bwisniew's team",
-			players: [
-				{
-					account_id: 0,
-					profile: {
-						account_id: 0,
-						username: 'bwisniew',
-						avatar: 'https://cdn.intra.42.fr/users/c4d09e1b88c5f1eaf042f81914ccdbb8/bwisniew.JPG',
-						created_at: '2021-09-01T00:00:00Z',
-						updated_at: '2021-09-01T00:00:00Z',
-					}
-				},
-				{
-					account_id: 0,
-					profile: {
-						account_id: 0,
-						username: 'acancel',
-						avatar: 'https://cdn.intra.42.fr/users/7847d2a31e82c9c83d724fa73e847318/acancel.jpg',
-						created_at: '2021-09-01T00:00:00Z',
-						updated_at: '2021-09-01T00:00:00Z',
-					}
-				},
-			]
-		},
-		{
-			name: 'ibertran & anfichet',
-			players: [
-				{
-					account_id: 0,
-					profile: {
-						account_id: 0,
-						username: 'ibertran',
-						avatar: 'https://cdn.intra.42.fr/users/b3bd01f8d5a13391c731d3501af9ae7e/ibertran.jpg',
-						created_at: '2021-09-01T00:00:00Z',
-						updated_at: '2021-09-01T00:00:00Z',
-					}
-				},
-				{
-					account_id: 0,
-					profile: {
-						account_id: 0,
-						username: 'anfichet',
-						avatar: 'https://cdn.intra.42.fr/users/477cad5905c6b2cb7ce7eeb1ed1afe6a/anfichet.JPG',
-						created_at: '2021-09-01T00:00:00Z',
-						updated_at: '2021-09-01T00:00:00Z',
-					}
-				},
-			]
-		},
-	];
 
-	const tournament: Match[] = [
-		{
-			teams_id: [],
-			scrores: [0, 0],
-			state: MatchState.WAITING,
+	const teamsRef = Babact.useRef<ITeam[]>([]);
+	const [matches, setMatches] = Babact.useState<Match[]>([]);
+	const { id: tournamentId } = useParams();
+	const { me } = useAuth();
+	const navigate = useNavigate();
+	
+	function isMyCurrentMatch(match: Match) {
+		return match.teams.some((team) => team.players.some((member) => member.account_id === me?.account_id));
+	}
+
+	const onSync = ({tournament} : {tournament: Tournament}) => {
+		teamsRef.current = tournament.teams;
+		const matches = tournament.matches.map((match) => ({
+			...match,
+			teams: match.team_ids.map((index: number) => teamsRef.current[index]),
+		}));
+		matches.forEach((match) => {
+			if (match.state === MatchState.PLAYING && isMyCurrentMatch(match)) {
+				navigate('/matches/' + match.match_id);
+			}
+		})
+		setMatches(matches);
+	}
+
+	const onMatchUpdate = ({match} : {match: Match}) => {
+		setMatches((prevMatches) => {
+			console.log(match);
+			match.teams = match.team_ids.map((index: number) => teamsRef.current[index]);
+			prevMatches[match.index] = match;
+			if (match.state === MatchState.PLAYING && isMyCurrentMatch(match)) {
+				navigate('/matches/' + match.match_id);
+			}
+			return [...prevMatches];
+		})
+	}
+
+	const onFinish = () => {
+		console.log('Tournament finished');
+	}
+
+	const sse = useSSE({
+		onEvent: {
+			sync: onSync,
+			match_update: onMatchUpdate,
+			finish: onFinish
 		},
-		{
-			teams_id: [],
-			scrores: [0, 0],
-			state: MatchState.WAITING,
-		},{
-			teams_id: [],
-			scrores: [0, 0],
-			state: MatchState.WAITING,
-		},{
-			teams_id: [],
-			scrores: [0, 1],
-			state: MatchState.WAITING,
-		},{
-			teams_id: [],
-			scrores: [0, 1],
-			state: MatchState.WAITING,
-		},{
-			teams_id: [0],
-			scrores: [0, 1],
-			state: MatchState.WAITING,
-		},{
-			teams_id: [],
-			scrores: [0, 1],
-			state: MatchState.PLAYING,
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1],
-			state: MatchState.PLAYING,
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1],
-			state: MatchState.PLAYING,
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1],
-			state: MatchState.PLAYING,
-		},{
-			teams_id: [0, 1],
-			scrores: [0, 1],
-			state: MatchState.PLAYING,
-		},{
-			teams_id: [0, 1],
-			scrores: [3, 1],
-			state: MatchState.DONE,
-		}
+	});
 
-	];
-
-	const matches = tournament.map((match, i) => ({
-		...match,
-		teams: match.teams_id.map(team_id => teams[team_id])
-	}))
+	Babact.useEffect(() => {
+		sse.connect(`${config.API_URL}/matchmaking/tournaments/${tournamentId}/notify?token=${localStorage.getItem('access_token')}`)
+		return sse.close;
+	}, []);
 
 	return <Overlay>
 		<div
 			className='tournament-view scrollbar'
 		>
-			<Tree
-				matches={matches}
-			/>
+			<Tree matches={matches} />
 		</div>
 	</Overlay>
 }
