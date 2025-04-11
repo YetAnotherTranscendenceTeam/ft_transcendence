@@ -7,9 +7,7 @@ import jwt from "@fastify/jwt"
 const USER_COUNT = 300;
 
 const app = Fastify();
-app.register(jwt, {
-  secret: process.env.JWT_SECRET
-})
+app.register(jwt, { secret: process.env.AUTHENTICATION_SECRET });
 
 beforeAll(async () => {
   await app.ready();

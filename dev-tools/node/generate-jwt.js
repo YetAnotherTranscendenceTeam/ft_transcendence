@@ -3,7 +3,7 @@
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
 
-const jwt_secret = process.env.JWT_SECRET;
+const jwt_secret = process.env.AUTHENTICATION_SECRET;
 
 const app = Fastify();
 

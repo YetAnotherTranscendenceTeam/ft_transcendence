@@ -58,7 +58,7 @@ services:
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
     ports:
@@ -110,7 +110,7 @@ services:
       - ./services/fortytwo-auth/srcs:/services/fortytwo-auth/srcs
       - ./modules/:/modules:ro
     environment:
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - FRONTEND_URL=${FRONTEND_URL}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
@@ -156,7 +156,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
     ports:
       - "127.0.0.1:4043:3000"
@@ -175,7 +175,7 @@ services:
       - ./modules/:/modules:ro
       - sqlite:/database
     environment:
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     ports:
@@ -192,7 +192,7 @@ services:
       - ./modules/:/modules:ro
       - sqlite:/database
     environment:
-      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_SECRET=${CDN_SECRET}
       - CDN_URL=${CDN_URL}
     ports:
       - 127.0.0.1:7001:3000
@@ -208,7 +208,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
     ports:
       - 127.0.0.1:4003:3000
     networks:
@@ -224,7 +224,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:
       - 127.0.0.1:4004:3000
@@ -246,8 +246,8 @@ services:
     environment:
       - NODE_TLS_REJECT_UNAUTHORIZED=0
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - CDN_SECRET=${CDN_SECRET}
       - CDN_URL=${CDN_URL}
     ports:
       - 127.0.0.1:4113:3000
@@ -268,7 +268,7 @@ services:
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
     ports:
@@ -306,7 +306,7 @@ services:
       - ./modules/:/modules:ro
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_SECRET=${CDN_SECRET}
     networks:
      - cdn-api
   

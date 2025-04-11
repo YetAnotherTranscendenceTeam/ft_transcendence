@@ -5,9 +5,7 @@ import Fastify from "fastify";
 import jwt from "@fastify/jwt"
 
 const app = Fastify();
-app.register(jwt, {
-  secret: process.env.JWT_SECRET
-})
+app.register(jwt, { secret: process.env.AUTHENTICATION_SECRET });
 
 const baseUrl = "http://127.0.0.1:4012";
 const credentialsUrl = "http://127.0.0.1:7002";

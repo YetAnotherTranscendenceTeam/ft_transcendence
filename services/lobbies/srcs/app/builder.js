@@ -6,7 +6,7 @@ import websocket from '@fastify/websocket'
 import router from "./router.js";
 import YATT, { HttpError } from "yatt-utils";
 import jwt from "@fastify/jwt";
-import { jwt_secret, matchmaking_jwt_secret } from "./env.js";
+import { AUTHENTICATION_SECRET, matchmaking_jwt_secret } from "./env.js";
 import { fetchGameModes, GameModes } from "../GameModes.js";
 import MatchmakingConnection from "../MatchmakingConnection.js";
 import cors from "@fastify/cors";
@@ -25,7 +25,7 @@ export default function build(opts = {}) {
   });
 
   app.register(jwt, {
-    secret: jwt_secret,
+    secret: AUTHENTICATION_SECRET,
   });
   app.register(jwt, {
     secret: matchmaking_jwt_secret,

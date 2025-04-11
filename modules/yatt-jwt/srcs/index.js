@@ -8,18 +8,20 @@ class jwtGenerator {
     this.instances.set(namespace, instance);
   }
 
-  get(namespace = "default") {
+  get(namespace = "default", payload) {
     const token = this.tokens.get(namespace);
-    if (!token || Date.now() < token.expire_at) {
-      return this.#generate(namespace);
+    
+    if (payload || !token || Date.now() > token.expire_at) {
+      return this.#generate(namespace, payload || token?.payload);
     }
     return token.jwt;
   }
 
-  #generate(namespace) {
-    const jwt = this.instances.get(namespace).sign({}, { expireIn: '15m' });
-    const expire_at = new Date(Date.now() + 14 * 60 * 1000);
-    this.tokens.set(namespace, { jwt, expire_at });
+  #generate(namespace, payload) {
+    payload ??= {};
+    const jwt = this.instances.get(namespace).sign(payload, { expiresIn: '15m' });
+    const expire_at = Date.now() + (14 * 60 * 1000);
+    this.tokens.set(namespace, { jwt, expire_at, payload });
     return jwt;
   }
 }

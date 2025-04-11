@@ -10,7 +10,7 @@ if (!redirect_uri) {
   process.exit(1);
 }
 
-export const frontend_url = process.env.FRONTEND_URL;
+export const FRONTEND_URL = process.env.FRONTEND_URL;
 if (!redirect_uri) {
   console.error("Missing environment variable: FRONTEND_URL");
   process.exit(1);

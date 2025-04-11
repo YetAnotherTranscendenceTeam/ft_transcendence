@@ -1,5 +1,5 @@
 import request from "supertest";
-import { client_id, frontend_url, redirect_uri } from "./env";
+import { client_id, FRONTEND_URL, redirect_uri } from "./env";
 import url from "url";
 
 const baseUrl = "http://127.0.0.1:4042";
@@ -34,7 +34,7 @@ describe("fortytwo-auth tests", () => {
       .query({ code: "notavalidcode" })
       .expect(302);
 
-    const frontend = url.parse(frontend_url);
+    const frontend = url.parse(FRONTEND_URL);
     const redirectUrl = url.parse(response.headers.location, true);
     expect(redirectUrl.protocol).toBe(frontend.protocol);
     expect(redirectUrl.port).toBe(frontend.port);

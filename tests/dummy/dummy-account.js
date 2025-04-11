@@ -8,7 +8,7 @@ import { apiURL } from "../URLs";
 
 const app = Fastify();
 app.register(jwt, {
-  secret: process.env.JWT_SECRET
+  secret: process.env.AUTHENTICATION_SECRET
 })
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';

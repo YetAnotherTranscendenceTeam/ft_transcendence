@@ -53,10 +53,10 @@ generate() {
 
 # Array of secret key names
 secret_keys=( \
-    "JWT_SECRET" \
+    "AUTHENTICATION_SECRET" \
     "REFRESH_TOKEN_SECRET" \
     "TOKEN_MANAGER_SECRET" \
-    "CDN_JWT_SECRET" \
+    "CDN_SECRET" \
     "PASSWORD_PEPPER" \
     "MATCHMAKING_JWT_SECRET" \
 )  

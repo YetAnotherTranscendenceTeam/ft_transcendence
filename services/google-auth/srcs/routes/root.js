@@ -1,7 +1,7 @@
 "use strict";
 
 import { OAuth2Client } from "google-auth-library";
-import { google_client_id, token_manager_secret } from "../app/env.js";
+import { GOOGLE_CLIENT_ID } from "../app/env.js";
 import { getUser } from "../utils/getUser.js";
 import YATT, { HttpError } from "yatt-utils";
 
@@ -28,11 +28,10 @@ export default function routes(fastify, opts, done) {
     try {
       const ticket = await google.verifyIdToken({
         idToken: token,
-        audience: google_client_id,
+        audience: GOOGLE_CLIENT_ID,
       });
       const payload = ticket.getPayload();
       user = getUser(payload);
-      console.log(user);
     } catch (err) {
       console.log(err);
       if (err instanceof HttpError) {
@@ -76,80 +75,80 @@ export default function routes(fastify, opts, done) {
     });
   });
 
-  done();
-}
+  async function createAccount(user) {
+    const account = await YATT.fetch("http://credentials:3000/google", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user.email,
+        google_id: user.id,
+      }),
+    });
+    console.log("ACCOUNT CREATED: ", account);
 
-async function createAccount(user) {
-  const account = await YATT.fetch("http://credentials:3000/google", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email: user.email,
-      google_id: user.id,
-    }),
-  });
-  console.log("ACCOUNT CREATED: ", account);
+    const tokens = await authenticate(account.account_id);
+    const avatar = await uploadAvatar(user.picture, tokens.access_token).catch(() => undefined);
 
-  const tokens = await authenticate(account.account_id);
-  const avatar = await uploadAvatar(user.picture, tokens.access_token).catch(() => undefined);
-
-  try {
-    // Patch profile avatar + 42Intra username as avatar
-    await updateProfile(account.account_id, { avatar, username: user.username });
-  } catch (err) {
-    if (err.statusCode === 409 && avatar) {
-      // Username already in use
-      try {
-        // Patch avatar only
-        await updateProfile(account.account_id, { avatar });
-      } catch (error) {
-        console.error(error);
+    try {
+      // Patch profile avatar + 42Intra username as avatar
+      await updateProfile(account.account_id, { avatar, username: user.username });
+    } catch (err) {
+      if (err.statusCode === 409 && avatar) {
+        // Username already in use
+        try {
+          // Patch avatar only
+          await updateProfile(account.account_id, { avatar });
+        } catch (error) {
+          console.error(error);
+        }
       }
     }
-  }
-  return tokens;
-}
-
-export async function uploadAvatar(url, access_token) {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw Error("Failed to download 42Intra profile picture");
+    return tokens;
   }
 
-  const buffer = Buffer.from(await response.arrayBuffer());
-  const contentType = response.headers.get('content-type');
-  const base64String = buffer.toString('base64');
+  async function uploadAvatar(url, access_token) {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw Error("Failed to download 42Intra profile picture");
+    }
 
-  const avatar = await YATT.fetch("http://avatars:3000/", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${access_token}`,
-      "Content-Type": "text/plain",
-    },
-    body: `data:${contentType};base64,${base64String}`
-  })
-  return avatar.url;
-}
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const contentType = response.headers.get('content-type');
+    const base64String = buffer.toString('base64');
 
-async function updateProfile(account_id, body) {
-  await YATT.fetch(`http://db-profiles:3000/${account_id}`, {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  })
-}
-
-async function authenticate(account_id) {
-  const tokens = await YATT.fetch(`http://token-manager:3000/${account_id}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token_manager_secret}`,
-    },
+    const avatar = await YATT.fetch("http://avatars:3000/", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${access_token}`,
+        "Content-Type": "text/plain",
+      },
+      body: `data:${contentType};base64,${base64String}`
+    })
+    return avatar.url;
   }
-  );
-  return tokens;
+
+  async function updateProfile(account_id, body) {
+    await YATT.fetch(`http://db-profiles:3000/${account_id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    })
+  }
+
+  async function authenticate(account_id) {
+    const tokens = await YATT.fetch(`http://token-manager:3000/${account_id}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${fastify.tokens.get("token_manager")}`,
+      },
+    }
+    );
+    return tokens;
+  }
+
+  done();
 }

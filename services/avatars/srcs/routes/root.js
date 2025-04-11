@@ -3,7 +3,7 @@
 import { HttpError } from "yatt-utils";
 import YATT from "yatt-utils";
 import db from "../app/database.js";
-import { cdn_url } from "../app/env.js"
+import { CDN_URL } from "../app/env.js"
 import { imageSize } from 'image-size';
 
 export default function router(fastify, opts, done) {
@@ -57,7 +57,7 @@ export default function router(fastify, opts, done) {
       validateImageFormat(infos);
 
       const token = fastify.jwt.cdn.sign({});
-      const upload = await YATT.fetch(`${cdn_url}/api/avatars`, {
+      const upload = await YATT.fetch(`${CDN_URL}/api/avatars`, {
         method: "POST",
         headers: {
           'authorization': `Bearer ${token}`,
@@ -69,8 +69,8 @@ export default function router(fastify, opts, done) {
         }),
       });
       db.prepare("INSERT INTO avatars (account_id, url) VALUES (?, ?)")
-        .run(request.account_id, cdn_url + upload.uri);
-      reply.code(201).send({ url: cdn_url + upload.uri });
+        .run(request.account_id, CDN_URL + upload.uri);
+      reply.code(201).send({ url: CDN_URL + upload.uri });
     } catch (err) {
       if (err instanceof HttpError) {
         err.send(reply);
@@ -97,7 +97,7 @@ export default function router(fastify, opts, done) {
     }
     try {
       const token = fastify.jwt.cdn.sign({});
-      await YATT.fetch(url.replace(cdn_url, `${cdn_url}/api/`), {
+      await YATT.fetch(url.replace(CDN_URL, `${CDN_URL}/api/`), {
         method: "DELETE",
         headers: {
           'authorization': `Bearer ${token}`,

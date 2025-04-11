@@ -6,7 +6,7 @@ import websocket from '@fastify/websocket'
 import router from "./router.js";
 import YATT from "yatt-utils";
 import jwt from "@fastify/jwt";
-import { jwt_secret } from "./env.js";
+import { AUTHENTICATION_SECRET } from "./env.js";
 import { matchmaking_jwt_secret } from "./env.js";
 import db from "./database.js";
 
@@ -27,7 +27,7 @@ export default function build(opts = {}) {
     });
   }
   app.register(jwt, {
-    secret: jwt_secret,
+    secret: AUTHENTICATION_SECRET,
   });
   app.register(jwt, {
 	secret: matchmaking_jwt_secret,
