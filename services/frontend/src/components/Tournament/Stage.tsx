@@ -68,7 +68,7 @@ export default function Stage({
 			{Array(nbMaxMatch - nbMatch).fill(null).map((_, i) =>
 				<div className='match-card-container empty' key={'empty' + i}>
 					<MatchCard
-						match={{team_ids: [], scores: [0, 0], teams: [], state: MatchState.DONE, stage: stageIndex, index: i}}
+						match={new Match({team_ids: [], scores: [0, 0], state: MatchState.DONE, stage: stageIndex, index: i}, [])}
 						positionH={HPosition.CENTER}
 						positionV={VPosition.TOP}
 					/>

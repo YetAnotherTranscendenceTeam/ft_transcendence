@@ -87,7 +87,7 @@
 
 .button.success:hover {
 	background-color: var(--success-color);
-	filter: saturate(2);
+	background-color: rgb(0, 194, 0);
 }
 
 .button.success.disabled, .button.success.disabled:hover{
