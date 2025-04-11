@@ -7,6 +7,7 @@ import { Lobby } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
 import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
+import { useNavigate } from "babact-router-dom";
 
 export default function SocialFollowCard({
 		follow,
@@ -23,6 +24,8 @@ export default function SocialFollowCard({
 	const { lobby } = useLobby();
 
 	const { me } = useAuth();
+
+	const navigate = useNavigate();
 
 	const [inviteSend, setInviteSend] = Babact.useState<boolean>(false);
 	const [loading, setLoading] = Babact.useState<boolean>(false);
@@ -42,19 +45,22 @@ export default function SocialFollowCard({
 		setInviteSend(false);
 	}, [lobby]);
 
-	const handleInvite = () => {
+	const handleInvite = (e: MouseEvent) => {
+		e.stopPropagation();
 		follow.invite(inviteLobby.mode, inviteLobby.join_secret);
 		setInviteSend(true);
 		createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
 	}
 
-	const handleRequest = () => {
+	const handleRequest = (e: MouseEvent) => {
+		e.stopPropagation();
 		follow.request();
 		setInviteSend(true);
 		createToast(`You requested to join ${follow.profile.username}'s lobby`, ToastType.SUCCESS);
 	}
 
-	const handleUnFollow = async () => {
+	const handleUnFollow = async (e: MouseEvent) => {
+		e.stopPropagation();
 		setLoading(true);
 		const res = await follow.unfollow();
 		if (!res)
@@ -62,7 +68,10 @@ export default function SocialFollowCard({
 	}
 
 
-	return <div className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'>
+	return <div
+		className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'
+		onClick={() => navigate(`/profile/${follow.account_id}`)}
+	>
 		<div className='flex flex-row items-center gap-2'>
 			<Avatar
 				src={follow.profile.avatar}
@@ -70,7 +79,7 @@ export default function SocialFollowCard({
 				status={ follow.status.type }
 			>
 				<Button className='follow-remove icon'
-					onClick={() => handleUnFollow()}
+					onClick={(e) => handleUnFollow(e)}
 					loading={loading}
 				>
 					<i className="fa-solid fa-user-minus"></i>
@@ -83,7 +92,7 @@ export default function SocialFollowCard({
 		</div>
 		{inLobby && isRequestable &&
 			<Button
-				onClick={() => handleRequest()}
+				onClick={(e) => handleRequest(e)}
 				className="follow-lobby-request"
 			>
 				<i className="fa-regular fa-hand"></i> Request to join
@@ -104,7 +113,7 @@ export default function SocialFollowCard({
 
 		{inviteLobby &&
 			<div className='flex flex-row items-center gap-2'>
-				<Button className='info' onClick={() => handleInvite()}>
+				<Button className='info' onClick={(e) => handleInvite(e)}>
 					<i className="fa-regular fa-paper-plane"></i> Invite to lobby
 				</Button>
 			</div>

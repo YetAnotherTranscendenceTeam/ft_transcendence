@@ -149,3 +149,19 @@
 .follow-lobby-request:hover {
 	filter: saturate(1.5);
 }
+
+
+/* ========== UserCard ============== */
+
+.user-card {
+	max-width: 40vw;
+	margin: 16px;
+}
+
+.user-card h1 {
+	font-weight: bold;
+}
+
+.user-card .button {
+	margin-left: auto;
+}
