@@ -12,6 +12,7 @@ import qs from "qs";
 import { jwt_secret } from "./env.js";
 import { matchmaking_jwt_secret } from "./env.js";
 import db from "./database.js";
+import cors from "@fastify/cors";
 
 import { TournamentManger } from "../TournamentManager.js";
 
@@ -31,6 +32,14 @@ export default function build(opts = {}) {
       ],
     });
   }
+
+  app.register(cors, {
+    origin: new RegExp(process.env.CORS_ORIGIN) || true,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+    maxAge: 600,
+  });
+
   app.register(jwt, {
     secret: jwt_secret,
   });
