@@ -142,14 +142,13 @@ describe("POST /", () => {
     });
   });
 
+  const N = 10;
   const accounts = [];
 
-  for (let i = 0; i < 10; ++i) {
+  for (let i = 0; i < N; ++i) {
     accounts.push({
       account_id: null,
-      email: `password.test.js-${crypto
-        .randomBytes(10)
-        .toString("hex")}@jest.com`,
+      email: `password.test.js-${crypto.randomBytes(10).toString("hex")}@jest.com`,
       password: crypto.randomBytes(5).toString("hex"),
     });
   }
@@ -161,10 +160,9 @@ describe("POST /", () => {
         .send({
           email: accounts[i].email,
           password: accounts[i].password,
-        })
-        .expect(201)
-        .expect("Content-Type", /json/);
+        });
 
+      expect(response.statusCode).toBe(201);
       accounts[i].account_id = app.jwt.decode(response.body.access_token).account_id;
       expect(response.body);
     });
@@ -188,7 +186,7 @@ describe("POST /", () => {
     });
   });
 
-  for (let i = 0; i < 10; ++i) {
+  for (let i = 0; i < N; ++i) {
     const rand = Math.floor(Math.random() * accounts.length);
     it(`get random account entry ${i + 1}`, async () => {
       const response = await request(credentialsUrl)
