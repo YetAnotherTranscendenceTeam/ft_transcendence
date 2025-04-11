@@ -1,4 +1,3 @@
-
 override SERVICES = \
 	credentials \
 	fortytwo-auth \
@@ -9,6 +8,7 @@ override SERVICES = \
 override MODULES = \
 	yatt-utils \
 	yatt-ws \
+	yatt-sse \
 
 override TS_MODULES = \
 	babact \
@@ -47,3 +47,10 @@ fclean:
 	rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 	rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
 	rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
+
+test:
+ifeq ($(ENV),production)
+	$(error Tests cannot be run in production environment)
+else
+	npm --prefix ./tests run test
+endif

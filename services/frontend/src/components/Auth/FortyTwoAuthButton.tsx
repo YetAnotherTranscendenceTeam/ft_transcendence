@@ -1,6 +1,6 @@
 import Babact from "babact";
 import config from "../../config";
-import useToast from "../../hooks/useToast";
+import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
 
 export default function FortyTwoAuthButton({
@@ -17,10 +17,12 @@ export default function FortyTwoAuthButton({
 		const { token, expire_at, statusCode } = event.data;
 		if (token)
 			auth(token, expire_at);
-		else if (statusCode === 401) {
-			createToast('Authentication failed', 'danger', 7000);
+		else if (statusCode == 401) {
+			createToast('Authentication failed', ToastType.DANGER, 7000);
 		}
-
+		else if (statusCode == 502) {
+			createToast('42Intra is unavailable right now', ToastType.DANGER, 7000);
+		}
 	};
 
 	const openPopup = () => {
@@ -38,6 +40,6 @@ export default function FortyTwoAuthButton({
 
 	return <a onClick={openPopup} className='fortytwo-auth-button flex items-center'>
 		<img src='/assets/images/fortytwo-logo.png'/>
-		<p>Sign in with 42intra</p>
+		<p>Sign in with 42Intra</p>
 	</a>
 }

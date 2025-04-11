@@ -10,7 +10,7 @@ import SocialFollowCard from "./SocialFollowCard";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
 
-	const [selected, setSelected] = Babact.useState('follow');
+	const [selected, setSelected] = Babact.useState<string>('follow');
 
 	const {users, search} = useUsers();
 
@@ -21,7 +21,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	};
 
 	Babact.useEffect(() => {
-		if (me)
+		if (me && follows.length)
 			search('', 20, follows.map(f => f.account_id).concat(me.account_id));
 	}, [me, follows]);
 
@@ -51,7 +51,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 					follows.length ?
 					sortFollows(follows).map((follow, i) =>
 						<SocialFollowCard
-							key={i}
+							key={follow.account_id}
 							follow={follow}
 						/>
 					):
@@ -76,7 +76,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 						users.length !== 0 &&
 						users.map((user, i) => (
 							<SocialUserCard
-								key={i}
+								key={user.account_id}
 								user={user}
 							/>
 						))

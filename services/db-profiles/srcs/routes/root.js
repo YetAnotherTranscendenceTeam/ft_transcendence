@@ -1,8 +1,7 @@
 "use strict";
 
-import { HttpError, objects, properties } from "yatt-utils";
+import YATT, { HttpError, objects, properties } from "yatt-utils";
 import db from "../app/database.js";
-import { generateUsername } from "../utils/generateUsername.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -26,7 +25,6 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.get("/", { schema }, async function handler(request, reply) {
-    console.log(request.query);
     const { limit, offset, filter = {} } = request.query;
 
     let sql = "SELECT * FROM profiles";
@@ -212,7 +210,7 @@ export default function router(fastify, opts, done) {
 
   fastify.patch("/:account_id", { schema }, async function handler(request, reply) {
     const { account_id } = request.params;
-    const { setClause, params } = patchBodyToSql(request.body);
+    const { setClause, params } = YATT.patchBodyToSql(request.body);
 
     try {
       const update = db
@@ -232,13 +230,4 @@ export default function router(fastify, opts, done) {
   });
 
   done();
-}
-
-function patchBodyToSql(body) {
-  return {
-    setClause: Object.keys(body)
-      .map((key) => `${key} = ?`)
-      .join(", "),
-    params: Object.values(body)
-  };
 }

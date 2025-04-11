@@ -27,10 +27,12 @@ export default function Button({
 		</a>
 
 	return <a
-		className={`button ${className ? className : ''} disabled`}
+		className={`button ${className ? className : ''} disabled loading`}
 	>
 		<Spinner/>
-		Loading...
+		<p>
+			Loading...
+		</p>
 	</a>
 		
 	

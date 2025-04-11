@@ -13,8 +13,6 @@ function LobbyPlayerCardContent({player, isLeader, draggable} : {player: any, is
 
 export default function LobbyPlayerCard({
 		player,
-		position,
-		dragging,
 		onMouseDown,
 		onMouseEnter,
 		onMouseLeave,
@@ -23,8 +21,6 @@ export default function LobbyPlayerCard({
 		...props
 	} : {
 		player: any,
-		position: {x: number, y: number},
-		dragging: boolean,
 		onMouseDown: (e: any) => void,
 		onMouseEnter: (e: any) => void,
 		onMouseLeave: (e: any) => void,
@@ -34,21 +30,23 @@ export default function LobbyPlayerCard({
 	}) {
 
 	if (draggable)
-		return <div className='lobby-player-card-wrapper flex items-center justify-center'
+		return <div
+			className='lobby-player-card-wrapper flex items-center justify-center'
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
 			{...props}
 		>
 			<Card
 				onMouseDown={onMouseDown}
-				className={`lobby-player-card flex flex-row gap-2 items-center justify-between draggable ${dragging ? 'dragging' : ''}`}
-				style={`--x: ${position.x}px; --y: ${position.y}px;`}
-				>
+				className={`lobby-player-card flex flex-row gap-2 items-center justify-between draggable`}
+				id={player.account_id}
+			>
 				<LobbyPlayerCardContent player={player} isLeader={isLeader} draggable/>
 			</Card>
 		</div>
 
-	return <div className='lobby-player-card-wrapper flex items-center justify-center'
+	return <div
+		className='lobby-player-card-wrapper flex items-center justify-center'
 		{...props}
 	>
 		<Card

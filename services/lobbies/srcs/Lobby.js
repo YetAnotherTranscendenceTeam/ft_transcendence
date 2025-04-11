@@ -10,7 +10,7 @@ import {
 } from "./LobbyMessages.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
-import { LobbyStateType, Lobby as LobbyBase} from "yatt-lobbies";
+import { LobbyStateType, Lobby as LobbyBase, GameModeType} from "yatt-lobbies";
 
 export const LobbyState = {
   waiting: () => ({ type: LobbyStateType.WAITING, joinable: true }),
@@ -115,11 +115,8 @@ export class Lobby extends LobbyBase {
   // swaps the positions of 2 players
   swapPlayers(sender, { account_ids }) {
     const indexes = [];
-    if (!Array.isArray(account_ids) || account_ids.length != 2)
-      throw new Error("Expected element 'indexes' to be an array of 2 element");
     for (let i = 0; i < account_ids.length; i++) {
       let account_id = account_ids[i];
-      if (typeof account_id != "number") throw new Error("Invalid account_id, expected a number");
       let index = this.players.findIndex((p) => p.account_id == account_id);
       if (index == -1) throw new Error("Account_id is not part of this lobby");
       indexes.push(index);
@@ -181,6 +178,7 @@ export class Lobby extends LobbyBase {
 
   queue() {
     if (this.state.type != LobbyStateType.WAITING) throw new Error("Lobby is not waiting");
+    if (this.mode.type == GameModeType.CUSTOM && this.getTeamCount() < 2) throw new Error("Lobby requires at least 2 teams to start a custom match");
     if (!MatchmakingConnection.getInstance().isReady) {
       throw new Error("Matchmaking service is currently not available");
     }
@@ -197,7 +195,10 @@ export class Lobby extends LobbyBase {
       MatchmakingConnection.getInstance().unqueue(this);
   }
 
-  confirmUnqueue() {
+  confirmUnqueue(reason) {
+    if (reason) {
+      this.broadbast(new LobbyErrorMessage(reason));
+    }
     this.setState(LobbyState.waiting());
   }
 }

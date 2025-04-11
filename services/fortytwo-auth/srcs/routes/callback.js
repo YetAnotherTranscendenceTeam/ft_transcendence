@@ -2,6 +2,7 @@
 
 import { client_id, client_secret, frontend_url, redirect_uri, token_manager_secret } from "../app/env.js";
 import YATT, { HttpError } from "yatt-utils";
+import { validateToken, validateUser } from "../utils/validate.js";
 
 export default function routes(fastify, opts, done) {
   const schema = {
@@ -29,12 +30,12 @@ export default function routes(fastify, opts, done) {
         const account = await YATT.fetch(`http://credentials:3000/fortytwo/${user.id}`);
         // Authenticate user
         tokens = await authenticate(account.account_id);
-      } catch (err) {
-        if (err instanceof HttpError && err.statusCode == 404) {
+      } catch (err2) {
+        if (err2 instanceof HttpError && err2.statusCode == 404) {
           // Create an account
           tokens = await createAccount(user);
         } else {
-          throw err;
+          throw err2;
         }
       }
       // Redirect back to frontend
@@ -66,7 +67,8 @@ async function getIntraUser(code) {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (!user?.email || !user?.id || !user?.login || !user?.image?.link) {
+
+    if (!validateUser(user)) {
       throw new HttpError.BadGateway();
     }
     return user;
@@ -93,7 +95,7 @@ async function generateUserToken(code) {
       redirect_uri,
     }),
   });
-  if (!token || !token.access_token) {
+  if (!validateToken(token)) {
     throw new HttpError.BadGateway();
   }
   return token.access_token;
@@ -116,8 +118,8 @@ async function createAccount(user) {
   const avatar = await uploadAvatar(user.image.link, tokens.access_token).catch(() => undefined);
 
   try {
-    // Patch profile avatar + 42intra username as avatar
-    await updateProfile(account.account_id, { avatar, username: user.login});
+    // Patch profile avatar + 42Intra username as avatar
+    await updateProfile(account.account_id, { avatar, username: user.login });
   } catch (err) {
     if (err.statusCode === 409 && avatar) {
       // Username already in use
@@ -135,7 +137,7 @@ async function createAccount(user) {
 export async function uploadAvatar(url, access_token) {
   const response = await fetch(url);
   if (!response.ok) {
-    throw Error("Failed to download 42intra profile picture");
+    throw Error("Failed to download 42Intra profile picture");
   }
 
   const buffer = Buffer.from(await response.arrayBuffer());

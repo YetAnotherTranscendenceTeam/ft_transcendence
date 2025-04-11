@@ -7,5 +7,7 @@
     "qs": "^6.14.0",
     "yatt-utils": "file:../../modules/yatt-utils"
   },
-  "type": "module"
+  "type": "module", "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

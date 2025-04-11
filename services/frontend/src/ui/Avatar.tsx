@@ -1,5 +1,4 @@
 import Babact from "babact";
-import { FollowStatus } from "../hooks/useSocials";
 
 export default function Avatar({
 		className = '',
@@ -35,10 +34,13 @@ export default function Avatar({
 		return colour
 	}
 
-	return <div className={`avatar ${size} ${className}`} style={`background-color: ${stringToColour(name)};`} {...props}>
-		<p>{initials}</p>
+	const [error, setError] = Babact.useState<boolean>(false);
+
+	return <div className={`avatar ${size} ${className}`} style={`background-color: ${error ? stringToColour(name) : 'var(--bg-2)'};`} {...props}>
+		{error && <p>{initials}</p>}
 		<img key={src} src={src} alt="avatar" onError={(e) => {
 			e.target.style.display = 'none';
+			setError(true);
 		}}/>
 		{status && <span style={`background-color: var(--${status}-color);`} />}
 		{children && <div  className='avatar-children'>{children}</div>}

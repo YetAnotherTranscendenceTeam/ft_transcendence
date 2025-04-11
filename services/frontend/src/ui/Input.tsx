@@ -10,6 +10,7 @@ export default function Input({
 		matching,
 		defaultValue,
 		help,
+		color,
 		...props 
 	}: {
 		label?: string,
@@ -20,6 +21,7 @@ export default function Input({
 		matching?: string,
 		defaultValue?: string,
 		help?: string,
+		color?: string | ((fields: any) => string),
 		[key: string]: any
 	}) {
 
@@ -53,6 +55,7 @@ export default function Input({
 			value={fields[field].value}
 			onInput={handleChange}
 			className={!isFieldValid ? 'invalid' : ''}
+			style={`--input-color: ${color ? typeof color === 'function' ? color(fields) : color : ''}`}
 			{...props}
 		/>
 		{error && <p className='input-error'>{!isFieldValid && error}</p>}

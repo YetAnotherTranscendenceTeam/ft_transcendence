@@ -4,15 +4,18 @@ import Button from "./Button";
 export default function Editable({
 		defaultValue = '',
 		onEdit,
-		disabled = false
+		disabled = false,
+		maxLength = 100,
 	}: {
 		defaultValue?: string;
 		onEdit: (value: string) => void;
 		disabled?: boolean;
+		maxLength?: number;
+		[key: string]: any;
 	}) {
 
-	const [isEditing, setIsEditing] = Babact.useState(false);
-	const [value, setValue] = Babact.useState(defaultValue);
+	const [isEditing, setIsEditing] = Babact.useState<boolean>(false);
+	const [value, setValue] = Babact.useState<string>(defaultValue);
 	const isBlurred = Babact.useRef(false);
 
 	Babact.useEffect(() => {
@@ -44,6 +47,7 @@ export default function Editable({
 			onInput={(e) => setValue(e.target.value)}
 			onFocus={() => setIsEditing(true)}
 			onBlur={handleFocusOut}
+			maxLength={maxLength}
 		/>
 		{ isEditing &&
 			<Button

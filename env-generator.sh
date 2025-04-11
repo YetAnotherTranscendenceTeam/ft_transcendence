@@ -1,7 +1,9 @@
 #!/bin/bash
 
 ENV_FILE=".env"
-source .env
+source .env 2> /dev/null
+
+mv $ENV_FILE $ENV_FILE.old
 
 TMP_FILE="$ENV_FILE.tmp"
 rm -f $TMP_FILE
@@ -9,7 +11,6 @@ rm -f $TMP_FILE
 generate_or_use_existing_key() {
     local key="$1"
     local value="$2"
-    local padding_length="${3:-24}"  # Default padding length is 23
 
     # Check if the key already has a value in the environment
     if [ ! -z "${!key}" ]; then
@@ -33,7 +34,6 @@ generate_or_use_existing_key() {
 generate() {
     local key="$1"
     local value="$2"
-    local padding_length="${3:-23}"  # Default padding length is 23
 
     # If no value is provided, prompt the user for input
     if [ -z "$value" ]; then
@@ -59,6 +59,7 @@ secret_keys=( \
     "CDN_JWT_SECRET" \
     "PASSWORD_PEPPER" \
     "MATCHMAKING_JWT_SECRET" \
+    "PONG_JWT_SECRET"
 )  
 
 echo "[SECRETS]"
@@ -73,24 +74,45 @@ if [ ! -z $GITHUB_ACTION ]; then
     exit
 fi
 
-HOST=$(hostname | cut -d'.' -f1)
 
 printf "\n[URLs]\n"
-generate BACKEND_URL "https://${HOST}:7979"
-generate WS_URL "wss://${HOST}:7979"
-generate FRONTEND_URL "https://${HOST}:8080"
-generate CDN_URL "https://${HOST}:8181"
+if [[ -z $1 || "$1" = "evaluation" ]]; then
+    HOST=$(hostname)
+    generate DOMAIN_NAME "${HOST}"
+    generate BACKEND_URL "https://${HOST}:7979"
+    generate WS_URL "wss://${HOST}:7979"
+    generate FRONTEND_URL "https://${HOST}:8080"
+    generate CDN_URL "https://${HOST}:8181"
+else
+    HOST=$1
+    generate DOMAIN_NAME "$1"
+    generate BACKEND_URL "https://api-${HOST}"
+    generate WS_URL "wss://api-${HOST}"
+    generate FRONTEND_URL "https://${HOST}"
+    generate CDN_URL "https://cdn-${HOST}"
+fi
 
+printf "\n[Google OAuth]\n"
+generate_or_use_existing_key GOOGLE_CLIENT_ID ""
 
 printf "\n[42API OAuth]\n"
 generate_or_use_existing_key API42_CLIENT_ID ""
 generate_or_use_existing_key API42_SECRET ""
-generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
+if [[ -z $1 || "$1" = "evaluation" ]]; then
+    generate API42_REDIRECT_URI "https://${HOST}:7979/auth/fortytwo/callback"
+else
+    generate API42_REDIRECT_URI "https://api-${HOST}/auth/fortytwo/callback"
+fi
 echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
 
 printf "\n[MISC PARAMETERS] \n"
+if [ -z $1 ]; then
+    generate SOCIAL_OFFLINE_DELAY "10000"
+    generate SOCIAL_INACTIVITY_DELAY "15000"
+else
+    true
+fi
+
 generate MATCHMAKING_SCHEDULER_DELAY "100"
-# generate SOCIAL_OFFLINE_DELAY "10000"
-# generate SOCIAL_INACTIVITY_DELAY "15000"
 
 mv $TMP_FILE $ENV_FILE

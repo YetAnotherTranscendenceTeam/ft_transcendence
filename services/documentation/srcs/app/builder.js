@@ -1,18 +1,15 @@
 "use strict";
 
 import Fastify from "fastify";
-import cors from "@fastify/cors";
 import swagger from '@fastify/swagger'
 import swaggerUI from '@fastify/swagger-ui'
 import staticServe from '@fastify/static'
 import Generator from "@asyncapi/generator"
 import fs from "node:fs"
 
-export default function build(opts = {}) {
-  const app = Fastify(opts);
-
+async function generateAsyncAPIDocs(asyncapi_build_dir) {
+  let install = true;
   const asyncapi_dir = "/documentation/asyncapi";
-  const asyncapi_build_dir = "/build/asyncapi";
   const files = fs.readdirSync(asyncapi_dir);
   for (let filename of files) {
     if (!filename.endsWith(".yaml"))
@@ -33,7 +30,7 @@ export default function build(opts = {}) {
           continue;
       }
     }
-    catch (e) {console.error(e)}
+    catch (e) {}
     console.log(`Generating documentation for ${filename}`);
     const generator = new Generator("@asyncapi/html-template", `${asyncapi_build_dir}/${dir_name}`, 
       {
@@ -42,6 +39,9 @@ export default function build(opts = {}) {
         },
         forceWrite: true,
     },);
+    if (install)
+      await generator.installTemplate();
+    install = false;
     generator.generateFromFile(`${asyncapi_dir}/${filename}`).then(() => {;
       console.log(`Documentation generated for ${filename}`);
     }).catch((e) => {
@@ -49,12 +49,13 @@ export default function build(opts = {}) {
       console.error(e);
     });
   }
+}
 
-  app.register(cors, {
-    origin: true,
-    methods: ["GET", "POST", "PACTH", "DELETE"], // Allowed HTTP methods
-    credentials: true, // Allow credentials (cookies, authentication)
-  });
+export default function build(opts = {}) {
+  const app = Fastify(opts);
+  const asyncapi_build_dir = "/build/asyncapi";
+
+  generateAsyncAPIDocs(asyncapi_build_dir);
 
   app.register(swagger, {
     mode: 'static',
@@ -78,6 +79,20 @@ export default function build(opts = {}) {
   app.get("/ping", async function (request, reply) {
     reply.code(204).send();
   });
+
+  app.addHook('onClose', (instance) => {
+    // Cleanup instructions for a graceful shutdown
+  });
+
+  const serverShutdown = (signal) => {
+    console.log(`Received ${signal}. Shutting down...`);
+    app.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGINT', serverShutdown);
+  process.on('SIGTERM', serverShutdown);
 
   return app;
 }

@@ -11,5 +11,8 @@
     "toad-scheduler": "^3.0.1",
     "yatt-utils": "file:../../modules/yatt-utils"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

@@ -1,6 +1,6 @@
 import Babact from "babact";
 import SettingsSection from "./SettingsSection";
-import { Form, useForm } from "../../contexts/useForm";
+import { Form } from "../../contexts/useForm";
 import Input from "../../ui/Input";
 import Submit from "../../ui/Submit";
 import ImageSelector from "../../ui/ImageSelector";
@@ -11,7 +11,7 @@ export default function ProfileForm({ me }: { me: any }) {
 
 	const { avatars, uploadAvatar, deleteAvatar } = useAvatars();
 
-	const { setSettings, isLoading} = useProfile();
+	const { setSettings, isLoading } = useProfile();
 
 	const handleSubmit = async (fields) => {
 		setSettings({
@@ -30,6 +30,7 @@ export default function ProfileForm({ me }: { me: any }) {
 				type='text'
 				defaultValue={me.username}
 				placeholder={me.username}
+				color={(fields) => fields['profile-username'].value === me.username ? 'var(--fg-4)' : ''}
 				maxlength={15}
 			/>
 			<ImageSelector

@@ -1,4 +1,5 @@
 import { IElement } from './Element';
+import { IHook } from './Hook';
 
 export type NodeElement = HTMLElement | Text;
 
@@ -15,13 +16,15 @@ export type FiberProps = {
 };
 
 export interface IFiber extends IElement {
-	dom: NodeElement,
-	parent: IFiber | null,
-	child: IFiber | null,
-	sibling: IFiber | null,
-	alternate: IFiber | null,
+	dom: NodeElement | null,
+	parent: Fiber,
+	child: Fiber,
+	sibling: Fiber,
+	alternate: Fiber,
 	effectTag?: EffectTag,
 	props: FiberProps,
-	hooks?: Array<any>,
+	hooks?: IHook[],
 	context?: Map<number, any>,
 }
+
+export type Fiber = IFiber | null;

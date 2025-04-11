@@ -20,19 +20,23 @@ export default function AccountForm({
 		return null;
 	return <SettingsSection name='Account'>
 		<Form formFields={['account-email', 'account-password', 'account-confirm-password', 'account-current-password*']} className='gap-8'>
-			<Input field="account-email" label='Edit your email' type='email' placeholder={me.username}/>
-			<div className='flex flex-col gap-1'>
-				<Input field="account-password" label='Edit your password' name='password' type='password' />
-				<Input field="account-confirm-password" label='Confirm your new password' name='password' type='password' />
-			</div>
+			<Input field="account-email" label='Edit your email' type='email' placeholder={me.credentials.email}/>
+			{ me.credentials.auth_method === 'password_auth' &&
+			<>
+				<div className='flex flex-col gap-1'>
+					<Input field="account-password" label='Edit your password' name='password' type='password' />
+					<Input field="account-confirm-password" label='Confirm your new password' name='password' type='password' />
+				</div>
 
-			<Input
-				field="account-current-password"
-				label='Current Password'
-				type='password'
-				required
-				help='You must enter your current password to save account changes'
-			/>
+				<Input
+					field="account-current-password"
+					label='Current Password'
+					type='password'
+					required
+					help='You must enter your current password to save account changes'
+				/>
+			</>
+			}
 
 			<div className='flex gap-4 justify-end'>
 				<Button className="danger" onClick={() => {logout(); onLogout()} }>Logout<i className="fa-solid fa-arrow-right-from-bracket"></i></Button>

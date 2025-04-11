@@ -8,7 +8,7 @@ export default function useGamemodes() {
 
 	const { ft_fetch } = useFetch();
 
-	const [gamemodes, setGamemodes] = Babact.useState(null);
+	const [gamemodes, setGamemodes] = Babact.useState<GameMode[]>(null);
 
 	const fetchGamemodes = async () => {
 		const res = await ft_fetch(`${config.API_URL}/lobbies/gamemodes`);
