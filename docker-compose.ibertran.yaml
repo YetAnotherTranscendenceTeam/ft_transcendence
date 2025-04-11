@@ -152,8 +152,10 @@ services:
     volumes:
       - sqlite:/database
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
+      - PONG_JWT_SECRET=${PONG_JWT_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     networks:
       - frontend

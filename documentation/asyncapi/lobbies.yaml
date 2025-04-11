@@ -659,10 +659,12 @@ components:
       type: string
       description: The name of the gamemode
       enum:
-        - unranked_2v2
-        - ranked_2v2
         - unranked_1v1
+        - unranked_2v2
         - ranked_1v1
+        - ranked_2v2
+        - custom_1v1
+        - custom_2v2
     gamemode:
       type: object
       required:
@@ -673,7 +675,7 @@ components:
       description: |
         The mode of the lobby, this also determines the lobby capacity\* which can be obtained this way:
         ```
-        capacity = type == 'ranked' ? team_size : team_size * team_count
+        capacity = type == 'custom' ? team_size * team_count : team_size
         ```
         \**capacity* is the maximum number of players that can be in the lobby
       properties:
@@ -698,30 +700,74 @@ components:
         - type
         - joinable
       description: The state of the lobby
-      properties:
-        type:
-          type: string
-          description: The type of the state
-          enum:
-            - waiting
-            - queued
-            - playing
-        joinable:
-          type: boolean
-          description: Whether the lobby is joinable or not
-        # properties depending on the state
-        queue_stats:
-          type: object
-          description: The stats for the queue at the moment this lobby joined it (only if the state is queued)
-          properties:
-            players:
-              type: integer
-              description: The number of players in the queue
-            lobbies:
-              type: integer
-              description: The number of lobbies in the queue
-        match:
-          $ref: 'matchmaking.yaml#/components/schemas/match'
+      oneOf:
+        - properties:
+            type:
+              enum:
+                - waiting
+            joinable:
+              type: boolean
+              enum: [true]
+          required:
+            - type
+            - joinable
+        - properties:
+            type:
+              enum:
+                - queued
+            joinable:
+              type: boolean
+              enum: [false]
+            queue_stats:
+              required:
+                - players
+                - lobbies
+              type: object
+              description: The stats for the queue at the moment this lobby joined it (only if the state is queued)
+              properties:
+                players:
+                  type: integer
+                  description: The number of players in the queue
+                lobbies:
+                  type: integer
+                  description: The number of lobbies in the queue
+          required:
+            - type
+            - joinable
+            - queue_stats
+        - properties:
+            type:
+              enum:
+                - playing
+            joinable:
+              type: boolean
+              enum: [false]
+            match:
+              type: object
+              description: The match information (only if the state is playing)
+              oneOf:
+                - properties:
+                    type:
+                      enum:
+                        - match
+                    match:
+                      $ref: './matchmaking.yaml#/components/schemas/match'
+                  required:
+                    - type
+                    - match
+                - properties:
+                    type:
+                      enum:
+                        - tournament
+                    tournament:
+                      $ref: './tournament.yaml#/components/schemas/tournament'
+                  required:
+                    - type
+                    - tournament
+          required:
+            - type
+            - joinable
+            - match
     lobby:
       type: object
       required:

@@ -22,7 +22,7 @@ export default function router(fastify, opts, done) {
 				connection.removeListener("message", auth);
 				connection.send(JSON.stringify({event: "handshake"}));
 				console.log("Lobby connection established");
-				new LobbyConnection(connection);
+				new LobbyConnection(connection, fastify);
 			} else {
 				connection.close(1008, "Unauthorized - Invalid GameModes");
 			}

@@ -10,7 +10,7 @@ import {
 } from "./LobbyMessages.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
-import { LobbyStateType, Lobby as LobbyBase} from "yatt-lobbies";
+import { LobbyStateType, Lobby as LobbyBase, GameModeType} from "yatt-lobbies";
 
 export const LobbyState = {
   waiting: () => ({ type: LobbyStateType.WAITING, joinable: true }),
@@ -178,6 +178,7 @@ export class Lobby extends LobbyBase {
 
   queue() {
     if (this.state.type != LobbyStateType.WAITING) throw new Error("Lobby is not waiting");
+    if (this.mode.type == GameModeType.CUSTOM && this.getTeamCount() < 2) throw new Error("Lobby requires at least 2 teams to start a custom match");
     if (!MatchmakingConnection.getInstance().isReady) {
       throw new Error("Matchmaking service is currently not available");
     }
@@ -194,7 +195,10 @@ export class Lobby extends LobbyBase {
       MatchmakingConnection.getInstance().unqueue(this);
   }
 
-  confirmUnqueue() {
+  confirmUnqueue(reason) {
+    if (reason) {
+      this.broadbast(new LobbyErrorMessage(reason));
+    }
     this.setState(LobbyState.waiting());
   }
 }

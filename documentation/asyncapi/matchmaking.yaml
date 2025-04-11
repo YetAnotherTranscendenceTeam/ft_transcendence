@@ -52,9 +52,97 @@ operations:
 
 components:
   schemas:
+    matchmaking_player:
+      type: object
+      required:
+        - account_id
+        - elo
+        - matchmaking_user
+      properties:
+        account_id:
+          $ref: "./lobbies.yaml#/components/schemas/account_id"
+        elo:
+          type: number
+          description: The elo of the player for this match
+        profile:
+          $ref: "./lobbies.yaml#/components/schemas/profile"
+        matchmaking_user:
+          type: object
+          required:
+            - account_id
+            - gamemode
+            - elo
+            - created_at
+            - updated_at
+          properties:
+            account_id:
+              $ref: "./lobbies.yaml#/components/schemas/account_id"
+            gamemode:
+              $ref: "./lobbies.yaml#/components/schemas/gamemode_name"
+            elo:
+              type: number
+              description: The elo of the player for this gamemode
+            created_at:
+              type: string
+              format: date-time
+              description: The date and time the player was created
+            updated_at:
+              type: string
+              format: date-time
+              description: The date and time the player was updated
     match:
-      type: number
-      description: The match id (WIP)
+      type: object
+      required:
+        - players
+        - gamemode
+        - gamemode_name
+        - state
+        - score_0
+        - score_1
+        - match_id
+        - created_at
+        - updated_at
+      properties:
+        players:
+          type: array
+          items:
+            $ref: "#/components/schemas/matchmaking_player"
+        gamemode:
+          $ref: "./lobbies.yaml#/components/schemas/gamemode"
+        gamemode_name:
+          type: string
+          description: The name of the gamemode
+        state:
+          type: string
+          description: |
+            The state of the match
+            - RESERVED: 0 
+            - PLAYING: 1 
+            - DONE: 2
+            - CANCELLED: 3
+          enum:
+            - 0
+            - 1
+            - 2
+            - 3
+        score_0:
+          type: integer
+          description: The score of team 0
+        score_1:
+          type: integer
+          description: The score of team 1
+        match_id:
+          type: number
+          description: The id of the match
+        created_at:
+          type: string
+          format: date-time
+          description: The date and time the match was created
+        updated_at:
+          type: string
+          format: date-time
+          description: The date and time the match was updated
+
   messages:
     handshake:
       description: A message sent to authenticate itself
@@ -208,4 +296,18 @@ components:
                 items:
                   $ref: "./lobbies.yaml#/components/schemas/lobby"
               match:
-                $ref: "#/components/schemas/match"
+                type: object
+                required:
+                  - type
+                properties:
+                  type:
+                    type: string
+                    description: The type of match
+                    enum:
+                      - tournament
+                      - match
+                  tournament:
+                    $ref: "./tournament.yaml#/components/schemas/tournament"
+                  match:
+                    $ref: "#/components/schemas/match"
+                  
