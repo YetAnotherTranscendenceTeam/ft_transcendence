@@ -1,7 +1,7 @@
 export enum GameModeType {
   RANKED = "ranked",
   UNRANKED = "unranked",
-  TOURNAMENT = "tournament",
+  CUSTOM = "custom",
 }
 
 export interface IGameMode {
@@ -49,7 +49,7 @@ export class GameMode implements IGameMode {
   }
 
   getLobbyCapacity(): number {
-    return this.type === GameModeType.RANKED ? this.team_size : this.team_size * this.team_count;
+    return this.type === GameModeType.CUSTOM ? this.team_size * this.team_count : this.team_size;
   }
 
   getDisplayName(): string {

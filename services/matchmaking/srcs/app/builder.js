@@ -2,16 +2,22 @@
 
 import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
-import websocket from '@fastify/websocket'
+import websocket from '@fastify/websocket';
+import sse from "yatt-sse"
 import router from "./router.js";
 import YATT from "yatt-utils";
 import jwt from "@fastify/jwt";
+import bearerAuth from "@fastify/bearer-auth";
+import qs from "qs";
 import { jwt_secret } from "./env.js";
 import { matchmaking_jwt_secret } from "./env.js";
 import db from "./database.js";
+import cors from "@fastify/cors";
+
+import { TournamentManger } from "../TournamentManager.js";
 
 export default function build(opts = {}) {
-  const app = Fastify(opts);
+  const app = Fastify({...opts, querystringParser: (str) => qs.parse(str)});
 
   if (process.env.ENV !== "production") {
     YATT.setUpSwagger(app, {
@@ -26,13 +32,44 @@ export default function build(opts = {}) {
       ],
     });
   }
+
+  app.register(cors, {
+    origin: new RegExp(process.env.CORS_ORIGIN) || true,
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+    credentials: true,
+    maxAge: 600,
+  });
+
   app.register(jwt, {
     secret: jwt_secret,
   });
   app.register(jwt, {
-	secret: matchmaking_jwt_secret,
-	namespace: "matchmaking"
-  })
+    secret: matchmaking_jwt_secret,
+    namespace: "matchmaking"
+  });
+
+  app.register(sse);
+  
+  const serviceAuthorization = (token, request) => {
+    try {
+      const decoded = app.jwt.verify(token);
+      request.token = token;
+      request.account_id = decoded.account_id;
+    } catch (err) {
+      return false;
+    }
+    return true;
+  };
+
+  app.register(bearerAuth, {
+    auth: serviceAuthorization,
+    addHook: false,
+    errorResponse: (err) => {
+      return new HttpError.Unauthorized().json();
+    },
+  });
+
+  app.decorate("tournaments", new TournamentManger());
   app.register(fastifyFormbody);
   app.register(websocket);
 

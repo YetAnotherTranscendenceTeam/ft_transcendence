@@ -176,7 +176,9 @@ services:
       - sqlite:/database
     environment:
       - JWT_SECRET=${JWT_SECRET}
+      - CORS_ORIGIN=${FRONTEND_URL}
       - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
+      - PONG_JWT_SECRET=${PONG_JWT_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     ports:
       - "127.0.0.1:4044:3000"

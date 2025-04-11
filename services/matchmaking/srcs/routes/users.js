@@ -1,18 +1,88 @@
 "use strict";
 
+import { HttpError, properties } from "yatt-utils";
 import db from "../app/database.js";
+import YATT from "yatt-utils";
+import { MatchState } from "../Match.js";
+import { GameModes } from "../GameModes.js";
 
 export default function router(fastify, opts, done) {
-  fastify.get("/users/:account_id", function handler(request, reply) {
+  fastify.get("/:account_id", function handler(request, reply) {
     const users = db
       .prepare("SELECT * FROM matchmaking_users WHERE account_id = ?")
-      .get(request.params.account_id);
+      .all(request.params.account_id);
+    if (users.length === 0) {
+      return new HttpError.NotFound().send(reply);
+    }
     reply.send(users);
   });
-  fastify.get("/users/:account_id/matches", function handler(request, reply) {
+  fastify.get("/:account_id/matches", {
+    schema: {
+      query: {
+        type: "object",
+        properties: {
+          limit: properties.limit,
+          offset: properties.offset,
+          filter: {
+            type: "object",
+            properties: {
+              state: { type: "array", items: {
+                type:"number",
+                enum: Object.values(MatchState)
+              }},
+              gamemode: { type: "array", items: {
+                type: "string",
+                enum: Object.keys(GameModes)
+              }},
+            },
+            additionalProperties: false,
+          },
+          order: {
+            type: "object",
+            properties: {
+              match_id: properties.sort,
+              gamemode: properties.sort,
+              score_0: properties.sort,
+              score_1: properties.sort,
+              state: properties.sort,
+              created_at: properties.sort,
+              updated_at: properties.sort,
+            },
+            additionalProperties: false,
+          },
+          additionalProperties: false,
+        }
+      }
+    }
+  }, function handler(request, reply) {
+    const { filterClause, filterParams } = YATT.filterToSql(request.query.filter);
+    const { orderClause, orderParams } = YATT.orderToSql(request.query.order);
     const matches = db
-      .prepare("SELECT * FROM matches WHERE players && ARRAY[?]")
-      .all(request.params.account_id);
+      .prepare(
+        `
+        SELECT 
+          matches.*,
+          json_object(
+            'account_id', match_players.account_id,
+            'team_index', match_players.team_index
+          ) as player
+        FROM
+          match_players
+        JOIN
+          matches
+        ON
+          matches.match_id = match_players.match_id
+        WHERE match_players.account_id = ?
+        ${filterClause ? `AND ${filterClause}` : ""}
+        ORDER BY ${orderClause ? orderClause : "matches.created_at DESC"}
+        LIMIT ?
+        OFFSET ?
+        `
+      )
+      .all(request.params.account_id, ...filterParams, ...orderParams, request.query.limit, request.query.offset);
+    for (const match of matches) {
+      match.player = JSON.parse(match.player);
+    }
     reply.send(matches);
   });
   done();

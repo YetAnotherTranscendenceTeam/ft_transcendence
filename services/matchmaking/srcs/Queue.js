@@ -1,10 +1,10 @@
 import { GameMode } from "./GameModes.js";
 import { Lobby } from "./Lobby.js";
 import { LobbyConnection } from "./LobbyConnection.js";
+import { Match } from "./Match.js";
+import { Tournament } from "./Tournament.js";
 
 const LOBBY_TOLERANCE_INCREMENT = 1.0;
-
-let match_id = 0;
 
 export class Queue {
   /**
@@ -17,9 +17,10 @@ export class Queue {
    * @param {GameMode} gamemode
    * @param {LobbyConnection} lobbyConnection
    */
-  constructor(gamemode, lobbyConnection) {
+  constructor(gamemode, lobbyConnection, fastify) {
     this.gamemode = gamemode;
     this.lobbyConnection = lobbyConnection;
+    this.fastify = fastify;
   }
 
   queue(lobby) {
@@ -111,18 +112,41 @@ export class Queue {
     return team;
   }
 
+  /**
+   * 
+   * @param {Lobby[]} lobbies 
+   */
   matchLobbies(lobbies) {
     console.log(`Matched lobbies`);
     lobbies.forEach((lobby) => {
       this.unqueue(lobby, false);
       console.log(` - ${lobby.join_secret}`);
     });
+    // handle tournaments
+    if (this.gamemode.team_count > 2) {
+      const lobby = lobbies[0];
+      if (lobby.getTeamCount() > 2) {
+        const teams = lobby.getTeams();
+        const tournament = new Tournament(teams, this.gamemode, this.fastify.tournaments);
+        this.fastify.tournaments.registerTournament(tournament);
+        this.lobbyConnection.send({
+          event: "match",
+          data: {
+            lobbies,
+            match: {type: "tournament", tournament},
+          },
+        });
+        return;
+      }
+    }
+    const match = new Match(lobbies.map(lobby => lobby.players).flat(), this.gamemode);
+    match.insert();
     this.lobbyConnection.send({
         event: "match",
         data: {
           lobbies,
-          match: match_id++, // TODO: implement matches (match server)
+          match: {type: "match", match},
         },
-      });
+    });
   }
 }
