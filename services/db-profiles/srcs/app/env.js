@@ -1,3 +1,5 @@
+"user strict";
+
 export const CDN_URL = process.env.CDN_URL;
 if (!CDN_URL) {
   console.error("Missing environment variable: CDN_URL");

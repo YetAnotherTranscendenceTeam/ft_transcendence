@@ -1,5 +1,5 @@
 import request from "supertest";
-import { client_id, FRONTEND_URL, redirect_uri } from "./env";
+import { API42_CLIENT_ID, FRONTEND_URL, API42_REDIRECT_URI } from "./env";
 import url from "url";
 
 const baseUrl = "http://127.0.0.1:4042";
@@ -12,7 +12,7 @@ describe("fortytwo-auth tests", () => {
       .expect("Content-Type", /json/);
 
     expect(response.body).toEqual({
-      link: `https://api.intra.42.fr/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&scope=public`,
+      link: `https://api.intra.42.fr/oauth/authorize?client_id=${API42_CLIENT_ID}&redirect_uri=${API42_REDIRECT_URI}&response_type=code&scope=public`,
     });
   });
 
@@ -20,7 +20,7 @@ describe("fortytwo-auth tests", () => {
     const response = await request(baseUrl).get("/").expect(302);
 
     expect(response.headers.location).toBe(
-      `https://api.intra.42.fr/oauth/authorize?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=code&scope=public`
+      `https://api.intra.42.fr/oauth/authorize?client_id=${API42_CLIENT_ID}&redirect_uri=${API42_REDIRECT_URI}&response_type=code&scope=public`
     );
   });
 

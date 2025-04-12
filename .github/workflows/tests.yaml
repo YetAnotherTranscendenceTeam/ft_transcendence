@@ -25,8 +25,8 @@ jobs:
       API42_CLIENT_ID: 'example'
       API42_SECRET: 'example'
       API42_REDIRECT_URI: 'https://fake-callback.com'
-      PONG_JWT_SECRET: 9y6vhC5cD2T8/Uqe5NgT5oEjzeSpbxt72oUPVTlc135SVU3Ht9OBgrxbgZk6bo2k570FJ7X2SxbjiUr50zGceA==
-      MATCHMAKING_JWT_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
+      PONG_SECRET: 9y6vhC5cD2T8/Uqe5NgT5oEjzeSpbxt72oUPVTlc135SVU3Ht9OBgrxbgZk6bo2k570FJ7X2SxbjiUr50zGceA==
+      MATCHMAKING_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
       MATCHMAKING_SCHEDULER_DELAY: 100
       SOCIAL_OFFLINE_DELAY: 10000
       SOCIAL_INACTIVITY_DELAY: 15000
