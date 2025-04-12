@@ -196,7 +196,7 @@ describe.each(
 
         expect(match.state).toBe("playing");
         expect(match.match_id).toBeDefined();
-        expect(match.team_ids.length).toBe(2);
+        expect(match.team_ids.every(id => id !== null)).toBe(true);
         await finishMatch(match.match_id, winnerIndex);
         await sse.expectJson("match_update", (event) => {
           expect(event.match.match_id).toBe(match.match_id);
@@ -214,20 +214,20 @@ describe.each(
           break;
         }
         const next_stage_match = stages[stageIndex + 1][Math.floor(matchIndex / 2)];
-        const next_event_start = matchIndex % 2 == 1 || next_stage_match.team_ids.length == 1;
+        const next_event_start = matchIndex % 2 == 1 || next_stage_match.team_ids.filter(id => id === null).length == 1;
         await sse.expectJson("match_update", (event) => {
           expect(event.match.index).toBe(next_stage_match.index);
           if (next_event_start) {
             expect(event.match.match_id).toBeDefined();
             expect(event.match.state).toBe("playing");
-            expect(event.match.team_ids.length).toBe(2);
-            expect(event.match.team_ids[1]).toBe(match.team_ids[winnerIndex]);
+            expect(match.team_ids.every(id => id !== null)).toBe(true);
+            expect(event.match.team_ids[matchIndex % 2]).toBe(match.team_ids[winnerIndex]);
           }
           else {
             expect(event.match.match_id).toBeUndefined();
             expect(event.match.state).toBe("waiting");
-            expect(event.match.team_ids.length).toBe(1);
-            expect(event.match.team_ids[0]).toBe(match.team_ids[winnerIndex]);
+            expect(event.match.team_ids.filter(id => id === null).length).toBe(1);
+            expect(event.match.team_ids[matchIndex % 2]).toBe(match.team_ids[winnerIndex]);
           }
 
           const match_update = tournament.matches[event.match.index];
