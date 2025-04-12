@@ -5,11 +5,10 @@ import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mes
 import createDefaultScene from "./DefaultScene";
 import { GameMode, GameModeType, IPlayer } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/objects";
-import GameScene from "./PongScene";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { keyState } from "./types";
+import { keyState, GameScene } from "./types";
 import * as PONG from "pong";
 
 function createScene(engine: Engine, canvas: HTMLCanvasElement): Scene {
@@ -39,7 +38,8 @@ export default class PongClient extends PONG.Pong {
 	private _websocket: WebSocket;
 	private _engine: Engine;
 	private _keyboard: Map<string, keyState>;
-	private _gameScene: Scene;
+	private _babylonScene: Scene;
+	private _gameScene: GameScene;
 	
 	private _camera: ArcRotateCamera;
 	private _light: HemisphericLight;
@@ -77,8 +77,8 @@ export default class PongClient extends PONG.Pong {
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
 
-		// this._gameScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
-		this._gameScene = createScene(this._engine, this._canvas);
+		// this._babylonScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
+		this._babylonScene = createScene(this._engine, this._canvas);
 
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
@@ -107,7 +107,7 @@ export default class PongClient extends PONG.Pong {
 
 	private loop = () => {
 		this.update();
-		this._gameScene.render();
+		this._babylonScene.render();
 		// console.log(this.);
 	}
 
@@ -115,19 +115,45 @@ export default class PongClient extends PONG.Pong {
 		this._engine.resize();
 	}
 
-	public newGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
-		this.setup(match_id, gamemode, players, state);
-		this._gameScene.clearColor = Color4.FromColor3(Color3.Black());
+	public setGameScene(scene: GameScene) {
+		this._gameScene = scene;
+		if (this._gameScene === GameScene.LOCAL) {
+			this.localGame();
+		} else if (this._gameScene === GameScene.MENU) {
+			this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
+		}
+	}
+
+	public onlineGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
+		this.onlineSetup(match_id, gamemode, players, state);
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
 		// this._babylonScene.createDefaultEnvironment();
 		
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
 		this._balls.forEach((ball: PONG.Ball) => {
-			const ballInstance: ClientBall = new ClientBall(this._gameScene, ball);
+			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
 			this._ballInstances.push(ballInstance);
 		});
 		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-			const paddleInstance: ClientPaddle = new ClientPaddle(this._gameScene, paddle);
+			const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
+			this._paddleInstance.set(playerId, paddleInstance);
+		});
+	}
+
+	public localGame() {
+		this.localSetup();
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
+		// this._babylonScene.createDefaultEnvironment();
+		
+		this._ballInstances = [];
+		this._paddleInstance = new Map<number, ClientPaddle>();
+		this._balls.forEach((ball: PONG.Ball) => {
+			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
+			this._ballInstances.push(ballInstance);
+		});
+		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
+			const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
 			this._paddleInstance.set(playerId, paddleInstance);
 		});
 	}
@@ -135,7 +161,12 @@ export default class PongClient extends PONG.Pong {
 	public startGame() {
 		this.start();
 		this._running = 1;
-		this._gameScene.clearColor = Color4.FromColor3(Color3.Gray());
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
+	}
+
+	public nextRound() {
+		this._running = 0;
+		this.nextRound();
 	}
 
 	private update() {
@@ -156,6 +187,7 @@ export default class PongClient extends PONG.Pong {
 		if (score) {
 			console.log("score: " + score[0] + "-" + score[1]);
 			this.scoreUpdateCallback(score);
+			this._running = 0;
 		}
 	}
 
@@ -212,15 +244,15 @@ export interface IGameMode {
 		// 	}
 		// }
 		// if (ev.key === "1") {
-		// 	this._gameScene.activeCamera = this._gameScene.cameras[0];
+		// 	this._babylonScene.activeCamera = this._babylonScene.cameras[0];
 		// } else if (ev.key === "2") {
-		// 	this._gameScene.activeCamera = this._gameScene.cameras[1];
+		// 	this._babylonScene.activeCamera = this._babylonScene.cameras[1];
 		// } else if (ev.key === "3") {
-		// 	this._gameScene.activeCamera = this._gameScene.cameras[2];
+		// 	this._babylonScene.activeCamera = this._babylonScene.cameras[2];
 		// }
 
 		if (ev.key === "z") {
-			this.newGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
+			this.onlineGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
 		}
 
 		if (ev.key === "x") {
@@ -270,15 +302,15 @@ export interface IGameMode {
 		// console.log(ev);
 
 		// if (ev.key === "ArrowUp") {
-		// 	this._gameScene.playerUp(1);
+		// 	this._babylonScene.playerUp(1);
 		// }
 		// if (ev.key === "ArrowDown") {
-		// 	this._gameScene.playerDown(1);
+		// 	this._babylonScene.playerDown(1);
 		// }
 	}
 
 	public destroy() {
-		// this._gameScene.dispose();
+		// this._babylonScene.dispose();
 		this._engine.dispose();
 		window.removeEventListener("keydown", this.handleKeyDown);
 		window.removeEventListener("resize", this.resize);

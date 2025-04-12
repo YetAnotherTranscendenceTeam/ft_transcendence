@@ -33,7 +33,7 @@ export class Pong {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), DT);
 	}
 
-	public setup(match_id: number, gamemode: GameMode, players: IPlayer[], state: PongState = PongState.RESERVED) {
+	public onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: PongState = PongState.RESERVED) {
 		this._physicsScene.clear();
 		this._balls = [];
 		this._paddles = new Map();
@@ -45,6 +45,21 @@ export class Pong {
 		this._players = players;
 		this._state = state;
 
+		this.defaultSetup();
+	}
+
+	public localSetup() {
+		this._physicsScene.clear();
+		this._balls = [];
+		this._paddles = new Map();
+		this._accumulator = 0;
+		this._score = [0, 0];
+
+		this._matchId = 0;
+		this._gameMode = undefined;
+		this._players = [];
+		this._state = PongState.RESERVED;
+		
 		this.defaultSetup();
 	}
 
