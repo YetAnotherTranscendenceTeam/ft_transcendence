@@ -60,6 +60,7 @@ secret_keys=( \
     "CDN_SECRET" \
     "MATCHMAKING_SECRET" \
     "PONG_SECRET"
+    "MATCH_MANAGEMENT_SECRET" \
 )  
 
 echo "[SECRETS]"

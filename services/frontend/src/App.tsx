@@ -12,10 +12,10 @@ import ProfileView from "./views/ProfileView";
 export default function App() {
 	return <Router>
 		<UiProvider>
-		<Babylon />
+		<Babylon key="babylon"/>
 		<AuthProvider>
 		<LobbyProvider>
-			<div style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;">
+			<div style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; pointer-events: none;">
 				<Routes>
 					<Route path="/fortytwo" element={<FortytwoView/>} />
 					<Route path='/lobby/:code' element={<LobbyView/>} />
