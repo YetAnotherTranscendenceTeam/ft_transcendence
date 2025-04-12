@@ -1,37 +1,31 @@
 "use strict";
 
-export const client_id = process.env.API42_CLIENT_ID;
-if (!client_id) {
+export const API42_CLIENT_ID = process.env.API42_CLIENT_ID;
+if (!API42_CLIENT_ID) {
     console.error("Missing environment variable: API42_CLIENT_ID");
     process.exit(1);
 }
 
-export const client_secret = process.env.API42_SECRET;
-if (!client_secret) {
+export const API42_SECRET = process.env.API42_SECRET;
+if (!API42_SECRET) {
     console.error("Missing environment variable: API42_SECRET");
     process.exit(1);
 }
 
-export const redirect_uri = process.env.API42_REDIRECT_URI;
-if (!redirect_uri) {
+export const API42_REDIRECT_URI = process.env.API42_REDIRECT_URI;
+if (!API42_REDIRECT_URI) {
   console.error("Missing environment variable: API42_REDIRECT_URI");
   process.exit(1);
 }
 
-export const jwt_secret = process.env.JWT_SECRET;
-if (!jwt_secret) {
-  console.error("Missing environment variable: JWT_SECRET");
-  process.exit(1);
-}
-
-export const frontend_url = process.env.FRONTEND_URL;
-if (!frontend_url) {
+export const FRONTEND_URL = process.env.FRONTEND_URL;
+if (!FRONTEND_URL) {
   console.error("Missing environment variable: FRONTEND_URL");
   process.exit(1);
 }
 
-export const token_manager_secret = process.env.TOKEN_MANAGER_SECRET;
-if (!token_manager_secret) {
+export const TOKEN_MANAGER_SECRET = process.env.TOKEN_MANAGER_SECRET;
+if (!TOKEN_MANAGER_SECRET) {
   console.error("Missing environment variable: TOKEN_MANAGER_SECRET");
   process.exit(1);
 }

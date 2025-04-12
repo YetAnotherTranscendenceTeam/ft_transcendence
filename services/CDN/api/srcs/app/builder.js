@@ -6,7 +6,7 @@ import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
 import router from "./router.js";
-import { cdn_jwt_secret } from "./env.js";
+import { CDN_SECRET } from "./env.js";
 import { HttpError } from "yatt-utils";
 
 export default function build(opts = {}) {
@@ -36,7 +36,7 @@ export default function build(opts = {}) {
     },
   });
 
-  app.register(jwt, { secret: cdn_jwt_secret });
+  app.register(jwt, { secret: CDN_SECRET });
   app.register(formbody);
   app.register(router);
 

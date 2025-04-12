@@ -1,7 +1,6 @@
 export const matchmaking_tests = [
 	/* 1 match */
 	{ lobby_player_count: [1, 1], gamemode: "ranked_1v1", expected_matches: [[0,1]], expected_tolerances: [0] },
-	{ lobby_player_count: [2], gamemode: "unranked_1v1", expected_matches: [[0]], expected_tolerances: [0] },
 	{ lobby_player_count: [2, 2], gamemode: "ranked_2v2", expected_matches: [[0,1]], expected_tolerances: [0] },
 	{ lobby_player_count: [1, 1, 2], gamemode: "ranked_2v2", expected_matches: [[0,1,2]], expected_tolerances: [1] },
 	{ lobby_player_count: [2, 1, 1], gamemode: "ranked_2v2", expected_matches: [[0,1,2]], expected_tolerances: [1] },

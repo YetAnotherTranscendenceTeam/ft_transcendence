@@ -7,7 +7,7 @@ import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
 import router from "./router.js";
 import { HttpError } from "yatt-utils";
-import { jwt_secret } from "./env.js";
+import { AUTHENTICATION_SECRET } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -38,7 +38,7 @@ export default function build(opts = {}) {
     },
   });
 
-  app.register(jwt, { secret: jwt_secret });
+  app.register(jwt, { secret: AUTHENTICATION_SECRET });
   app.register(formbody);
   app.register(router);
 

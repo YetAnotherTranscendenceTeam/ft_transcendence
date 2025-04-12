@@ -5,7 +5,7 @@ import formbody from "@fastify/formbody";
 import jwt from "@fastify/jwt";
 import router from "./router.js";
 import YATT from "yatt-utils";
-import { cdn_jwt_secret, cdn_url } from "./env.js";
+import { CDN_SECRET, CDN_URL } from "./env.js";
 import { UsernameBank } from "../utils/UsernameBank.js";
 import db from "./database.js";
 
@@ -27,12 +27,12 @@ export default function build(opts = {}) {
     });
   }
 
-  app.register(jwt, { secret: cdn_jwt_secret })
+  app.register(jwt, { secret: CDN_SECRET })
   app.register(formbody);
 
   app.register(router);
 
-  app.decorate('defaultAvatar', `${cdn_url}/avatars/default/0000-default.jpg`);
+  app.decorate('defaultAvatar', `${CDN_URL}/avatars/default/0000-default.jpg`);
   app.decorate('usernameBank', new UsernameBank());
 
   app.get("/ping", async function (request, reply) {

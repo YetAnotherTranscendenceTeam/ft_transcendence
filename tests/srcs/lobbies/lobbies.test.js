@@ -42,7 +42,7 @@ describe("Lobby game mode change", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -59,7 +59,7 @@ describe("Lobby game mode change", () => {
             console.log(message);
           }
           expect(message.event).toBe("mode_change");
-          expect(message.data.mode).toStrictEqual({
+          expect(message.data.mode).toMatchObject({
             name: "unranked_2v2",
             team_size: 2,
             team_count: 2,
@@ -84,7 +84,7 @@ describe("Lobby kick system", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -116,7 +116,7 @@ describe("Leadership transfer (by leaving group)", () => {
   const players = [];
   it(`create a lobby and join with players`, async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -202,7 +202,7 @@ describe("Lobby creation with gamemode", () => {
     let player;
     if (gamemode.team_count != 1 && gamemode.team_size != 1) {
       player = await joinLobby(users[1], lobby);
-      expect(player.lobby.mode.toJSON()).toStrictEqual(gamemode);
+      expect(player.lobby.mode.toJSON()).toMatchObject(gamemode);
     }
     if (gamemode.team_count != 1 && gamemode.team_size != 1) {
       await lobby.expectJoin(users[1].account_id);
@@ -249,7 +249,7 @@ describe("Move player inside lobby", () => {
   let players = [];
   it("create and join a lobby", async () => {
     players.push(await createLobby(users[0]));
-    for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
+    for (let i = 1; i < players[0].lobby.mode.team_size; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
       players.push(player);
@@ -306,7 +306,7 @@ describe("Join full lobby", () => {
     let players = [];
     players.push(await createLobby(users[0], gamemode));
     const lobby_capacity =
-      gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+      gamemode.type === "custom" ? gamemode.team_size * gamemode.team_count: gamemode.team_size;
     for (let i = 1; i < lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -363,14 +363,14 @@ describe("Change gamemode with too many players", () => {
     let players = [];
     players.push(
       await createLobby(users[0], {
-        name: "unranked_2v2",
+        name: "custom_2v2",
         team_size: 2,
-        team_count: 2,
-        type: "unranked",
+        team_count: 16,
+        type: "custom",
       })
     );
     const lobby_capacity =
-      gamemode.type === "ranked" ? gamemode.team_size : gamemode.team_size * gamemode.team_count;
+      gamemode.type === "custom" ? gamemode.team_size * gamemode.team_count : gamemode.team_size;
     for (let i = 1; i <= lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -416,17 +416,26 @@ describe("Change gamemode with too many players", () => {
       type: "unranked",
     });
   });
+
+  it("2v2 unranked lobby", () => {
+    return testgamemode({
+      name: "unranked_2v2",
+      team_size: 2,
+      team_count: 2,
+      type: "unranked",
+    });
+  });
 });
 
 describe("Team names", () => {
   let players = [];
-  it("create a 32 players tournament lobby", async () => {
+  it("create a 32 players custom lobby", async () => {
     players.push(
       await createLobby(users[0], {
-        name: "tournament_2v2",
+        name: "custom_2v2",
         team_size: 2,
         team_count: 16,
-        type: "tournament",
+        type: "custom",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
@@ -485,10 +494,10 @@ describe("Invalid team name", () => {
   test("create a 2v2 unranked lobby", async () => {
     players.push(
       await createLobby(users[0], {
-        name: "unranked_2v2",
+        name: "custom_2v2",
         team_size: 2,
-        team_count: 2,
-        type: "unranked",
+        team_count: 16,
+        type: "custom",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
@@ -515,16 +524,16 @@ describe("Invalid team name", () => {
   });
 });
 
-describe("Leave a 2v2 tournament lobby starting from differente indexes", () => {
+describe("Leave a 2v2 custom lobby starting from differente indexes", () => {
   const attempts = Array.from({ length: 32 }, (_, i) => i);
   test.each(attempts)("attempt %i", async (attempt) => {
     let players = [];
     players.push(
       await createLobby(users[0], {
-        name: "tournament_2v2",
+        name: "custom_2v2",
         team_size: 2,
         team_count: 16,
-        type: "tournament",
+        type: "custom",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
@@ -548,13 +557,13 @@ describe("Leave a 2v2 tournament lobby starting from differente indexes", () => 
 
 describe("swap team members", () => {
   let players = [];
-  it("create a 2v2 unranked lobby and fill it up", async () => {
+  it("create a 2v2 custom lobby and fill it up", async () => {
     players.push(
       await createLobby(users[0], {
-        name: "unranked_2v2",
+        name: "custom_2v2",
         team_size: 2,
-        team_count: 2,
-        type: "unranked",
+        team_count: 16,
+        type: "custom",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {

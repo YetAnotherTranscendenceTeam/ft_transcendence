@@ -125,6 +125,10 @@
 	height: 100%;
 }
 
+.pointer {
+	cursor: pointer;
+}
+
 body {
 	font-family: "Ubuntu", serif;
 	overflow: hidden;

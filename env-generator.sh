@@ -53,12 +53,14 @@ generate() {
 
 # Array of secret key names
 secret_keys=( \
-    "JWT_SECRET" \
+    "PASSWORD_PEPPER" \
+    "AUTHENTICATION_SECRET" \
     "REFRESH_TOKEN_SECRET" \
     "TOKEN_MANAGER_SECRET" \
-    "CDN_JWT_SECRET" \
-    "PASSWORD_PEPPER" \
-    "MATCHMAKING_JWT_SECRET" \
+    "CDN_SECRET" \
+    "MATCHMAKING_SECRET" \
+    "PONG_SECRET"
+    "MATCH_MANAGEMENT_SECRET" \
 )  
 
 echo "[SECRETS]"

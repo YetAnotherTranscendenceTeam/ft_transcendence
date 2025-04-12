@@ -52,7 +52,7 @@ services:
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
     networks:
@@ -95,7 +95,7 @@ services:
         - BASE_IMAGE=${BASE_IMAGE}
     image: ibertran/transcendence.fortytwo-auth:latest
     environment:
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - FRONTEND_URL=${FRONTEND_URL}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
@@ -135,8 +135,8 @@ services:
     image: ibertran/transcendence.lobbies:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
     networks:
       - frontend
       - db-profiles
@@ -152,8 +152,10 @@ services:
     volumes:
       - sqlite:/database
     environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - MATCHMAKING_JWT_SECRET=${MATCHMAKING_JWT_SECRET}
+      - CORS_ORIGIN=${FRONTEND_URL}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
+      - PONG_SECRET=${PONG_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     networks:
       - frontend
@@ -167,7 +169,7 @@ services:
     volumes:
       - sqlite:/database
     environment:
-      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_SECRET=${CDN_SECRET}
       - CDN_URL=${CDN_URL}
     networks:
       - db-profiles
@@ -180,7 +182,7 @@ services:
     image: ibertran/transcendence.users:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
     networks:
      - frontend
      - db-profiles
@@ -193,7 +195,7 @@ services:
     image: ibertran/transcendence.settings:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     networks:
@@ -213,8 +215,8 @@ services:
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - CDN_SECRET=${CDN_SECRET}
       - CDN_URL=${CDN_URL}
     networks:
       - avatars
@@ -232,7 +234,7 @@ services:
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
     networks:
@@ -268,7 +270,7 @@ services:
       - ./services/CDN/.avatars:/app/avatars/default/:ro
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
-      - CDN_JWT_SECRET=${CDN_JWT_SECRET}
+      - CDN_SECRET=${CDN_SECRET}
     networks:
      - cdn-api
 
