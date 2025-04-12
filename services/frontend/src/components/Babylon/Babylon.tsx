@@ -6,7 +6,7 @@ import useWebSocket from "../../hooks/useWebSocket";
 
 export default function Babylon() {
     Babact.useEffect(() => {
-        const app = new PongClient();
+        const app = new PongClient(null);
 
         return () => {
             app.destroy();

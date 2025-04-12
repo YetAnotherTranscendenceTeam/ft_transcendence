@@ -22,9 +22,12 @@ export default class PongScene extends PONG.Pong {
 	private _paddleInstance: Map<number, ClientPaddle>;
 
 	private _running: number = 0;
+
+	public scoreUpdateCallback: (score: Array<number>) => void;
 	
-	public constructor(canvas: HTMLCanvasElement, engine: Engine, keyboard: Map<string, keyState>) {
+	public constructor(canvas: HTMLCanvasElement, engine: Engine, keyboard: Map<string, keyState>, scoreUpdateCallback: (score: Array<number>) => void) {
 		super();
+		this.scoreUpdateCallback = scoreUpdateCallback;
 		this._canvas = canvas;
 		this._engine = engine;
 		this._keyboard = keyboard;
@@ -97,7 +100,12 @@ export default class PongScene extends PONG.Pong {
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
 		});
-		this.scoreUpdate();
+		const score: Array<number> = this.scoreUpdate();
+		if (score) {
+			if (this.scoreUpdateCallback) { // temporary
+			this.scoreUpdateCallback(score);
+			}
+		}
 	}
 	
 	public render() {

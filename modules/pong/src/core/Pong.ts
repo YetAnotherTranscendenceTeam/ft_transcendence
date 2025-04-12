@@ -126,7 +126,7 @@ export class Pong {
 		return this._accumulator / DT;
 	}
 
-	protected scoreUpdate() {
+	protected scoreUpdate(): Array<number> {
 		let scored: boolean = false;
 		this._goals.forEach((goal: Goal) => {
 			if (goal.contact > 0) {
@@ -140,9 +140,6 @@ export class Pong {
 			}
 		});
 		console.log("total score: " + this._score[0] + "-" + this._score[1]);
-		if (scored) {
-			this.start();
-		}
 		// check if game ended
 		if (this._score[0] == 5) {
 			this._state = PongState.ENDED;
@@ -152,5 +149,10 @@ export class Pong {
 			this._state = PongState.ENDED;
 			console.log("game ended");
 		}
+		if (scored) {
+			this.start();
+			return this._score;
+		}
+		return null;
 	}
 }

@@ -17,8 +17,11 @@ export default class PongClient {
 	private _keyboard: Map<string, keyState>;
 	private _gameScene: GameScene;
 
-	public constructor() {
+	// public scoreUpdateCallback: (score: Array<number>) => void;
+
+	public constructor(scoreUpdateCallback: (score: Array<number>) => void) {
 		// super();
+		// this.scoreUpdateCallback = scoreUpdateCallback;
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
 		this._keyboard = new Map<string, keyState>();
@@ -27,7 +30,7 @@ export default class PongClient {
 		this._keyboard.set("w", keyState.IDLE);
 		this._keyboard.set("s", keyState.IDLE);
 		this._keyboard.set("c", keyState.IDLE);
-		this._gameScene = new GameScene(this._canvas, this._engine, this._keyboard);
+		this._gameScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
 
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
