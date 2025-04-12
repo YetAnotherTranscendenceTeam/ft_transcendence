@@ -1,4 +1,4 @@
-"user strict";
+"use strict";
 
 export const CDN_URL = process.env.CDN_URL;
 if (!CDN_URL) {
