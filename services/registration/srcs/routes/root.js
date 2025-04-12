@@ -1,5 +1,5 @@
 import YATT, { HttpError, objects, properties } from "yatt-utils";
-import { pepper, token_manager_secret } from "../app/env.js";
+import { PASSWORD_PEPPER } from "../app/env.js";
 
 export default function routes(fastify, opts, done) {
   let schema = {
@@ -17,7 +17,7 @@ export default function routes(fastify, opts, done) {
   fastify.post("/", { schema }, async function handler(request, reply) {
     const { email, password } = request.body;
 
-    const hash = await YATT.crypto.hashPassword(password, pepper);
+    const hash = await YATT.crypto.hashPassword(password, PASSWORD_PEPPER);
     // Add account to database
     try {
       const newAccount = await YATT.fetch(`http://credentials:3000/password`, {
@@ -50,22 +50,22 @@ export default function routes(fastify, opts, done) {
     }
   });
 
-  done();
-}
-
-async function authenticate(reply, account_id) {
-  const tokens = await YATT.fetch(`http://token-manager:3000/${account_id}`, {
+  async function authenticate(reply, account_id) {
+    const tokens = await YATT.fetch(`http://token-manager:3000/${account_id}`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token_manager_secret}`,
+        Authorization: `Bearer ${fastify.tokens.get()}`,
       },
     }
-  );
-  reply.setCookie("refresh_token", tokens.refresh_token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-    path: "/token",
-  });
-  reply.code(201).send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
+    );
+    reply.setCookie("refresh_token", tokens.refresh_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      path: "/token",
+    });
+    reply.code(201).send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
+  }
+
+  done();
 }

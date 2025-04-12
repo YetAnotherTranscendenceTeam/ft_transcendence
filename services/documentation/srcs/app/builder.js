@@ -7,11 +7,9 @@ import staticServe from '@fastify/static'
 import Generator from "@asyncapi/generator"
 import fs from "node:fs"
 
-export default function build(opts = {}) {
-  const app = Fastify(opts);
-
+async function generateAsyncAPIDocs(asyncapi_build_dir) {
+  let install = true;
   const asyncapi_dir = "/documentation/asyncapi";
-  const asyncapi_build_dir = "/build/asyncapi";
   const files = fs.readdirSync(asyncapi_dir);
   for (let filename of files) {
     if (!filename.endsWith(".yaml"))
@@ -32,7 +30,7 @@ export default function build(opts = {}) {
           continue;
       }
     }
-    catch (e) {console.error(e)}
+    catch (e) {}
     console.log(`Generating documentation for ${filename}`);
     const generator = new Generator("@asyncapi/html-template", `${asyncapi_build_dir}/${dir_name}`, 
       {
@@ -41,6 +39,9 @@ export default function build(opts = {}) {
         },
         forceWrite: true,
     },);
+    if (install)
+      await generator.installTemplate();
+    install = false;
     generator.generateFromFile(`${asyncapi_dir}/${filename}`).then(() => {;
       console.log(`Documentation generated for ${filename}`);
     }).catch((e) => {
@@ -48,6 +49,13 @@ export default function build(opts = {}) {
       console.error(e);
     });
   }
+}
+
+export default function build(opts = {}) {
+  const app = Fastify(opts);
+  const asyncapi_build_dir = "/build/asyncapi";
+
+  generateAsyncAPIDocs(asyncapi_build_dir);
 
   app.register(swagger, {
     mode: 'static',

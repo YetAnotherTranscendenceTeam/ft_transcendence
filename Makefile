@@ -8,6 +8,8 @@ override SERVICES = \
 override MODULES = \
 	yatt-utils \
 	yatt-ws \
+	yatt-sse \
+	yatt-jwt \
 
 override TS_MODULES = \
 	babact \

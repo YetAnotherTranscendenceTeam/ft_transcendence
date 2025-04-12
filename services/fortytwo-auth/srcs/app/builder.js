@@ -3,28 +3,22 @@
 import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
 import fastifyCookie from '@fastify/cookie';
-import fastifyJWT from '@fastify/jwt';
+import jwt from '@fastify/jwt';
+import JwtGenerator from "yatt-jwt";
 import router from "./router.js";
-import { jwt_secret } from './env.js';
+import { TOKEN_MANAGER_SECRET } from './env.js';
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
 
-  if (process.env.ENV !== "production") {
-    
-  } else {
-
-  }
+  app.register(jwt, { secret: TOKEN_MANAGER_SECRET });
+  app.decorate("tokens", new JwtGenerator());
+  app.addHook('onReady', async function () {
+    this.tokens.register(app.jwt, "token_manager");
+  })
 
   app.register(fastifyFormbody);
   app.register(fastifyCookie);
-  app.register(fastifyJWT, {
-    secret: jwt_secret,
-    cookie: {
-      cookieName: 'access_token',
-      signed: false
-    }
-  })
   app.register(router);
 
   app.get("/ping", async function (request, reply) {

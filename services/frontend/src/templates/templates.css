@@ -7,10 +7,11 @@
 	bottom: 0;
 	left: 0;
 	width: 100vw;
-	height: 100vh;
 	--header-height: 64px;
 	--aside-width: 400px;
 	pointer-events: none;
+	padding-top: var(--header-height);
+	height: calc(100vh - var(--header-height));
 }
 
 

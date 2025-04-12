@@ -1,6 +1,6 @@
 "use strict";
 
-import { pepper, token_manager_secret } from "../app/env.js";
+import { PASSWORD_PEPPER } from "../app/env.js";
 import YATT, { HttpError, properties } from "yatt-utils";
 
 export default function passwordRoutes(fastify, opts, done) {
@@ -22,13 +22,13 @@ export default function passwordRoutes(fastify, opts, done) {
       const account = await YATT.fetch(
         `http://credentials:3000/password/${email}`
       );
-      if (await YATT.crypto.verifyPassword(password, account.hash, account.salt, pepper)) {
+      if (await YATT.crypto.verifyPassword(password, account.hash, account.salt, PASSWORD_PEPPER)) {
         const tokens = await YATT.fetch(
           `http://token-manager:3000/${account.account_id}`,
           {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${token_manager_secret}`,
+              Authorization: `Bearer ${fastify.tokens.get()}`,
             },
           }
         );

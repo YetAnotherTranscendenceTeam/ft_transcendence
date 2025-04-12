@@ -7,6 +7,7 @@ COPY . .
 
 RUN (cd ./yatt-utils && npm i)
 RUN (cd ./yatt-ws && npm i)
+RUN (cd ./yatt-sse && npm i)
 
 RUN (cd ./babact && npm i && npm run build)
 RUN (cd ./babact-router-dom && npm i && npm run build)
