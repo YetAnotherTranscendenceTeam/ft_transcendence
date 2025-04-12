@@ -7,10 +7,9 @@ import sse from "yatt-sse"
 import router from "./router.js";
 import YATT from "yatt-utils";
 import jwt from "@fastify/jwt";
+import { AUTHENTICATION_SECRET, MATCHMAKING_SECRET } from "./env.js";
 import bearerAuth from "@fastify/bearer-auth";
 import qs from "qs";
-import { jwt_secret } from "./env.js";
-import { matchmaking_jwt_secret } from "./env.js";
 import db from "./database.js";
 import cors from "@fastify/cors";
 
@@ -40,13 +39,8 @@ export default function build(opts = {}) {
     maxAge: 600,
   });
 
-  app.register(jwt, {
-    secret: jwt_secret,
-  });
-  app.register(jwt, {
-    secret: matchmaking_jwt_secret,
-    namespace: "matchmaking"
-  });
+  app.register(jwt, { secret: AUTHENTICATION_SECRET });
+  app.register(jwt, { secret: MATCHMAKING_SECRET, namespace: "matchmaking" });
 
   app.register(sse);
   

@@ -1,11 +1,11 @@
-export const jwt_secret = process.env.JWT_SECRET;
-if (!jwt_secret) {
-  console.error("Missing environment variable: JWT_SECRET");
+export const AUTHENTICATION_SECRET = process.env.AUTHENTICATION_SECRET;
+if (!AUTHENTICATION_SECRET) {
+  console.error("Missing environment variable: AUTHENTICATION_SECRET");
   process.exit(1);
 }
 
-export const token_manager_secret = process.env.TOKEN_MANAGER_SECRET;
-if (!token_manager_secret) {
+export const TOKEN_MANAGER_SECRET = process.env.TOKEN_MANAGER_SECRET;
+if (!TOKEN_MANAGER_SECRET) {
   console.error("Missing environment variable: TOKEN_MANAGER_SECRET");
   process.exit(1);
 }

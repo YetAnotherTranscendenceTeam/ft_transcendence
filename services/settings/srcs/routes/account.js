@@ -1,7 +1,6 @@
 "use strict";
 
 import YATT, { HttpError } from "yatt-utils";
-import { token_manager_secret } from "../app/env.js";
 
 export default function router(fastify, opts, done) {
   const schema = {
@@ -26,7 +25,7 @@ export default function router(fastify, opts, done) {
     await YATT.fetch(`http://token-manager:3000/${request.account_id}`, {
       method: "DELETE",
       headers: {
-        "Authorization": `Bearer ${token_manager_secret}`,
+        "Authorization": `Bearer ${fastify.tokens.get("token_manager")}`,
       }
     });
 
