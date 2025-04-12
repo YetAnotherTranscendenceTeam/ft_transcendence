@@ -53,6 +53,7 @@ export default class PongClient extends PONG.Pong {
 
 	public constructor(scoreUpdateCallback: (score: Array<number>) => void) {
 		super();
+		this._gameScene = GameScene.MENU;
 		this.scoreUpdateCallback = scoreUpdateCallback;
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
@@ -141,7 +142,7 @@ export default class PongClient extends PONG.Pong {
 		});
 	}
 
-	public localGame() {
+	private localGame() {
 		this.localSetup();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
 		// this._babylonScene.createDefaultEnvironment();
@@ -165,8 +166,8 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	public nextRound() {
-		this._running = 0;
-		this.nextRound();
+		this._running = 1;
+		this.roundStart();
 	}
 
 	private update() {
