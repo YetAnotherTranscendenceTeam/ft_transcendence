@@ -3,12 +3,12 @@
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
 
-const jwt_secret = process.env.AUTHENTICATION_SECRET;
+const AUTHENTICATION_SECRET = process.env.AUTHENTICATION_SECRET;
 
 const app = Fastify();
 
 const start = async () => {
-  await app.register(jwt, { secret: jwt_secret });
+  await app.register(jwt, { secret: AUTHENTICATION_SECRET });
   await app.ready();
   const payload = { account_id: process.argv[2] };
 

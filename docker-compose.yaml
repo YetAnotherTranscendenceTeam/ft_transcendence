@@ -180,7 +180,7 @@ services:
       - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
       - PONG_SECRET=${PONG_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
-      - MATCH_MANAGEMENT_JWT_SECRET=${MATCH_MANAGEMENT_JWT_SECRET}
+      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
     ports:
       - "127.0.0.1:4044:3000"
     networks:
@@ -334,8 +334,8 @@ services:
       - ./services/pong/srcs:/services/pong/srcs
       - ./modules/:/modules:ro
     environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - MATCH_MANAGEMENT_JWT_SECRET=${MATCH_MANAGEMENT_JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
     ports:
       - 4124:3000
     # networks:
