@@ -3,7 +3,9 @@ name: Build Docker images for production
 on:
   push:
     branches:
+      - production
       - main
+  workflow_dispatch:
 
 jobs:
   yatt-modules:
@@ -26,16 +28,16 @@ jobs:
         working-directory: ./modules/
 
       - name: Tag image
-        run: docker tag yatt-modules:latest ibertran/transcendence.yatt-modules:latest
+        run: docker tag yatt-modules:latest ibertran/transcendence.yatt-modules:${{ github.ref_name }}
 
       - name: Push image
-        run: docker push ibertran/transcendence.yatt-modules:latest
+        run: docker push ibertran/transcendence.yatt-modules:${{ github.ref_name }}
 
   ibertran-dot-dev:
     needs: yatt-modules
     runs-on: ubuntu-22.04
     env:
-      BASE_IMAGE: ibertran/transcendence.yatt-modules:latest
+      BASE_IMAGE: ibertran/transcendence.yatt-modules:${{ github.ref_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -50,9 +52,15 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build images
-        run: |
-          docker compose -f docker-compose.ibertran.yaml build
+        run: docker compose -f docker-compose.ibertran.yaml build
+
+      - name: Up
+        run: docker compose -f docker-compose.bertran.yaml up -d --wait
+
+      - name: Down
+        if: always()
+        run: docker compose -f docker-compose.bertran.yaml down
 
       - name: Push images
-        run: |
-          docker compose -f docker-compose.ibertran.yaml push
+        if: github.ref_name == 'production'
+        run: docker compose -f docker-compose.ibertran.yaml push
