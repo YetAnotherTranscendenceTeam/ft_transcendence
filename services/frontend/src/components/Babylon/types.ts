@@ -4,3 +4,10 @@ export enum keyState {
 	HELD,
 	RELEASED
 }
+
+export enum GameScene {
+	MENU,
+	LOBBY,
+	ONLINE,
+	LOCAL,
+}
