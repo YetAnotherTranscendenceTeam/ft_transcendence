@@ -95,6 +95,19 @@ export class Pong {
 		this._balls[0].position[1] = 0;
 	}
 
+	protected roundStart() {
+		// Ball reset and initial velocity
+		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
+		const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
+		const x: number = dir === 0 ? -1 : 1; // direction of the ball
+		const y: number = Math.sin(angle); // vertical component of the ball's velocity
+		const ballVelocity: Vec2 = new Vec2(x, y);
+		this._balls[0].setDirection(ballVelocity);
+		this._balls[0].speed = defaultBallSpeed;
+		this._balls[0].position[0] = 0;
+		this._balls[0].position[1] = 0;
+	}
+
 	public toJSON() {
 		return {
 			players: this._players,
@@ -139,7 +152,7 @@ export class Pong {
 				scored = true;
 			}
 		});
-		console.log("total score: " + this._score[0] + "-" + this._score[1]);
+		// console.log("total score: " + this._score[0] + "-" + this._score[1]);
 		// check if game ended
 		if (this._score[0] == 5) {
 			this._state = PongState.ENDED;
@@ -150,7 +163,7 @@ export class Pong {
 			console.log("game ended");
 		}
 		if (scored) {
-			this.start();
+			this.roundStart();
 			return this._score;
 		}
 		return null;
