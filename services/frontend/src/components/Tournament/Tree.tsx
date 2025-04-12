@@ -1,6 +1,6 @@
 import Babact from "babact";
-import { Match } from "../../views/TournamentView";
 import Stage from "./Stage";
+import { Match } from "../../hooks/useTournament";
 
 export default function Tree({
 		matches,

@@ -1,7 +1,7 @@
 import Babact from "babact";
 import './tournament.css'
 import MatchCard from "./MatchCard";
-import { Match, MatchState } from "../../views/TournamentView";
+import { Match, MatchState } from "../../hooks/useTournament";
 
 
 export enum HPosition {
