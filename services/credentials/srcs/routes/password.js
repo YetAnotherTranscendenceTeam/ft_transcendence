@@ -129,19 +129,17 @@ export default function router(fastify, opts, done) {
 
     try {
       const result = db.transaction(() => {
-        const account = db
-          .prepare(`
-            INSERT INTO accounts (email, auth_method)
-            VALUES (?, 'password_auth')
-            RETURNING account_id
-          `).get(email);
+        const account = db.prepare(`
+          INSERT INTO accounts (email, auth_method)
+          VALUES (?, 'password_auth')
+          RETURNING account_id
+        `).get(email);
 
-        return db
-          .prepare(`
-            INSERT INTO password_auth (account_id, hash, salt)
-            VALUES (?, ?, ?)
-            RETURNING *
-          `).get(account.account_id, hash, salt);
+        return db.prepare(`
+          INSERT INTO password_auth (account_id, hash, salt)
+          VALUES (?, ?, ?)
+          RETURNING *
+        `).get(account.account_id, hash, salt);
       })();
       await createProfile(result.account_id);
       return reply.status(201).send(result);
@@ -176,6 +174,7 @@ export default function router(fastify, opts, done) {
           additionalProperties: false,
         }
       },
+      additionalProperties: false,
     },
   };
 

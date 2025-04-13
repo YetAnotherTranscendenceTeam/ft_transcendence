@@ -3,7 +3,7 @@ import { password_pepper } from "../app/env.js";
 
 export const patchAccount = new Map([
   ["password_auth", patchPasswordAuth],
-  ["googl_auth", patchGoogleAuth],
+  ["google_auth", patchGoogleAuth],
   ["fortytwo_auth", patchFortytwoAuth]],
 );
 
@@ -23,7 +23,7 @@ async function patchPasswordAuth(request, reply, currentEmail) {
   if (!Object.keys(request.body).length) {
     throw new HttpError.BadRequest();
   }
-  
+
   // Hash new password
   request.body.password &&= await YATT.crypto.hashPassword(request.body.password, password_pepper);
 
@@ -42,5 +42,19 @@ async function patchGoogleAuth(request, reply) {
 }
 
 async function patchFortytwoAuth(request, reply) {
-  throw new HttpError.NotImplemented();
+
+  // Remove unnecessary keys
+  keysToDelete.forEach(key => delete request.body[key]);
+  if (!Object.keys(request.body).length) {
+    throw new HttpError.BadRequest();
+  }
+
+  // Update credential database
+  await YATT.fetch(`http://credentials:3000/fortytwo-auth/${request.account_id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify(request.body),
+  });
 }
