@@ -276,7 +276,6 @@ describe("PATCH", () => {
         .patch(`/fortytwo/1`)
         .send({});
 
-      console.log(response.body);
       expect(response.statusCode).toBe(400);
     });
 

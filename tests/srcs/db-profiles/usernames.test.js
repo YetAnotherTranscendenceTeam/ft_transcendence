@@ -36,7 +36,7 @@ describe("/usernames/:username", () => {
       })
       .expect(200)
       .expect("Content-Type", /json/);
-    // console.error(response.body)
+
     expect(response.body.account_id).toEqual(dummyProfile.account_id);
     expect(response.body.username).toEqual(dummyProfile.username);
     expect(response.body.avatar).toEqual(expect.any(String));

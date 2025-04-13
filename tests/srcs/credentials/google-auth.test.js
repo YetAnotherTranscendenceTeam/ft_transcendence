@@ -1,5 +1,5 @@
 import request from "supertest";
-import { randomEmail } from "../../dummy/generate";
+import { randomEmail, randomGoogleUser } from "../../dummy/generate";
 
 const baseUrl = "http://127.0.0.1:7002";
 
@@ -129,15 +129,11 @@ describe("GOOGLE AUTH ROUTER", () => {
     })
 
 
-    describe("Sucess", () => {
+    describe("Success", () => {
       let user;
 
       beforeEach(() => {
-        user = {
-          account_id: null,
-          email: randomEmail,
-          google_id: Math.floor(Math.random() * 42000000),
-        }
+        user = randomGoogleUser()
       });
 
       afterEach(async () => {
@@ -201,7 +197,7 @@ describe("GOOGLE AUTH ROUTER", () => {
         const second = await request(baseUrl)
           .post("/google")
           .send({
-            email: randomEmail,
+            email: randomEmail(),
             google_id: user.google_id,
           });
 

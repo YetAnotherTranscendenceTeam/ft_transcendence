@@ -50,7 +50,7 @@ async function patchFortytwoAuth(request, reply) {
   }
 
   // Update credential database
-  await YATT.fetch(`http://credentials:3000/fortytwo-auth/${request.account_id}`, {
+  await YATT.fetch(`http://credentials:3000/fortytwo/${request.account_id}`, {
     method: "PATCH",
     headers: {
       "Content-type": "application/json",

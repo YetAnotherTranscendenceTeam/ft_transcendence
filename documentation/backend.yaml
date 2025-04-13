@@ -247,7 +247,7 @@ paths:
             Location:
               schema:
                 type: string
-              description: URL to redirect to, including `access_token` and `expire_at` parameters for a sucessfull authentication or `statusCode` `code` `error` `message` in case of error
+              description: URL to redirect to, including `access_token` and `expire_at` parameters for a successfull authentication or `statusCode` `code` `error` `message` in case of error
 
   /me:
     get:
@@ -257,7 +257,7 @@ paths:
         - Users
       responses:
         204:
-          description: Sucess
+          description: Success
       security:
         - BearerAuth: []
 
@@ -311,7 +311,7 @@ paths:
               description: Base64 encoded image data
       responses:
         204:
-          description: Sucess
+          description: Success
           content:
             application/json:
               schema:
@@ -393,7 +393,7 @@ paths:
         - $ref: "#/components/parameters/account_id"
       responses:
         204:
-          description: Sucess
+          description: Success
         404:
           $ref: "#/components/responses/AccountNotFound"
       security:
@@ -543,7 +543,7 @@ paths:
                 - required: [avatar]
       responses:
         204:
-          description: Sucessfull profile edition
+          description: Successfull profile edition
         403:
           description: Invalid avatar
         409:
@@ -604,9 +604,9 @@ paths:
                   additionalProperties: false
       responses:
         204:
-          description: Sucessfull account edition
+          description: Successfull account edition
         403:
-          description: Wrong password
+          description: Invalid authentication method or password
         409:
           description: Email already in use
       security:
@@ -619,6 +619,6 @@ paths:
         - Settings
       responses:
         204:
-          description: Sucessfull profile deletion
+          description: Successfull profile deletion
       security:
         - BearerAuth: []

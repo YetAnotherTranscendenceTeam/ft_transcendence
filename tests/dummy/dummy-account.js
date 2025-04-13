@@ -6,7 +6,7 @@ import Fastify from "fastify";
 import jwt from "@fastify/jwt"
 import { apiURL } from "../URLs";
 
-const app = Fastify();
+export const app = Fastify();
 app.register(jwt, {
   secret: process.env.AUTHENTICATION_SECRET
 })

@@ -1,48 +1,40 @@
 import request from "supertest";
-import { createUsers, users } from "../../../dummy/dummy-account";
-import { apiURL } from "../../../URLs";
+import { app, createUsers, users } from "../../../dummy/dummy-account";
+import { apiURL, credentialsURL } from "../../../URLs";
 import crypto from "crypto";
+import { randomEmail, randomFortytwoUser, randomGoogleUser } from "../../../dummy/generate";
 
 createUsers(1);
 
 describe('Settings Router', () => {
   describe("PATCH /settings/account", () => {
+    describe("general", () => {
+      it("no body", async () => {
+        await request(apiURL)
+          .patch("/settings/account")
+          .set("Authorization", `Bearer ${users[0].jwt}`)
+          .send()
+          .expect(400); // Schema validation should fail
+      });
+
+      it("missing required fields", async () => {
+        await request(apiURL)
+          .patch("/settings/account")
+          .set("Authorization", `Bearer ${users[0].jwt}`)
+          .send({})
+          .expect(400); // Schema validation should fail
+      });
+
+      it("invalid auth_method value", async () => {
+        await request(apiURL)
+          .patch("/settings/account")
+          .set("Authorization", `Bearer ${users[0].jwt}`)
+          .send({ auth_method: "invalid_auth" })
+          .expect(400); // Schema validation should fail
+      });
+    })
     describe("password_auth", () => {
-      describe("Bas requests", () => {
-        it("no body", async () => {
-          await request(apiURL)
-            .patch("/settings/account")
-            .set("Authorization", `Bearer ${users[0].jwt}`)
-            .send()
-            .expect(400); // Schema validation should fail
-        });
-
-        it("missing required fields", async () => {
-          await request(apiURL)
-            .patch("/settings/account")
-            .set("Authorization", `Bearer ${users[0].jwt}`)
-            .send({})
-            .expect(400); // Schema validation should fail
-        });
-
-        it("invalid auth_method value", async () => {
-          await request(apiURL)
-            .patch("/settings/account")
-            .set("Authorization", `Bearer ${users[0].jwt}`)
-            .send({ auth_method: "invalid_auth" })
-            .expect(400); // Schema validation should fail
-        });
-
-        it("wrong auth method", async () => {
-          await request(apiURL)
-            .patch("/settings/account")
-            .set("Authorization", `Bearer ${users[0].jwt}`)
-            .send({
-              auth_method: "google_auth",
-            })
-            .expect(403); // Missing required field `old_password`
-        });
-
+      describe("Bad requests", () => {
         it("without old_password", async () => {
           await request(apiURL)
             .patch("/settings/account")
@@ -106,7 +98,6 @@ describe('Settings Router', () => {
           expect(response.statusCode).toBe(204);
         });
 
-
         it("password change", async () => {
           const new_password = crypto.randomBytes(5).toString('hex');
           const response = await request(apiURL)
@@ -165,89 +156,229 @@ describe('Settings Router', () => {
               old_password: users[0].password,
             })
 
-            expect(response.statusCode).toBe(204);
+          expect(response.statusCode).toBe(204);
+        });
+      })
+    });
+
+    describe("google_auth", () => {
+      let user;
+
+      beforeEach(async () => {
+        user = randomGoogleUser();
+        const response = await request(credentialsURL)
+          .post(`/google`)
+          .send({
+            email: user.email,
+            google_id: user.google_id,
+          });
+
+        expect(response.statusCode).toBe(201);
+        expect(response.body).toMatchObject({
+          account_id: expect.any(Number)
+        })
+
+        const { account_id } = response.body;
+        user.account_id = account_id;
+        user.jwt = app.jwt.sign({ account_id });
+      });
+
+      afterEach(async () => {
+        await request(credentialsURL).delete(`/${user.account_id}`).expect(204);
+      });
+
+      describe("Forbidden", () => {
+        it("wrong auth method", async () => {
+          await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "fortytwo_auth",
+            })
+            .expect(403);
+        });
+
+        it("wrong auth method", async () => {
+          await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "password_auth",
+              old_password: "password",
+            })
+            .expect(403);
         });
       })
 
-      // it("fortytwo_auth with required fields", async () => {
-      //   await request(apiURL)
-      //     .patch("/settings/account")
-      //     .set("Authorization", `Bearer ${users[0].jwt}`)
-      //     .send({
-      //       auth_method: "fortytwo_auth",
-      //       email: "user@example.com",
-      //     })
-      //     .expect(204); // Assuming successful update
-      // });
+      describe("Bad requests", () => {
+        it("extra property", async () => {
+          const response = await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "google_auth",
+              extra: "property",
+            });
 
-      // it("fortytwo_auth missing email field", async () => {
-      //   await request(apiURL)
-      //     .patch("/settings/account")
-      //     .set("Authorization", `Bearer ${users[0].jwt}`)
-      //     .send({
-      //       auth_method: "fortytwo_auth",
-      //     })
-      //     .expect(400); // Missing required field `email`
-      // });
+          expect(response.statusCode).toBe(400);
+        });
+      })
 
-      // it("google_auth with required fields", async () => {
-      //   await request(apiURL)
-      //     .patch("/settings/account")
-      //     .set("Authorization", `Bearer ${users[0].jwt}`)
-      //     .send({
-      //       auth_method: "google_auth",
-      //     })
-      //     .expect(204); // Assuming successful update
-      // });
+      describe("Success", () => {
+        it("not implemented", async () => {
+          const response = await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "google_auth",
+            });
 
-      // it("google_auth with additional properties", async () => {
-      //   await request(apiURL)
-      //     .patch("/settings/account")
-      //     .set("Authorization", `Bearer ${users[0].jwt}`)
-      //     .send({
-      //       auth_method: "google_auth",
-      //       extraField: "notAllowed",
-      //     })
-      //     .expect(400); // Schema validation should fail due to additional properties
-      // });
+          expect(response.statusCode).toBe(501);
+        });
+      })
+    });
 
-      // it("auth_method mismatch with stored account method", async () => {
-      //   const response = await request(apiURL)
-      //     .patch("/settings/account")
-      //     .set("Authorization", `Bearer ${users[0].jwt}`)
-      //     .send({
-      //       auth_method: "google_auth",
-      //       email: "user@example.com",
-      //     })
-      //     .expect(403); // Auth method mismatch (as per handler logic)
+    describe("fortytwo_auth", () => {
+      let user;
 
-      //   expect(response.body.error).toBe("Forbidden");
-      // });
+      beforeEach(async () => {
+        user = randomFortytwoUser();
+        const response = await request(credentialsURL)
+          .post(`/fortytwo`)
+          .send({
+            email: user.email,
+            intra_user_id: user.intra_user_id,
+          });
 
-      // it("unauthorized request (no token)", async () => {
-      //   await request(apiURL)
-      //     .patch("/settings/account")
-      //     .send({
-      //       auth_method: "password_auth",
-      //       email: "user@example.com",
-      //       password: "newPassword123",
-      //       old_password: "oldPassword123",
-      //     })
-      //     .expect(401); // Unauthorized
-      // });
+        expect(response.statusCode).toBe(201);
+        expect(response.body).toMatchObject({
+          account_id: expect.any(Number)
+        })
 
-      // it("unauthorized request (invalid token)", async () => {
-      //   await request(apiURL)
-      //     .patch("/settings/account")
-      //     .set("Authorization", "Bearer invalidToken")
-      //     .send({
-      //       auth_method: "password_auth",
-      //       email: "user@example.com",
-      //       password: "newPassword123",
-      //       old_password: "oldPassword123",
-      //     })
-      //     .expect(401); // Unauthorized
-      // });
+        const { account_id } = response.body;
+        user.account_id = account_id;
+        user.jwt = app.jwt.sign({ account_id });
+      });
+
+      afterEach(async () => {
+        await request(credentialsURL).delete(`/${user.account_id}`).expect(204);
+      });
+
+      describe("Forbidden", () => {
+        it("wrong auth method", async () => {
+          await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "google_auth",
+            })
+            .expect(403);
+        });
+
+        it("wrong auth method", async () => {
+          await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "password_auth",
+              old_password: "password",
+            })
+            .expect(403);
+        });
+      })
+
+      describe("Bad requests", () => {
+        it("extra property", async () => {
+          const response = await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "fortytwo_auth",
+              extra: "property",
+            });
+
+          expect(response.statusCode).toBe(400);
+        });
+
+        it("nothing to do", async () => {
+          const response = await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "fortytwo_auth",
+            });
+
+          expect(response.statusCode).toBe(400);
+        });
+      })
+
+      describe("Success", () => {
+        it("update email", async () => {
+          const newEmail = randomEmail("patch");
+          const response = await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "fortytwo_auth",
+              email: newEmail,
+            });
+
+          expect(response.statusCode).toBe(204);
+
+          const me = await request(apiURL)
+            .get("/me")
+            .set("Authorization", `Bearer ${user.jwt}`)
+
+          expect(me.statusCode).toBe(200);
+          expect(me.body.account_id).toBe(user.account_id);
+          expect(me.body.credentials.account_id).toBe(user.account_id);
+          expect(me.body.credentials.email).toBe(newEmail);
+        });
+      })
+
+      describe("Conflict", () => {
+        let conflict;
+
+        beforeEach(async () => {
+          conflict = randomGoogleUser();
+          const response = await request(credentialsURL)
+            .post(`/google`)
+            .send({
+              email: conflict.email,
+              google_id: conflict.google_id,
+            });
+
+          expect(response.statusCode).toBe(201);
+          expect(response.body).toMatchObject({
+            account_id: expect.any(Number)
+          })
+
+          const { account_id } = response.body;
+          conflict.account_id = account_id;
+          conflict.jwt = app.jwt.sign({ account_id });
+        })
+
+        it("update email", async () => {
+          const response = await request(apiURL)
+            .patch("/settings/account")
+            .set("Authorization", `Bearer ${user.jwt}`)
+            .send({
+              auth_method: "fortytwo_auth",
+              email: conflict.email,
+            });
+
+          expect(response.statusCode).toBe(409);
+
+          const me = await request(apiURL)
+            .get("/me")
+            .set("Authorization", `Bearer ${user.jwt}`)
+
+          expect(me.statusCode).toBe(200);
+          expect(me.body.account_id).toBe(user.account_id);
+          expect(me.body.credentials.account_id).toBe(user.account_id);
+          expect(me.body.credentials.email).toBe(user.email);
+        });
+      });
     });
   });
 });
