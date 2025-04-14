@@ -2,7 +2,6 @@
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, InputBlock, AudioEngine } from "@babylonjs/core";
-import createDefaultScene from "./DefaultScene";
 import { GameMode, GameModeType, IPlayer } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
@@ -83,7 +82,6 @@ export default class PongClient extends PONG.Pong {
 
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
-		window.addEventListener("keypress", this.handleKeyPress);
 		window.addEventListener("resize", this.resize);
 		
 		this._engine.runRenderLoop(this.loop);
@@ -105,7 +103,32 @@ export default class PongClient extends PONG.Pong {
 		}
 		
 	}
+	
+	public setGameScene(scene: GameScene) {
+		this._gameScene = scene;
+		if (this._gameScene === GameScene.LOCAL) {
+			this.localGame();
+		} else if (this._gameScene === GameScene.MENU) {
+			this.cleanup();
+			this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
+		} else if (this._gameScene === GameScene.ONLINE) {
+			this.onlineGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
+		} else if (this._gameScene === GameScene.LOBBY) {
+			this._babylonScene.clearColor = Color4.FromColor3(Color3.Green());
+		}
+	}
 
+	public startGame() {
+		this.start();
+		this._running = 1;
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
+	}
+
+	public nextRound() {
+		this._running = 1;
+		this.roundStart();
+	}
+	
 	private loop = () => {
 		this.update();
 		this._babylonScene.render();
@@ -116,16 +139,19 @@ export default class PongClient extends PONG.Pong {
 		this._engine.resize();
 	}
 
-	public setGameScene(scene: GameScene) {
-		this._gameScene = scene;
-		if (this._gameScene === GameScene.LOCAL) {
-			this.localGame();
-		} else if (this._gameScene === GameScene.MENU) {
-			this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
-		}
+	private cleanup() {
+		this._ballInstances.forEach((ball: ClientBall) => {
+			ball.dispose();
+		});
+		this._paddleInstance.forEach((paddle: ClientPaddle) => {
+			paddle.dispose();
+		});
+		this._ballInstances = [];
+		this._paddleInstance = new Map<number, ClientPaddle>();
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
 	}
 
-	public onlineGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
+	private onlineGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
 		// this._babylonScene.createDefaultEnvironment();
@@ -157,17 +183,6 @@ export default class PongClient extends PONG.Pong {
 			const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
 			this._paddleInstance.set(playerId, paddleInstance);
 		});
-	}
-
-	public startGame() {
-		this.start();
-		this._running = 1;
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
-	}
-
-	public nextRound() {
-		this._running = 1;
-		this.roundStart();
 	}
 
 	private update() {
@@ -222,18 +237,6 @@ export default class PongClient extends PONG.Pong {
 		}
 	}
 
-/*
-
-export interface IGameMode {
-	name: string;
-	type: GameModeType;
-	team_size: number;
-	team_count: number;
-	match_parameters: IMatchParameters;
-}
-
-*/
-
 	private handleKeyDown = (ev: KeyboardEvent) => {
 		// console.log(ev);
 		// Shift+Ctrl+Alt+I
@@ -243,13 +246,6 @@ export interface IGameMode {
 		// 	} else {
 		// 		this._scene[this._activeScene].debugLayer.show();
 		// 	}
-		// }
-		// if (ev.key === "1") {
-		// 	this._babylonScene.activeCamera = this._babylonScene.cameras[0];
-		// } else if (ev.key === "2") {
-		// 	this._babylonScene.activeCamera = this._babylonScene.cameras[1];
-		// } else if (ev.key === "3") {
-		// 	this._babylonScene.activeCamera = this._babylonScene.cameras[2];
 		// }
 
 		if (ev.key === "z") {
@@ -268,22 +264,6 @@ export interface IGameMode {
 				this._keyboard.set(ev.key, keyState.HELD);
 			}
 		}
-		// if (ev.key === "ArrowUp") {
-		// 	const keyStateProbe = this._keyboard.get(ev.key);
-		// 	if (keyStateProbe === keyState.IDLE || keyStateProbe === keyState.RELEASED) {
-		// 		this._keyboard.set("ArrowUp", keyState.PRESSED);
-		// 	} else {
-		// 		this._keyboard.set("ArrowUp", keyState.HELD);
-		// 	}
-		// }
-		// if (ev.key === "ArrowDown") {
-		// 	const keyStateProbe = this._keyboard.get(ev.key);
-		// 	if (keyStateProbe === keyState.IDLE || keyStateProbe === keyState.RELEASED) {
-		// 		this._keyboard.set("ArrowDown", keyState.PRESSED);
-		// 	} else if (keyStateProbe === keyState.PRESSED) {
-		// 		this._keyboard.set("ArrowDown", keyState.HELD);
-		// 	}
-		// }
 	}
 
 	private handleKeyUp = (ev: KeyboardEvent) => {
@@ -299,21 +279,13 @@ export interface IGameMode {
 		}
 	}
 
-	private handleKeyPress = (ev: KeyboardEvent) => {
-		// console.log(ev);
-
-		// if (ev.key === "ArrowUp") {
-		// 	this._babylonScene.playerUp(1);
-		// }
-		// if (ev.key === "ArrowDown") {
-		// 	this._babylonScene.playerDown(1);
-		// }
-	}
-
 	public destroy() {
 		// this._babylonScene.dispose();
 		this._engine.dispose();
 		window.removeEventListener("keydown", this.handleKeyDown);
+		window.removeEventListener("keyup", this.handleKeyUp);
 		window.removeEventListener("resize", this.resize);
+		this._websocket.close();
+		this._websocket = undefined as unknown as WebSocket;
 	}
 }

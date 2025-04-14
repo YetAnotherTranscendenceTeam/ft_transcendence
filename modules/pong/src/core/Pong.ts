@@ -33,6 +33,14 @@ export class Pong {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), DT);
 	}
 
+	public toJSON() {
+		return {
+			players: this._players,
+			match_id: this._matchId,
+			gamemode: this._gameMode
+		};
+	}
+
 	public onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: PongState = PongState.RESERVED) {
 		this._physicsScene.clear();
 		this._balls = [];
@@ -121,14 +129,6 @@ export class Pong {
 		this._balls[0].speed = defaultBallSpeed;
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
-	}
-
-	public toJSON() {
-		return {
-			players: this._players,
-			match_id: this._matchId,
-			gamemode: this._gameMode
-		};
 	}
 
 	public shouldUpdate(): boolean {
