@@ -1,7 +1,7 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { GameMode, IPlayer } from 'yatt-lobbies'
-import { DT, ballSpeedMin, ballSize, bounceMaterial, paddleHalfSize, defaultBallSpeed, defaultPaddleSpeed, defaultPaddleShape } from "./constants.js";
+import * as K from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
@@ -30,7 +30,7 @@ export class Pong {
 	protected _score: number[];
 
 	public constructor() {
-		this._physicsScene = new PH2D.Scene(Vec2.create(), DT);
+		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT);
 	}
 
 	public toJSON() {
@@ -73,30 +73,28 @@ export class Pong {
 
 	private defaultSetup() { // temporary
 		// Ball
-		const ball: Ball = new Ball(this._physicsScene, Vec2.create(), Vec2.create(), defaultBallSpeed);
+		const ball: Ball = new Ball(this._physicsScene, Vec2.create(), Vec2.create(), K.defaultBallSpeed);
 		this._balls.push(ball);
 
 		// Paddles
-		const paddleLeftBody: Paddle = new Paddle(this._physicsScene, new Vec2(-5 + paddleHalfSize[0], 0), Vec2.create(), defaultPaddleSpeed);
-		const paddleRightBody: Paddle = new Paddle(this._physicsScene, new Vec2(5 - paddleHalfSize[0], 0), Vec2.create(), defaultPaddleSpeed);
+		const paddleLeftBody: Paddle = new Paddle(this._physicsScene, K.smallPaddleLeftPosition, Vec2.create(), K.paddleSpeed);
+		const paddleRightBody: Paddle = new Paddle(this._physicsScene, K.smallPaddleRightPosition, Vec2.create(), K.paddleSpeed);
 		this._paddles.set(0, paddleLeftBody);
 		this._paddles.set(1, paddleRightBody);
 
 		// Walls
-		const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(5, 0.1);
-		const wallBottomBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, -4), Vec2.create());
-		const wallTopBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, wallShape, bounceMaterial, new Vec2(0, 4), Vec2.create());
+		const wallBottomBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, K.smallWallShape, K.bounceMaterial, K.smallWallBottomPosition, Vec2.create());
+		const wallTopBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, K.smallWallShape, K.bounceMaterial, K.smallWallTopPosition, Vec2.create());
 		this._physicsScene.addBody(wallTopBody);
 		this._physicsScene.addBody(wallBottomBody);
 
 		// Goal
-		const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(0.1, 4.1);
 		// const goalLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(-5.2, 0), Vec2.create());
 		// const goalRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(5.2, 0), Vec2.create());
 		// this._physicsScene.addBody(goalLeftBody);
 		// this._physicsScene.addBody(goalRightBody);
-		const goalLeftBody: Goal = new Goal(this._physicsScene, goalShape, new Vec2(-5.2, 0), Vec2.create(), defaultBallSpeed);
-		const goalRightBody: Goal = new Goal(this._physicsScene, goalShape, new Vec2(5.2, 0), Vec2.create(), defaultBallSpeed);
+		const goalLeftBody: Goal = new Goal(this._physicsScene, K.smallGoalShape, K.smallGoalLeftPosition, Vec2.create(), K.defaultBallSpeed);
+		const goalRightBody: Goal = new Goal(this._physicsScene, K.smallGoalShape, K.smallGoalRightPosition, Vec2.create(), K.defaultBallSpeed);
 		this._goals.set(0, goalLeftBody);
 		this._goals.set(1, goalRightBody);
 
@@ -113,7 +111,7 @@ export class Pong {
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		const ballVelocity: Vec2 = new Vec2(x, y);
 		this._balls[0].setDirection(ballVelocity);
-		this._balls[0].speed = defaultBallSpeed;
+		this._balls[0].speed = K.defaultBallSpeed;
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
 	}
@@ -126,7 +124,7 @@ export class Pong {
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		const ballVelocity: Vec2 = new Vec2(x, y);
 		this._balls[0].setDirection(ballVelocity);
-		this._balls[0].speed = defaultBallSpeed;
+		this._balls[0].speed = K.defaultBallSpeed;
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
 	}
@@ -140,18 +138,18 @@ export class Pong {
 		if (this._accumulator > 0.2) {
 			this._accumulator = 0.2;
 		}
-		while (this._accumulator >= DT) {
+		while (this._accumulator >= K.DT) {
 			this._physicsScene.step();
-			this._accumulator -= DT;
+			this._accumulator -= K.DT;
 		}
 		this._paddles.forEach((paddle: PH2D.Body) => { // block paddle movement with walls
-			if (paddle.position[1] > (4 - paddleHalfSize[1] - 0.1)) {
-				paddle.position[1] = (4 - paddleHalfSize[1] - 0.1);
-			} else if (paddle.position[1] < (-4 + paddleHalfSize[1] + 0.1)) {
-				paddle.position[1] = (-4 + paddleHalfSize[1] + 0.1);
+			if (paddle.position[1] > (K.mapData1v1.playGround.height / 2 - K.paddleSize[1] / 2)) {
+				paddle.position[1] = (K.mapData1v1.playGround.height / 2 - K.paddleSize[1] / 2);
+			} else if (paddle.position[1] < (-K.mapData1v1.playGround.height / 2 + K.paddleSize[1] / 2)) {
+				paddle.position[1] = (-K.mapData1v1.playGround.height / 2 + K.paddleSize[1] / 2);
 			}
 		});
-		return this._accumulator / DT;
+		return this._accumulator / K.DT;
 	}
 
 	protected scoreUpdate(): Array<number> {

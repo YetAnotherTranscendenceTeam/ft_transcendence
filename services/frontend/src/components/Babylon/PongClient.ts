@@ -10,28 +10,6 @@ import { Vec2 } from "gl-matrix";
 import { keyState, GameScene } from "./types";
 import * as PONG from "pong";
 
-function createScene(engine: Engine, canvas: HTMLCanvasElement): Scene {
-	const scene = new Scene(engine);
-	// scene.clearColor = Color4.FromColor3(Color3.Black());
-	// scene.createDefaultEnvironment();
-	const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 12.5, Vector3.Zero(), scene);
-	// camera.attachControl(canvas, true);
-	// camera.lowerRadiusLimit = 1.5;
-	// camera.upperRadiusLimit = 15;
-	// camera.wheelPrecision = 50;
-
-	const light = new HemisphericLight("light1", new Vector3(0, 1, 0), scene);
-
-	// default setup
-	const wall1: ClientWall = new ClientWall(scene, "wall1", new Vector2(0, -4), new Vector2(10, 0.2));
-	const wall2: ClientWall = new ClientWall(scene, "wall2", new Vector2(0, 4), new Vector2(10, 0.2));
-
-	const goal1: ClientTrigger = new ClientTrigger(scene, "goal1", new Vector2(-5.2, 0), new Vector2(0.2, 8.2), Color3.Red());
-	const goal2: ClientTrigger = new ClientTrigger(scene, "goal2", new Vector2(5.2, 0), new Vector2(0.2, 8.2), Color3.Red());
-
-	return scene;
-}
-
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket: WebSocket;
@@ -39,7 +17,7 @@ export default class PongClient extends PONG.Pong {
 	private _keyboard: Map<string, keyState>;
 	private _babylonScene: Scene;
 	private _gameScene: GameScene;
-	
+
 	private _camera: ArcRotateCamera;
 	private _light: HemisphericLight;
 
@@ -78,7 +56,8 @@ export default class PongClient extends PONG.Pong {
 		this._paddleInstance = new Map<number, ClientPaddle>();
 
 		// this._babylonScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
-		this._babylonScene = createScene(this._engine, this._canvas);
+		// this._babylonScene = createScene(this._engine, this._canvas);
+		this.sceneSetup();
 
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
@@ -151,6 +130,29 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
 	}
 
+	private sceneSetup() {
+		
+		this._babylonScene = new Scene(this._engine);
+		// scene.clearColor = Color4.FromColor3(Color3.Black());
+		// scene.createDefaultEnvironment();
+		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 20, Vector3.Zero(), this._babylonScene);
+		// camera.attachControl(canvas, true);
+		// camera.lowerRadiusLimit = 1.5;
+		// camera.upperRadiusLimit = 15;
+		// camera.wheelPrecision = 50;
+
+		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
+
+		// default setup
+		const wallSize: Vector2 = new Vector2(PONG.K.smallWallSize.x, PONG.K.smallWallSize.y);
+		const wallBottom: ClientWall = new ClientWall(this._babylonScene, "wallBottom", new Vector2(0, PONG.K.smallWallBottomPosition.y), wallSize);
+		const wallTop: ClientWall = new ClientWall(this._babylonScene, "wallTop", new Vector2(0, PONG.K.smallWallTopPosition.y), wallSize);
+
+		const goalSize: Vector2 = new Vector2(PONG.K.smallGoalSize.x, PONG.K.smallGoalSize.y);
+		const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, "goalLeft", new Vector2(PONG.K.smallGoalLeftPosition.x, 0), goalSize, Color3.Red());
+		const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, "goalRight", new Vector2(PONG.K.smallGoalRightPosition.x, 0), goalSize, Color3.Red());
+	}
+
 	private onlineGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
@@ -203,7 +205,7 @@ export default class PongClient extends PONG.Pong {
 		if (score) {
 			console.log("score: " + score[0] + "-" + score[1]);
 			this.scoreUpdateCallback(score);
-			this._running = 0;
+			// this._running = 0;
 		}
 	}
 

@@ -1,6 +1,6 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { paddleHalfSize } from "./constants.js";
+import { paddleSize } from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
@@ -15,7 +15,7 @@ export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other:
 
 	if (other instanceof Paddle) { // control direction of the ball
 		let relativePosition: number = ballEmitter.position[1] - other.position[1];
-		relativePosition /= paddleHalfSize[1];
+		relativePosition /= (paddleSize[1] / 2);
 		let clampedPosition: number = Math.max(-1, Math.min(1, relativePosition));
 		const angle: number = Math.PI / 4 * clampedPosition; // angle between -45 and 45 degrees
 		const speed: number = ballEmitter.velocity.magnitude;
