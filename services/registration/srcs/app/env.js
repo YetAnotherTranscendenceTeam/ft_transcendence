@@ -1,11 +1,11 @@
-export const token_manager_secret = process.env.TOKEN_MANAGER_SECRET;
-if (!token_manager_secret) {
+export const TOKEN_MANAGER_SECRET = process.env.TOKEN_MANAGER_SECRET;
+if (!TOKEN_MANAGER_SECRET) {
     console.error("Missing environment variable: TOKEN_MANAGER_SECRET");
     process.exit(1);
 }
 
-export const pepper = process.env.PASSWORD_PEPPER
-if (!pepper) {
+export const PASSWORD_PEPPER = process.env.PASSWORD_PEPPER
+if (!PASSWORD_PEPPER) {
   console.error("Missing environment variable: PASSWORD_PEPPER");
   process.exit(1);
 }

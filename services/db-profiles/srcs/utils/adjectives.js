@@ -293,7 +293,6 @@ export const adjectives = [
 	'envious',
 	'equable',
 	'equal',
-	'erect',
 	'erratic',
 	'ethereal',
 	'evanescent',

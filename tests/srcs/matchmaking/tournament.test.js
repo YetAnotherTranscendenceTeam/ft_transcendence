@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { matchmaking_jwt_secret } from "./env";
+import { MATCHMAKING_SECRET } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { apiURL } from "../../URLs.js"
 import { createUsers, users } from "../../dummy/dummy-account";
@@ -11,9 +11,7 @@ import Fastify from "fastify";
 import jwt from "@fastify/jwt";
 
 const app = Fastify();
-app.register(jwt, {
-  secret: matchmaking_jwt_secret,
-});
+app.register(jwt, { secret: MATCHMAKING_SECRET });
 
 beforeAll(async () => {
   await app.ready();
@@ -246,20 +244,20 @@ describe.each(tests)
             expect(event.match.team_ids[matchIndex % 2]).toBe(match.team_ids[winnerIndex]);
           }
 
-          const match_update = tournament.matches[event.match.index];
-          match_update.match_id = event.match.match_id;
-          match_update.state = event.match.state;
-          match_update.team_ids = event.match.team_ids;
-          match_update.scores = event.match.scores;
-        });
-      }
-  });
-  it("expect tournament finished", async () => {
-    await sse.expectJson("finish", async () => {
-      await sse.expectClose();
+            const match_update = tournament.matches[event.match.index];
+            match_update.match_id = event.match.match_id;
+            match_update.state = event.match.state;
+            match_update.team_ids = event.match.team_ids;
+            match_update.scores = event.match.scores;
+          });
+        }
+      });
+    it("expect tournament finished", async () => {
+      await sse.expectJson("finish", async () => {
+        await sse.expectClose();
+      });
     });
   });
-});
 
 it("close matchmaking websocket", async () => {
   await ws.close();

@@ -1,11 +1,13 @@
 "use strict";
 
 import Fastify from "fastify";
+import jwt from "@fastify/jwt";
+import JwtGenerator from "yatt-jwt";
 import fastifyCookie from "@fastify/cookie";
 import fastifyFormbody from "@fastify/formbody";
 import router from "./router.js";
-import YATT from "yatt-utils";
 import cors from "@fastify/cors";
+import { TOKEN_MANAGER_SECRET } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -17,19 +19,11 @@ export default function build(opts = {}) {
     maxAge: 600,
   });
 
-  if (process.env.ENV !== "production") {
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Registration",
-        description: "[PLACEHOLDER]",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4012", description: "Development network" },
-        { url: "http://credentials:3000", description: "Containers network" },
-      ],
-    });
-  }
+  app.register(jwt, { secret: TOKEN_MANAGER_SECRET });
+  app.decorate("tokens", new JwtGenerator());
+  app.addHook('onReady', async function () {
+    this.tokens.register(app.jwt);
+  })
 
   app.register(fastifyCookie);
   app.register(fastifyFormbody);
