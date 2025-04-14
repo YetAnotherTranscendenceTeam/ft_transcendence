@@ -110,25 +110,41 @@ it("connect to matchmaking websocket", async () => {
     });
 });
 
-describe.each(
+const tournaments = Array.from(
+  { length: 14 },
+  (_, index) => ({
+    player_count: index + 3,
+    gamemode: "custom_1v1",
+    team_size: 1
+  })
+).concat(
   Array.from(
-    { length: 14 },
+    { length: 28 },
     (_, index) => ({
-      player_count: index + 3,
-      gamemode: "custom_1v1",
-      team_size: 1
+      player_count: index + 5,
+      gamemode: "custom_2v2",
+      team_size: 2
     })
-  ).concat(
-    Array.from(
-      { length: 28 },
-      (_, index) => ({
-        player_count: index + 5,
-        gamemode: "custom_2v2",
-        team_size: 2
-      })
-    )
-  ))
-("$gamemode with $player_count players", ({player_count, gamemode, team_size}) => {
+  )
+);
+
+const tests = tournaments.map(tournament => ({
+  ...tournament,
+  match_it_start: () => 0,
+  match_it_end: (stage, it) => it < stage.length,
+  match_it_inc: () => 1,
+  match_it_type: "normal",
+}))
+.concat(tournaments.map(tournament => ({
+  ...tournament,
+  match_it_start: (stage) => stage.length - 1,
+  match_it_end: (stage, it) => it >= 0,
+  match_it_inc: () => -1,
+  match_it_type: "reverse",
+})));
+
+describe.each(tests)
+("$gamemode with $player_count players $match_it_type match completion order", ({player_count, gamemode, team_size, match_it_start, match_it_end, match_it_inc}) => {
   let team_count = Math.ceil(player_count / team_size);
   let tournament;
   let sse;
@@ -189,7 +205,7 @@ describe.each(
   it.each(Array.from({ length: Math.ceil(Math.log2(team_count)) }, (_, index) => index))
     ("complete tournament stage %i", async (stageIndex) => {
       const stage = stages[stageIndex];
-      for (let matchIndex = 0; matchIndex < stage.length; matchIndex++) {
+      for (let matchIndex = match_it_start(stage); match_it_end(stage, matchIndex); matchIndex += match_it_inc()) {
         const winnerIndex = 0;
         const loserIndex = 1;
         const match = stage[matchIndex];
@@ -214,7 +230,7 @@ describe.each(
           break;
         }
         const next_stage_match = stages[stageIndex + 1][Math.floor(matchIndex / 2)];
-        const next_event_start = matchIndex % 2 == 1 || next_stage_match.team_ids.filter(id => id === null).length == 1;
+        const next_event_start = next_stage_match.team_ids.filter(id => id === null).length == 1;
         await sse.expectJson("match_update", (event) => {
           expect(event.match.index).toBe(next_stage_match.index);
           if (next_event_start) {
