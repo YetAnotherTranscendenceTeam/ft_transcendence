@@ -107,6 +107,16 @@ export default class PongClient extends PONG.Pong {
 		this._running = 1;
 		this.roundStart();
 	}
+
+	public pauseGame() {
+		this._running = 0;
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Yellow());
+	}
+
+	public resumeGame() {
+		this._running = 1;
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
+	}
 	
 	private loop = () => {
 		this.update();
