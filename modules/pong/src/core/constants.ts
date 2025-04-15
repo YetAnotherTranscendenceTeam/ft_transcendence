@@ -45,18 +45,16 @@ export const bigGoalRightPosition: Vec2 = new Vec2(mapData2v2.playGround.widht /
 
 // paddles
 export const paddleSize: Vec2 = new Vec2(0.2, 1.5);
-export const smallPaddleLeftPosition: Vec2 = new Vec2(-mapData1v1.playGround.widht / 2 + wallThickness / 2, 0);
-export const smallPaddleRightPosition: Vec2 = new Vec2(mapData1v1.playGround.widht / 2 - wallThickness / 2, 0);
+export const smallPaddleLeftPosition: Vec2 = new Vec2(-mapData1v1.playGround.widht / 2 + wallThickness / 2 + 1, 0);
+export const smallPaddleRightPosition: Vec2 = new Vec2(mapData1v1.playGround.widht / 2 - wallThickness / 2 - 1, 0);
 export const bigPaddleLeftPosition: Vec2 = new Vec2(-mapData2v2.playGround.widht / 2 + wallThickness / 2, 0);
 export const bigPaddleRightPosition: Vec2 = new Vec2(mapData2v2.playGround.widht / 2 - wallThickness / 2, 0);
 
-
-export const ballSpeedMin = 0.5;
-export const ballSpeedMax = 2;
+// ball
 export const ballRadius = 0.2;
 
-export const defaultBallSpeed = 4;
-export const paddleSpeed = 2;
+export const defaultBallSpeed = 5;
+export const paddleSpeed = 3;
 export const defaultPointsToWin = 5;
 
 export const ballShape: PH2D.CircleShape = new PH2D.CircleShape(ballRadius);
