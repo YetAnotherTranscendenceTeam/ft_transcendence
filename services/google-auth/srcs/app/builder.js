@@ -1,10 +1,13 @@
 "use strict";
 
 import Fastify from "fastify";
+import jwt from '@fastify/jwt';
+import JwtGenerator from "yatt-jwt";
 import cors from "@fastify/cors";
 import formbody from "@fastify/formbody";
 import cookie from '@fastify/cookie';
 import router from "./router.js";
+import { TOKEN_MANAGER_SECRET } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -15,6 +18,12 @@ export default function build(opts = {}) {
     credentials: true,
     maxAge: 600,
   });
+
+  app.register(jwt, { secret: TOKEN_MANAGER_SECRET });
+  app.decorate("tokens", new JwtGenerator());
+  app.addHook('onReady', async function () {
+    this.tokens.register(app.jwt, "token_manager");
+  })
 
   app.register(formbody);
   app.register(cookie);

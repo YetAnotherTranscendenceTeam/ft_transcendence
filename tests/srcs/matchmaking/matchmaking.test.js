@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { matchmaking_jwt_secret } from "./env";
+import { MATCHMAKING_SECRET } from "./env";
 import { matchmaking_tests } from "./matches-tests";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { createUsers, users } from "../../dummy/dummy-account";
@@ -8,9 +8,7 @@ import Fastify from "fastify";
 import jwt from "@fastify/jwt";
 
 const app = Fastify();
-app.register(jwt, {
-  secret: matchmaking_jwt_secret,
-});
+app.register(jwt, { secret: MATCHMAKING_SECRET });
 
 beforeAll(async () => {
   await app.ready();

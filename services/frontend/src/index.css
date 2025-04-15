@@ -51,6 +51,8 @@
 	--success-color-40: color-mix(in srgb, var(--success-color), transparent 40%);
 	--success-color-20: color-mix(in srgb, var(--success-color), transparent 20%);
 	--success-color-10: color-mix(in srgb, var(--success-color), transparent 10%);
+	--team-1-color-60: color-mix(in srgb, var(--team-1-color), transparent 60%);
+	--team-2-color-60: color-mix(in srgb, var(--team-2-color), transparent 60%);
 }
 
 .flex {
@@ -123,6 +125,10 @@
 
 .h-full {
 	height: 100%;
+}
+
+.pointer {
+	cursor: pointer;
 }
 
 body {

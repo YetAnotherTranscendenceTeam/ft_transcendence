@@ -1,22 +1,64 @@
+.aside > *, .overlay > *, .template-content > * {
+	pointer-events: initial;
+}
+
 .template-content {
 	position: absolute;
 	bottom: 0;
 	left: 0;
 	width: 100vw;
-	height: 100vh;
 	--header-height: 64px;
 	--aside-width: 400px;
+	pointer-events: none;
+	padding-top: var(--header-height);
+	height: calc(100vh - var(--header-height));
+}
+
+.overlay.hidden .template-content{
+	--header-height: 0px;
+}
+
+.template-modal {
+	position: absolute;
+	top: 0;
+	height: 0;
+	width: 100dvw;
+	height: 100dvh;
+	background-color: color-mix(in srgb, var(--bg-1), transparent 50%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--fg-1);
+	animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+
 }
 
 .header {
+	pointer-events: initial;
 	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100vw;
 	height: 64px;
+	transform: translateY(0);
+	transition: transform 0.4s;
+}
+
+.overlay.hidden .header {
+	transform: translateY(-150%);
 }
 
 .aside {
+	pointer-events: none;
 	position: fixed;
 	bottom: 0;
 	right: 0;
@@ -27,4 +69,9 @@
 	padding: 16px;
 	box-sizing: border-box;
 	overflow: auto;
+	transition: transform 0.4s;
+}
+
+.overlay.hidden .aside {
+	transform: translateX(100%);
 }

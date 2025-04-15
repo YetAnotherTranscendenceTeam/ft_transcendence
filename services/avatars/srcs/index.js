@@ -2,7 +2,7 @@
 
 import build from "./app/builder.js";
 import db from "./app/database.js";
-import { cdn_url } from "./app/env.js";
+import { CDN_URL } from "./app/env.js";
 
 const server = build({
   bodyLimit: 5 * 1024 * 1024 // 5 MB
@@ -14,7 +14,7 @@ server.listen({ port: 3000, host: "0.0.0.0" }, async (err, address) => {
     process.exit(1);
   }
   // Load default avatars into the database
-  await defaultAvatars(`${cdn_url}/api/avatars/default`);
+  await defaultAvatars(`${CDN_URL}/api/avatars/default`);
 });
 
 const defaultAvatars = async (endpoint) => {
@@ -35,8 +35,8 @@ const defaultAvatars = async (endpoint) => {
         const insert = db.prepare("INSERT INTO avatars (account_id, url) VALUES (-1, ?)");
         console.log("Loading default avatars...");
         for (const avatar of data) {
-          insert.run(cdn_url + avatar)
-          console.log(`\t ${cdn_url + avatar}`);
+          insert.run(CDN_URL + avatar)
+          console.log(`\t ${CDN_URL + avatar}`);
         }
         break;
       }
