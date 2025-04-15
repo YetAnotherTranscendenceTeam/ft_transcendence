@@ -370,7 +370,17 @@ paths:
           name: filter[username:match]
           schema:
             type: string
-          description: Filters results to include users whose usernames contain the specified string. Allows partial matches and is case-insensitive.
+          description: Filters results to include users whose usernames contain the specified string. Allows partial matches and is case-insensitive
+        - in: query
+          name: filter[account_id]
+          schema:
+            type: string
+          description: Filters results to include users with account_id
+        - in: query
+          name: filter[account_id:not]
+          schema:
+            type: string
+          description: Filters results to exclude users with account_id
       responses:
         "200":
           description: Successful response
