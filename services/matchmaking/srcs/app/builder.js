@@ -13,7 +13,7 @@ import qs from "qs";
 import db from "./database.js";
 import cors from "@fastify/cors";
 
-import { TournamentManger } from "../TournamentManager.js";
+import { TournamentManager } from "../TournamentManager.js";
 
 export default function build(opts = {}) {
   const app = Fastify({...opts, querystringParser: (str) => qs.parse(str)});
@@ -63,7 +63,7 @@ export default function build(opts = {}) {
     },
   });
 
-  app.decorate("tournaments", new TournamentManger());
+  app.decorate("tournaments", new TournamentManager());
   app.register(fastifyFormbody);
   app.register(websocket);
 

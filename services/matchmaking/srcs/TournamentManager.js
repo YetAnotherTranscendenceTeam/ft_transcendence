@@ -1,4 +1,4 @@
-export class TournamentManger {
+export class TournamentManager {
   tournaments = new Map();
   matches = new Map();
 
