@@ -75,6 +75,7 @@ export default function build(opts = {}) {
 
   app.addHook('onClose', (instance) => {
     // Cleanup instructions for a graceful shutdown
+    instance.tournaments.cancel();
     db.close();
   });
 

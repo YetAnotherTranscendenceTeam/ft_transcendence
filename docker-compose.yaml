@@ -185,6 +185,7 @@ services:
       - "127.0.0.1:4044:3000"
     networks:
       - frontend
+      - db-profiles
 
   db-profiles:
     build:
