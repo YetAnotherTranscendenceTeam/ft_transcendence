@@ -10,8 +10,10 @@ import SelectModeOverlay from "../components/Online/SelectModeOverlay";
 import './templates.css'
 
 export default function Overlay({
+		modal,
 		children
 	}: {
+		modal?: any,
 		children?: any
 	}) {
 
@@ -33,6 +35,9 @@ export default function Overlay({
 			<div className='template-content'>
 				{children}
 			</div>
+			{ modal && <div className='template-overlay'>
+				{modal}
+			</div>}
 			<header className='header flex gap-4 items-center justify-center'>
 				<Menu
 					selected={selected}
