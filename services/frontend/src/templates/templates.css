@@ -14,6 +14,18 @@
 	height: calc(100vh - var(--header-height));
 }
 
+.template-overlay {
+	position: absolute;
+	top: 0;
+	height: 0;
+	width: 100dvw;
+	height: 100dvh;
+	background-color: color-mix(in srgb, var(--bg-1), transparent 50%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 
 .header {
 	pointer-events: initial;

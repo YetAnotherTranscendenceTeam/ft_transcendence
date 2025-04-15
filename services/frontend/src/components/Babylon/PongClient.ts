@@ -7,7 +7,7 @@ import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/o
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { keyState, GameScene } from "./types";
+import { keyState, GameScene, scoredEvent } from "./types";
 import * as PONG from "pong";
 
 export default class PongClient extends PONG.Pong {
@@ -26,9 +26,9 @@ export default class PongClient extends PONG.Pong {
 
 	private _running: number = 0;
 
-	public scoreUpdateCallback: (score: Array<number>) => void;
+	public scoreUpdateCallback: (score: scoredEvent) => void;
 
-	public constructor(scoreUpdateCallback: (score: Array<number>) => void) {
+	public constructor(scoreUpdateCallback: (score: scoredEvent) => void) {
 		super();
 		this._gameScene = GameScene.MENU;
 		this.scoreUpdateCallback = scoreUpdateCallback;
@@ -201,7 +201,7 @@ export default class PongClient extends PONG.Pong {
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
 		});
-		const score: Array<number> = this.scoreUpdate();
+		const score: scoredEvent = this.scoreUpdate();
 		if (score) {
 			console.log("score: " + score[0] + "-" + score[1]);
 			this.scoreUpdateCallback(score);

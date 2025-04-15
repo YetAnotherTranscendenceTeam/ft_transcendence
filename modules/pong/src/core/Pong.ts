@@ -140,14 +140,17 @@ export class Pong {
 		return this._accumulator / K.DT;
 	}
 
-	protected scoreUpdate(): Array<number> {
+	protected scoreUpdate(): {score: Array<number>, side: number} | null {
 		let scored: boolean = false;
+		let side: number = -1;
 		this._goals.forEach((goal: Goal) => {
 			if (goal.contact > 0) {
 				if (goal.position.x < 0) { // left goal
 					this._score[1]++;
+					side = 1;
 				} else { // right goal
 					this._score[0]++;
+					side = 0;
 				}
 				goal.resetContact();
 				scored = true;
@@ -165,7 +168,7 @@ export class Pong {
 		}
 		if (scored) {
 			this.roundStart();
-			return this._score;
+			return {score: this._score, side: side};
 		}
 		return null;
 	}
