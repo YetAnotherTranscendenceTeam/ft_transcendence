@@ -147,6 +147,7 @@ describe.each(tests)(
         team_names: [],
         players: Array.from({ length: player_count }, (_, index) => ({
           account_id: users[index].account_id,
+          profile: users[index].profile,
         })),
         mode: GameModes[gamemode],
         join_secret: `${gamemode}_${player_count}`,
@@ -241,7 +242,7 @@ describe.each(tests)(
               expect(match.team_ids.every((id) => id !== null)).toBe(true);
               expect(event.match.team_ids[matchIndex % 2]).toBe(match.team_ids[winnerIndex]);
             } else {
-              expect(event.match.match_id).toBeUndefined();
+              expect(event.match.match_id).toBe(null);
               expect(event.match.state).toBe("waiting");
               expect(event.match.team_ids.filter((id) => id === null).length).toBe(1);
               expect(event.match.team_ids[matchIndex % 2]).toBe(match.team_ids[winnerIndex]);
@@ -253,6 +254,26 @@ describe.each(tests)(
             match_update.team_ids = event.match.team_ids;
             match_update.scores = event.match.scores;
           });
+          const res = await request(apiURL)
+          .get(`/matchmaking/tournaments/${tournament.id}`)
+          .set("Authorization", `Bearer ${users[0].jwt}`)
+          expect(res.body).toMatchObject({
+            matches: tournament.matches,
+            teams: tournament.teams.map((team) => ({
+              players: team.players.map((player) => ({
+                account_id: player.account_id,
+                profile: {
+                  username: player.profile.username,
+                  avatar: player.profile.avatar,
+                  created_at: player.profile.created_at,
+                  account_id: player.profile.account_id,
+                },
+              })),
+              name: team.name,
+            })),
+            gamemode: tournament.gamemode,
+            id: tournament.id,
+          })
         }
       }
     );
