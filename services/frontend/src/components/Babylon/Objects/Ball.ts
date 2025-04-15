@@ -2,6 +2,7 @@ import { MeshBuilder, Mesh, Scene, StandardMaterial, Color3 } from "@babylonjs/c
 import '@babylonjs/loaders';
 import * as BABYLON from '@babylonjs/core';
 import * as PH2D from "physics-engine";
+import * as PONG from "pong";
 import { Vec2 } from "gl-matrix";
 
 export default class ClientBall {
@@ -14,7 +15,7 @@ export default class ClientBall {
 		this._physicsBody = physicsBody;
 		this._mesh = MeshBuilder.CreateSphere(
 			"ball",
-			{ diameter: 0.3 },
+			{ diameter: PONG.K.ballRadius * 2 },
 			this._scene
 		);
 		this._mesh.position = new BABYLON.Vector3(

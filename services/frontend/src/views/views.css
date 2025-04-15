@@ -8,3 +8,8 @@
 	position: relative;
 	box-sizing: border-box;
 }
+
+.local-view {
+	width: 100%;
+	height: 100%;
+}

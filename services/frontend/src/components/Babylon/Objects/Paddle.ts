@@ -2,6 +2,7 @@ import { MeshBuilder, Mesh, Scene, StandardMaterial, Color3 } from "@babylonjs/c
 import '@babylonjs/loaders';
 import * as BABYLON from '@babylonjs/core';
 import * as PH2D from "physics-engine";
+import * as PONG from "pong";
 import { Vec2 } from "gl-matrix";
 
 export default class ClientPaddle {
@@ -14,7 +15,7 @@ export default class ClientPaddle {
 		this._physicsBody = physicsBody;
 		this._mesh = MeshBuilder.CreateBox(
 			"paddle",
-			{ width: 0.2, height: 0.05, depth: 1 },
+			{ width: PONG.K.paddleSize.x, height: 0.05, depth: PONG.K.paddleSize.y },
 			this._scene
 		);
 		this._mesh.position = new BABYLON.Vector3(
@@ -36,7 +37,7 @@ export default class ClientPaddle {
 	}
 
 	public move(dir: number): void {
-		const speed = 1.5;
+		const speed = PONG.K.paddleSpeed;
 		this._physicsBody.velocity = new Vec2(0, dir * speed);
 	}
 

@@ -19,7 +19,7 @@ export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]:
 	if (!me)
 		return null;
 	
-	return <Card className={`profile-card left flex flex-col`} {...props}>
+	return <Card className={`profile-card left flex flex-col`} key='profile-card' {...props}>
 		<div className='profile-card-header flex items-center gap-2 justify-between pointer'>
 			<div
 				className='flex flex-row items-center gap-2'
