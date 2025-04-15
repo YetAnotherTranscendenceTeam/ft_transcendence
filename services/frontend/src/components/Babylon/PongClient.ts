@@ -7,14 +7,14 @@ import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/o
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { keyState, GameScene, scoredEvent } from "./types";
+import { KeyState, GameScene, ScoredEvent } from "./types";
 import * as PONG from "pong";
 
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket: WebSocket;
 	private _engine: Engine;
-	private _keyboard: Map<string, keyState>;
+	private _keyboard: Map<string, KeyState>;
 	private _babylonScene: Scene;
 	private _gameScene: GameScene;
 
@@ -26,20 +26,20 @@ export default class PongClient extends PONG.Pong {
 
 	private _running: number = 0;
 
-	public scoreUpdateCallback: (score: scoredEvent) => void;
+	public scoreUpdateCallback: (score: ScoredEvent) => void;
 
-	public constructor(scoreUpdateCallback: (score: scoredEvent) => void) {
+	public constructor(scoreUpdateCallback: (score: ScoredEvent) => void) {
 		super();
 		this._gameScene = GameScene.MENU;
 		this.scoreUpdateCallback = scoreUpdateCallback;
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
-		this._keyboard = new Map<string, keyState>();
-		this._keyboard.set("ArrowUp", keyState.IDLE);
-		this._keyboard.set("ArrowDown", keyState.IDLE);
-		this._keyboard.set("w", keyState.IDLE);
-		this._keyboard.set("s", keyState.IDLE);
-		this._keyboard.set("c", keyState.IDLE);
+		this._keyboard = new Map<string, KeyState>();
+		this._keyboard.set("ArrowUp", KeyState.IDLE);
+		this._keyboard.set("ArrowDown", KeyState.IDLE);
+		this._keyboard.set("w", KeyState.IDLE);
+		this._keyboard.set("s", KeyState.IDLE);
+		this._keyboard.set("c", KeyState.IDLE);
 
 		// (async () => {
 		// 	const audioEngine = new AudioEngine();
@@ -201,7 +201,7 @@ export default class PongClient extends PONG.Pong {
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
 		});
-		const score: scoredEvent = this.scoreUpdate();
+		const score: ScoredEvent = this.scoreUpdate();
 		if (score) {
 			console.log("score: " + score[0] + "-" + score[1]);
 			this.scoreUpdateCallback(score);
@@ -213,12 +213,12 @@ export default class PongClient extends PONG.Pong {
 		let paddle: ClientPaddle | undefined = this._paddleInstance.get(1);
 		if (paddle) {
 			let moveDirection: number = 0;
-			let keyStateProbe: keyState = this._keyboard.get("ArrowUp") || keyState.IDLE;
-			if (keyStateProbe === keyState.HELD || keyStateProbe === keyState.PRESSED) {
+			let keyStateProbe: KeyState = this._keyboard.get("ArrowUp") || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection += 1;
 			}
-			keyStateProbe = this._keyboard.get("ArrowDown") || keyState.IDLE;
-			if (keyStateProbe === keyState.HELD || keyStateProbe === keyState.PRESSED) {
+			keyStateProbe = this._keyboard.get("ArrowDown") || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection -= 1;
 			}
 			paddle.move(moveDirection);
@@ -227,12 +227,12 @@ export default class PongClient extends PONG.Pong {
 		paddle = this._paddleInstance.get(0);
 		if (paddle) {
 			let moveDirection: number = 0;
-			let keyStateProbe: keyState = this._keyboard.get("w") || keyState.IDLE;
-			if (keyStateProbe === keyState.HELD || keyStateProbe === keyState.PRESSED) {
+			let keyStateProbe: KeyState = this._keyboard.get("w") || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection += 1;
 			}
-			keyStateProbe = this._keyboard.get("s") || keyState.IDLE;
-			if (keyStateProbe === keyState.HELD || keyStateProbe === keyState.PRESSED) {
+			keyStateProbe = this._keyboard.get("s") || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection -= 1;
 			}
 			paddle.move(moveDirection);
@@ -260,10 +260,10 @@ export default class PongClient extends PONG.Pong {
 
 		if (this._keyboard.has(ev.key)) {
 			const keyStateProbe = this._keyboard.get(ev.key);
-			if (keyStateProbe === keyState.IDLE || keyStateProbe === keyState.RELEASED) {
-				this._keyboard.set(ev.key, keyState.PRESSED);
-			} else if (keyStateProbe === keyState.PRESSED) {
-				this._keyboard.set(ev.key, keyState.HELD);
+			if (keyStateProbe === KeyState.IDLE || keyStateProbe === KeyState.RELEASED) {
+				this._keyboard.set(ev.key, KeyState.PRESSED);
+			} else if (keyStateProbe === KeyState.PRESSED) {
+				this._keyboard.set(ev.key, KeyState.HELD);
 			}
 		}
 	}
@@ -273,10 +273,10 @@ export default class PongClient extends PONG.Pong {
 
 		if (this._keyboard.has(ev.key)) {
 			const keyStateProbe = this._keyboard.get(ev.key);
-			if (keyStateProbe === keyState.PRESSED || keyStateProbe === keyState.HELD) {
-				this._keyboard.set(ev.key, keyState.RELEASED);
-			} else if (keyStateProbe === keyState.RELEASED) {
-				this._keyboard.set(ev.key, keyState.IDLE);
+			if (keyStateProbe === KeyState.PRESSED || keyStateProbe === KeyState.HELD) {
+				this._keyboard.set(ev.key, KeyState.RELEASED);
+			} else if (keyStateProbe === KeyState.RELEASED) {
+				this._keyboard.set(ev.key, KeyState.IDLE);
 			}
 		}
 	}
