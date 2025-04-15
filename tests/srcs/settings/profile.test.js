@@ -100,14 +100,14 @@ describe('Settings Router', () => {
         .patch("/settings/profile")
         .set('Authorization', `Bearer ${users[0].jwt}`)
         .send({ username: newUsername, extraField: "shouldNotBeAllowed" })
-        .expect(204);
+        .expect(400);
 
         const response = await request(apiURL)
         .get("/me")
         .set('Authorization', `Bearer ${users[0].jwt}`)
         .expect(200);
 
-      expect(response.body.username).toBe(newUsername);
+      expect(response.body.username).toBe("newUsername2");
     });
 
     it("send empty object", async () => {

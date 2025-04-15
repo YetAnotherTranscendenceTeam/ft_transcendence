@@ -203,7 +203,7 @@ export default function router(fastify, opts, done) {
     },
     response: {
       204: {
-        description: "Sucess"
+        description: "Success"
       }
     }
   };
