@@ -187,7 +187,7 @@ export class Tournament {
   gamemode;
 
   constructor(teams, gamemode, manager) {
-    this.teams = teams.forEach((team, index) => {
+    teams.forEach((team, index) => {
       team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
     this.teams = teams.sort(
