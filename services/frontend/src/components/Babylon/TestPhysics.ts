@@ -4,7 +4,6 @@ import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import createDefaultScene from "./DefaultScene";
 
 let oldPos: Vec2 = undefined;
 export default class TestPhysics {
