@@ -205,7 +205,7 @@ export default class PongClient extends PONG.Pong {
 		if (score) {
 			console.log("score: " + score[0] + "-" + score[1]);
 			this.scoreUpdateCallback(score);
-			// this._running = 0;
+			this._running = 0;
 		}
 	}
 
