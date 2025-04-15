@@ -81,7 +81,7 @@ db.exec(`
     AFTER UPDATE ON tournaments
     FOR EACH ROW
     BEGIN
-      UPDATE tournament SET updated_at = CURRENT_TIMESTAMP where tournament_id = OLD.tournament_id;
+      UPDATE tournaments SET updated_at = CURRENT_TIMESTAMP where tournament_id = OLD.tournament_id;
     END;
   `);
 
