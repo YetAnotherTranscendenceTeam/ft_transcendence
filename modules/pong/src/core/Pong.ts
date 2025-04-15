@@ -115,6 +115,9 @@ export class Pong {
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
 		this.initialBallVelocity();
+		for (const paddle of this._paddles.values()) {
+			paddle.position[1] = 0;
+		}
 	}
 
 	public shouldUpdate(): boolean {
@@ -127,10 +130,7 @@ export class Pong {
 			this._accumulator = 0.2;
 		}
 		while (this._accumulator >= K.DT) {
-			// const start = performance.now();
 			this._physicsScene.step();
-			// const end = performance.now();
-			// console.log("step time: " + (end - start) + "ms");
 			this._accumulator -= K.DT;
 		}
 		this._paddles.forEach((paddle: PH2D.Body) => { // block paddle movement with walls
@@ -178,8 +178,8 @@ export class Pong {
 
 	private initialBallVelocity() {
 		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		const angle: number = Math.random() * Math.PI / 3 - Math.PI / 6; // random angle between -30 and 30 degrees
-		const x: number = dir === 0 ? -1 : 1; // direction of the ball
+		const angle: number = Math.random() * 20 * Math.PI / 180; // random angle between -20 and 20 degrees
+		const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		const ballVelocity: Vec2 = new Vec2(x, y);
 		this._balls[0].setDirection(ballVelocity);

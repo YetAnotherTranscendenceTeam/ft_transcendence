@@ -31,10 +31,7 @@ export class Scene {
 	public step(): void {
 		this._contact = [];
 
-		// const start = performance.now();
-
 		const substepDT = this._dt / this._substeps;
-		console.log("substep", substepDT);
 		for (let substep = 0; substep < this._substeps; substep++) {
 
 			for (let i = 0; i < this._bodies.length; i++) {
@@ -80,9 +77,6 @@ export class Scene {
 			}
 
 		}
-
-		// const end = performance.now();
-		// console.log(`Step time ${end - start} milliseconds. Substeps: ${this._substeps}`);
 	}
 
 	public clear(): void {
