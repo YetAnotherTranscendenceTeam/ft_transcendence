@@ -1,3 +1,79 @@
 .scores {
+	padding: 0;
+	overflow: hidden;
+	margin-top: 16px;
+}
+
+.scores .score {
+	font-size: xx-large;
+	padding: 16px;
+}
+
+.scores .score:nth-child(1) {
+	border-left: 4px solid var(--team-1-color);
+}
+.scores .score:nth-child(3) {
+	border-right: 4px solid var(--team-2-color);
+}
+
+.scores .time {
+	font-size: medium;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 50px;
+	color: var(--fg-3);
+}
+
+
+/* local start modal */
+
+.local-start-modal {
+	top: 0;
+	left: 0;
+	height: 100dvh;
+	width: 100dvw;
+	position: absolute;
+	background-color: color-mix(in srgb, var(--bg-1), transparent 50%);
+	display: flex;
+}
+
+.local-start-modal h1 {
+	font-size: x-large;
+	font-weight: bold;
+	text-align: center;
+}
+
+.local-start-modal h2 {
+	font-size: medium;
+	font-weight: bold;
+}
+
+
+.local-start-modal .player-hint {
+	position: absolute;
+	background-color: var(--bg-2);
+	padding: 16px;
+	box-sizing: border-box;
+	border-radius: 8px;
+	top: 50%;
 	width: fit-content;
+	color: var(--fg-1);
+	transform: translateY(-50%);
+}
+
+.local-start-modal .player-hint:nth-child(1) {
+	left: 32px;
+}
+
+.local-start-modal .player-hint:nth-child(2) {
+	right: 32px;
+}
+
+
+.local-start-modal p {
+	display: flex;
+	align-items: center;
+	gap: 4px;
 }

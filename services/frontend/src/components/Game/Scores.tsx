@@ -1,5 +1,6 @@
 import Babact from "babact";
 import Card from "../../ui/Card";
+import './game.css'
 
 export default function Scores({
 		scores,
@@ -25,15 +26,15 @@ export default function Scores({
 		return () => clearInterval(interval);
 	}, [startTime]);
 
-	return <Card>
-		<div className="flex flex-row gap-2">
-			<div>
+	return <Card className='scores'>
+		<div className="flex flex-row gap-2 items-center">
+			<div className='score'>
 				{scores[0]}
 			</div>
-			<div>
-				{Math.round(deltaTime / 60)} : {Math.round(deltaTime % 60)}
+			<div className='time'>
+				{Math.round(deltaTime / 60).toString().padStart(2, '0')} : {Math.round(deltaTime % 60).toString().padStart(2, '0')}
 			</div>
-			<div>
+			<div className='score'>
 				{scores[1]}
 			</div>
 		</div>
