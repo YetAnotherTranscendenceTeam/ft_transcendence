@@ -194,7 +194,10 @@ export default class PongClient extends PONG.Pong {
 		}
 
 		this.playerUpdate();
+		const startTime: number = performance.now();
 		dt = this.physicsUpdate(dt);
+		const endTime: number = performance.now();
+		console.log("Physics update time: " + (endTime - startTime) + "ms");
 		this._paddleInstance.forEach((paddle: ClientPaddle) => {
 			paddle.update(dt);
 		});

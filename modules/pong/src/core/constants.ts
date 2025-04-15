@@ -55,7 +55,7 @@ export const ballSpeedMin = 0.5;
 export const ballSpeedMax = 2;
 export const ballRadius = 0.2;
 
-export const defaultBallSpeed = 4;
+export const defaultBallSpeed = 6;
 export const paddleSpeed = 2;
 export const defaultPointsToWin = 5;
 

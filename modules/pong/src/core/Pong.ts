@@ -30,7 +30,7 @@ export class Pong {
 	protected _score: number[];
 
 	public constructor() {
-		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT);
+		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, 5);
 	}
 
 	public toJSON() {
@@ -127,7 +127,10 @@ export class Pong {
 			this._accumulator = 0.2;
 		}
 		while (this._accumulator >= K.DT) {
+			// const start = performance.now();
 			this._physicsScene.step();
+			// const end = performance.now();
+			// console.log("step time: " + (end - start) + "ms");
 			this._accumulator -= K.DT;
 		}
 		this._paddles.forEach((paddle: PH2D.Body) => { // block paddle movement with walls
