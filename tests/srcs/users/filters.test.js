@@ -120,46 +120,29 @@ describe("USERS: GET /", () => {
     });
   });
 
+
   describe("username:match", () => {
-    it("one filter", async () => {
-      const index = Math.floor(Math.random() * (users.length - 1));
-      const username = users[index].username;
-      const response = await request(apiURL)
-        .get(`/users?filter[username]=${username}`)
-        .set('Authorization', `Bearer ${users[0].jwt}`);
+    const patterns = ["a", "b", "mm" , "MM", "m-" , "UMMY-a", "UMMY-b", "UMMY-c", "UMMY-d", "UMMY-A", "UMMY-B", "UMMY-C", "UMMY-D", "ff"]
 
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual([
-        expect.objectContaining({
-          account_id: users[index].account_id,
-          username: users[index].username,
-          avatar: expect.any(String),
-          created_at: expect.any(String),
-          updated_at: expect.any(String),
-        }),
-      ]);
-    });
+    for (const pattern of patterns) {
+      it(`substring pattern ${pattern}`, async () => {
+        const response = await request(apiURL)
+          .get(`/users`)
+          .query({ filter: { "username:match": pattern } })
+          .set('Authorization', `Bearer ${users[0].jwt}`);
 
-    it("multiple filters", async () => {
-      const indexes = [5, 2, 25];
-      const response = await request(apiURL)
-        .get(`/users?filter[username]=${indexes.map(i => users[i].username).join(",")}`)
-        .set('Authorization', `Bearer ${users[0].jwt}`);
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toEqual(
-        expect.arrayContaining(
-          indexes.map(i => {
-            return expect.objectContaining({
-              account_id: users[i].account_id,
-              username: users[i].username,
+        expect(response.statusCode).toBe(200);
+        response.body.forEach(element => {
+          expect(element).toEqual(
+            expect.objectContaining({
+              account_id: expect.any(Number),
+              username: expect.stringMatching(new RegExp(pattern, "i")),
               avatar: expect.any(String),
               created_at: expect.any(String),
               updated_at: expect.any(String),
-            })
-          })
-        )
-      );
-    });
+            }));
+        });
+      });
+    }
   });
 });
