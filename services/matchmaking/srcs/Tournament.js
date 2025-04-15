@@ -46,16 +46,24 @@ class TournamentPlayer {
 class TournamentMatch {
   state = TournamentMatchState.WAITING;
   stage;
-  index;
-  team_ids = [];
+  index = 0;
+  team_ids = [null, null];
   tournament;
   nextMatch = null;
+
+  // the team_ids index in which the winner of this match will be inserted into
+  nextMatchTeamIndex = 0;
   internal_match = null;
 
-  constructor(tournament, stage, nextMatch) {
+  constructor(tournament, stage, nextMatch, nextMatchTeamIndex) {
+    this.nextMatchTeamIndex = nextMatchTeamIndex;
     this.tournament = tournament;
     this.stage = stage;
     this.nextMatch = nextMatch;
+  }
+
+  shouldStart() {
+    return this.team_ids.every((team_id) => team_id !== null);
   }
 
   setState(state) {
@@ -100,8 +108,8 @@ class TournamentMatch {
         this.tournament.finish();
         return;
       }
-      this.nextMatch.team_ids.push(this.team_ids[winner_team]);
-      if (this.nextMatch.team_ids.length == 2)
+      this.nextMatch.team_ids[this.nextMatchTeamIndex] = this.team_ids[winner_team];
+      if (this.nextMatch.shouldStart())
         this.nextMatch.setState(TournamentMatchState.PLAYING);
       else
         this.tournament.broadcast("match_update", {
@@ -150,7 +158,7 @@ export class Tournament {
     for (let stage = 0; stage < stageCount; stage++) {
       const stageMatches = [];
       for (let i = 0; i < stageMatchCount; i++) {
-        const match = new TournamentMatch(this, stage, previousStage ? previousStage[Math.floor(i / 2)] : null, []);
+        const match = new TournamentMatch(this, stage, previousStage ? previousStage[Math.floor(i / 2)] : null, i % 2);
         stageMatches.push(match);
       }
       stages.push(stageMatches);
@@ -169,8 +177,8 @@ export class Tournament {
       if (team2Index >= this.teams.length) {
         // remove this match and advance the single team to the next stage
         if (match.nextMatch) {
-          match.nextMatch.team_ids.push(teamIndex);
-          if (match.nextMatch.team_ids.length == 2)
+          match.nextMatch.team_ids[match.nextMatchTeamIndex] = teamIndex;
+          if (match.nextMatch.shouldStart())
             match.nextMatch.setState(TournamentMatchState.PLAYING);
         }
         previousStage[i] = null;
