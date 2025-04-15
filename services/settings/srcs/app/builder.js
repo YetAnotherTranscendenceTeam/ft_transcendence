@@ -2,6 +2,8 @@
 
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import Ajv from "ajv";
+import addFormats from "ajv-formats";
 import jwt from "@fastify/jwt";
 import JwtGenerator from "yatt-jwt";
 import bearerAuth from "@fastify/bearer-auth";
@@ -21,6 +23,18 @@ export default function build(opts = {}) {
     maxAge: 600,
   });
 
+  app.register(jwt, { secret: AUTHENTICATION_SECRET });
+  app.register(jwt, { secret: TOKEN_MANAGER_SECRET, namespace: "token_manager" });
+  app.decorate("tokens", new JwtGenerator());
+  app.addHook('onReady', async function () {
+    this.tokens.register(app.jwt.token_manager, "token_manager");
+  });
+
+  // Setup shema compiler
+  const ajv = new Ajv();
+  addFormats(ajv);
+  app.setValidatorCompiler(({ schema }) => ajv.compile(schema));
+
   const serviceAuthorization = (token, request) => {
     try {
       const decoded = app.jwt.verify(token);
@@ -33,6 +47,7 @@ export default function build(opts = {}) {
     return true;
   };
 
+
   app.register(bearerAuth, {
     auth: serviceAuthorization,
     addHook: true,
@@ -40,13 +55,6 @@ export default function build(opts = {}) {
       return new HttpError.Unauthorized().json();
     },
   });
-
-  app.register(jwt, { secret: AUTHENTICATION_SECRET });
-  app.register(jwt, { secret: TOKEN_MANAGER_SECRET, namespace: "token_manager" });
-  app.decorate("tokens", new JwtGenerator());
-  app.addHook('onReady', async function () {
-    this.tokens.register(app.jwt.token_manager, "token_manager");
-  })
 
   app.register(formbody);
   app.register(cookie);

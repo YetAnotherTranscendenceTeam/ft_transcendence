@@ -58,23 +58,35 @@ export default function router(fastify, opts, done) {
     return account;
   });
 
+  schema = {
+    body: {
+      type: "object",
+      properties: {
+        email: properties.email,
+        google_id: properties.google_id,
+      },
+      required: ["email", "google_id"],
+      additionalProperties: false,
+    }
+  }
+
   // Create a google_id based account
-  fastify.post("/google", async function handler(request, reply) {
+  fastify.post("/google", { schema }, async function handler(request, reply) {
     const { email, google_id } = request.body;
 
     try {
       const result = db.transaction(() => {
         const accountId = db.prepare(`
-            INSERT INTO accounts (email, auth_method)
-            VALUES (?, 'google_auth')
-            RETURNING account_id
-          `).get(email);
+          INSERT INTO accounts (email, auth_method)
+          VALUES (?, 'google_auth')
+          RETURNING account_id
+        `).get(email);
 
         return db.prepare(`
-            INSERT INTO google_auth (account_id, google_id)
-            VALUES (?, ?)
-            RETURNING *
-          `).get(accountId.account_id, google_id);
+          INSERT INTO google_auth (account_id, google_id)
+          VALUES (?, ?)
+          RETURNING *
+        `).get(accountId.account_id, google_id);
       })();
       await createProfile(result.account_id);
       reply.status(201).send(result);

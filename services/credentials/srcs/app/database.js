@@ -55,3 +55,15 @@ db.exec(`
 `);
 
 export default db;
+
+export const updatePassword = db.prepare(`
+  UPDATE password_auth
+  SET hash = ?, salt = ?
+  WHERE account_id = ?
+`);
+
+export const updateEmail = db.prepare(`
+  UPDATE accounts 
+  SET email = ? 
+  WHERE account_id = ?
+`);

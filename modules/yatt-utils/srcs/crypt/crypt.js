@@ -13,8 +13,9 @@ function generateSalt() {
  * @param {string} password - The password to hash
  * @returns {{hash: string, salt: string}} The resuling hash and it's associated salt
  */
-export async function hashPassword(password, pepper) {
-  const salt = generateSalt();
+export async function hashPassword(password, pepper, salt) {
+  salt ??= generateSalt();
+
   const derivedKey = await new Promise((resolve, reject) => {
     crypto.scrypt(password + pepper, salt, 64, (err, derivedKey) => {
       if (err) reject(err);
