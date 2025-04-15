@@ -105,28 +105,16 @@ export class Pong {
 		this._state = PongState.PLAYING;
 
 		// Ball reset and initial velocity
-		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
-		const x: number = dir === 0 ? -1 : 1; // direction of the ball
-		const y: number = Math.sin(angle); // vertical component of the ball's velocity
-		const ballVelocity: Vec2 = new Vec2(x, y);
-		this._balls[0].setDirection(ballVelocity);
-		this._balls[0].speed = K.defaultBallSpeed;
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
+		this.initialBallVelocity();
 	}
 
 	protected roundStart() {
 		// Ball reset and initial velocity
-		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		const angle: number = Math.random() * Math.PI / 2 - Math.PI / 4; // random angle between -45 and 45 degrees
-		const x: number = dir === 0 ? -1 : 1; // direction of the ball
-		const y: number = Math.sin(angle); // vertical component of the ball's velocity
-		const ballVelocity: Vec2 = new Vec2(x, y);
-		this._balls[0].setDirection(ballVelocity);
-		this._balls[0].speed = K.defaultBallSpeed;
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
+		this.initialBallVelocity();
 	}
 
 	public shouldUpdate(): boolean {
@@ -180,5 +168,15 @@ export class Pong {
 			return this._score;
 		}
 		return null;
+	}
+
+	private initialBallVelocity() {
+		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
+		const angle: number = Math.random() * Math.PI / 3 - Math.PI / 6; // random angle between -30 and 30 degrees
+		const x: number = dir === 0 ? -1 : 1; // direction of the ball
+		const y: number = Math.sin(angle); // vertical component of the ball's velocity
+		const ballVelocity: Vec2 = new Vec2(x, y);
+		this._balls[0].setDirection(ballVelocity);
+		this._balls[0].speed = K.defaultBallSpeed;
 	}
 }
