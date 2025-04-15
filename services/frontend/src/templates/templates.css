@@ -14,7 +14,11 @@
 	height: calc(100vh - var(--header-height));
 }
 
-.template-overlay {
+.overlay.hidden .template-content{
+	--header-height: 0px;
+}
+
+.template-modal {
 	position: absolute;
 	top: 0;
 	height: 0;
@@ -24,8 +28,19 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	color: var(--fg-1);
+	animation: fadeIn 0.2s ease-in-out;
 }
 
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+
+}
 
 .header {
 	pointer-events: initial;
@@ -34,6 +49,12 @@
 	left: 0;
 	width: 100vw;
 	height: 64px;
+	transform: translateY(0);
+	transition: transform 0.4s;
+}
+
+.overlay.hidden .header {
+	transform: translateY(-150%);
 }
 
 .aside {
@@ -48,4 +69,9 @@
 	padding: 16px;
 	box-sizing: border-box;
 	overflow: auto;
+	transition: transform 0.4s;
+}
+
+.overlay.hidden .aside {
+	transform: translateX(100%);
 }
