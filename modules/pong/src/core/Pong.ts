@@ -6,6 +6,7 @@ import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import { ballCollision } from "./Behaviors.js";
+import { MapSide } from "./types.js";
 
 export enum PongState {
 	RESERVED = "reserved",
@@ -28,6 +29,7 @@ export class Pong {
 	protected _goals: Map<number, Goal> = new Map();
 
 	protected _score: number[];
+	protected _lastSide: MapSide;
 
 	public constructor() {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, 5);
@@ -143,17 +145,16 @@ export class Pong {
 		return this._accumulator / K.DT;
 	}
 
-	protected scoreUpdate(): {score: Array<number>, side: number} | null {
+	protected scoreUpdate(): boolean {
 		let scored: boolean = false;
-		let side: number = -1;
 		this._goals.forEach((goal: Goal) => {
 			if (goal.contact > 0) {
 				if (goal.position.x < 0) { // left goal
 					this._score[1]++;
-					side = 1;
+					this._lastSide = MapSide.RIGHT;
 				} else { // right goal
 					this._score[0]++;
-					side = 0;
+					this._lastSide = MapSide.LEFT;
 				}
 				goal.resetContact();
 				scored = true;
@@ -171,9 +172,9 @@ export class Pong {
 		}
 		if (scored) {
 			this.roundStart();
-			return {score: this._score, side: side};
+			return true;
 		}
-		return null;
+		return false;
 	}
 
 	private initialBallVelocity() {

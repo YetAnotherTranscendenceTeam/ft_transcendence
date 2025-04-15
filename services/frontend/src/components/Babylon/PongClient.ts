@@ -201,10 +201,9 @@ export default class PongClient extends PONG.Pong {
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
 		});
-		const score: scoredEvent = this.scoreUpdate();
-		if (score) {
-			console.log("score: " + score[0] + "-" + score[1]);
-			this.scoreUpdateCallback(score);
+		if (this.scoreUpdate()) {
+			console.log("score: " + this._score[0] + "-" + this._score[1]);
+			this.scoreUpdateCallback({ score: this._score, side: this._lastSide });
 			this._running = 0;
 		}
 	}
