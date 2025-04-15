@@ -11,3 +11,8 @@ export enum GameScene {
 	ONLINE,
 	LOCAL,
 }
+
+export interface scoredEvent {
+	score: Array<number>;
+	side: number;
+}
