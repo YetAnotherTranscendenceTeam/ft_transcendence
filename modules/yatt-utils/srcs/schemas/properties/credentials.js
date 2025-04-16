@@ -51,6 +51,14 @@ const credentialsProperties = {
     minimum: 1,
     description: "The google id associated with the account",
   },
+
+  twofactor_code: {
+    type: "string",
+    minLength: 6,
+    maxLength: 6,
+    description: "A unique code generated via two-factor authentication",
+    pattern: "^[0-9]{6}$",
+  }
 };
 
 export default credentialsProperties;
