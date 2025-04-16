@@ -185,6 +185,16 @@
 	--primary-color-60: var(--success-color-60);
 }
 
+.card.team1::after {
+	--primary-color: var(--team-1-color);
+	--primary-color-60: var(--team-1-color-60);
+}
+
+.card.team2::after {
+	--primary-color: var(--team-2-color);
+	--primary-color-60: var(--team-2-color-60);
+}
+
 /* ================================== */
 /* ============ Avatar ============== */
 /* ================================== */
@@ -679,3 +689,45 @@
 .editable input:disabled {
 	cursor: default;
 }
+
+
+/* ================================== */
+/* ============== Key =============== */
+/* ================================== */
+
+.key {
+	--key-color: rgb(107, 107, 107);
+	--key-shadow: rgb(56, 56, 56);
+	--key-ligth: rgb(136, 136, 136);
+	width: fit-content;
+	background-color: var(--key-color);
+	border-bottom: 4px solid var(--key-shadow);
+	border-right: 4px solid var(--key-shadow);
+	border-top: 3px solid var(--key-ligth);
+	border-left: 3px solid var(--key-ligth);
+	border-radius: 4px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.key p {
+	/* aspect-ratio: 1/1; */
+	min-width: 16px;
+	height: 16px;
+	text-align: center;
+	padding: 6px;
+	color: var(--fg-1);
+	border-radius: 2px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.key.pressed {
+	border-top: 4px solid var(--key-shadow);
+	border-left: 4px solid var(--key-shadow);
+	border-right: 3px solid var(--key-ligth);
+	border-bottom: 3px solid var(--key-ligth);
+}
+

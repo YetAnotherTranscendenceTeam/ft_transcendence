@@ -5,6 +5,8 @@ import getInfos from "../utils/getInfos.js";
 import YATT from "../../../../modules/yatt-utils/srcs/index.js";
 
 export default function router(fastify, opts, done) {
+  const filtersKeys = ["username", "username:match", "account_id", "account_id:not"];
+
   let schema = {
     querystring: {
       type: "object",
@@ -13,11 +15,7 @@ export default function router(fastify, opts, done) {
         offset: properties.offset,
         filter: {
           type: "object",
-          properties: {
-            "username": { type: "string" },
-            "username:match": { type: "string" },
-            "account_id:not": { type: "string" }
-          },
+          properties: Object.fromEntries(filtersKeys.map(key => [key, { type: "string" }])),
           additionalProperties: false,
         }
       },
@@ -32,16 +30,12 @@ export default function router(fastify, opts, done) {
     url.searchParams.append('limit', limit);
     url.searchParams.append('offset', offset);
 
-    if (filter.username) {
-      url.searchParams.append('filter[username]', filter.username);
-    }
-    if (filter["username:match"]) {
-      url.searchParams.append('filter[username:match]', filter["username:match"]);
-    }
-    if (filter["account_id:not"]) {
-      url.searchParams.append('filter[account_id:not]', filter["account_id:not"]);
-    }
-    console.log(url.toString())
+    filtersKeys.forEach(property => {
+      if (filter[property]) {
+        url.searchParams.append(`filter[${property}]`, filter[property]);
+      }
+    })
+  
     const users = await YATT.fetch(url.toString());
     reply.send(users);
   });

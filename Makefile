@@ -9,11 +9,14 @@ override MODULES = \
 	yatt-utils \
 	yatt-ws \
 	yatt-sse \
+	yatt-jwt \
 
 override TS_MODULES = \
 	babact \
 	babact-router-dom \
 	yatt-lobbies \
+	physics-engine \
+	pong \
 
 SERVICES_DEPS = $(patsubst %, services/%/node_modules, $(SERVICES))
 MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(MODULES))
@@ -42,15 +45,25 @@ $(SSL_CERTIFICATE):
 		-keyout secrets/localhost.key \
 		-subj "/C=FR/ST=Rhone-Alpes/L=Lyon/O=YATT/OU=IT Department/CN=www.localhost.com"
 
-fclean:
-	rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
-	rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
-	rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
-	rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
-
 test:
 ifeq ($(ENV),production)
 	$(error Tests cannot be run in production environment)
 else
 	npm --prefix ./tests run test
 endif
+
+clean-modules:
+	rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
+	rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
+	rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
+
+clean-services:
+	rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
+
+clean-db:
+	rm $$HOME/goinfre/docker/volumes/ft_transcendence_sqlite/_data/*
+
+fclean:
+	$(MAKE) clean-modules
+	$(MAKE) clean-services
+	$(MAKE) clean-db

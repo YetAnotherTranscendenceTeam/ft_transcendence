@@ -29,7 +29,7 @@ describe('GET / route', () => {
     const testUsername = 'e';
     const response = await request(profilesURL)
       .get('/')
-      .query({ filter: { username: testUsername } })
+      .query({ filter: { "username:match": testUsername } })
       .expect(200);
 
     expect(Array.isArray(response.body)).toBeTruthy();
@@ -42,7 +42,7 @@ describe('GET / route', () => {
     const testUsername = 'ee';
     const response = await request(profilesURL)
       .get('/')
-      .query({ filter: { username: testUsername } })
+      .query({ filter: { "username:match": testUsername } })
       .expect(200);
 
     expect(Array.isArray(response.body)).toBeTruthy();
@@ -59,5 +59,150 @@ describe('GET / route', () => {
 
     expect(Array.isArray(response.body)).toBeTruthy();
     expect(response.body.length).toBe(0);
-  }, 10000);
+  });
+
+  it('specific username', async () => {
+    const user = users[5];
+    const response = await request(profilesURL)
+      .get('/')
+      .query({ filter: { username: user.username } })
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body).toEqual([
+      expect.objectContaining({
+        account_id: user.account_id,
+        username: user.username,
+        avatar: expect.any(String),
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+      })
+    ]);
+  });
+
+  it('multiple usernames', async () => {
+    const indexes = [5, 12, 2];
+    const response = await request(profilesURL)
+      .get('/')
+      .query({ filter: { username: indexes.map(i => users[i].username).join(",") } })
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body).toEqual(
+      expect.arrayContaining(
+        indexes.map(i => {
+          return expect.objectContaining({
+            account_id: users[i].account_id,
+            username: users[i].username,
+            avatar: expect.any(String),
+            created_at: expect.any(String),
+            updated_at: expect.any(String),
+          })
+        })
+      )
+    )
+  });
+
+  it('filter by account_id', async () => {
+    const user = users[18];
+    const response = await request(profilesURL)
+      .get('/')
+      .query({ filter: { account_id: user.account_id } })
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body).toEqual([
+      expect.objectContaining({
+        account_id: user.account_id,
+        username: user.username,
+        avatar: expect.any(String),
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+      })
+    ]);
+  });
+
+  it('filter by multiple account_id', async () => {
+    const indexes = [5, 12, 2];
+    const response = await request(profilesURL)
+      .get('/')
+      .query({ filter: { account_id: indexes.map(i => users[i].account_id).join(",") } })
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body).toEqual(
+      expect.arrayContaining(
+        indexes.map(i => {
+          return expect.objectContaining({
+            account_id: users[i].account_id,
+            username: users[i].username,
+            avatar: expect.any(String),
+            created_at: expect.any(String),
+            updated_at: expect.any(String),
+          })
+        })
+      )
+    )
+  });
+
+  it('filter by account_id:not', async () => {
+    const user = users[18];
+    const response = await request(profilesURL)
+      .get('/')
+      .query({ limit: 100, filter: { "account_id:not": user.account_id } })
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body).not.toEqual([
+      expect.objectContaining({
+        account_id: user.account_id,
+        username: user.username,
+        avatar: expect.any(String),
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+      })
+    ]);
+  });
+
+  it('filter by multiple account_id:not', async () => {
+    const response = await request(profilesURL)
+      .get('/')
+      .query({ filter: { account_id: users.map(u => u.account_id).join(",") } })
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body).not.toEqual(
+      expect.arrayContaining(
+        users.map(u => {
+          return expect.objectContaining({
+            account_id: u.account_id,
+            username: u.username,
+            avatar: expect.any(String),
+            created_at: expect.any(String),
+            updated_at: expect.any(String),
+          })
+        })
+      )
+    )
+  });
+
+  it('filter by account_id:not', async () => {
+    const user = users[18];
+    const response = await request(profilesURL)
+      .get('/')
+      .query({ limit: 100, filter: { "account_id:not": user.account_id } })
+      .expect(200);
+
+    expect(Array.isArray(response.body)).toBeTruthy();
+    expect(response.body).not.toEqual([
+      expect.objectContaining({
+        account_id: user.account_id,
+        username: user.username,
+        avatar: expect.any(String),
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+      })
+    ]);
+  });
+
 });

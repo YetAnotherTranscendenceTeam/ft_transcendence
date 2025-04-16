@@ -1,19 +1,19 @@
 "use strict";
 
-export const frontend_url = process.env.FRONTEND_URL;
-if (!frontend_url) {
+export const FRONTEND_URL = process.env.FRONTEND_URL;
+if (!FRONTEND_URL) {
   console.error("Missing environment variable: FRONTEND_URL");
   process.exit(1);
 }
 
-export const token_manager_secret = process.env.TOKEN_MANAGER_SECRET;
-if (!token_manager_secret) {
+export const TOKEN_MANAGER_SECRET = process.env.TOKEN_MANAGER_SECRET;
+if (!TOKEN_MANAGER_SECRET) {
   console.error("Missing environment variable: TOKEN_MANAGER_SECRET");
   process.exit(1);
 }
 
-export const google_client_id = process.env.GOOGLE_CLIENT_ID;
-if (!google_client_id) {
+export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+if (!GOOGLE_CLIENT_ID) {
   console.error("Missing environment variable: GOOGLE_CLIENT_ID");
   process.exit(1);
 }

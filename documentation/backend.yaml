@@ -64,7 +64,7 @@ components:
       description: A profile picture URI
       type: string
       example: https://example.com/image.jpg
-  
+
     limit:
       type: integer
       minimum: 1
@@ -169,16 +169,16 @@ paths:
       tags:
         - Token
       parameters:
-      - in: cookie
-        name: refresh_token
-        schema:
-          type: string
-        required: true
-        description: HTTP-only cookie containing the refresh_token
+        - in: cookie
+          name: refresh_token
+          schema:
+            type: string
+          required: true
+          description: HTTP-only cookie containing the refresh_token
       responses:
         200:
           $ref: "#/components/responses/AuthSuccess"
-  
+
   /token/revoke:
     post:
       summary: revoke token
@@ -186,12 +186,12 @@ paths:
       tags:
         - Token
       parameters:
-      - in: cookie
-        name: refresh_token
-        schema:
-          type: string
-        required: true
-        description: HTTP-only cookie containing the refresh_token
+        - in: cookie
+          name: refresh_token
+          schema:
+            type: string
+          required: true
+          description: HTTP-only cookie containing the refresh_token
       responses:
         204:
           description: Revoked successfully
@@ -224,7 +224,6 @@ paths:
         401:
           description: Authentication failure
 
-
   /auth/fortytwo:
     get:
       summary: 42API remote auth
@@ -248,7 +247,7 @@ paths:
             Location:
               schema:
                 type: string
-              description: URL to redirect to, including `access_token` and `expire_at` parameters for a sucessfull authentication or `statusCode` `code` `error` `message` in case of error
+              description: URL to redirect to, including `access_token` and `expire_at` parameters for a successfull authentication or `statusCode` `code` `error` `message` in case of error
 
   /me:
     get:
@@ -258,7 +257,7 @@ paths:
         - Users
       responses:
         204:
-          description: Sucess
+          description: Success
       security:
         - BearerAuth: []
 
@@ -312,7 +311,7 @@ paths:
               description: Base64 encoded image data
       responses:
         204:
-          description: Sucess
+          description: Success
           content:
             application/json:
               schema:
@@ -320,7 +319,7 @@ paths:
                 properties:
                   url:
                     type: string
-                    example: 'https://example.com/avatars/user123.jpg'
+                    example: "https://example.com/avatars/user123.jpg"
         403:
           description: Avatar limit reached
       security:
@@ -357,11 +356,11 @@ paths:
         - in: query
           name: limit
           schema:
-            $ref: '#/components/schemas/limit'
+            $ref: "#/components/schemas/limit"
         - in: query
           name: offset
           schema:
-            $ref: '#/components/schemas/offset'
+            $ref: "#/components/schemas/offset"
         - in: query
           name: filter[username]
           schema:
@@ -371,16 +370,26 @@ paths:
           name: filter[username:match]
           schema:
             type: string
-          description: Filters results to include users whose usernames contain the specified string. Allows partial matches and is case-insensitive.
+          description: Filters results to include users whose usernames contain the specified string. Allows partial matches and is case-insensitive
+        - in: query
+          name: filter[account_id]
+          schema:
+            type: string
+          description: Filters results to include users with account_id
+        - in: query
+          name: filter[account_id:not]
+          schema:
+            type: string
+          description: Filters results to exclude users with account_id
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
-            application/json:    
+            application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/user'
+                  $ref: "#/components/schemas/user"
       security:
         - BearerAuth: []
 
@@ -394,7 +403,7 @@ paths:
         - $ref: "#/components/parameters/account_id"
       responses:
         204:
-          description: Sucess
+          description: Success
         404:
           $ref: "#/components/responses/AccountNotFound"
       security:
@@ -431,7 +440,7 @@ paths:
                     created_at: "2025-03-12T09:45:00Z"
       security:
         - BearerAuth: []
-  
+
   /social/follows/{account_id}:
     post:
       summary: follow account
@@ -453,7 +462,7 @@ paths:
         404:
           description: Account not found
         403:
-          description: Invalid 
+          description: Invalid
           content:
             application/json:
               schema:
@@ -500,7 +509,7 @@ paths:
           description: Not following this account
       security:
         - bearerAuth: []
-  
+
   /social/notify:
     get:
       parameters:
@@ -521,7 +530,6 @@ paths:
         101:
           description: Switching Protocol
 
-
   /settings/profile:
     patch:
       summary: profile modification
@@ -541,19 +549,79 @@ paths:
                   $ref: "#/components/schemas/avatar"
               additionalProperties: false
               oneOf:
-              - required: [username]
-              - required: [avatar]
+                - required: [username]
+                - required: [avatar]
       responses:
         204:
-          description: Sucessfull profile edition
+          description: Successfull profile edition
         403:
           description: Invalid avatar
         409:
           description: Username already in use
       security:
         - BearerAuth: []
-  
+
   /settings/account:
+    patch:
+      summary: account modification
+      description: Modify the profile associated with the access_token bearer
+      tags:
+        - Settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    auth_method:
+                      type: string
+                      enum: ["password_auth"]
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                      minLength: 8
+                    old_password:
+                      type: string
+                      minLength: 8
+                  required:
+                    - auth_method
+                    - old_password
+                  additionalProperties: false
+
+                - type: object
+                  properties:
+                    auth_method:
+                      type: string
+                      enum: ["fortytwo_auth"]
+                    email:
+                      type: string
+                      format: email
+                  required:
+                    - auth_method
+                  additionalProperties: false
+
+                - type: object
+                  properties:
+                    auth_method:
+                      type: string
+                      enum: ["google_auth"]
+                  required:
+                    - auth_method
+                  additionalProperties: false
+      responses:
+        204:
+          description: Successfull account edition
+        403:
+          description: Invalid authentication method or password
+        409:
+          description: Email already in use
+      security:
+        - BearerAuth: []
+
     delete:
       summary: account deletion
       description: Delete everything related to the access_token bearer
@@ -561,6 +629,6 @@ paths:
         - Settings
       responses:
         204:
-          description: Sucessfull profile deletion
+          description: Successfull profile deletion
       security:
         - BearerAuth: []

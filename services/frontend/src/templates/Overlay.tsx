@@ -10,8 +10,12 @@ import SelectModeOverlay from "../components/Online/SelectModeOverlay";
 import './templates.css'
 
 export default function Overlay({
+		modal,
+		hidden = false,
 		children
 	}: {
+		modal?: any,
+		hidden?: boolean,
 		children?: any
 	}) {
 
@@ -20,7 +24,13 @@ export default function Overlay({
 
 	const [selected, setSelected] = Babact.useState<string>(null);
 
-	return <div className='flex'>
+	Babact.useEffect(() => {
+		if (hidden) {
+			setSelected(null);
+		}
+	}, [hidden]);
+
+	return <div className={`overlay flex ${hidden ? 'hidden' : ''}`} key='overlay'>
 			<Settings
 				me={me}
 				isOpen={selected === 'settings'}
@@ -33,13 +43,18 @@ export default function Overlay({
 			<div className='template-content'>
 				{children}
 			</div>
-			<header className='header flex gap-4 items-center justify-center'>
+			{ modal &&
+				<div className='template-modal'>
+					{modal}
+				</div>
+			}
+			<header className='header flex gap-4 items-center justify-center' key='header'>
 				<Menu
 					selected={selected}
 					setSelected={setSelected}
 				/>
 			</header>
-			<aside className='aside flex flex-col gap-4'>
+			<aside className='aside flex flex-col gap-4' key='aside'>
 				{lobby && <LobbyCard/>}
 				{me ? <ProfileCard me={me}/> : <AuthCard/>}
 			</aside>
