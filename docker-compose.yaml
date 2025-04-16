@@ -78,6 +78,7 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - "127.0.0.1:4012:3000"
     networks:
@@ -95,6 +96,7 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - "127.0.0.1:4022:3000"
     networks:
@@ -230,6 +232,7 @@ services:
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - 127.0.0.1:4004:3000
     networks:
