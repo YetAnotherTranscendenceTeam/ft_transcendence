@@ -1,6 +1,6 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { DT, bounceMaterial, ballShape, defaultBallSpeed } from "./constants.js";
+import { DT, bounceMaterial, ballShape, defaultBallSpeed, maxBallSpeed } from "./constants.js";
 
 export default class Ball extends PH2D.Body {
 	private _speed: number;
@@ -12,6 +12,13 @@ export default class Ball extends PH2D.Body {
 		Vec2.scale(this.velocity, this.velocity, this._speed);
 
 		scene.addBody(this);
+	}
+
+	public faster() {
+		if (this._speed < maxBallSpeed) {
+			this._speed += 0.5;
+		}
+		this.correctSpeed();
 	}
 
 	public correctSpeed() {

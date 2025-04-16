@@ -5,7 +5,7 @@ import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 
-export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
+export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) {
 	const { emitter, other, manifold } = event.detail;
 	console.log("collision " + emitter.id + "-" + other.id);
 	// console.log(emitter);
@@ -42,7 +42,8 @@ export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other:
 			console.log("out velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
 			console.log("out mag: " + ballEmitter.velocity.magnitude);
 		}
-		ballEmitter.correctSpeed();
+		// ballEmitter.correctSpeed();
+		ballEmitter.faster();
 
 
 		// ballEmitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);

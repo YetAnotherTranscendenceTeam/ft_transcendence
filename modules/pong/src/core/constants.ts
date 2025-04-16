@@ -54,6 +54,7 @@ export const bigPaddleRightPosition: Vec2 = new Vec2(mapData2v2.playGround.widht
 export const ballRadius = 0.2;
 
 export const defaultBallSpeed = 5;
+export const maxBallSpeed = 10;
 export const paddleSpeed = 3;
 export const defaultPointsToWin = 5;
 

@@ -249,13 +249,13 @@ export default class PongClient extends PONG.Pong {
 		// 	}
 		// }
 
-		if (ev.key === "z") {
-			this.onlineGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
-		}
+		// if (ev.key === "z") {
+		// 	this.onlineGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
+		// }
 
-		if (ev.key === "x") {
-			this.startGame();
-		}
+		// if (ev.key === "x") {
+		// 	this.startGame();
+		// }
 
 		if (this._keyboard.has(ev.key)) {
 			const keyStateProbe = this._keyboard.get(ev.key);

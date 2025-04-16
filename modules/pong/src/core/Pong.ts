@@ -100,7 +100,7 @@ export class Pong {
 		this._goals.set(0, goalLeftBody);
 		this._goals.set(1, goalRightBody);
 
-		ball.addEventListener("collision", ballCollision);
+		ball.addEventListener("collision", ballCollision.bind(this));
 	}
 
 	protected start() {
