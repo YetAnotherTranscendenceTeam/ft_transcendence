@@ -14,7 +14,6 @@ export default function LobbyView() {
 	Babact.useEffect(() => {
 		if (code && lobby === null && !localStorage.getItem('lobby')) {
 			join(code);
-			console.log('join', code)
 		}
 	}, [])
 

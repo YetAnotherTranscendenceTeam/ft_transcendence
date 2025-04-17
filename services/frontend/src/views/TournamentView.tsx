@@ -12,7 +12,7 @@ export default function TournamentView() {
 
 
 	const { id } = useParams();
-	const { matches, currentMatch } = useTournament(id, () => setIsOpen(true));
+	const { matches, currentMatch } = useTournament(id, (e) => setIsOpen(e));
 	const [isOpen, setIsOpen] = Babact.useState(false);
 
 	const timeoutRef = Babact.useRef<Date>(null);
@@ -20,7 +20,6 @@ export default function TournamentView() {
 	const { createToast } = useToast();
 
 	Babact.useEffect(() => {
-		console.log('currentMatch', currentMatch);
 		if (currentMatch) {
 			createToast(`Match against ${currentMatch.getOpponentTeamName(me.account_id)} is starting!`, ToastType.SUCCESS, 5000);
 			timeoutRef.current = new Date(new Date().getTime() + 10000);

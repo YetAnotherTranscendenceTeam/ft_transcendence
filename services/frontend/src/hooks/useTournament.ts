@@ -72,7 +72,7 @@ export class Match implements IMatch {
 	}
 }
 
-export default function useTournament(tournamentId: number, onFinishCallback: () => void) {
+export default function useTournament(tournamentId: number, onFinishCallback: (isOpen: boolean) => void) {
 
 	const teamsRef = Babact.useRef<ITeam[]>([]);
 	const [matches, setMatches] = Babact.useState<Match[]>([]);
@@ -91,31 +91,23 @@ export default function useTournament(tournamentId: number, onFinishCallback: ()
 	}
 
 	const onSync = ({tournament} : {tournament: Tournament}) => {
-		console.log('sync');
 		teamsRef.current = tournament.teams;
 		const matches = tournament.matches.map((match) => (
 			new Match(match, tournament.teams)
 		));
-		matches.forEach((match) => {
-			if (match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id)) {
-				setCurrentMatch(match);
-			}
-		})
 		setMatches(matches);
 	}
 
 	const onMatchUpdate = ({match}: {match: IMatch}) => {
 		setMatches((prevMatches) => {
-			prevMatches[match.index] = new Match(match, teamsRef.current);
-			if (match.state === MatchState.PLAYING && prevMatches[match.index].isPlayerIn(me?.account_id)) {
-				setCurrentMatch(prevMatches[match.index]);
-			}
+			const newMatch = new Match(match, teamsRef.current);
+			prevMatches[match.index] = newMatch;
 			return [...prevMatches];
 		})
 	}
 
 	const onFinish = () => {
-		onFinishCallback();
+		onFinishCallback(true);
 	}
 
 	const sse = useSSE({
@@ -128,9 +120,15 @@ export default function useTournament(tournamentId: number, onFinishCallback: ()
 
 	Babact.useEffect(() => {
 		if (me) {
+			onFinishCallback(false);
 			fetchTournament();
 		}
-	}, [me?.account_id]);
+	}, [me?.account_id, tournamentId]);
+
+	Babact.useEffect(() => {
+		const newCurrentMatch = matches.find((match) => match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id)) ?? null;
+		setCurrentMatch(newCurrentMatch);
+	}, [matches?.length, ...matches?.map((match) => match.state)]);
 
 	return {
 		matches,
