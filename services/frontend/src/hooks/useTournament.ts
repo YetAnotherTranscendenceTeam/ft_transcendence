@@ -3,6 +3,7 @@ import { IGameMode, ITeam } from "yatt-lobbies";
 import { useAuth } from "../contexts/useAuth";
 import useSSE from "./useSSE";
 import config from "../config";
+import useFetch from "./useFetch";
 
 export enum MatchState {
 	WAITING = 'waiting',
@@ -71,12 +72,23 @@ export class Match implements IMatch {
 	}
 }
 
-export default function useTournament(tournamentId: number) {
+export default function useTournament(tournamentId: number, onFinishCallback: () => void) {
 
 	const teamsRef = Babact.useRef<ITeam[]>([]);
 	const [matches, setMatches] = Babact.useState<Match[]>([]);
 	const [currentMatch, setCurrentMatch] = Babact.useState<Match>(null);
 	const { me } = useAuth();
+	const { ft_fetch } = useFetch();
+
+	const fetchTournament = async () => {
+		const response = await ft_fetch(`${config.API_URL}/matchmaking/tournaments/${tournamentId}`, {}, {
+			show_error: true
+		});
+		if (response)
+			onSync({tournament: response});
+		if (response?.active === 1)
+			sse.connect(`${config.API_URL}/matchmaking/tournaments/${tournamentId}/notify?token=${localStorage.getItem('access_token')}`)
+	}
 
 	const onSync = ({tournament} : {tournament: Tournament}) => {
 		console.log('sync');
@@ -86,7 +98,6 @@ export default function useTournament(tournamentId: number) {
 		));
 		matches.forEach((match) => {
 			if (match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id)) {
-				console.log('match found', match.match_id);
 				setCurrentMatch(match);
 			}
 		})
@@ -94,11 +105,9 @@ export default function useTournament(tournamentId: number) {
 	}
 
 	const onMatchUpdate = ({match}: {match: IMatch}) => {
-		console.log('match update');
 		setMatches((prevMatches) => {
 			prevMatches[match.index] = new Match(match, teamsRef.current);
 			if (match.state === MatchState.PLAYING && prevMatches[match.index].isPlayerIn(me?.account_id)) {
-				console.log('match found', match.match_id);
 				setCurrentMatch(prevMatches[match.index]);
 			}
 			return [...prevMatches];
@@ -106,8 +115,7 @@ export default function useTournament(tournamentId: number) {
 	}
 
 	const onFinish = () => {
-		// setTournamentEnded(true)
-		console.log('Tournament finished');
+		onFinishCallback();
 	}
 
 	const sse = useSSE({
@@ -117,14 +125,10 @@ export default function useTournament(tournamentId: number) {
 			finish: onFinish
 		},
 	});
- 
+
 	Babact.useEffect(() => {
 		if (me) {
-			console.log('connecting to sse');
-			sse.connect(`${config.API_URL}/matchmaking/tournaments/${tournamentId}/notify?token=${localStorage.getItem('access_token')}`)
-			return () => {
-				sse.close()
-			};
+			fetchTournament();
 		}
 	}, [me?.account_id]);
 

@@ -76,7 +76,6 @@
 	padding: 0;
 	margin: 8px;
 	box-sizing: border-box;
-	z-index: 1;
 	overflow: hidden;
 	background-color: var(--bg-3);
 	color: var(--fg-1);
@@ -113,6 +112,7 @@
 	box-sizing: border-box;
 	padding: 8px;
 	min-width: 175px;
+	min-height: 40px;
 }
 
 .match-card-team:nth-child(odd) {
@@ -150,4 +150,18 @@
 	width: fit-content;
 	z-index: 10;
 	font-size: medium;
+}
+
+/* ===== Modal ====== */
+
+.tournament-end-modal h2 {
+	font-size: xx-large;
+}
+
+.tournament-end-modal h2 i{
+	color: var(--warning-color);
+}
+
+.tournament-end-modal .button{
+	margin-top: 20vh;
 }

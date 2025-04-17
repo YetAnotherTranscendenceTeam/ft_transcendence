@@ -37,7 +37,7 @@ export default function MatchCard({
 				className={`match-card flex flex-col items-center justify-between ${match.state}`}
 				>
 				{match.teams.map((team, i) =>
-					<div
+					team ? <div
 						key={i}
 						className={`match-card-team flex items-center justify-between gap-4 w-full ${getWinnerIndex() === i  ? 'winner' : ''} ${match.state === MatchState.PLAYING && match.playerTeamIndex(me.account_id) === i ? 'playing' : ''}`}
 					>
@@ -49,13 +49,14 @@ export default function MatchCard({
 						</div>
 						<p>{match.scores[i]}</p>
 					</div>
-				)}
-				{Array(2 - match.teams.length).fill(0).map((_, i) =>
+					:
 					<div key={'noteam' + i} className='match-card-team flex justify-between gap-4 w-full'>
 						<h3>...</h3>
-						{/* <p>0</p> */}
 					</div>
+
 				)}
+				{/* {Array(2 - match.teams.length).fill(0).map((_, i) =>
+				)} */}
 			</div>
 		</div>
 	)

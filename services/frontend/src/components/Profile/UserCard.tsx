@@ -31,7 +31,7 @@ export default function UserCard({
 
 	return <Card className='user-card'>
 		<div className="flex flex-row gap-2 items-center">
-			<Avatar src={user.avatar} size="large" name={user.username}/>
+			<Avatar src={user.avatar} size="lg" name={user.username}/>
 			<h1>
 				{user.username}
 			</h1>
