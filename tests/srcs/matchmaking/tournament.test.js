@@ -4,6 +4,7 @@ import { GameModes, matchmakingURL } from "./gamemodes";
 import { apiURL } from "../../URLs.js";
 import { createUsers, users } from "../../dummy/dummy-account";
 import { createEventSource } from "eventsource-client";
+import { finishMatch } from "./finishmatch";
 
 import { Agent } from "undici";
 
@@ -18,18 +19,6 @@ beforeAll(async () => {
 });
 
 createUsers(32);
-
-function finishMatch(match_id, winner) {
-  return request(matchmakingURL)
-    .patch(`/matches/${match_id}`)
-    .set("Authorization", `Bearer ${app.jwt.sign({})}`)
-    .send({
-      state: 2,
-      score_0: winner === 0 ? 1 : 0,
-      score_1: winner === 1 ? 1 : 0,
-    })
-    .expect(200);
-}
 
 function createTestSSE(url) {
   return new Promise((resolve, reject) => {
@@ -147,6 +136,7 @@ describe.each(tests)(
         team_names: [],
         players: Array.from({ length: player_count }, (_, index) => ({
           account_id: users[index].account_id,
+          profile: users[index].profile,
         })),
         mode: GameModes[gamemode],
         join_secret: `${gamemode}_${player_count}`,
@@ -214,7 +204,7 @@ describe.each(tests)(
           expect(match.state).toBe("playing");
           expect(match.match_id).toBeDefined();
           expect(match.team_ids.every((id) => id !== null)).toBe(true);
-          await finishMatch(match.match_id, winnerIndex);
+          await finishMatch(app, match.match_id, winnerIndex);
           await sse.expectJson("match_update", (event) => {
             expect(event.match.match_id).toBe(match.match_id);
             expect(event.match.index).toBe(match.index);
@@ -241,7 +231,7 @@ describe.each(tests)(
               expect(match.team_ids.every((id) => id !== null)).toBe(true);
               expect(event.match.team_ids[matchIndex % 2]).toBe(match.team_ids[winnerIndex]);
             } else {
-              expect(event.match.match_id).toBeUndefined();
+              expect(event.match.match_id).toBe(null);
               expect(event.match.state).toBe("waiting");
               expect(event.match.team_ids.filter((id) => id === null).length).toBe(1);
               expect(event.match.team_ids[matchIndex % 2]).toBe(match.team_ids[winnerIndex]);
@@ -253,6 +243,26 @@ describe.each(tests)(
             match_update.team_ids = event.match.team_ids;
             match_update.scores = event.match.scores;
           });
+          const res = await request(apiURL)
+          .get(`/matchmaking/tournaments/${tournament.id}`)
+          .set("Authorization", `Bearer ${users[0].jwt}`)
+          expect(res.body).toMatchObject({
+            matches: tournament.matches,
+            teams: tournament.teams.map((team) => ({
+              players: team.players.map((player) => ({
+                account_id: player.account_id,
+                profile: {
+                  username: player.profile.username,
+                  avatar: player.profile.avatar,
+                  created_at: player.profile.created_at,
+                  account_id: player.profile.account_id,
+                },
+              })),
+              name: team.name,
+            })),
+            gamemode: tournament.gamemode,
+            id: tournament.id,
+          })
         }
       }
     );

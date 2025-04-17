@@ -159,6 +159,7 @@ services:
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     networks:
       - frontend
+      - db-profiles
 
   db-profiles:
     build: 

@@ -1,5 +1,6 @@
-export class TournamentManger {
-  nextTournamentID = 0;
+import { MatchState } from "./Match.js";
+
+export class TournamentManager {
   tournaments = new Map();
   matches = new Map();
 
@@ -22,13 +23,22 @@ export class TournamentManger {
   }
 
   registerTournament(tournament) {
-    const id = this.nextTournamentID++;
-    tournament.id = id;
-    this.tournaments.set(id, tournament);
-    return id;
+    this.tournaments.set(tournament.id, tournament);
   }
 
   unregisterTournament(tournament) {
     this.tournaments.delete(tournament.id);
+  }
+
+  cancel() {
+    for (const match of this.matches.values()) {
+      match.internal_match?.cancel();
+      match.updateMatch({ state: MatchState.CANCELLED });
+      console.log(`Match ${match.internal_match?.match_id} cancelled`);
+    }
+    for (const tournament of this.tournaments.values()) {
+      tournament.cancel();
+      console.log(`Tournament ${tournament.id} cancelled`);
+    }
   }
 }
