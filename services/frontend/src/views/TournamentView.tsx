@@ -40,7 +40,7 @@ export default function TournamentView() {
 		>
 			{currentMatch && <JoinMatchButton
 				match={currentMatch}
-				opponant={currentMatch.getOpponentTeamName(me.account_id)}
+				opponent={currentMatch.getOpponentTeamName(me.account_id)}
 				timeout={timeoutRef.current}
 				onTimeout={() => {
 					timeoutRef.current = null;

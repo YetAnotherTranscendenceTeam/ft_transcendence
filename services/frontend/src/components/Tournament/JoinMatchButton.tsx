@@ -5,12 +5,12 @@ import { Match } from "../../hooks/useTournament";
 
 export default function JoinMatchButton({
 		match,
-		opponant,
+		opponent,
 		timeout,
 		onTimeout
 	}: {
 		match: Match,
-		opponant: string,
+		opponent: string,
 		timeout: Date,
 		onTimeout: () => void
 	}) {
@@ -41,7 +41,7 @@ export default function JoinMatchButton({
 		key={match.match_id}
 		loading={timeRemaining <= 0}
 	>
-		<i className="fa-solid fa-play"></i> Join match against {opponant} {timeRemaining > 0 && `(${timeRemaining}s)`}
+		<i className="fa-solid fa-play"></i> Join match against {opponent} {timeRemaining > 0 && `(${timeRemaining}s)`}
 	</Button>
 
 }
