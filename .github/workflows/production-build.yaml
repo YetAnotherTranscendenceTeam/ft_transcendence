@@ -5,11 +5,16 @@ on:
     branches:
       - production
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
   yatt-modules:
     runs-on: ubuntu-22.04
+    env:
+      TAG: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,16 +33,16 @@ jobs:
         working-directory: ./modules/
 
       - name: Tag image
-        run: docker tag yatt-modules:latest ibertran/transcendence.yatt-modules:${{ github.ref_name }}
+        run: docker tag yatt-modules:latest "ibertran/transcendence.yatt-modules:${TAG}"
 
       - name: Push image
-        run: docker push ibertran/transcendence.yatt-modules:${{ github.ref_name }}
+        run: docker push "ibertran/transcendence.yatt-modules:${TAG}"
 
   ibertran-dot-dev:
     needs: yatt-modules
     runs-on: ubuntu-22.04
     env:
-      BASE_IMAGE: ibertran/transcendence.yatt-modules:${{ github.ref_name }}
+      BASE_IMAGE: ibertran/transcendence.yatt-modules:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -54,19 +59,15 @@ jobs:
       - name: Build images
         run: docker compose -f docker-compose.ibertran.yaml build
 
-      # - name: Generate .env
-      #   run: |
-      #     export GOOGLE_CLIENT_ID="example"
-      #     export API42_CLIENT_ID="example"
-      #     export API42_SECRET="example"
-      #     ./env-generator.sh
+      - name: Setup .env
+        run: mv .env.template .env
 
-      # - name: Up
-      #   run: docker compose -f docker-compose.ibertran.yaml up -d --wait || docker compose -f docker-compose.ibertran.yaml logs
+      - name: Up
+        run: docker compose -f docker-compose.ibertran.yaml up -d --wait || docker compose -f docker-compose.ibertran.yaml logs
 
-      # - name: Down
-      #   if: always()
-      #   run: docker compose -f docker-compose.ibertran.yaml down
+      - name: Down
+        if: always()
+        run: docker compose -f docker-compose.ibertran.yaml down
 
       - name: Push images
         if: github.ref_name == 'production'
