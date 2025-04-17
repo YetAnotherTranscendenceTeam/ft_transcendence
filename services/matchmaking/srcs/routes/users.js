@@ -14,13 +14,7 @@ export default function router(fastify, opts, done) {
     let last_match = db
       .prepare(`
         SELECT
-          matches.*,
-          json_group_array(
-            json_object(
-              'account_id', match_players.account_id,
-              'team_index', match_players.team_index
-            )
-          ) as players
+          matches.*
         FROM
           match_players
         JOIN
@@ -31,12 +25,7 @@ export default function router(fastify, opts, done) {
         ORDER BY matches.created_at DESC
         LIMIT 1
       `)
-      .get(request.params.account_id);
-    if (last_match.match_id === null) {
-      last_match = null;
-    } else { 
-      last_match.players = JSON.parse(last_match.players);
-    }
+      .get(request.params.account_id) || null;
     let last_tournament = db.prepare(`
       SELECT
         tournaments.*
@@ -50,10 +39,6 @@ export default function router(fastify, opts, done) {
       ORDER BY tournaments.created_at DESC
       LIMIT 1
     `).get(request.params.account_id) || null;
-    if (last_tournament
-        && fastify.tournaments.tournaments.has(last_tournament.tournament_id)) {
-        last_tournament.active = true;
-    }
     reply.send({matchmaking_users, last_match, last_tournament});
   });
   fastify.get("/:account_id/matches", {
