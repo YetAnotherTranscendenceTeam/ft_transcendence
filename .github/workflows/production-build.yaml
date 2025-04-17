@@ -13,6 +13,8 @@ on:
 jobs:
   yatt-modules:
     runs-on: ubuntu-22.04
+    env:
+      TAG: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,16 +33,16 @@ jobs:
         working-directory: ./modules/
 
       - name: Tag image
-        run: docker tag yatt-modules:latest ibertran/transcendence.yatt-modules:${{ github.ref_name }}
+        run: docker tag yatt-modules:latest "ibertran/transcendence.yatt-modules:${TAG}"
 
       - name: Push image
-        run: docker push ibertran/transcendence.yatt-modules:${{ github.ref_name }}
+        run: docker push "ibertran/transcendence.yatt-modules:${TAG}"
 
   ibertran-dot-dev:
     needs: yatt-modules
     runs-on: ubuntu-22.04
     env:
-      BASE_IMAGE: ibertran/transcendence.yatt-modules:${{ github.ref_name }}
+      BASE_IMAGE: ibertran/transcendence.yatt-modules:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
