@@ -139,6 +139,7 @@ class TournamentMatch {
       [MatchState.RESERVED]: TournamentMatchState.PLAYING,
       [MatchState.PLAYING]: TournamentMatchState.PLAYING,
       [MatchState.DONE]: TournamentMatchState.DONE,
+      [MatchState.CANCELLED]: TournamentMatchState.CANCELLED,
     };
     const newState = states[state];
     const oldState = this.state;
@@ -203,11 +204,11 @@ export class Tournament {
       let obj = db
         .prepare(
           `
-        INSERT INTO tournaments (gamemode) VALUES (?)
+        INSERT INTO tournaments (gamemode, active) VALUES (?, ?)
         RETURNING tournament_id
         `
         )
-        .get(this.gamemode.name);
+        .get(this.gamemode.name, 1);
       this.id = obj.tournament_id;
       const team_insert = db.prepare(`
         INSERT INTO tournament_teams (tournament_id, team_index, name)
@@ -298,6 +299,17 @@ export class Tournament {
       }
     }
     return null;
+  }
+
+  cancel() {
+    this.manager.unregisterTournament(this);
+    db.prepare(
+      `
+      UPDATE tournaments
+      SET active = ?
+      WHERE tournament_id = ?
+      `
+    ).run(0, this.id);
   }
 
   finish() {

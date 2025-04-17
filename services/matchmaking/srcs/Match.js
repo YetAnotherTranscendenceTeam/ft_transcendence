@@ -62,4 +62,13 @@ export class Match {
     this.created_at = insert.created_at;
     this.updated_at = insert.updated_at;
   }
+
+  cancel() {
+    db.prepare(
+      `
+      UPDATE matches SET state = ? WHERE match_id = ?
+      `
+    ).run(MatchState.CANCELLED, this.match_id);
+    this.state = MatchState.CANCELLED;
+  }
 }

@@ -1,3 +1,5 @@
+import { MatchState } from "./Match.js";
+
 export class TournamentManager {
   tournaments = new Map();
   matches = new Map();
@@ -30,7 +32,13 @@ export class TournamentManager {
 
   cancel() {
     for (const match of this.matches.values()) {
-      match.updateMatch({ state: MatchState.CANCELED });
+      match.internal_match?.cancel();
+      match.updateMatch({ state: MatchState.CANCELLED });
+      console.log(`Match ${match.internal_match?.match_id} cancelled`);
+    }
+    for (const tournament of this.tournaments.values()) {
+      tournament.cancel();
+      console.log(`Tournament ${tournament.id} cancelled`);
     }
   }
 }

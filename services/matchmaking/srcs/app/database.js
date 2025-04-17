@@ -72,6 +72,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS tournaments (
     tournament_id INTEGER PRIMARY KEY AUTOINCREMENT,
     gamemode TEXT NOT NULL,
+    active INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
