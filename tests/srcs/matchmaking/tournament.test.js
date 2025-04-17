@@ -4,6 +4,7 @@ import { GameModes, matchmakingURL } from "./gamemodes";
 import { apiURL } from "../../URLs.js";
 import { createUsers, users } from "../../dummy/dummy-account";
 import { createEventSource } from "eventsource-client";
+import { finishMatch } from "./finishmatch";
 
 import { Agent } from "undici";
 
@@ -18,18 +19,6 @@ beforeAll(async () => {
 });
 
 createUsers(32);
-
-function finishMatch(match_id, winner) {
-  return request(matchmakingURL)
-    .patch(`/matches/${match_id}`)
-    .set("Authorization", `Bearer ${app.jwt.sign({})}`)
-    .send({
-      state: 2,
-      score_0: winner === 0 ? 1 : 0,
-      score_1: winner === 1 ? 1 : 0,
-    })
-    .expect(200);
-}
 
 function createTestSSE(url) {
   return new Promise((resolve, reject) => {
@@ -215,7 +204,7 @@ describe.each(tests)(
           expect(match.state).toBe("playing");
           expect(match.match_id).toBeDefined();
           expect(match.team_ids.every((id) => id !== null)).toBe(true);
-          await finishMatch(match.match_id, winnerIndex);
+          await finishMatch(app, match.match_id, winnerIndex);
           await sse.expectJson("match_update", (event) => {
             expect(event.match.match_id).toBe(match.match_id);
             expect(event.match.index).toBe(match.index);
