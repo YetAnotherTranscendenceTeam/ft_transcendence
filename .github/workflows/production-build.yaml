@@ -5,6 +5,9 @@ on:
     branches:
       - production
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
