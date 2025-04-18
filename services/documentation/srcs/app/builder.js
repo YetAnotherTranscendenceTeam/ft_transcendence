@@ -42,7 +42,8 @@ async function generateAsyncAPIDocs(asyncapi_build_dir) {
     if (install)
       await generator.installTemplate();
     install = false;
-    generator.generateFromFile(`${asyncapi_dir}/${filename}`).then(() => {;
+    generator.generateFromFile(`${asyncapi_dir}/${filename}`).then(() => {
+      fs.copyFileSync(`${asyncapi_dir}/${filename}`, `${asyncapi_build_dir}/${filename}`);
       console.log(`Documentation generated for ${filename}`);
     }).catch((e) => {
       console.error(`Error generating documentation for ${filename}`);
@@ -61,6 +62,7 @@ export default function build(opts = {}) {
     mode: 'static',
     specification: {
       path: '/documentation/backend.yaml',
+      baseDir: '/documentation',
       postProcessor: function (swaggerObject) {
         return swaggerObject
       },
