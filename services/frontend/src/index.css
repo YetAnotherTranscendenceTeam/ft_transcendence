@@ -134,6 +134,11 @@
 body {
 	font-family: "Ubuntu", serif;
 	overflow: hidden;
+	background-image: url('https://img2.wallspic.com/crops/6/5/5/6/6/166556/166556-nature_esprit_relaxant-nature-esprit-relaxation-eau-1920x1278.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	height: 100vh;
+	background-position: center;
 }
 
 

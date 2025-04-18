@@ -28,9 +28,7 @@ export default function ProfileForm({ me }: { me: any }) {
 				field="profile-username"
 				label='Edit your username'
 				type='text'
-				defaultValue={me.username}
 				placeholder={me.username}
-				color={(fields) => fields['profile-username'].value === me.username ? 'var(--fg-4)' : ''}
 				maxlength={15}
 			/>
 			<ImageSelector
