@@ -62,7 +62,7 @@ export class Match implements IMatch {
 		this.state = match.state;
 		this.stage = match.stage;
 		this.index = match.index;
-		this.teams = match.team_ids.map((index: number) => new Team(teams[index]));
+		this.teams = match.team_ids.map((index: number) => teams[index] && new Team(teams[index]));
 	}
 
 	playerTeamIndex(account_id: number) {
@@ -80,11 +80,13 @@ export class Match implements IMatch {
 	}
 
 	getOpponentTeam(account_id: number) {
-		return this.teams.find((team) => !team.players.some((member) => member.account_id === account_id));
+		return this.teams?.find((team) => !team.players.some((member) => member.account_id === account_id));
 	}
 
 	getOpponentTeamName(account_id: number) {
-		return this.getOpponentTeam(account_id).getDisplayName()
+		const team = this.getOpponentTeam(account_id);
+		if (!team) return 'Unknown';
+		return team.getDisplayName()
 	}
 }
 
