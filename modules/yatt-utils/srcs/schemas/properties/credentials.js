@@ -52,7 +52,7 @@ const credentialsProperties = {
     description: "The google id associated with the account",
   },
 
-  twofactor_code: {
+  otp: {
     type: "string",
     minLength: 6,
     maxLength: 6,

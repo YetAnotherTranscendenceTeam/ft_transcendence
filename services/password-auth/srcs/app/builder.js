@@ -3,7 +3,7 @@
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
 import JwtGenerator from "yatt-jwt";
-import fastifyCookie from "@fastify/cookie";
+import cookie from "@fastify/cookie";
 import fastifyFormbody from "@fastify/formbody";
 import router from "./router.js";
 import cors from "@fastify/cors";
@@ -25,7 +25,7 @@ export default function build(opts = {}) {
     this.tokens.register(app.jwt);
   })
 
-  app.register(fastifyCookie);
+  app.register(cookie);
   app.register(fastifyFormbody);
   app.register(router);
 

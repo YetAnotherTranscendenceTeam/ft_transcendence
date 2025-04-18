@@ -5,6 +5,7 @@ import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
+import cookie from "@fastify/cookie";
 import router from "./router.js";
 import { HttpError } from "yatt-utils";
 import { AUTHENTICATION_SECRET, TOKEN_MANAGER_SECRET } from "./env.js";
@@ -46,6 +47,7 @@ export default function build(opts = {}) {
     this.tokens.register(app.jwt.token_manager, "token_manager");
   })
 
+  app.register(cookie);
   app.register(formbody);
   app.register(router);
 

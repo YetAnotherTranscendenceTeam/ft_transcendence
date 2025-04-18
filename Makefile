@@ -53,15 +53,15 @@ else
 endif
 
 clean-modules:
-	rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
-	rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
-	rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
+	-rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
+	-rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
+	-rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
 
 clean-services:
-	rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
+	-rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
 
 clean-db:
-	rm $$HOME/goinfre/docker/volumes/ft_transcendence_sqlite/_data/*
+	-rm $$HOME/goinfre/docker/volumes/ft_transcendence_sqlite/_data/*
 
 fclean:
 	$(MAKE) clean-modules

@@ -1,19 +1,19 @@
+"use strict";
 
 import { createHmac } from "node:crypto";
 import { base32 } from "rfc4648";
 
 export function generateTOTP(secret, options = {}) {
-  const { algorithm = "SHA-1", digits = 6, period = 30 } = options;
-  let counter = Math.floor(Date.now() / (period * 1000));
+  const { algorithm = "SHA1", digits = 6, period = 30 } = options;
 
-  const buffer = Buffer.alloc(8);
-  for (let i = 7; i >= 0; i--) {
-    buffer[i] = counter & 0xff;
-    counter >>= 8;
-  }
+  // Get counter based on current UNIX time
+  const counter = Buffer.alloc(8);
+  counter.writeBigUint64BE(BigInt(Math.floor(Date.now() / (period * 1000))));
 
-  const hmac = createHmac(algorithm, base32.parse(secret)).update(buffer).digest();
+  // Hash counter using shared secret
+  const hmac = createHmac(algorithm, base32.parse(secret)).update(counter).digest();
 
+  // Truncate hash according to rfc6238 
   const offset = hmac[hmac.length - 1] & 0xf;
 
   const binary = ((hmac[offset] & 0x7f) << 24) |

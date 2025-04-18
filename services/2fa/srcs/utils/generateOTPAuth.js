@@ -1,4 +1,6 @@
-export function getQRCode(secret, options = {}) {
+"user strict";
+
+export function generateOTPAuth(secret, options = {}) {
   const {
     email = "transcendence", 
     algorithm = "SHA1", 
