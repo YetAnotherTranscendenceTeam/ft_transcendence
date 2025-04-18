@@ -27,10 +27,29 @@ export interface Tournament {
 	id: number
 }
 
+export class Team implements ITeam {
+	players: any[];
+	name: string;
+
+	constructor(team: ITeam) {
+		this.players = team.players;
+		this.name = team.name;
+	}
+
+	getDisplayName() {
+		if (this.name)
+			return this.name;
+		if (this.players.length > 0)
+			return this.players[0].profile.username + "'s team";
+		return 'Unknown';
+	}
+
+}
+
 export class Match implements IMatch {
 	team_ids: number[];
 	scores: number[];
-	teams: ITeam[];
+	teams: Team[];
 	match_id: number;
 	state: MatchState;
 	stage: number;
@@ -43,7 +62,7 @@ export class Match implements IMatch {
 		this.state = match.state;
 		this.stage = match.stage;
 		this.index = match.index;
-		this.teams = match.team_ids.map((index: number) => teams[index]);
+		this.teams = match.team_ids.map((index: number) => teams[index] && new Team(teams[index]));
 	}
 
 	playerTeamIndex(account_id: number) {
@@ -61,14 +80,13 @@ export class Match implements IMatch {
 	}
 
 	getOpponentTeam(account_id: number) {
-		return this.teams.find((team) => !team.players.some((member) => member.account_id === account_id));
+		return this.teams?.find((team) => !team.players.some((member) => member.account_id === account_id));
 	}
 
 	getOpponentTeamName(account_id: number) {
-		const enemyTeam = this.getOpponentTeam(account_id);
-		if (!enemyTeam)
-			return 'Unknown';
-		return enemyTeam.name ?? enemyTeam.players[0].profile.username + "'s team";
+		const team = this.getOpponentTeam(account_id);
+		if (!team) return 'Unknown';
+		return team.getDisplayName()
 	}
 }
 
