@@ -5,13 +5,11 @@ import { DT, bounceMaterial, ballShape, defaultBallSpeed, maxBallSpeed } from ".
 export default class Ball extends PH2D.Body {
 	private _speed: number;
 
-	public constructor(scene: PH2D.Scene, position: Vec2, direction: Vec2, speed: number) {
+	public constructor(position: Vec2, direction: Vec2, speed: number) {
 		super(PH2D.PhysicsType.DYNAMIC, ballShape, bounceMaterial, position, Vec2.create());
 		this._speed = speed;
 		this.velocity = Vec2.normalize(Vec2.create(), direction) as Vec2;
 		Vec2.scale(this.velocity, this.velocity, this._speed);
-
-		scene.addBody(this);
 	}
 
 	public faster() {

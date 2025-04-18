@@ -5,8 +5,10 @@ import * as K from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
+import Wall from "./Wall.js";
 import { ballCollision } from "./Behaviors.js";
-import { MapSide } from "./types.js";
+import { MapSide, IPongMap, MapID } from "./types.js";
+import * as maps from "../maps/index.js";
 
 export enum PongState {
 	RESERVED = "reserved",
@@ -28,13 +30,26 @@ export class Pong {
 	protected _paddles: Map<number, PH2D.Body> = new Map();
 	protected _goals: Map<number, Goal> = new Map();
 
+	protected _time: number;
 	protected _score: number[];
 	protected _lastSide: MapSide;
 
-	public constructor() {
-		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, 5);
-	}
+	protected _map: Map<MapID, IPongMap>;
+	protected _currentMap: IPongMap;
+	protected _currentMapID: MapID;
 
+	public constructor() {
+		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, K.substeps);
+		this._map = new Map();
+		this.createMaps();
+		this.createCommonObjects();
+		this._accumulator = 0;
+		this._currentMapID = undefined;
+		this._currentMap = undefined;
+
+		this.switchMap(MapID.FAKE);
+	}
+	
 	public toJSON() {
 		return {
 			players: this._players,
@@ -42,65 +57,167 @@ export class Pong {
 			gamemode: this._gameMode
 		};
 	}
+	
+	private createMaps() {
+		this.createFakeMap();
+		this.createSmallMap();
+		this.createBigMap();
+	}
 
-	public onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: PongState = PongState.RESERVED) {
-		this._physicsScene.clear();
-		this._balls = [];
-		this._paddles = new Map();
+	private createFakeMap() {
+		const wallBottom: Wall = new Wall(maps.fake.wallShape, maps.fake.wallBottomPosition);
+		const wallTop: Wall = new Wall(maps.fake.wallShape, maps.fake.wallTopPosition);
+		this._physicsScene.addBody(wallTop);
+		this._physicsScene.addBody(wallBottom);
+
+		const map: IPongMap = {
+			mapId: MapID.FAKE,
+			wallTop: wallTop,
+			wallBottom: wallBottom,
+			goalLeft: null,
+			goalRight: null,
+			paddleLeftBack: null,
+			paddleLeftFront: null,
+			paddleRightBack: null,
+			paddleRightFront: null,
+			obstacles: []
+		};
+		this._map.set(MapID.FAKE, map);
+	}
+
+	private createSmallMap() {
+		// Walls
+		const wallBottom: Wall = new Wall(maps.small.wallShape, maps.small.wallBottomPosition);
+		const wallTop: Wall = new Wall(maps.small.wallShape, maps.small.wallTopPosition);
+		
+		// Goals
+		const goalLeft: Goal = new Goal(maps.small.goalShape, maps.small.goalLeftPosition);
+		const goalRight: Goal = new Goal(maps.small.goalShape, maps.small.goalRightPosition);
+		
+		// Paddles
+		const paddleLeft: Paddle = new Paddle(maps.small.paddleLeftPosition, Vec2.create(), K.paddleSpeed);
+		const paddleRight: Paddle = new Paddle(maps.small.paddleRightPosition, Vec2.create(), K.paddleSpeed);
+	
+		const map: IPongMap = {
+			mapId: MapID.SMALL,
+			wallTop: wallTop,
+			wallBottom: wallBottom,
+			goalLeft: goalLeft,
+			goalRight: goalRight,
+			paddleLeftBack: paddleLeft,
+			paddleLeftFront: undefined,
+			paddleRightBack: paddleRight,
+			paddleRightFront: undefined,
+			obstacles: []
+		};
+		this._map.set(MapID.SMALL, map);
+	}
+
+	private createBigMap() {
+		// Walls
+		const wallBottom: Wall = new Wall(maps.big.wallShape, maps.big.wallBottomPosition);
+		const wallTop: Wall = new Wall(maps.big.wallShape, maps.big.wallTopPosition);
+
+		// Goals
+		const goalLeft: Goal = new Goal(maps.big.goalShape, maps.big.goalLeftPosition);
+		const goalRight: Goal = new Goal(maps.big.goalShape, maps.big.goalRightPosition);
+
+		// Paddles
+		const paddleLeftBack: Paddle = new Paddle(maps.big.paddleLeftBackPosition, Vec2.create(), K.paddleSpeed);
+		const paddleLeftFront: Paddle = new Paddle(maps.big.paddleLeftFrontPosition, Vec2.create(), K.paddleSpeed);
+		const paddleRightBack: Paddle = new Paddle(maps.big.paddleRightBackPosition, Vec2.create(), K.paddleSpeed);
+		const paddleRightFront: Paddle = new Paddle(maps.big.paddleRightFrontPosition, Vec2.create(), K.paddleSpeed);
+
+		const map: IPongMap = {
+			mapId: MapID.BIG,
+			wallTop: wallTop,
+			wallBottom: wallBottom,
+			goalLeft: goalLeft,
+			goalRight: goalRight,
+			paddleLeftBack: paddleLeftBack,
+			paddleLeftFront: paddleLeftFront,
+			paddleRightBack: paddleRightBack,
+			paddleRightFront: paddleRightFront,
+			obstacles: []
+		};
+		this._map.set(MapID.BIG, map);
+	}
+
+	private createCommonObjects() {
+		const ball: Ball = new Ball(Vec2.create(), Vec2.create(), K.defaultBallSpeed);
+		this._balls.push(ball);
+		ball.addEventListener("collision", ballCollision.bind(this));
+	}
+
+	protected switchMap(mapId: MapID) {
+		if (!this._currentMapID || this._currentMapID !== mapId) {
+			this._currentMap = this._map.get(mapId);
+			this._currentMapID = mapId;
+			this._physicsScene.clear();
+			this._physicsScene.addBody(this._currentMap.wallTop);
+			this._physicsScene.addBody(this._currentMap.wallBottom);
+			if (mapId === MapID.FAKE) {
+				return;
+			}
+			this._physicsScene.addBody(this._currentMap.goalLeft);
+			this._physicsScene.addBody(this._currentMap.goalRight);
+			this._physicsScene.addBody(this._currentMap.paddleLeftBack);
+			this._physicsScene.addBody(this._currentMap.paddleRightBack);
+			if (mapId === MapID.BIG) {
+				this._physicsScene.addBody(this._currentMap.paddleLeftFront);
+				this._physicsScene.addBody(this._currentMap.paddleRightFront);
+			}
+			this._currentMap.obstacles.forEach((obstacle: Wall) => {
+				this._physicsScene.addBody(obstacle);
+			});
+		}
+	}
+	
+	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: PongState = PongState.RESERVED) {
 		this._accumulator = 0;
+		this._time = 0;
 		this._score = [0, 0];
+		this._lastSide = undefined;
 
 		this._matchId = match_id;
 		this._gameMode = gamemode;
 		this._players = players;
 		this._state = state;
 
-		this.defaultSetup();
+		// do things based on gamemode (not implemented yet)
+		this.switchMap(MapID.SMALL);
 	}
 
-	public localSetup() {
-		this._physicsScene.clear();
-		this._balls = [];
-		this._paddles = new Map();
+	protected localSetup() {
 		this._accumulator = 0;
+		this._time = 0;
 		this._score = [0, 0];
+		this._lastSide = undefined;
 
 		this._matchId = 0;
 		this._gameMode = undefined;
 		this._players = [];
 		this._state = PongState.RESERVED;
-		
-		this.defaultSetup();
+
+		this.switchMap(MapID.SMALL);
 	}
 
-	private defaultSetup() { // temporary
-		// Ball
-		const ball: Ball = new Ball(this._physicsScene, Vec2.create(), Vec2.create(), K.defaultBallSpeed);
-		this._balls.push(ball);
+	protected menuSetup() {
+		this._accumulator = 0;
+		this._time = 0;
+		this._score = [0, 0];
+		this._lastSide = undefined;
 
-		// Paddles
-		const paddleLeftBody: Paddle = new Paddle(this._physicsScene, K.smallPaddleLeftPosition, Vec2.create(), K.paddleSpeed);
-		const paddleRightBody: Paddle = new Paddle(this._physicsScene, K.smallPaddleRightPosition, Vec2.create(), K.paddleSpeed);
-		this._paddles.set(0, paddleLeftBody);
-		this._paddles.set(1, paddleRightBody);
+		this.switchMap(MapID.FAKE);
+	}
 
-		// Walls
-		const wallBottomBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, K.smallWallShape, K.bounceMaterial, K.smallWallBottomPosition, Vec2.create());
-		const wallTopBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.STATIC, K.smallWallShape, K.bounceMaterial, K.smallWallTopPosition, Vec2.create());
-		this._physicsScene.addBody(wallTopBody);
-		this._physicsScene.addBody(wallBottomBody);
+	protected lobbySetup() {
+		this._accumulator = 0;
+		this._time = 0;
+		this._score = [0, 0];
+		this._lastSide = undefined;
 
-		// Goal
-		// const goalLeftBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(-5.2, 0), Vec2.create());
-		// const goalRightBody: PH2D.Body = new PH2D.Body(PH2D.PhysicsType.TRIGGER, goalShape, bounceMaterial, new Vec2(5.2, 0), Vec2.create());
-		// this._physicsScene.addBody(goalLeftBody);
-		// this._physicsScene.addBody(goalRightBody);
-		const goalLeftBody: Goal = new Goal(this._physicsScene, K.smallGoalShape, K.smallGoalLeftPosition, Vec2.create(), K.defaultBallSpeed);
-		const goalRightBody: Goal = new Goal(this._physicsScene, K.smallGoalShape, K.smallGoalRightPosition, Vec2.create(), K.defaultBallSpeed);
-		this._goals.set(0, goalLeftBody);
-		this._goals.set(1, goalRightBody);
-
-		ball.addEventListener("collision", ballCollision.bind(this));
+		this.switchMap(MapID.FAKE);
 	}
 
 	protected start() {

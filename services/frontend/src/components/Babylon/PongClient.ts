@@ -144,13 +144,13 @@ export default class PongClient extends PONG.Pong {
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
 
 		// default setup
-		const wallSize: Vector2 = new Vector2(PONG.K.smallWallSize.x, PONG.K.smallWallSize.y);
-		const wallBottom: ClientWall = new ClientWall(this._babylonScene, "wallBottom", new Vector2(0, PONG.K.smallWallBottomPosition.y), wallSize);
-		const wallTop: ClientWall = new ClientWall(this._babylonScene, "wallTop", new Vector2(0, PONG.K.smallWallTopPosition.y), wallSize);
+		const wallSize: Vector2 = new Vector2(PONG.maps.small.wallSize.x, PONG.maps.small.wallSize.y);
+		const wallBottom: ClientWall = new ClientWall(this._babylonScene, "wallBottom", new Vector2(0, PONG.maps.small.wallBottomPosition.y), wallSize);
+		const wallTop: ClientWall = new ClientWall(this._babylonScene, "wallTop", new Vector2(0, PONG.maps.small.wallTopPosition.y), wallSize);
 
-		const goalSize: Vector2 = new Vector2(PONG.K.smallGoalSize.x, PONG.K.smallGoalSize.y);
-		const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, "goalLeft", new Vector2(PONG.K.smallGoalLeftPosition.x, 0), goalSize, Color3.Red());
-		const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, "goalRight", new Vector2(PONG.K.smallGoalRightPosition.x, 0), goalSize, Color3.Red());
+		const goalSize: Vector2 = new Vector2(PONG.maps.small.goalSize.x, PONG.maps.small.goalSize.y);
+		const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, "goalLeft", new Vector2(PONG.maps.small.goalLeftPosition.x, 0), goalSize, Color3.Red());
+		const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, "goalRight", new Vector2(PONG.maps.small.goalRightPosition.x, 0), goalSize, Color3.Red());
 	}
 
 	private onlineGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {

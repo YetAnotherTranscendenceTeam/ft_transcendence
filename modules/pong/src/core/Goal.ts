@@ -5,11 +5,9 @@ import { bounceMaterial } from "./constants.js";
 export default class Goal extends PH2D.Body {
 	private _contact: number;
 
-	public constructor(scene: PH2D.Scene, shape: PH2D.Shape, position: Vec2, direction: Vec2, speed: number) {
+	public constructor(shape: PH2D.Shape, position: Vec2) {
 		super(PH2D.PhysicsType.TRIGGER, shape, bounceMaterial, position, Vec2.create());
 		this._contact = 0;
-
-		scene.addBody(this);
 	}
 
 	public get contact(): number {
