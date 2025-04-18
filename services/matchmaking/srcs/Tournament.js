@@ -302,7 +302,10 @@ export class Tournament {
   }
 
   cancel() {
-    this.manager.unregisterTournament(this);
+    this.finish();
+  }
+
+  finish() {
     db.prepare(
       `
       UPDATE tournaments
@@ -310,9 +313,6 @@ export class Tournament {
       WHERE tournament_id = ?
       `
     ).run(0, this.id);
-  }
-
-  finish() {
     this.manager.unregisterTournament(this);
     this.broadcast(
       "finish",
