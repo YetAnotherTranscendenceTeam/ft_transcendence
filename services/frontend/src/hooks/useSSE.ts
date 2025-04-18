@@ -37,7 +37,6 @@ export default function useSSE({
 			else
 				SSEUrl += '&';
 			SSEUrl += `access_token=${localStorage.getItem('access_token')}`;
-			console.log('SSEUrl', SSEUrl);
 		}
 		sse.current = new EventSource(SSEUrl);
 		if (onEvent) {

@@ -39,7 +39,6 @@ export default function useWebSocket({
 			else
 				wsUrl += '&';
 			wsUrl += `access_token=${localStorage.getItem('access_token')}`;
-			console.log('wsUrl', wsUrl);
 		}
 		ws.current = new WebSocket(wsUrl);
 		ws.current.onopen = (event) => {
