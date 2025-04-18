@@ -13,7 +13,6 @@ export default function TournamentEndModal({
 	}) {
 	
 	const winningTeam = finalMatch?.getWinnerTeam();
-	const teamName = winningTeam.name ?? winningTeam?.players[0]?.profile?.username + "'s team";
 
 	Babact.useEffect(() => {
 		const confetti = new JSConfetti();
@@ -25,7 +24,7 @@ export default function TournamentEndModal({
 
 	if (winningTeam)
 	return <div className='tournament-end-modal flex flex-col items-center justify-center gap-4'>
-		<h2><i className="fa-solid fa-trophy"></i> {teamName} has won the tournament</h2>
+		<h2><i className="fa-solid fa-trophy"></i> {winningTeam.getDisplayName()} has won the tournament</h2>
 		<div className='flex flex-col gap-2'>
 			{winningTeam.players.map((player) => (
 				<div key={player.account_id} className='flex items-center gap-2'>

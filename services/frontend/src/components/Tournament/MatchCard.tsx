@@ -45,7 +45,7 @@ export default function MatchCard({
 							{team.players.map((player, i) =>
 								<Avatar key={i} src={player.profile.avatar} name={player.profile.username} size='xs'/>
 							)}
-							<h3>{team.name ?? `${team.players[0].profile.username}'s team`}</h3>
+							<h3>{team.getDisplayName()}</h3>
 						</div>
 						<p>{match.scores[i]}</p>
 					</div>
@@ -55,8 +55,6 @@ export default function MatchCard({
 					</div>
 
 				)}
-				{/* {Array(2 - match.teams.length).fill(0).map((_, i) =>
-				)} */}
 			</div>
 		</div>
 	)

@@ -7,6 +7,7 @@ import { useNavigate } from "babact-router-dom";
 import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
 import { StatusType } from "../hooks/useSocials";
 import { useAuth } from "./useAuth";
+import { Team } from "../hooks/useTournament";
 
 export class LobbyClient extends Lobby {
 
@@ -81,6 +82,10 @@ export class LobbyClient extends Lobby {
 			}
 		});
 	};
+
+	override getTeams(): Team[] {
+		return super.getTeams().map(team => new Team(team));
+	}
 }
 
 const LobbyContext = Babact.createContext<{
@@ -104,7 +109,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const navigate = useNavigate();
 
 	const onTeamNameChange = (team_index: number, name: string) => {
-		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setTeamName(team_index, name)));
+		setLobby((lobby) => new LobbyClient(lobby?.setTeamName(team_index, name)));
 	};
 
 	const onStateChange = (state: any) => {
