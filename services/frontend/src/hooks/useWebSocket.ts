@@ -3,7 +3,7 @@ import useFetch from "./useFetch";
 
 export type WebSocketHook = {
 	connected: boolean,
-	connect: (url: string) => void,
+	connect: (url: string, enableToken?: boolean) => void,
 	close: () => void,
 	send: (message: string | object) => void,
 }
@@ -26,12 +26,22 @@ export default function useWebSocket({
 	const [connected, setConnected] = Babact.useState<boolean>(false);
 	const { refreshToken } = useFetch();
 
-	const connect = async (url: string) => {
+	const connect = async (url: string, enableToken: boolean = false) => {
 		if (ws.current) {
 			close();
 		}
-		await refreshToken();
-		ws.current = new WebSocket(url);
+		let wsUrl = url
+		if (enableToken) {
+			await refreshToken();
+			const parsedUrl = new URL(url);
+			if (parsedUrl.search === '')
+				wsUrl += '?';
+			else
+				wsUrl += '&';
+			wsUrl += `access_token=${localStorage.getItem('access_token')}`;
+			console.log('wsUrl', wsUrl);
+		}
+		ws.current = new WebSocket(wsUrl);
 		ws.current.onopen = (event) => {
 			if (onOpen) {
 				onOpen(event);
