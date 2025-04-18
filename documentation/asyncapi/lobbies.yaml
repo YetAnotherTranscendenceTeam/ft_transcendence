@@ -17,7 +17,7 @@ channels:
           required:
             - token
           properties:
-            token:
+            access_token:
               type: string
               description: The token of the user
             secret:
