@@ -15,9 +15,16 @@ const AuthContext = Babact.createContext<{
 		status: (status: FollowStatus) => void,
 	}>();
 
+export enum AuthMethod {
+	password_auth = 'password_auth',
+	google_auth = 'google_auth',
+	fortytwo_auth = 'fortytwo_auth',
+}
+
 interface ICredentials {
 	account_id: number,
 	email: string,
+	auth_method: AuthMethod,
 }
 
 export interface IMe extends IUser {

@@ -731,3 +731,35 @@
 	border-bottom: 3px solid var(--key-ligth);
 }
 
+
+/* ================================== */
+/* ============= Alert ============== */
+/* ================================== */
+
+
+.alert {
+	display: flex;
+	align-items: center;
+	color: var(--fg-1);
+	padding: 16px;
+	gap: 16px;
+	border-radius: 8px;
+}
+
+.alert.info {
+	background-color: var(--info-color);
+}
+
+.alert.danger {
+	background-color: var(--danger-color);
+}
+
+.alert.warning {
+	background-color: var(--warning-color);
+}
+
+.alert.success {
+	background-color: var(--success-color);
+}
+
+
