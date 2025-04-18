@@ -1,0 +1,404 @@
+import request from "supertest";
+import { createUsers, users } from "../../dummy/dummy-account.js";
+import { apiURL } from "../../URLs.js";
+import { TOTP } from "totp-generator";
+
+createUsers(4);
+
+describe("2FA Router", () => {
+  describe("GET /totp/activate", () => {
+    let secret1;
+    let secret2;
+
+    it("not authorized", async () => {
+      const response = await request(apiURL)
+        .get("/2fa/totp/activate")
+
+      expect(response.statusCode).toBe(401);
+    })
+
+    it("activate", async () => {
+      const response = await request(apiURL)
+        .get("/2fa/totp/activate")
+        .set('Authorization', `Bearer ${users[0].jwt}`)
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.otpauth).toMatch(/^otpauth:\/\/totp\/?/);
+      expect(response.body.otpauth).toContain('issuer=YATT');
+      expect(response.body.otpauth).toContain('algorithm=SHA1');
+      expect(response.body.otpauth).toContain('digits=6');
+      expect(response.body.otpauth).toContain('period=30');
+
+      const secret = response.body.otpauth.match(/secret=([A-Z0-9]+)/)[1];
+      expect(secret).toMatch(/^[A-Z2-7]+$/);
+      expect(secret.length % 8).toBe(0);
+
+      const queryString = response.body.otpauth.split('?')[1];
+      const params = new URLSearchParams(queryString);
+      secret1 = params.get('secret');
+    })
+
+    it("exists but inactive", async () => {
+      const response = await request(apiURL)
+        .get("/2fa/totp/activate")
+        .set('Authorization', `Bearer ${users[0].jwt}`)
+
+      expect(response.statusCode).toBe(200);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.otpauth).toMatch(/^otpauth:\/\/totp\/?/);
+      expect(response.body.otpauth).toContain('issuer=YATT');
+      expect(response.body.otpauth).toContain('algorithm=SHA1');
+      expect(response.body.otpauth).toContain('digits=6');
+      expect(response.body.otpauth).toContain('period=30');
+
+      const secret = response.body.otpauth.match(/secret=([A-Z0-9]+)/)[1];
+      expect(secret).toMatch(/^[A-Z2-7]+$/);
+      expect(secret.length % 8).toBe(0);
+
+      const queryString = response.body.otpauth.split('?')[1];
+      const params = new URLSearchParams(queryString);
+      secret2 = params.get('secret');
+    })
+
+    it("already active", async () => {
+      const activate = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .set('Authorization', `Bearer ${users[0].jwt}`)
+        .send({ otp: TOTP.generate(secret2).otp });
+
+      expect(activate.statusCode).toBe(204);
+
+      const response = await request(apiURL)
+        .get("/2fa/totp/activate")
+        .set('Authorization', `Bearer ${users[0].jwt}`)
+
+      expect(response.statusCode).toBe(409);
+    })
+
+  }); // GET /totp/activate
+
+  describe("POST /totp/activate/verify", () => {
+    it("no body", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("empty object", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp not a string", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .send({ otp: {} });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp too short", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .send({ otp: "12345" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp too long", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .send({ otp: "1234567" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("non numerical", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .send({ otp: "a23456" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("not authorized", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(401);
+    })
+
+    it("nothing to validate", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("validate", async () => {
+      const activate = await request(apiURL)
+        .get("/2fa/totp/activate")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+
+      expect(activate.statusCode).toBe(200);
+
+      expect(activate.body.otpauth).toMatch(/^otpauth:\/\/totp\/?/);
+      expect(activate.body.otpauth).toContain('issuer=YATT');
+      expect(activate.body.otpauth).toContain('algorithm=SHA1');
+      expect(activate.body.otpauth).toContain('digits=6');
+      expect(activate.body.otpauth).toContain('period=30');
+
+      const secret = activate.body.otpauth.match(/secret=([A-Z0-9]+)/)[1];
+      expect(secret).toMatch(/^[A-Z2-7]+$/);
+      expect(secret.length % 8).toBe(0);
+
+      const queryString = activate.body.otpauth.split('?')[1];
+      const params = new URLSearchParams(queryString);
+      users[1].otpsecret = params.get('secret');
+
+      const validate = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+        .send({ otp: TOTP.generate(users[1].otpsecret).otp })
+
+      expect(validate.statusCode).toBe(204);
+    })
+
+    it("already using old secret", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+        .send({ otp: TOTP.generate(users[1].otpsecret).otp })
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("already validated", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+        .send({ otp: TOTP.generate(users[1].otpsecret).otp })
+
+      expect(response.statusCode).toBe(403);
+    })
+  }); // POST /totp/activate/verify
+
+  describe("POST /totp/verify", () => {
+    it("no body", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("empty object", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp not a string", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .send({ otp: {} });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp too short", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .send({ otp: "12345" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp too long", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .send({ otp: "1234567" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("non numerical", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .send({ otp: "a23456" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("not authorized", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(401);
+    })
+
+    it("invalid otp", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .set('Authorization', `Bearer ${users[0].jwt}`)
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("user never activated", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .set('Authorization', `Bearer ${users[2].jwt}`)
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("activated without confirmation", async () => {
+      const activate = await request(apiURL)
+        .get("/2fa/totp/activate")
+        .set('Authorization', `Bearer ${users[2].jwt}`)
+
+      expect(activate.statusCode).toBe(200);
+
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .set('Authorization', `Bearer ${users[2].jwt}`)
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("bad otp", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+        .send({ otp: "456456" })
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("sucessfull verification", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/verify")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+        .send({ otp: TOTP.generate(users[1].otpsecret).otp })
+
+      expect(response.body).toEqual({
+        access_token: expect.any(String),
+        expire_at: expect.any(String)
+      });
+    })
+  }); // POST /totp/verify
+
+  describe("POST /totp/deactivate", () => {
+    it("no body", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("empty object", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp not a string", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+        .send({ otp: {} });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp too short", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+        .send({ otp: "12345" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("otp too long", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+        .send({ otp: "1234567" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("non numerical", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+        .send({ otp: "a23456" });
+
+      expect(response.statusCode).toBe(400);
+    })
+
+    it("not authorized", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(401);
+    })
+
+    it("bad opt", async () => {
+      const response = await request(apiURL)
+        .post("/2fa/totp/deactivate")
+        .set('Authorization', `Bearer ${users[1].jwt}`)
+        .send({ otp: "123456" })
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("deactivate", async () => {
+      const activate = await request(apiURL)
+        .get("/2fa/totp/activate")
+        .set('Authorization', `Bearer ${users[3].jwt}`)
+
+      expect(activate.statusCode).toBe(200);
+
+      expect(activate.body.otpauth).toMatch(/^otpauth:\/\/totp\/?/);
+      expect(activate.body.otpauth).toContain('issuer=YATT');
+      expect(activate.body.otpauth).toContain('algorithm=SHA1');
+      expect(activate.body.otpauth).toContain('digits=6');
+      expect(activate.body.otpauth).toContain('period=30');
+
+      const secret = activate.body.otpauth.match(/secret=([A-Z0-9]+)/)[1];
+      expect(secret).toMatch(/^[A-Z2-7]+$/);
+      expect(secret.length % 8).toBe(0);
+
+      const queryString = activate.body.otpauth.split('?')[1];
+      const params = new URLSearchParams(queryString);
+      users[3].otpsecret = params.get('secret');
+
+      const validate = await request(apiURL)
+        .post("/2fa/totp/activate/verify")
+        .set('Authorization', `Bearer ${users[3].jwt}`)
+        .send({ otp: TOTP.generate(users[3].otpsecret).otp })
+
+      expect(validate.statusCode).toBe(204);
+
+      const response = await request(apiURL)
+      .post("/2fa/totp/deactivate")
+      .set('Authorization', `Bearer ${users[3].jwt}`)
+      .send({ otp: TOTP.generate(users[3].otpsecret).otp })
+
+      expect(response.statusCode).toBe(204);
+    });
+  }); // POST /totp/activate
+
+}); // 2FA Router

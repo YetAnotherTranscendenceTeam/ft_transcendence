@@ -23,14 +23,12 @@ export default function passwordRoutes(fastify, opts, done) {
         `http://credentials:3000/password/${email}`
       );
       if (await YATT.crypto.verifyPassword(password, account.hash, account.salt, PASSWORD_PEPPER)) {
-        const tokens = await YATT.fetch(
-          `http://token-manager:3000/${account.account_id}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${fastify.tokens.get()}`,
-            },
-          }
+        const tokens = await YATT.fetch(`http://token-manager:3000/${account.account_id}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${fastify.tokens.get()}`,
+          },
+        }
         );
         reply.setCookie("refresh_token", tokens.refresh_token, {
           httpOnly: true,

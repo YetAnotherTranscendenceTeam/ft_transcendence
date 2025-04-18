@@ -147,6 +147,23 @@ services:
       - db-profiles
       - avatars
 
+  2fa:
+    build:
+      context: services/2fa/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - sqlite:/database
+      - ./services/2fa/srcs:/services/2fa/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+    ports:
+      - 127.0.0.1:4052:3000
+    networks:
+      - frontend
+      - credentials
+
   lobbies:
     build:
       context: services/lobbies/
