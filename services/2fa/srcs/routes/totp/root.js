@@ -19,10 +19,11 @@ export default function router(fastify, opts, done) {
 
   fastify.post("/totp/verify", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
+    const { otp } = request.body;
 
     const otpauth = getActiveSecret.get(account_id);
     console.log("get active", otpauth);
-    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== request.body.otp) {
+    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== otp) {
       throw new HttpError.Forbidden();
     }
 

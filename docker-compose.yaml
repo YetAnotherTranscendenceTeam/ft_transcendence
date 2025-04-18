@@ -156,6 +156,7 @@ services:
       - ./services/2fa/srcs:/services/2fa/srcs
       - ./modules/:/modules:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
     ports:

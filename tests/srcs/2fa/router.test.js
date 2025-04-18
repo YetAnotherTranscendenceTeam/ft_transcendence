@@ -143,6 +143,15 @@ describe("2FA Router", () => {
     })
 
     it("validate", async () => {
+      {
+        const me = await request(apiURL)
+          .get('/me')
+          .set('Authorization', `Bearer ${users[1].jwt}`)
+
+        expect(me.statusCode).toBe(200);
+        expect(me.body.credentials.second_factor).toBe("none");
+      }
+
       const activate = await request(apiURL)
         .get("/2fa/totp/activate")
         .set('Authorization', `Bearer ${users[1].jwt}`)
@@ -169,6 +178,15 @@ describe("2FA Router", () => {
         .send({ otp: TOTP.generate(users[1].otpsecret).otp })
 
       expect(validate.statusCode).toBe(204);
+
+      {
+        const me = await request(apiURL)
+          .get('/me')
+          .set('Authorization', `Bearer ${users[1].jwt}`)
+
+        expect(me.statusCode).toBe(200);
+        expect(me.body.credentials.second_factor).toBe("totp");
+      }
     })
 
     it("already using old secret", async () => {
@@ -392,12 +410,30 @@ describe("2FA Router", () => {
 
       expect(validate.statusCode).toBe(204);
 
+      {
+        const me = await request(apiURL)
+          .get('/me')
+          .set('Authorization', `Bearer ${users[3].jwt}`)
+
+        expect(me.statusCode).toBe(200);
+        expect(me.body.credentials.second_factor).toBe("totp");
+      }
+
       const response = await request(apiURL)
-      .post("/2fa/totp/deactivate")
-      .set('Authorization', `Bearer ${users[3].jwt}`)
-      .send({ otp: TOTP.generate(users[3].otpsecret).otp })
+        .post("/2fa/totp/deactivate")
+        .set('Authorization', `Bearer ${users[3].jwt}`)
+        .send({ otp: TOTP.generate(users[3].otpsecret).otp })
 
       expect(response.statusCode).toBe(204);
+
+      {
+        const me = await request(apiURL)
+          .get('/me')
+          .set('Authorization', `Bearer ${users[3].jwt}`)
+
+        expect(me.statusCode).toBe(200);
+        expect(me.body.credentials.second_factor).toBe("none");
+      }
     });
   }); // POST /totp/activate
 

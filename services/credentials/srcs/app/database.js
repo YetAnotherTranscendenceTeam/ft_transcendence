@@ -12,6 +12,8 @@ db.exec(`
     account_id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
     auth_method TEXT NOT NULL,
+    second_factor TEXT NOT NULL DEFAULT 'none'
+      CHECK (second_factor IN ('none', 'totp')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
