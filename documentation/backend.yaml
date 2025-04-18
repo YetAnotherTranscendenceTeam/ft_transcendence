@@ -88,6 +88,36 @@ components:
         avatar:
           $ref: "#/components/schemas/avatar"
 
+    gamemode_name:
+      $ref: "./asyncapi/lobbies.yaml#/components/schemas/gamemode_name"
+
+    gamemode:
+      $ref: "./asyncapi/lobbies.yaml#/components/schemas/gamemode"
+    
+    tournament:
+      $ref: "./asyncapi/tournament.yaml#/components/schemas/tournament"
+
+    light_tournament:
+      $ref: "./asyncapi/tournament.yaml#/components/schemas/light_tournament"
+
+    match_state:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/match_state"
+
+    match:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/match"
+
+    light_match:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/light_match"
+    
+    matchmaking_user:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/matchmaking_user"
+
+    order:
+      type: string
+      enum:
+        - asc
+        - desc
+
   responses:
     AccountNotFound:
       description: Resource not found
@@ -632,3 +662,307 @@ paths:
           description: Successfull profile deletion
       security:
         - BearerAuth: []
+
+  /matchmaking/tournaments/{tournament_id}:
+    parameters:
+      - in: path
+        name: tournament_id
+        required: true
+        description: The ID of the tournament
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get tournament
+      description: Retrieve information about a specific tournament
+      tags:
+        - Matchmaking
+        - Tournaments
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tournament"
+        404:
+          description: Tournament not found
+  
+  /matchmaking/tournaments/{tournament_id}/notify:
+    parameters:
+      - in: path
+        name: tournament_id
+        required: true
+        description: The ID of the tournament
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: tournament notification SSE
+      description: |
+        Establishes a SSE connection for real-time tournament notifications.
+        Follow this [link](http://localhost:42000/asyncapi/tournament) for detailed documentation.
+      tags:
+        - Matchmaking
+        - Tournaments
+      responses:
+        200:
+          description: Successful response
+        204:
+          description: No events available, tournament is done or cancelled
+        404:
+          description: Tournament not found
+  
+  /matchmaking/matches/{match_id}:
+    parameters:
+      - in: path
+        name: match_id
+        required: true
+        description: The ID of the match
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get match
+      description: Retrieve information about a specific match
+      tags:
+        - Matchmaking
+        - Matches
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/match"
+        404:
+          description: Match not found
+    patch:
+      summary: update match
+      description: Update the status of a match. This requires a valid matchmaking JWT.
+      tags:
+        - Matchmaking
+        - Matches
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  $ref: "#/components/schemas/match_state"
+                score_0:
+                  type: integer
+                  description: The score of team 0
+                score_1:
+                  type: integer
+                  description: The score of team 1
+      responses:
+        200:
+          description: Match updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/light_match"
+        404:
+          description: Match not found
+  
+  /matchmaking/users/{account_id}:
+    parameters:
+      - in: path
+        name: account_id
+        required: true
+        description: The ID of the user
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get user matchmaking info
+      description: Retrieve information about a specific user's matchmaking status
+      tags:
+        - Matchmaking
+        - Matches
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_match:
+                    $ref: "#/components/schemas/light_match"
+                  last_tournament:
+                    $ref: "#/components/schemas/light_tournament"
+                  matchmaking_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/matchmaking_user"
+        404:
+          description: User not found
+
+  /matchmaking/users/{account_id}/matches:
+    parameters:
+      - in: path
+        name: account_id
+        required: true
+        description: The ID of the user
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get user matches
+      description: Retrieve a list of matches for a specific user
+      tags:
+        - Matchmaking
+        - Matches
+        - Users
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            $ref: "#/components/schemas/limit"
+
+        - in: query
+          name: offset
+          schema:
+            $ref: "#/components/schemas/offset"
+
+        - in: query
+          name: filter[state]
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/match_state"
+          description: Filters results to include matches with specific states
+
+        - in: query
+          name: filter[gamemode]
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/gamemode_name"
+          description: Filters results to include matches with specific gamemode names
+
+        - in: query
+          name: order[match_id]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[created_at]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[updated_at]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[score_0]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[score_1]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[gamemode]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[state]
+          schema:
+            $ref: "#/components/schemas/order"
+
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/light_match"
+
+  /lobbies/join:
+    get:
+      parameters:
+        - in: path
+          name: access_token
+          required: true
+          description: A JSON Web Token
+          schema:
+            type: string
+        - in: path
+          name: gamemode
+          description: The gamemode of the lobby to create
+          schema:
+            $ref: "#/components/schemas/gamemode_name"
+        - in: path
+          name: secret
+          description: The secret of the lobby to join
+          schema:
+            type: string
+      tags:
+        - Websocket
+        - Lobbies
+      summary: lobby websocket
+      description: |
+        Establishes a WebSocket connection for real-time lobby interactions.
+        Follow this [link](http://localhost:42000/asyncapi/lobbies) for detailed documentation.
+      responses:
+        101:
+          description: Switching Protocol
+  
+  /lobbies/gamemodes:
+    get:
+      summary: get gamemodes
+      description: Retrieve a list of available gamemodes
+      tags:
+        - Lobbies
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - unranked_1v1
+                  - unranked_2v2
+                  - ranked_1v1
+                  - ranked_2v2
+                  - custom_1v1
+                  - custom_2v2
+                properties:
+                  unranked_1v1:
+                    $ref: "#/components/schemas/gamemode"
+                  unranked_2v2:
+                    $ref: "#/components/schemas/gamemode"
+                  ranked_1v1:
+                    $ref: "#/components/schemas/gamemode"
+                  ranked_2v2:
+                    $ref: "#/components/schemas/gamemode"
+                  custom_1v1:
+                    $ref: "#/components/schemas/gamemode"
+                  custom_2v2:
+                    $ref: "#/components/schemas/gamemode"
+
+
