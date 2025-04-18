@@ -284,7 +284,10 @@ services:
       - settings
 
   cdn-nginx:
-    build: services/CDN/nginx/
+    build:
+      context: services/CDN/nginx/
+      args:
+        - CDN_AUTOINDEX=on
     ports:
       - "8181:8181"
     volumes:

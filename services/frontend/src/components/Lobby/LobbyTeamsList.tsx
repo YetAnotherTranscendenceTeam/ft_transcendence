@@ -49,7 +49,6 @@ class DraggableCard {
 		this.switchCard.style.position = 'absolute';
 		this.switchCard.style.left = `${this.initialX}px`;
 		this.switchCard.style.top = `${this.initialY}px`;
-		console.log('switchCard', this.switchCard);
 	}
 
 	resetSwitchCard() {

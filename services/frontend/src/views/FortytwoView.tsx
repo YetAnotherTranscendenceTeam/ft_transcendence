@@ -11,7 +11,6 @@ export default function FortytwoView() {
 	else {
 		window.opener.postMessage({ statusCode }, window.location.origin);
 	}
-	console.log('FortytwoView', token, expire_at, statusCode);
 	window.close();
 	return null;
 }

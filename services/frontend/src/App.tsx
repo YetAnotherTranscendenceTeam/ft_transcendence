@@ -9,6 +9,7 @@ import LobbyView from "./views/LobbyView";
 import ProfileView from "./views/ProfileView";
 import { PongProvider } from "./contexts/usePong";
 import LocalView from "./views/LocalView";
+import TournamentView from "./views/TournamentView";
 
 export default function App() {
 	return <Router>
@@ -22,6 +23,7 @@ export default function App() {
 					<Route path='/lobby/:code' element={<LobbyView/>} />
 					<Route path='/profiles/:id' element={<ProfileView/>} />
 					<Route path='/local' element={<LocalView/>} />
+					<Route path='/tournaments/:id' element={<TournamentView/>} />
 					<Route path="/*" element={<Home />} />
 				</Routes>
 			</div>

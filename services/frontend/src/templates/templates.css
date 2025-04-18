@@ -69,6 +69,7 @@
 	padding: 16px;
 	box-sizing: border-box;
 	overflow: auto;
+	z-index: 2;
 	transition: transform 0.4s;
 }
 

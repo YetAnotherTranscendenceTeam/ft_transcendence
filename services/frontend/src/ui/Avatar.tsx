@@ -6,6 +6,7 @@ export default function Avatar({
 		name,
 		status,
 		children,
+		size = 'md',
 		...props
 	}: {
 		className?: string,
@@ -13,6 +14,7 @@ export default function Avatar({
 		name?: string,
 		status?: string,
 		children?: any,
+		size?: 'xs' | 'sm' | 'md' | 'lg',
 		[key: string]: any
 	}) {
 
@@ -34,7 +36,7 @@ export default function Avatar({
 
 	const [error, setError] = Babact.useState<boolean>(false);
 
-	return <div className={`avatar ${className}`} style={`background-color: ${error ? stringToColour(name) : 'var(--bg-2)'};`} {...props}>
+	return <div className={`avatar ${size} ${className}`} style={`background-color: ${error ? stringToColour(name) : 'var(--bg-2)'};`} {...props}>
 		{error && <p>{initials}</p>}
 		<img key={src} src={src} alt="avatar" onError={(e) => {
 			e.target.style.display = 'none';
