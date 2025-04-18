@@ -1,7 +1,7 @@
 "use strict";
 
 import { generate, activate, getInactiveSecret } from "../../app/database.js";
-import { HttpError, properties } from "yatt-utils";
+import YATT, { HttpError, properties } from "yatt-utils";
 import crypto from "node:crypto";
 import { base32 } from "rfc4648";
 import { generateOTPAuth } from "../../utils/generateOTPAuth.js";
@@ -37,11 +37,22 @@ export default function router(fastify, opts, done) {
 
   fastify.post("/totp/activate/verify", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
+    const { otp } = request.body;
 
+    // Verify otp
     const otpauth = getInactiveSecret.get(account_id);
-    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== request.body.otp) {
+    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== otp) {
       throw new HttpError.Forbidden();
     }
+
+    // Update credential database
+    await YATT.fetch(`http://credentials:3000/2fa/${account_id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json", 
+      },
+      body: JSON.stringify({ method: "totp" }),
+    });
 
     activate.run(account_id);
     reply.code(204);
