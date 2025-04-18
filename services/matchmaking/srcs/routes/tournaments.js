@@ -10,16 +10,16 @@ export default function router(fastify, opts, done) {
         params: { type: "object", properties: { id: { type: "number" } } },
         query: {
           type: "object",
-          required: ["token"],
+          required: ["access_token"],
           properties: {
-            token: { type: "string" },
+            access_token: { type: "string" },
           },
         },
       },
     },
     async function handler(request, reply) {
       try {
-        request.account_id = fastify.jwt.decode(request.query.token).account_id;
+        request.account_id = fastify.jwt.decode(request.query.access_token).account_id;
         if (!request.account_id) return new HttpError.Unauthorized().send(reply);
       } catch (err) {
         return new HttpError.Unauthorized().send(reply);

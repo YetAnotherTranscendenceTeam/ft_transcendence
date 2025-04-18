@@ -165,7 +165,7 @@ describe.each(tests)(
     });
     it("connect to SSE and expect tournament sync", async () => {
       sse = await createTestSSE(
-        `${apiURL}/matchmaking/tournaments/${tournament.id}/notify?token=${users[0].jwt}`
+        `${apiURL}/matchmaking/tournaments/${tournament.id}/notify?access_token=${users[0].jwt}`
       );
       await sse.expectJson("sync", (event) => {
         const event_tournament = event.tournament;

@@ -220,18 +220,18 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	});
 
 	const create = async (mode: string = 'ranked_1v1') => {
-		ws.connect(`${config.WS_URL}/lobbies/join?gamemode=${mode}&token=${localStorage.getItem("access_token")}`);
+		ws.connect(`${config.WS_URL}/lobbies/join?gamemode=${mode}`, true);
 	};
 
 	const join = async (id: string) => {
-		ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}&token=${localStorage.getItem("access_token")}`);
+		ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}`, true);
 	};
 
 	// TODO: Add a refresh alert to confirm leaving the lobby
 	Babact.useEffect(() => {
 		const lobby = localStorage.getItem('lobby');
 		if (lobby) {
-			ws.connect(`${config.WS_URL}/lobbies/join?secret=${lobby}&token=${localStorage.getItem("access_token")}`);
+			join(lobby);
 		}
 	}, []);
 

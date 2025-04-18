@@ -87,7 +87,7 @@ export default function useTournament(tournamentId: number, onFinishCallback: (i
 		if (response)
 			onSync({tournament: response});
 		if (response?.active === 1)
-			sse.connect(`${config.API_URL}/matchmaking/tournaments/${tournamentId}/notify?token=${localStorage.getItem('access_token')}`)
+			sse.connect(`${config.API_URL}/matchmaking/tournaments/${tournamentId}/notify`, true);
 	}
 
 	const onSync = ({tournament} : {tournament: Tournament}) => {

@@ -313,7 +313,7 @@ describe("Join full lobby", () => {
       players.push(player);
     }
     await request(lobbiesURL)
-      .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].join_secret}`)
+      .ws(`/join?access_token=${users[players.length].jwt}&secret=${players[0].join_secret}`)
       .expectClosed(4001, "LOBBY_FULL")
       .close();
     while (players.length > 0) {
