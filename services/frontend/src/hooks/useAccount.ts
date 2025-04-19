@@ -81,11 +81,32 @@ export default function useAccount() {
 		return response;
 	}
 
+	const disable2FA = async (otp: string) => {
+		const response = await ft_fetch(`${config.API_URL}/2fa/totp/deactivate`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				otp,
+			})
+		}, {
+			success_message: "2FA disabled successfully",
+			show_error: true,
+			error_messages: {
+				403: "Invalid code",
+			}
+		});
+
+		return response;
+	}
+
 	return {
 		setSettings,
 		isLoading,
 		enable2FA,
-		confirm2FA
+		confirm2FA,
+		disable2FA
 	}
 
 }

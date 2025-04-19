@@ -18,6 +18,13 @@ export default function TwoFAConfirmationModal({
 	}) {
 
 	
+	const handleSubmit = async (fields, clear) => {
+		const { '2fa-otp': otp } = fields;
+		const res = await onConfirm(otp.value);
+		clear();
+		onClose();
+	}
+
 	useEscape(isOpen, onClose);
 
 	return <Modal
@@ -37,7 +44,7 @@ export default function TwoFAConfirmationModal({
 			/>
 			<div className='flex flex-col gap-4'>
 				<Submit
-					onSubmit={() => {}}
+					onSubmit={handleSubmit}
 					fields={['2fa-otp']}	
 				>
 					Confirm

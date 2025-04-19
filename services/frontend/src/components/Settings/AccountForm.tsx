@@ -19,8 +19,8 @@ export default function AccountForm({
 		onLogout: Function
 	}) {
 
-	const { logout } = useAuth();
-	const { setSettings, isLoading } = useAccount();
+	const { logout, refresh } = useAuth();
+	const { setSettings, isLoading, disable2FA } = useAccount();
 	const [isOpen, setIsOpen] = Babact.useState<boolean>(false);
 
 	const handleSubmit = async (fields, clearFields) => {
@@ -124,7 +124,12 @@ export default function AccountForm({
 		/> : <TwoFAConfirmationModal
 			isOpen={isOpen}
 			onClose={() => setIsOpen(false)}
-			onConfirm={async () => {}}
+			onConfirm={async (otp: string) => {
+				const res = await disable2FA(otp);
+				if (res)
+					refresh();
+				return res;
+			}}
 			title='Disable 2FA'
 		/>}
 	</SettingsSection>
