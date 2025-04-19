@@ -1,7 +1,8 @@
 
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
-import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, InputBlock, AudioEngine } from "@babylonjs/core";
+import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
+import * as BABYLON from "@babylonjs/core";
 import { GameMode, GameModeType, IPlayer } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
@@ -18,13 +19,10 @@ export default class PongClient extends PONG.Pong {
 	private _babylonScene: Scene;
 	private _gameScene: GameScene;
 
-	private _objects: {
-		ball: Mesh;
-		paddle: Mesh;
-	}
-
 	private _camera: ArcRotateCamera;
 	private _light: HemisphericLight;
+
+	private _ballMesh: Mesh;
 
 	private _ballInstances: ClientBall[];
 	private _paddleInstance: Map<number, ClientPaddle>;
@@ -37,6 +35,8 @@ export default class PongClient extends PONG.Pong {
 		super();
 		this._gameScene = GameScene.MENU;
 		this.scoreUpdateCallback = scoreUpdateCallback;
+		this._ballInstances = [];
+		this._paddleInstance = new Map<number, ClientPaddle>();
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
 		this._keyboard = new Map<string, KeyState>();
@@ -45,24 +45,33 @@ export default class PongClient extends PONG.Pong {
 		this._keyboard.set("w", KeyState.IDLE);
 		this._keyboard.set("s", KeyState.IDLE);
 		this._keyboard.set("c", KeyState.IDLE);
-		
+
 		this._babylonScene = new Scene(this._engine);
+		// Optimize for performance
+		// this._babylonScene.performancePriority = BABYLON.ScenePerformancePriority.Intermediate;
+		// this._babylonScene.collisionsEnabled = false;
+		this._babylonScene.autoClear = true;
+		// this._babylonScene.autoClearDepthAndStencil = false;
 
-		// (async () => {
-		// 	const audioEngine = new AudioEngine();
-		
-		// 	// Create sounds here, but don't call `play()` on them, yet ...
-		
-		// 	// Wait until audio engine is ready to play sounds.
-		// 	audioEngine.unlock();
-		
-		// 	// Start sound playback ...
-		// })();
 
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
-
-		this.loadAssets();
+		// // Ball Mesh // TODO: not implemented yet
+		// this._ballMesh = MeshBuilder.CreateSphere(
+		// 	"ball",
+		// 	{ diameter: PONG.K.ballRadius * 2 },
+		// 	this._babylonScene
+		// );
+		// this._ballMesh.position = new Vector3(
+		// 	0,
+		// 	-1,
+		// 	0
+		// );
+		// const material = new StandardMaterial("ballMaterial", this._babylonScene);
+		// material.diffuseColor = Color3.White();
+		// material.specularColor = Color3.Black();
+		// this._ballMesh.material = material;
+		// this._ballMesh.isVisible = false;
+		// this._ballMesh.isPickable = false;
+		// this._ballMesh.checkCollisions = false;
 
 		// this._babylonScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
 		// this._babylonScene = createScene(this._engine, this._canvas);
@@ -89,16 +98,9 @@ export default class PongClient extends PONG.Pong {
 		this._websocket.onclose = (ev) => {
 			console.log(ev);
 		}
-		
+
 	}
 
-	private loadAssets() {
-		// this._engine.displayLoadingUI(); // baba callback (display loading screen)
-		// SceneLoader.AppendAsync("https://models.babylonjs.com/skybox/skybox.babylon", "", this._babylonScene).then(() => {
-		// 	this._engine.hideLoadingUI(); // baba callback (hide loading screen)
-		// });
-	}
-	
 	public setGameScene(scene: GameScene) {
 		this._gameScene = scene;
 		if (this._gameScene === GameScene.LOCAL) {
@@ -150,21 +152,12 @@ export default class PongClient extends PONG.Pong {
 		// scene.clearColor = Color4.FromColor3(Color3.Black());
 		// scene.createDefaultEnvironment();
 		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 20, Vector3.Zero(), this._babylonScene);
-		// camera.attachControl(canvas, true);
-		// camera.lowerRadiusLimit = 1.5;
-		// camera.upperRadiusLimit = 15;
-		// camera.wheelPrecision = 50;
+		camera.attachControl(this._canvas, true);
+		camera.lowerRadiusLimit = 1.5;
+		camera.upperRadiusLimit = 30;
+		camera.wheelPrecision = 50;
 
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
-
-		// default setup
-		const wallSize: Vector2 = new Vector2(PONG.maps.small.wallSize.x, PONG.maps.small.wallSize.y);
-		const wallBottom: ClientWall = new ClientWall(this._babylonScene, "wallBottom", new Vector2(0, PONG.maps.small.wallBottomPosition.y), wallSize);
-		const wallTop: ClientWall = new ClientWall(this._babylonScene, "wallTop", new Vector2(0, PONG.maps.small.wallTopPosition.y), wallSize);
-
-		const goalSize: Vector2 = new Vector2(PONG.maps.small.goalSize.x, PONG.maps.small.goalSize.y);
-		const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, "goalLeft", new Vector2(PONG.maps.small.goalLeftPosition.x, 0), goalSize, Color3.Red());
-		const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, "goalRight", new Vector2(PONG.maps.small.goalRightPosition.x, 0), goalSize, Color3.Red());
 	}
 
 	private onlineGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
@@ -174,7 +167,7 @@ export default class PongClient extends PONG.Pong {
 		
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
-		this._balls.forEach((ball: PONG.Ball) => {
+		this._balls.forEach((ball: PH2D.Body) => {
 			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
 			this._ballInstances.push(ballInstance);
 		});
@@ -191,11 +184,13 @@ export default class PongClient extends PONG.Pong {
 		
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
-		this._balls.forEach((ball: PONG.Ball) => {
+		this._balls.forEach((ball: PH2D.Body) => {
 			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
 			this._ballInstances.push(ballInstance);
 		});
 		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
+			console.log("paddle: " + playerId);
+			console.log(paddle);
 			const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
 			this._paddleInstance.set(playerId, paddleInstance);
 		});
@@ -223,7 +218,11 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private playerUpdate() { // TODO: refactor to use playerId
-		let paddle: ClientPaddle | undefined = this._paddleInstance.get(1);
+		if (this._gameScene !== GameScene.LOCAL) {
+			return;
+		}
+
+		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			let keyStateProbe: KeyState = this._keyboard.get("ArrowUp") || KeyState.IDLE;
@@ -237,7 +236,7 @@ export default class PongClient extends PONG.Pong {
 			paddle.move(moveDirection);
 		}
 
-		paddle = this._paddleInstance.get(0);
+		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			let keyStateProbe: KeyState = this._keyboard.get("w") || KeyState.IDLE;
@@ -255,13 +254,13 @@ export default class PongClient extends PONG.Pong {
 	private handleKeyDown = (ev: KeyboardEvent) => {
 		// console.log(ev);
 		// Shift+Ctrl+Alt+I
-		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
-		// 	if (this._scene[this._activeScene].debugLayer.isVisible()) {
-		// 		this._scene[this._activeScene].debugLayer.hide();
-		// 	} else {
-		// 		this._scene[this._activeScene].debugLayer.show();
-		// 	}
-		// }
+		if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
+			if (this._babylonScene.debugLayer.isVisible()) {
+				this._babylonScene.debugLayer.hide();
+			} else {
+				this._babylonScene.debugLayer.show();
+			}
+		}
 
 		// if (ev.key === "z") {
 		// 	this.onlineGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);

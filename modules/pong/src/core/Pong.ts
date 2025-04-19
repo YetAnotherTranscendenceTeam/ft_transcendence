@@ -40,6 +40,9 @@ export class Pong {
 	public constructor() {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, K.substeps);
 		this._map = new Map();
+		this._paddles = new Map();
+		this._goals = new Map();
+		this._balls = [];
 		this.loadMaps();
 		this._accumulator = 0;
 		this._currentMap = undefined;
@@ -60,8 +63,11 @@ export class Pong {
 	}
 
 	protected switchMap(mapId: MapID) {
-		if (!this._currentMap.mapId || this._currentMap.mapId !== mapId) {
+		if (!this._currentMap || this._currentMap.mapId !== mapId) {
 			this._currentMap = this._map.get(mapId);
+			if (!this._currentMap) {
+				throw new Error("Map not found");
+			}
 			this._physicsScene.clear();
 			this._paddles.clear();
 			this._goals.clear();
@@ -113,6 +119,7 @@ export class Pong {
 		this.switchMap(MapID.SMALL);
 
 		this._balls.push(new Ball());
+		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
 	}
 
@@ -130,6 +137,7 @@ export class Pong {
 		this.switchMap(MapID.SMALL);
 
 		this._balls.push(new Ball());
+		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
 	}
 
@@ -142,6 +150,7 @@ export class Pong {
 		this.switchMap(MapID.FAKE);
 
 		this._balls.push(new Ball());
+		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
 	}
 
@@ -154,12 +163,12 @@ export class Pong {
 		this.switchMap(MapID.FAKE);
 
 		this._balls.push(new Ball());
+		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
 	}
 
 	protected start() {
 		this._state = PongState.PLAYING;
-
 		this.launchBall();
 	}
 
@@ -183,7 +192,7 @@ export class Pong {
 			this._physicsScene.step();
 			this._accumulator -= K.DT;
 		}
-		this._paddles.forEach((paddle: PH2D.Body) => { // block paddle movement with walls
+		this._paddles.forEach((paddle: PH2D.Body) => { // block paddle movement within walls
 			if (paddle.position[1] > (K.mapData1v1.playGround.height / 2 - K.paddleSize[1] / 2)) {
 				paddle.position[1] = (K.mapData1v1.playGround.height / 2 - K.paddleSize[1] / 2);
 			} else if (paddle.position[1] < (-K.mapData1v1.playGround.height / 2 + K.paddleSize[1] / 2)) {
@@ -229,7 +238,7 @@ export class Pong {
 		const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		const ballVelocity: Vec2 = new Vec2(x, y);
-		this._balls[0].setDirection(ballVelocity);
 		this._balls[0].speed = K.defaultBallSpeed;
+		this._balls[0].setDirection(ballVelocity);
 	}
 }
