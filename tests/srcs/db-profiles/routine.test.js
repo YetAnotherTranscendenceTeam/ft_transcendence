@@ -72,7 +72,7 @@ describe("Profile creation routine", () => {
     account_id: parseInt(Math.random() * 10000000 + 1000000)
   };
 
-  it("successfull profile creation", async () => {
+  it("successful profile creation", async () => {
     const response = await request(profilesURL)
       .post("/")
       .send({
