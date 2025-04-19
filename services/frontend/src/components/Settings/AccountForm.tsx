@@ -8,6 +8,7 @@ import { AuthMethod, IMe, useAuth } from "../../contexts/useAuth";
 import Alert from "../../ui/Alert";
 import { ToastType } from "../../hooks/useToast";
 import useAccount from "../../hooks/useAccount";
+import TwoFAEnableModal from "../Auth/TwoFAEnableModal";
 
 export default function AccountForm({
 		me,
@@ -19,6 +20,7 @@ export default function AccountForm({
 
 	const { logout } = useAuth();
 	const { setSettings, isLoading } = useAccount();
+	const [isOpen, setIsOpen] = Babact.useState<boolean>(false);
 
 	const handleSubmit = async (fields, clearFields) => {
 		const settings = {
@@ -84,6 +86,16 @@ export default function AccountForm({
 					</Submit>
 				}
 			</div>
+			<Button
+				onClick={() => setIsOpen(true)}
+			>
+				Enable 2FA
+				<i className="fa-solid fa-shield-halved"></i>
+			</Button>
 		</Form>
+		<TwoFAEnableModal
+			isOpen={isOpen}
+			onClose={() => setIsOpen(false)}
+		/>
 	</SettingsSection>
 }

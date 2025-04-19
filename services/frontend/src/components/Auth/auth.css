@@ -66,8 +66,28 @@
 	width: 20px;
 	height: 20px;
 }
-/* 
-.auth-card-form {
-	margin-bottom: 1rem;
-} */
 
+
+/* 2fa-modal */
+
+
+.mfa-modal-qrcode {
+	margin: 32px 0;
+	width: 100%;
+
+}
+
+.mfa-modal-qrcode p {
+	text-align: left;
+	color: var(--fg-4);
+	font-size: small;
+}
+
+.mfa-modal img {
+	width: 20vw;
+	max-width: 200px;
+}
+
+.mfa-modal .pin-input {
+	width: 350px;
+}

@@ -48,9 +48,21 @@ export default function useAccount() {
 		return response;
 	}
 
+
+	const enable2FA = async () => {
+		const response = await ft_fetch(`${config.API_URL}/2fa/totp/activate`, {}, {
+			show_error: true,
+			error_messages: {
+				409: "2FA already activated",
+			}
+		})
+		return response;
+	}
+
 	return {
 		setSettings,
-		isLoading
+		isLoading,
+		enable2FA
 	}
 
 }

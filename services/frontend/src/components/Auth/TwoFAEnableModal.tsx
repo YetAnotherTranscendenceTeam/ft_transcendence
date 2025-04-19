@@ -1,0 +1,73 @@
+import Babact from "babact";
+import Modal from "../../ui/Modal";
+import useAccount from "../../hooks/useAccount";
+import * as QRCode from 'qrcode'; 
+import Spinner from "../../ui/Spinner";
+import PinInput from "../../ui/PinInput";
+import useEscape from "../../hooks/useEscape";
+import { Form } from "../../contexts/useForm";
+import Submit from "../../ui/Submit";
+
+export default function TwoFAEnableModal({
+		isOpen,
+		onClose,
+	}: {
+		isOpen: boolean;
+		onClose: () => void;
+	}) {
+
+	const { enable2FA } = useAccount();
+	const [QRCodeDataURL, setQRCodeDataUrl] = Babact.useState(null);
+
+	const handleEnable2FA = async () => {
+		const res = await enable2FA();
+		if (res) {
+			setQRCodeDataUrl(await QRCode.toDataURL(res.otpauth));
+		}
+	}
+
+	
+
+	Babact.useEffect(() => {
+		if (isOpen) {
+			handleEnable2FA();
+		}
+	}, [isOpen]);
+
+	useEscape(isOpen, onClose);
+
+	return <Modal
+		isOpen={isOpen}
+		onClose={onClose}
+		className='mfa-modal flex flex-col items-center justify-center gap-4'
+	>
+		<h1>2FA activation</h1>
+		{QRCodeDataURL ? <div
+			className='mfa-modal-qrcode flex flex-col gap-2 items-center justify-center'
+		>
+				<img src={QRCodeDataURL} alt="QR Code" id="2fa" />
+				<p>Use your authenticator app to scan this QR code</p>
+			</div>
+			: <Spinner />
+		}
+
+		<Form
+			formFields={['2fa-otp*']}
+		>
+
+			<PinInput
+				field='2fa-otp'
+				required
+				label='One Time Code'
+				help='Enter the code from your authenticator app to confirm 2FA activation.'
+				length={6}
+			/>
+			<Submit
+				fields={['2fa-otp']}
+				onSubmit={() => console.log('2FA activated')}
+			>
+				Activate 2FA <i className="fa-solid fa-shield-halved"></i>
+			</Submit>
+		</Form>
+	</Modal>
+}
