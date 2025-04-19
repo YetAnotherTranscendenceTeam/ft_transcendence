@@ -12,9 +12,10 @@ export default function router(fastify, opts, done) {
     const { account_id } = request;
 
     try {
+      const account = await YATT.fetch(`http://credentials:3000/${account_id}`);
       const secret = base32.stringify(crypto.randomBytes(20));
       generate.run(account_id, secret);
-      reply.send({ otpauth: generateOTPAuth(secret) });
+      reply.send({ otpauth: generateOTPAuth(secret, { email: account.email }) });
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
         throw new HttpError.Conflict();
