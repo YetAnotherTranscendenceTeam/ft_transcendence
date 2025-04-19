@@ -19,6 +19,7 @@ export default function router(fastify, opts, done) {
   fastify.post("/totp/deactivate", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
 
+    // Verify otp
     const otpauth = getActiveSecret.get(account_id);
     if (!otpauth?.secret || generateTOTP(otpauth.secret) !== request.body.otp) {
       throw new HttpError.Forbidden();

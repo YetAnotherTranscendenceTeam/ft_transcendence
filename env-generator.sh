@@ -61,6 +61,7 @@ secret_keys=( \
     "MATCHMAKING_SECRET" \
     "PONG_SECRET"
     "MATCH_MANAGEMENT_SECRET" \
+    "TWO_FA_SECRET"
 )  
 
 echo "[SECRETS]"

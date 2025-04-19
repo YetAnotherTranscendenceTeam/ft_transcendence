@@ -158,7 +158,7 @@ services:
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
-      - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - TWO_FA_SECRET=${TWO_FA_SECRET}
     ports:
       - 127.0.0.1:4052:3000
     networks:
