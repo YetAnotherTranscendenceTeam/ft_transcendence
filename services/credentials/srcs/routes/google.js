@@ -6,41 +6,36 @@ import { createProfile } from "../utils/createProfile.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
-    tags: ["Google"],
-    description: "Get all Google Sign in based credentials",
+    description: "Get the accounts using Google Sign in",
     querystring: {
       type: "object",
       properties: {
         limit: properties.limit,
         offset: properties.offset,
       },
-    },
-    response: {
-      200: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            account_id: properties.account_id,
-            google_id: properties.google_id,
-          },
-          required: ["account_id", "google_id"],
-        },
-      },
+      additionalProperties: false,
     },
   };
 
-  // Get google_auth table entries
   fastify.get("/google", { schema }, async function handler(request, reply) {
     const { limit, offset } = request.query;
 
-    return db
-      .prepare(`SELECT * FROM google_auth LIMIT ? OFFSET ?`)
-      .all(limit, offset);
+    return db.prepare(`SELECT * FROM google_auth LIMIT ? OFFSET ?`).all(limit, offset);
   });
 
-  // Get the account associated to a google_id
-  fastify.get("/google/:google_id", async function handler(request, reply) {
+  schema = {
+    description: "Get the account associated to a google_id",
+    params: {
+      type: "object",
+      properties: {
+        google_id: properties.google_id
+      },
+      required: ["google_id"],
+      additionalProperties: false,
+    }
+  }
+
+  fastify.get("/google/:google_id", { schema }, async function handler(request, reply) {
     const { google_id } = request.params;
 
     const account = db.prepare(`
@@ -50,7 +45,7 @@ export default function router(fastify, opts, done) {
         ON accounts.account_id = google_auth.account_id
       WHERE auth_method = 'google_auth'
         AND google_auth.google_id = ?;
-    `).get(google_id);
+    `).get(google_id.toString());
 
     if (!account) {
       reply.status(404).send({ error: "Account not found" });
@@ -59,6 +54,7 @@ export default function router(fastify, opts, done) {
   });
 
   schema = {
+    description: "Create a google_id based account",
     body: {
       type: "object",
       properties: {
@@ -70,13 +66,12 @@ export default function router(fastify, opts, done) {
     }
   }
 
-  // Create a google_id based account
   fastify.post("/google", { schema }, async function handler(request, reply) {
     const { email, google_id } = request.body;
 
     try {
       const result = db.transaction(() => {
-        const accountId = db.prepare(`
+        const insert = db.prepare(`
           INSERT INTO accounts (email, auth_method)
           VALUES (?, 'google_auth')
           RETURNING account_id
@@ -86,7 +81,7 @@ export default function router(fastify, opts, done) {
           INSERT INTO google_auth (account_id, google_id)
           VALUES (?, ?)
           RETURNING *
-        `).get(accountId.account_id, google_id);
+        `).get(insert.account_id, google_id.toString());
       })();
       await createProfile(result.account_id);
       reply.status(201).send(result);
