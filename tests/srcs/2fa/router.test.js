@@ -1,6 +1,6 @@
 import request from "supertest";
-import { createUsers, users } from "../../dummy/dummy-account.js";
-import { apiURL } from "../../URLs.js";
+import { app, createUsers, users } from "../../dummy/dummy-account.js";
+import { apiURL, twofaURL } from "../../URLs.js";
 import { TOTP } from "totp-generator";
 
 createUsers(4);
@@ -208,116 +208,6 @@ describe("2FA Router", () => {
     })
   }); // POST /totp/activate/verify
 
-  describe("POST /totp/verify", () => {
-    it("no body", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-
-      expect(response.statusCode).toBe(400);
-    })
-
-    it("empty object", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-
-      expect(response.statusCode).toBe(400);
-    })
-
-    it("otp not a string", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .send({ otp: {} });
-
-      expect(response.statusCode).toBe(400);
-    })
-
-    it("otp too short", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .send({ otp: "12345" });
-
-      expect(response.statusCode).toBe(400);
-    })
-
-    it("otp too long", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .send({ otp: "1234567" });
-
-      expect(response.statusCode).toBe(400);
-    })
-
-    it("non numerical", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .send({ otp: "a23456" });
-
-      expect(response.statusCode).toBe(400);
-    })
-
-    it("not authorized", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .send({ otp: "123456" })
-
-      expect(response.statusCode).toBe(401);
-    })
-
-    it("invalid otp", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .set('Authorization', `Bearer ${users[0].jwt}`)
-        .send({ otp: "123456" })
-
-      expect(response.statusCode).toBe(403);
-    })
-
-    it("user never activated", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .set('Authorization', `Bearer ${users[2].jwt}`)
-        .send({ otp: "123456" })
-
-      expect(response.statusCode).toBe(403);
-    })
-
-    it("activated without confirmation", async () => {
-      const activate = await request(apiURL)
-        .get("/2fa/totp/activate")
-        .set('Authorization', `Bearer ${users[2].jwt}`)
-
-      expect(activate.statusCode).toBe(200);
-
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .set('Authorization', `Bearer ${users[2].jwt}`)
-        .send({ otp: "123456" })
-
-      expect(response.statusCode).toBe(403);
-    })
-
-    it("bad otp", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .set('Authorization', `Bearer ${users[1].jwt}`)
-        .send({ otp: "456456" })
-
-      expect(response.statusCode).toBe(403);
-    })
-
-    it("sucessfull verification", async () => {
-      const response = await request(apiURL)
-        .post("/2fa/totp/verify")
-        .set('Authorization', `Bearer ${users[1].jwt}`)
-        .send({ otp: TOTP.generate(users[1].otpsecret).otp })
-
-      expect(response.body).toEqual({
-        access_token: expect.any(String),
-        expire_at: expect.any(String)
-      });
-    })
-  }); // POST /totp/verify
-
   describe("POST /totp/deactivate", () => {
     it("no body", async () => {
       const response = await request(apiURL)
@@ -436,5 +326,155 @@ describe("2FA Router", () => {
       }
     });
   }); // POST /totp/activate
+
+  describe("POST /totp/verify", () => {
+    it("no auth", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+
+      expect(response.statusCode).toBe(401);
+    })
+
+    it("auth using user jwt", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${users[3].jwt}`)
+
+      expect(response.statusCode).toBe(401);
+    })
+
+    it("auth using other service jwt", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.sign({})}`);
+
+      expect(response.statusCode).toBe(401);
+    })
+
+    it("no body", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`);
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body must be object");
+    })
+
+    it("no account_id", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({});
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body must have required property 'account_id'");
+    })
+
+    it("no otp", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: {} });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body must have required property 'otp'");
+    })
+
+    it("account_id not interger", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: {}, otp: {} });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body/account_id must be integer");
+    })
+
+    it("otp not string", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: 42, otp: {} });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body/otp must be string");
+    })
+
+    it("otp too short", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: 42, otp: "short" });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body/otp must NOT have fewer than 6 characters");
+    })
+
+    it("otp too long", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: 42, otp: "WAYTOLOOOOONG" });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body/otp must NOT have more than 6 characters");
+    })
+
+    it("otp too long", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: 42, otp: "WAYTOLOOOOONG" });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body/otp must NOT have more than 6 characters");
+    })
+
+    it("otp bad pattern", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: 42, otp: "thisok" });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body/otp must match pattern \"^[0-9]{6}$\"");
+    })
+
+    it("not activated", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: users[3].account_id, otp: "123456" });
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("activated + bad otp", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: users[1].account_id, otp: "456264" });
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("activated + bad otp", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: users[1].account_id, otp: TOTP.generate(users[3].otpsecret).otp });
+
+      expect(response.statusCode).toBe(403);
+    })
+
+    it("success", async () => {
+      const response = await request(twofaURL)
+        .post("/totp/verify")
+        .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
+        .send({ account_id: users[1].account_id, otp: TOTP.generate(users[1].otpsecret).otp });
+
+      expect(response.statusCode).toBe(204);
+    })
+  }); // POST /totp/verify
 
 }); // 2FA Router

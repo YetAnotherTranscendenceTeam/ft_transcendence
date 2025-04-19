@@ -5,11 +5,9 @@ import cors from "@fastify/cors";
 import jwt from "@fastify/jwt";
 import bearerAuth from "@fastify/bearer-auth";
 import formbody from "@fastify/formbody";
-import cookie from "@fastify/cookie";
 import router from "./router.js";
 import { HttpError } from "yatt-utils";
-import { AUTHENTICATION_SECRET, TOKEN_MANAGER_SECRET } from "./env.js";
-import JwtGenerator from "yatt-jwt";
+import { AUTHENTICATION_SECRET, TWO_FA_SECRET } from "./env.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -41,13 +39,8 @@ export default function build(opts = {}) {
   });
 
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
-  app.register(jwt, { secret: TOKEN_MANAGER_SECRET, namespace: "token_manager" });
-  app.decorate("tokens", new JwtGenerator());
-  app.addHook('onReady', async function () {
-    this.tokens.register(app.jwt.token_manager, "token_manager");
-  })
+  app.register(jwt, { secret: TWO_FA_SECRET, namespace: "two_fa" });
 
-  app.register(cookie);
   app.register(formbody);
   app.register(router);
 

@@ -5,16 +5,17 @@ import YATT, { HttpError, properties } from "yatt-utils";
 import crypto from "node:crypto";
 import { base32 } from "rfc4648";
 import { generateOTPAuth } from "../../utils/generateOTPAuth.js";
-import { generateTOTP } from "../../utils/generateTOTP.js";
+import { verifyTOTP } from "../../utils/verifyTOTP.js";
 
 export default function router(fastify, opts, done) {
   fastify.get("/totp/activate", { preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
 
     try {
+      const account = await YATT.fetch(`http://credentials:3000/${account_id}`);
       const secret = base32.stringify(crypto.randomBytes(20));
       generate.run(account_id, secret);
-      reply.send({ otpauth: generateOTPAuth(secret) });
+      reply.send({ otpauth: generateOTPAuth(secret, { email: account.email }) });
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") {
         throw new HttpError.Conflict();
@@ -41,7 +42,7 @@ export default function router(fastify, opts, done) {
 
     // Verify otp
     const otpauth = getInactiveSecret.get(account_id);
-    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== otp) {
+    if (!otpauth?.secret || !verifyTOTP(otp, otpauth.secret)) {
       throw new HttpError.Forbidden();
     }
 

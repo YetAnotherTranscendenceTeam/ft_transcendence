@@ -2,7 +2,7 @@
 
 import { getActiveSecret, deactivate } from "../../app/database.js";
 import YATT, { HttpError, properties } from "yatt-utils";
-import { generateTOTP } from "../../utils/generateTOTP.js";
+import { verifyTOTP } from "../../utils/verifyTOTP.js";
 
 export default function router(fastify, opts, done) {
   const schema = {
@@ -18,9 +18,11 @@ export default function router(fastify, opts, done) {
 
   fastify.post("/totp/deactivate", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
+    const { otp } = request.body;
 
+    // Verify otp
     const otpauth = getActiveSecret.get(account_id);
-    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== request.body.otp) {
+    if (!otpauth?.secret || !verifyTOTP(otp, otpauth.secret)) {
       throw new HttpError.Forbidden();
     }
 
