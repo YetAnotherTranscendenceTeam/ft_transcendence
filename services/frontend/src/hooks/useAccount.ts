@@ -59,10 +59,33 @@ export default function useAccount() {
 		return response;
 	}
 
+	const confirm2FA = async (code: string) => {
+		const response = await ft_fetch(`${config.API_URL}/2fa/totp/activate/verify`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				otp: code,
+			})
+		}, {
+			success_message: "2FA activated successfully",
+			show_error: true,
+			error_messages: {
+				403: "Invalid code",
+			}
+		})
+
+		if (response)
+			refresh();
+		return response;
+	}
+
 	return {
 		setSettings,
 		isLoading,
-		enable2FA
+		enable2FA,
+		confirm2FA
 	}
 
 }

@@ -16,7 +16,7 @@ export default function TwoFAEnableModal({
 		onClose: () => void;
 	}) {
 
-	const { enable2FA } = useAccount();
+	const { enable2FA, confirm2FA } = useAccount();
 	const [QRCodeDataURL, setQRCodeDataUrl] = Babact.useState(null);
 
 	const handleEnable2FA = async () => {
@@ -26,6 +26,17 @@ export default function TwoFAEnableModal({
 		}
 	}
 
+	const handleSubmit = async (fields, clear) => {
+		const { '2fa-otp': otp } = fields;
+		const res = await confirm2FA(otp.value);
+		if (res) {
+			clear();
+			onClose();
+		}
+		else {
+			clear(['2fa-otp']);
+		}
+	}
 	
 
 	Babact.useEffect(() => {
@@ -64,7 +75,7 @@ export default function TwoFAEnableModal({
 			/>
 			<Submit
 				fields={['2fa-otp']}
-				onSubmit={() => console.log('2FA activated')}
+				onSubmit={handleSubmit}
 			>
 				Activate 2FA <i className="fa-solid fa-shield-halved"></i>
 			</Submit>
