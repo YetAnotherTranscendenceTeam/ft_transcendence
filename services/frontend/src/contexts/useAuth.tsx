@@ -21,10 +21,16 @@ export enum AuthMethod {
 	fortytwo_auth = 'fortytwo_auth',
 }
 
+export enum SecondFactor {
+	none = 'none',
+	totp = 'totp',
+}
+
 interface ICredentials {
 	account_id: number,
 	email: string,
 	auth_method: AuthMethod,
+	second_factor: string,
 }
 
 export interface IMe extends IUser {

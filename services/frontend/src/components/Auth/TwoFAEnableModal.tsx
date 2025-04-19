@@ -34,10 +34,9 @@ export default function TwoFAEnableModal({
 			onClose();
 		}
 		else {
-			clear(['2fa-otp']);
+			clear();
 		}
 	}
-	
 
 	Babact.useEffect(() => {
 		if (isOpen) {
