@@ -1,4 +1,4 @@
-import { generateTOTP } from "../../../services/2fa/srcs/utils/generateTOTP.js";
+import { generateTOTP } from "../../../services/2fa/srcs/utils/verifyTOTP.js";
 import crypto from "crypto";
 import { TOTP } from "totp-generator";
 import { base32 } from "rfc4648";

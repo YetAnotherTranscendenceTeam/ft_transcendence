@@ -366,7 +366,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({});
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body must have required property 'account_id'");
     })
@@ -377,7 +376,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: {} });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body must have required property 'otp'");
     })
@@ -388,7 +386,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: {}, otp: {} });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body/account_id must be integer");
     })
@@ -399,7 +396,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: 42, otp: {} });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body/otp must be string");
     })
@@ -410,7 +406,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: 42, otp: "short" });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body/otp must NOT have fewer than 6 characters");
     })
@@ -421,7 +416,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: 42, otp: "WAYTOLOOOOONG" });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body/otp must NOT have more than 6 characters");
     })
@@ -432,7 +426,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: 42, otp: "WAYTOLOOOOONG" });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body/otp must NOT have more than 6 characters");
     })
@@ -443,7 +436,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: 42, otp: "thisok" });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(400);
       expect(response.body.message).toBe("body/otp must match pattern \"^[0-9]{6}$\"");
     })
@@ -454,7 +446,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: users[3].account_id, otp: "123456" });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(403);
     })
 
@@ -464,7 +455,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: users[1].account_id, otp: "456264" });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(403);
     })
 
@@ -474,7 +464,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: users[1].account_id, otp: TOTP.generate(users[3].otpsecret).otp });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(403);
     })
 
@@ -484,7 +473,6 @@ describe("2FA Router", () => {
         .set('Authorization', `Bearer ${app.jwt.two_fa.sign({})}`)
         .send({ account_id: users[1].account_id, otp: TOTP.generate(users[1].otpsecret).otp });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(204);
     })
   }); // POST /totp/verify

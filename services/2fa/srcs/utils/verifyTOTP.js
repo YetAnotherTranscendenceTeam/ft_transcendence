@@ -3,12 +3,21 @@
 import { createHmac } from "node:crypto";
 import { base32 } from "rfc4648";
 
+export function verifyTOTP(totp, secret) {
+  return totp === generateTOTP(secret) || totp === generateTOTP(secret, { timestamp: Date.now() - 30000 });
+}
+
 export function generateTOTP(secret, options = {}) {
-  const { algorithm = "SHA1", digits = 6, period = 30 } = options;
+  const {
+    algorithm = "SHA1", 
+    digits = 6, 
+    period = 30,
+    timestamp = Date.now(),
+  } = options;
 
   // Get counter based on current UNIX time
   const counter = Buffer.alloc(8);
-  counter.writeBigUint64BE(BigInt(Math.floor(Date.now() / (period * 1000))));
+  counter.writeBigUint64BE(BigInt(Math.floor(timestamp / (period * 1000))));
 
   // Hash counter using shared secret
   const hmac = createHmac(algorithm, base32.parse(secret)).update(counter).digest();

@@ -5,7 +5,7 @@ import YATT, { HttpError, properties } from "yatt-utils";
 import crypto from "node:crypto";
 import { base32 } from "rfc4648";
 import { generateOTPAuth } from "../../utils/generateOTPAuth.js";
-import { generateTOTP } from "../../utils/generateTOTP.js";
+import { verifyTOTP } from "../../utils/verifyTOTP.js";
 
 export default function router(fastify, opts, done) {
   fastify.get("/totp/activate", { preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
@@ -42,7 +42,7 @@ export default function router(fastify, opts, done) {
 
     // Verify otp
     const otpauth = getInactiveSecret.get(account_id);
-    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== otp) {
+    if (!otpauth?.secret || !verifyTOTP(otp, otpauth.secret)) {
       throw new HttpError.Forbidden();
     }
 

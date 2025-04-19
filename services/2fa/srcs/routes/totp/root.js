@@ -2,7 +2,7 @@
 
 import { HttpError, properties } from "yatt-utils";
 import { getActiveSecret } from "../../app/database.js";
-import { generateTOTP } from "../../utils/generateTOTP.js";
+import { verifyTOTP } from "../../utils/verifyTOTP.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -22,7 +22,7 @@ export default function router(fastify, opts, done) {
 
     const otpauth = getActiveSecret.get(account_id);
     console.log("get active", otpauth);
-    if (!otpauth?.secret || generateTOTP(otpauth.secret) !== otp) {
+    if (!otpauth?.secret || !verifyTOTP(otp, otpauth.secret)) {
       throw new HttpError.Forbidden();
     }
 
