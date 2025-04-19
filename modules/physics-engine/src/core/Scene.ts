@@ -18,6 +18,9 @@ export class Scene {
 	}
 
 	public addBody(body: Body): void {
+		if (!body) {
+			return;
+		}
 		this._bodies.push(body);
 	}
 

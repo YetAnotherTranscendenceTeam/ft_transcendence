@@ -1,7 +1,7 @@
 import Babact from "babact";
 import PongClient from "../components/Babylon/PongClient";
 import Babylon from "../components/Babylon/Babylon";
-import { scoredEvent } from "../components/Babylon/types";
+import { ScoredEvent } from "../components/Babylon/types";
 
 const PongContext = Babact.createContext<{
 		app: PongClient,
@@ -15,7 +15,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 	const [scores, setScores] = Babact.useState([0, 0]);
 	const [lastWinner, setLastWinner] = Babact.useState<number>(null);
 
-	const handleScoreUpdate = (event: scoredEvent) => {
+	const handleScoreUpdate = (event: ScoredEvent) => {
 		setScores(event.score);
 		setLastWinner(event.side);
 	}

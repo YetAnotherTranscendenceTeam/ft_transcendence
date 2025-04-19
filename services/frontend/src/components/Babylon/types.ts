@@ -1,4 +1,4 @@
-export enum keyState {
+export enum KeyState {
 	IDLE = 0,
 	PRESSED,
 	HELD,
@@ -12,7 +12,7 @@ export enum GameScene {
 	LOCAL,
 }
 
-export interface scoredEvent {
+export interface ScoredEvent {
 	score: Array<number>;
 	side: number;
 }
