@@ -31,8 +31,8 @@ export const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(wallSize[0] / 
 
 export const map: IPongMap = {
 	mapId: MapID.FAKE,
-	wallTop: new Wall(wallShape, wallTopPosition),
-	wallBottom: new Wall(wallShape, wallBottomPosition),
+	wallTop: new Wall(wallShape, wallTopPosition, wallSize),
+	wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 	goalLeft: null,
 	goalRight: null,
 	paddleLeftBack: null,

@@ -32,10 +32,10 @@ export const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(goalSize[0] / 
 
 export const map: IPongMap = {
 	mapId: MapID.SMALL,
-	wallTop: new Wall(wallShape, wallTopPosition),
-	wallBottom: new Wall(wallShape, wallBottomPosition),
-	goalLeft: new Goal(goalShape, goalLeftPosition),
-	goalRight: new Goal(goalShape, goalRightPosition),
+	wallTop: new Wall(wallShape, wallTopPosition, wallSize),
+	wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
+	goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),
+	goalRight: new Goal(goalShape, goalRightPosition, goalSize),
 	paddleLeftBack: new Paddle(paddleLeftPosition, Vec2.create(), K.paddleSpeed),
 	paddleLeftFront: null,
 	paddleRightBack: new Paddle(paddleRightPosition, Vec2.create(), K.paddleSpeed),
