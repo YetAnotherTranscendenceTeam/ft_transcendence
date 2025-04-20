@@ -8,25 +8,25 @@ import Goal from "../core/Goal.js";
 import Wall from "../core/Wall.js";
 
 export const playGround = {
-	widht: 20,
+	width: 20,
 	height: 13,
 }
 
 // walls
-export const wallSize: Vec2 = new Vec2(playGround.widht, K.wallThickness);
+export const wallSize: Vec2 = new Vec2(playGround.width, K.wallThickness);
 export const wallTopPosition: Vec2 = new Vec2(0, playGround.height / 2 + K.wallThickness / 2);
 export const wallBottomPosition: Vec2 = new Vec2(0, -(playGround.height / 2 + K.wallThickness / 2));
 
 // goals
 export const goalSize: Vec2 = new Vec2(K.wallThickness, playGround.height + K.wallThickness * 2);
-export const goalLeftPosition: Vec2 = new Vec2(-playGround.widht / 2 - K.wallThickness / 2, 0);
-export const goalRightPosition: Vec2 = new Vec2(playGround.widht / 2 + K.wallThickness / 2, 0);
+export const goalLeftPosition: Vec2 = new Vec2(-playGround.width / 2 - K.wallThickness / 2, 0);
+export const goalRightPosition: Vec2 = new Vec2(playGround.width / 2 + K.wallThickness / 2, 0);
 
 // paddles
-export const paddleLeftBackPosition: Vec2 = new Vec2(-playGround.widht / 2 + K.wallThickness / 2 + 1, 0);
-export const paddleRightBackPosition: Vec2 = new Vec2(playGround.widht / 2 - K.wallThickness / 2 - 1, 0);
-export const paddleLeftFrontPosition: Vec2 = new Vec2(-playGround.widht / 2 + K.wallThickness / 2 + 4, 0);
-export const paddleRightFrontPosition: Vec2 = new Vec2(playGround.widht / 2 - K.wallThickness / 2 - 4, 0);
+export const paddleLeftBackPosition: Vec2 = new Vec2(-playGround.width / 2 + K.wallThickness / 2 + 1, 0);
+export const paddleRightBackPosition: Vec2 = new Vec2(playGround.width / 2 - K.wallThickness / 2 - 1, 0);
+export const paddleLeftFrontPosition: Vec2 = new Vec2(-playGround.width / 2 + K.wallThickness / 2 + 4, 0);
+export const paddleRightFrontPosition: Vec2 = new Vec2(playGround.width / 2 - K.wallThickness / 2 - 4, 0);
 
 // shapes
 export const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(wallSize[0] / 2, wallSize[1] / 2);
