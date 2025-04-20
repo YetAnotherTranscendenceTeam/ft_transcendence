@@ -25,7 +25,7 @@ export default class ClientWall extends AObject {
 		);
 
 		const material = new StandardMaterial("wallMaterial", this._scene);
-		material.diffuseColor = Color3.White();
+		material.diffuseColor = new Color3(0.25, 0.5, 0.62);
 		material.specularColor = new Color3(0, 0, 0);
 		this._mesh.material = material;
 	}

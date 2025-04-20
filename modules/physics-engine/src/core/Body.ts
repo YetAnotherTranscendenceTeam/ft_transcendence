@@ -43,7 +43,7 @@ export class Body extends EventTarget {
 		// console.log("position", this._position[0], this._position[1]);
 		this._velocity = Vec2.clone(velocity);
 		// console.log("velocity", this._velocity);
-		this._previousPosition = Vec2.create();
+		this._previousPosition = Vec2.clone(position);
 		this._previousOrientation = 0;
 		if (this._type === PhysicsType.DYNAMIC) {
 			this._massData = this._shape.computeMass(this._material.density);

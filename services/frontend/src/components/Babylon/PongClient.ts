@@ -12,6 +12,8 @@ import { KeyState, GameScene, ScoredEvent } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
 
+const isDevelopment = process.env.NODE_ENV !== "production";
+
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket: WebSocket;
@@ -134,7 +136,7 @@ export default class PongClient extends PONG.Pong {
 	public startGame() {
 		this.start();
 		this._running = 1;
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
+		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
 	public nextRound() {
@@ -176,12 +178,12 @@ export default class PongClient extends PONG.Pong {
 				wallTop.disable();
 				mapMesh.push(wallTop);
 			}
-			if (map.goalLeft) {
+			if (map.goalLeft && isDevelopment) {
 				const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, ("goalLeft" + map.mapId.toString()), map.goalLeft);
 				goalLeft.disable();
 				mapMesh.push(goalLeft);
 			}
-			if (map.goalRight) {
+			if (map.goalRight && isDevelopment) {
 				const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, ("goalRight" + map.mapId.toString()), map.goalRight);
 				goalRight.disable();
 				mapMesh.push(goalRight);
@@ -225,6 +227,9 @@ export default class PongClient extends PONG.Pong {
 		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
 			map.enable();
 		});
+
+		this.loadBalls();
+		this.bindPaddles();
 	}
 
 	private lobbyScene() {
@@ -234,6 +239,9 @@ export default class PongClient extends PONG.Pong {
 		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
 			map.enable();
 		});
+
+		this.loadBalls();
+		this.bindPaddles();
 	}
 
 	private localScene() {
@@ -244,17 +252,10 @@ export default class PongClient extends PONG.Pong {
 			map.enable();
 		});
 		
-		// this._balls.forEach((ball: PH2D.Body) => {
-		// 	const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
-		// 	this._ballInstances.push(ballInstance);
-		// });
-		// this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-		// 	console.log("paddle: " + playerId);
-		// 	console.log(paddle);
-		// 	const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
-		// 	this._paddleInstance.set(playerId, paddleInstance);
-		// });
+		this.loadBalls();
+		this.bindPaddles();
 	}
+
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
@@ -263,14 +264,30 @@ export default class PongClient extends PONG.Pong {
 			map.enable();
 		});
 	
-		// this._balls.forEach((ball: PH2D.Body) => {
-		// 	const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
-		// 	this._ballInstances.push(ballInstance);
-		// });
-		// this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-		// 	const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
-		// 	this._paddleInstance.set(playerId, paddleInstance);
-		// });
+		this.loadBalls();
+		this.bindPaddles();
+	}
+
+	private loadBalls() {
+		this._balls.forEach((ball: PH2D.Body) => {
+			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
+			this._ballInstances.push(ballInstance);
+		});
+	}
+
+	private bindPaddles() {
+		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
+			const paddleInstance: ClientPaddle | undefined = this._meshMap.get(this._currentMap.mapId)?.find((object: AObject) => {
+				if (object instanceof ClientPaddle) {
+					return object.physicsBody === paddle;
+				}
+				return false;
+			}
+			) as ClientPaddle;
+			if (paddleInstance) {
+				this._paddleInstance.set(playerId, paddleInstance);
+			}
+		});
 	}
 
 	private update() {
@@ -281,11 +298,11 @@ export default class PongClient extends PONG.Pong {
 
 		this.playerUpdate();
 		dt = this.physicsUpdate(dt);
-		this._paddleInstance.forEach((paddle: ClientPaddle) => {
-			paddle.update(dt);
-		});
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
+		});
+		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+			map.update(dt);
 		});
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._score[0] + "-" + this._score[1]);
@@ -331,20 +348,12 @@ export default class PongClient extends PONG.Pong {
 	private handleKeyDown = (ev: KeyboardEvent) => {
 		// console.log(ev);
 		// Shift+Ctrl+Alt+I
-		if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
-			if (this._babylonScene.debugLayer.isVisible()) {
-				this._babylonScene.debugLayer.hide();
-			} else {
-				this._babylonScene.debugLayer.show();
-			}
-		}
-
-		// if (ev.key === "z") {
-		// 	this.onlineScene(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
-		// }
-
-		// if (ev.key === "x") {
-		// 	this.startGame();
+		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
+		// 	if (this._babylonScene.debugLayer.isVisible()) {
+		// 		this._babylonScene.debugLayer.hide();
+		// 	} else {
+		// 		this._babylonScene.debugLayer.show();
+		// 	}
 		// }
 
 		if (this._keyboard.has(ev.key)) {

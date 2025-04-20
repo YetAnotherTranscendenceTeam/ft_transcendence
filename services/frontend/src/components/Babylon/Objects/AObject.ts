@@ -28,6 +28,10 @@ export default abstract class AObject {
 		return this._mesh;
 	}
 
+	public get physicsBody(): PH2D.Body {
+		return this._physicsBody;
+	}
+
 	public dispose() {
 		this._mesh?.dispose();
 	}
