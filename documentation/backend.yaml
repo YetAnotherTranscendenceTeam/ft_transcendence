@@ -64,7 +64,7 @@ components:
       description: A profile picture URI
       type: string
       example: https://example.com/image.jpg
-  
+
     limit:
       type: integer
       minimum: 1
@@ -87,6 +87,36 @@ components:
           $ref: "#/components/schemas/username"
         avatar:
           $ref: "#/components/schemas/avatar"
+
+    gamemode_name:
+      $ref: "./asyncapi/lobbies.yaml#/components/schemas/gamemode_name"
+
+    gamemode:
+      $ref: "./asyncapi/lobbies.yaml#/components/schemas/gamemode"
+    
+    tournament:
+      $ref: "./asyncapi/tournament.yaml#/components/schemas/tournament"
+
+    light_tournament:
+      $ref: "./asyncapi/tournament.yaml#/components/schemas/light_tournament"
+
+    match_state:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/match_state"
+
+    match:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/match"
+
+    light_match:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/light_match"
+    
+    matchmaking_user:
+      $ref: "./asyncapi/matchmaking.yaml#/components/schemas/matchmaking_user"
+
+    order:
+      type: string
+      enum:
+        - asc
+        - desc
 
   responses:
     AccountNotFound:
@@ -169,16 +199,16 @@ paths:
       tags:
         - Token
       parameters:
-      - in: cookie
-        name: refresh_token
-        schema:
-          type: string
-        required: true
-        description: HTTP-only cookie containing the refresh_token
+        - in: cookie
+          name: refresh_token
+          schema:
+            type: string
+          required: true
+          description: HTTP-only cookie containing the refresh_token
       responses:
         200:
           $ref: "#/components/responses/AuthSuccess"
-  
+
   /token/revoke:
     post:
       summary: revoke token
@@ -186,12 +216,12 @@ paths:
       tags:
         - Token
       parameters:
-      - in: cookie
-        name: refresh_token
-        schema:
-          type: string
-        required: true
-        description: HTTP-only cookie containing the refresh_token
+        - in: cookie
+          name: refresh_token
+          schema:
+            type: string
+          required: true
+          description: HTTP-only cookie containing the refresh_token
       responses:
         204:
           description: Revoked successfully
@@ -224,7 +254,6 @@ paths:
         401:
           description: Authentication failure
 
-
   /auth/fortytwo:
     get:
       summary: 42API remote auth
@@ -248,7 +277,7 @@ paths:
             Location:
               schema:
                 type: string
-              description: URL to redirect to, including `access_token` and `expire_at` parameters for a sucessfull authentication or `statusCode` `code` `error` `message` in case of error
+              description: URL to redirect to, including `access_token` and `expire_at` parameters for a successfull authentication or `statusCode` `code` `error` `message` in case of error
 
   /me:
     get:
@@ -258,7 +287,7 @@ paths:
         - Users
       responses:
         204:
-          description: Sucess
+          description: Success
       security:
         - BearerAuth: []
 
@@ -312,7 +341,7 @@ paths:
               description: Base64 encoded image data
       responses:
         204:
-          description: Sucess
+          description: Success
           content:
             application/json:
               schema:
@@ -320,7 +349,7 @@ paths:
                 properties:
                   url:
                     type: string
-                    example: 'https://example.com/avatars/user123.jpg'
+                    example: "https://example.com/avatars/user123.jpg"
         403:
           description: Avatar limit reached
       security:
@@ -357,11 +386,11 @@ paths:
         - in: query
           name: limit
           schema:
-            $ref: '#/components/schemas/limit'
+            $ref: "#/components/schemas/limit"
         - in: query
           name: offset
           schema:
-            $ref: '#/components/schemas/offset'
+            $ref: "#/components/schemas/offset"
         - in: query
           name: filter[username]
           schema:
@@ -371,16 +400,26 @@ paths:
           name: filter[username:match]
           schema:
             type: string
-          description: Filters results to include users whose usernames contain the specified string. Allows partial matches and is case-insensitive.
+          description: Filters results to include users whose usernames contain the specified string. Allows partial matches and is case-insensitive
+        - in: query
+          name: filter[account_id]
+          schema:
+            type: string
+          description: Filters results to include users with account_id
+        - in: query
+          name: filter[account_id:not]
+          schema:
+            type: string
+          description: Filters results to exclude users with account_id
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
-            application/json:    
+            application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/user'
+                  $ref: "#/components/schemas/user"
       security:
         - BearerAuth: []
 
@@ -394,7 +433,7 @@ paths:
         - $ref: "#/components/parameters/account_id"
       responses:
         204:
-          description: Sucess
+          description: Success
         404:
           $ref: "#/components/responses/AccountNotFound"
       security:
@@ -431,7 +470,7 @@ paths:
                     created_at: "2025-03-12T09:45:00Z"
       security:
         - BearerAuth: []
-  
+
   /social/follows/{account_id}:
     post:
       summary: follow account
@@ -453,7 +492,7 @@ paths:
         404:
           description: Account not found
         403:
-          description: Invalid 
+          description: Invalid
           content:
             application/json:
               schema:
@@ -500,7 +539,7 @@ paths:
           description: Not following this account
       security:
         - bearerAuth: []
-  
+
   /social/notify:
     get:
       parameters:
@@ -521,7 +560,6 @@ paths:
         101:
           description: Switching Protocol
 
-
   /settings/profile:
     patch:
       summary: profile modification
@@ -541,19 +579,79 @@ paths:
                   $ref: "#/components/schemas/avatar"
               additionalProperties: false
               oneOf:
-              - required: [username]
-              - required: [avatar]
+                - required: [username]
+                - required: [avatar]
       responses:
         204:
-          description: Sucessfull profile edition
+          description: Successfull profile edition
         403:
           description: Invalid avatar
         409:
           description: Username already in use
       security:
         - BearerAuth: []
-  
+
   /settings/account:
+    patch:
+      summary: account modification
+      description: Modify the profile associated with the access_token bearer
+      tags:
+        - Settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - type: object
+                  properties:
+                    auth_method:
+                      type: string
+                      enum: ["password_auth"]
+                    email:
+                      type: string
+                      format: email
+                    password:
+                      type: string
+                      minLength: 8
+                    old_password:
+                      type: string
+                      minLength: 8
+                  required:
+                    - auth_method
+                    - old_password
+                  additionalProperties: false
+
+                - type: object
+                  properties:
+                    auth_method:
+                      type: string
+                      enum: ["fortytwo_auth"]
+                    email:
+                      type: string
+                      format: email
+                  required:
+                    - auth_method
+                  additionalProperties: false
+
+                - type: object
+                  properties:
+                    auth_method:
+                      type: string
+                      enum: ["google_auth"]
+                  required:
+                    - auth_method
+                  additionalProperties: false
+      responses:
+        204:
+          description: Successfull account edition
+        403:
+          description: Invalid authentication method or password
+        409:
+          description: Email already in use
+      security:
+        - BearerAuth: []
+
     delete:
       summary: account deletion
       description: Delete everything related to the access_token bearer
@@ -561,6 +659,310 @@ paths:
         - Settings
       responses:
         204:
-          description: Sucessfull profile deletion
+          description: Successfull profile deletion
       security:
         - BearerAuth: []
+
+  /matchmaking/tournaments/{tournament_id}:
+    parameters:
+      - in: path
+        name: tournament_id
+        required: true
+        description: The ID of the tournament
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get tournament
+      description: Retrieve information about a specific tournament
+      tags:
+        - Matchmaking
+        - Tournaments
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tournament"
+        404:
+          description: Tournament not found
+  
+  /matchmaking/tournaments/{tournament_id}/notify:
+    parameters:
+      - in: path
+        name: tournament_id
+        required: true
+        description: The ID of the tournament
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: tournament notification SSE
+      description: |
+        Establishes a SSE connection for real-time tournament notifications.
+        Follow this [link](http://localhost:42000/asyncapi/tournament) for detailed documentation.
+      tags:
+        - Matchmaking
+        - Tournaments
+      responses:
+        200:
+          description: Successful response
+        204:
+          description: No events available, tournament is done or cancelled
+        404:
+          description: Tournament not found
+  
+  /matchmaking/matches/{match_id}:
+    parameters:
+      - in: path
+        name: match_id
+        required: true
+        description: The ID of the match
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get match
+      description: Retrieve information about a specific match
+      tags:
+        - Matchmaking
+        - Matches
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/match"
+        404:
+          description: Match not found
+    patch:
+      summary: update match
+      description: Update the status of a match. This requires a valid matchmaking JWT.
+      tags:
+        - Matchmaking
+        - Matches
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                state:
+                  $ref: "#/components/schemas/match_state"
+                score_0:
+                  type: integer
+                  description: The score of team 0
+                score_1:
+                  type: integer
+                  description: The score of team 1
+      responses:
+        200:
+          description: Match updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/light_match"
+        404:
+          description: Match not found
+  
+  /matchmaking/users/{account_id}:
+    parameters:
+      - in: path
+        name: account_id
+        required: true
+        description: The ID of the user
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get user matchmaking info
+      description: Retrieve information about a specific user's matchmaking status
+      tags:
+        - Matchmaking
+        - Matches
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  last_match:
+                    $ref: "#/components/schemas/light_match"
+                  last_tournament:
+                    $ref: "#/components/schemas/light_tournament"
+                  matchmaking_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/matchmaking_user"
+        404:
+          description: User not found
+
+  /matchmaking/users/{account_id}/matches:
+    parameters:
+      - in: path
+        name: account_id
+        required: true
+        description: The ID of the user
+        schema:
+          type: integer
+          example: 12345
+    get:
+      summary: get user matches
+      description: Retrieve a list of matches for a specific user
+      tags:
+        - Matchmaking
+        - Matches
+        - Users
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            $ref: "#/components/schemas/limit"
+
+        - in: query
+          name: offset
+          schema:
+            $ref: "#/components/schemas/offset"
+
+        - in: query
+          name: filter[state]
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/match_state"
+          description: Filters results to include matches with specific states
+
+        - in: query
+          name: filter[gamemode]
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/gamemode_name"
+          description: Filters results to include matches with specific gamemode names
+
+        - in: query
+          name: order[match_id]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[created_at]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[updated_at]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[score_0]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[score_1]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[gamemode]
+          schema:
+            $ref: "#/components/schemas/order"
+
+        - in: query
+          name: order[state]
+          schema:
+            $ref: "#/components/schemas/order"
+
+      security:
+        - BearerAuth: []
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/light_match"
+
+  /lobbies/join:
+    get:
+      parameters:
+        - in: path
+          name: access_token
+          required: true
+          description: A JSON Web Token
+          schema:
+            type: string
+        - in: path
+          name: gamemode
+          description: The gamemode of the lobby to create
+          schema:
+            $ref: "#/components/schemas/gamemode_name"
+        - in: path
+          name: secret
+          description: The secret of the lobby to join
+          schema:
+            type: string
+      tags:
+        - Websocket
+        - Lobbies
+      summary: lobby websocket
+      description: |
+        Establishes a WebSocket connection for real-time lobby interactions.
+        Follow this [link](http://localhost:42000/asyncapi/lobbies) for detailed documentation.
+      responses:
+        101:
+          description: Switching Protocol
+  
+  /lobbies/gamemodes:
+    get:
+      summary: get gamemodes
+      description: Retrieve a list of available gamemodes
+      tags:
+        - Lobbies
+      responses:
+        200:
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - unranked_1v1
+                  - unranked_2v2
+                  - ranked_1v1
+                  - ranked_2v2
+                  - custom_1v1
+                  - custom_2v2
+                properties:
+                  unranked_1v1:
+                    $ref: "#/components/schemas/gamemode"
+                  unranked_2v2:
+                    $ref: "#/components/schemas/gamemode"
+                  ranked_1v1:
+                    $ref: "#/components/schemas/gamemode"
+                  ranked_2v2:
+                    $ref: "#/components/schemas/gamemode"
+                  custom_1v1:
+                    $ref: "#/components/schemas/gamemode"
+                  custom_2v2:
+                    $ref: "#/components/schemas/gamemode"
+
+

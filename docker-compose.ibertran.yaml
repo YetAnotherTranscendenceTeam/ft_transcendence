@@ -159,6 +159,7 @@ services:
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     networks:
       - frontend
+      - db-profiles
 
   db-profiles:
     build: 
@@ -197,6 +198,7 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     networks:
       - settings
       - avatars

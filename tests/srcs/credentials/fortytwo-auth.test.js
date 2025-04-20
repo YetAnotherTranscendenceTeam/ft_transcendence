@@ -232,3 +232,183 @@ describe("fortytwo-auth", () => {
     });
   });
 });
+
+describe("PATCH", () => {
+  describe("Validation tests", () => {
+    it("NaN account_id", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/ascii`)
+        .send({});
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("params/account_id must be integer");
+    });
+
+    it("negative account_id", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/-50`)
+        .send({});
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("params/account_id must be >= 1");
+    });
+
+    it("0 account_id", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/0`)
+        .send({});
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("params/account_id must be >= 1");
+    });
+
+    it("no body", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/45`)
+        .send();
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body must be object");
+    });
+
+    it("empty body", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/1`)
+        .send({});
+
+      expect(response.statusCode).toBe(400);
+    });
+
+    it("bad email", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/1`)
+        .send({ email: 4564 });
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toBe("body/email must match format \"email\"");
+    });
+
+    it("email ok", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/999999999`)
+        .send({ email: "test@test.test" });
+
+      expect(response.statusCode).toBe(404);
+    });
+
+    it("account not found", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/999999999`)
+        .send({ email: "test@test.test" });
+
+      expect(response.statusCode).toBe(404);
+    });
+  })
+  describe("Success", () => {
+    let user;
+
+    beforeEach(async () => {
+      user = {
+        account_id: null,
+        email: `password.test.js-${crypto.randomBytes(10).toString("hex")}@jest.fortytwo`,
+        intra_user_id: Math.floor(Math.random() * 42000000),
+      }
+
+      const response = await request(baseUrl)
+        .post("/fortytwo")
+        .send({
+          email: user.email,
+          intra_user_id: user.intra_user_id,
+        })
+        .expect(201);
+
+      user.account_id = response.body.account_id;
+    });
+
+    afterEach(async () => {
+      await request(baseUrl).delete(`/${user.account_id}`).expect(204);
+    });
+
+    it("edit email", async () => {
+      const newMail = `password.test.js-${crypto.randomBytes(10).toString("hex")}@jest.com`;
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/${user.account_id}`)
+        .send({ email: newMail });
+
+      expect(response.statusCode).toBe(204);
+
+      const accountVerif = await request(baseUrl).get(`/${user.account_id}`);
+
+      expect(accountVerif.statusCode).toBe(200);
+      expect(accountVerif.body).toEqual(
+        expect.objectContaining({
+          account_id: user.account_id,
+          email: newMail,
+          auth_method: 'fortytwo_auth',
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        })
+      );
+
+      const emailVerif = await request(baseUrl).get(`/${user.account_id}`).expect(200);
+      expect(emailVerif.body).toEqual({
+        account_id: user.account_id,
+        auth_method: "fortytwo_auth",
+        email: newMail,
+        created_at: expect.any(String),
+        updated_at: expect.any(String),
+      });
+    });
+  });
+  describe("Failures", () => {
+    let users = [];
+
+    beforeEach(async () => {
+      for (let i = 0; i < 2; ++i) {
+        users.push({
+          account_id: null,
+          email: `password.test.js-${crypto.randomBytes(10).toString("hex")}@jest.fortytwo`,
+          intra_user_id: Math.floor(Math.random() * 42000000),
+        });
+
+        const response = await request(baseUrl)
+          .post("/fortytwo")
+          .send({
+            email: users[i].email,
+            intra_user_id: users[i].intra_user_id,
+          })
+          .expect(201);
+
+        users[i].account_id = response.body.account_id;
+      }
+
+    });
+
+    afterEach(async () => {
+      for (let i = 0; i < 2; ++i) {
+        await request(baseUrl).delete(`/${users[i].account_id}`).expect(204);
+      }
+    });
+
+    it("conflicting email", async () => {
+      const response = await request(baseUrl)
+        .patch(`/fortytwo/${users[0].account_id}`)
+        .send({ email: users[1].email });
+
+      expect(response.statusCode).toBe(409);
+
+      const accountVerif = await request(baseUrl).get(`/${users[0].account_id}`);
+
+      expect(accountVerif.statusCode).toBe(200);
+      expect(accountVerif.body).toEqual(
+        expect.objectContaining({
+          account_id: users[0].account_id,
+          email: users[0].email,
+          auth_method: 'fortytwo_auth',
+          created_at: expect.any(String),
+          updated_at: expect.any(String),
+        })
+      );
+    });
+  });
+});

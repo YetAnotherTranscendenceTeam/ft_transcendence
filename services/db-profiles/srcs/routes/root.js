@@ -5,6 +5,7 @@ import db from "../app/database.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
+    description: "Retrieve user profiles",
     querystring: {
       type: "object",
       properties: {
@@ -15,6 +16,7 @@ export default function router(fastify, opts, done) {
           properties: {
             "username": { type: "string" },
             "username:match": { type: "string" },
+            "account_id": { type: "string" },
             "account_id:not": { type: "string" }
           },
           additionalProperties: false,
@@ -32,8 +34,9 @@ export default function router(fastify, opts, done) {
     const whereConditions = [];
 
     if (filter.username) {
-      whereConditions.push("username = ?");
-      params.push(filter.username);
+      const usernames = filter["username"].split(',');
+      whereConditions.push(`username IN (${Array(usernames.length).fill('?').join(', ')})`);
+      usernames.forEach(username => params.push(username));
     }
   
     if (filter["username:match"]) {
@@ -41,9 +44,15 @@ export default function router(fastify, opts, done) {
       params.push(filter["username:match"]);
     }
 
+    if (filter["account_id"]) {
+      const ids = filter["account_id"].split(',');
+      whereConditions.push(`account_id IN (${Array(ids.length).fill('?').join(', ')})`);
+      ids.forEach(id => params.push(id));
+    }
+
     if (filter["account_id:not"]) {
       const ids = filter["account_id:not"].split(',');
-      whereConditions.push(`account_id NOT IN (${Array(ids.length).fill('?').join(', ')})`)
+      whereConditions.push(`account_id NOT IN (${Array(ids.length).fill('?').join(', ')})`);
       ids.forEach(id => params.push(id));
     }
   
@@ -59,8 +68,6 @@ export default function router(fastify, opts, done) {
   });
 
   schema = {
-    tags: ["Profiles"],
-    summary: "Get a profile",
     description: "Retrieve a user profile by account ID",
     params: {
       type: "object",
@@ -68,25 +75,8 @@ export default function router(fastify, opts, done) {
         account_id: properties.account_id,
       },
       required: ["account_id"],
-    },
-    response: {
-      200: {
-        description: "Successful response with profile data",
-        type: "object",
-        properties: {
-          account_id: properties.account_id,
-          username: properties.username,
-          avatar: properties.avatar,
-          created_at: properties.created_at,
-          updated_at: properties.updated_at,
-        },
-      },
-      404: {
-        description: "Account not found",
-        type: "object",
-        properties: objects.errorBody,
-      },
-    },
+      additionalProperties: false,
+    }
   };
 
   fastify.get("/:account_id", { schema }, async function handler(request, reply) {
@@ -104,8 +94,6 @@ export default function router(fastify, opts, done) {
   );
 
   schema = {
-    tags: ["Profiles"],
-    summary: "Create profile",
     description: "Create a new profile for a given account ID",
     body: {
       type: "object",
@@ -115,11 +103,6 @@ export default function router(fastify, opts, done) {
       required: ["account_id"],
       additionalProperties: false
     },
-    response: {
-      500: {
-        description: "[PLACEHOLDER]"
-      }
-    }
   };
 
   fastify.post("/", { schema }, async function handler(request, reply) {
@@ -129,10 +112,10 @@ export default function router(fastify, opts, done) {
       try {
         const username = fastify.usernameBank.getUsername(i >= 5);
         const profile = db.prepare(`
-              INSERT INTO profiles (account_id, username, avatar)
-              VALUES (?, ?, ?)
-              RETURNING *
-          `).get(account_id, username, fastify.defaultAvatar);
+          INSERT INTO profiles (account_id, username, avatar)
+          VALUES (?, ?, ?)
+          RETURNING *
+        `).get(account_id, username, fastify.defaultAvatar);
         reply.code(201).send(profile);
         console.log("POST:", profile);
         fastify.usernameBank.checkAndRefill();
@@ -148,8 +131,6 @@ export default function router(fastify, opts, done) {
   });
 
   schema = {
-    tags: ["Profiles"],
-    summary: "Delete a profile",
     description: "Delete the profile associated with an account ID",
     params: {
       type: "object",
@@ -159,19 +140,12 @@ export default function router(fastify, opts, done) {
       required: ["account_id"],
       additionalProperties: false,
     },
-    response: {
-      204: {
-        description: "[PLACEHOLDER]"
-      }
-    }
   };
 
   fastify.delete("/:account_id", { schema }, async function handler(request, reply) {
     const { account_id } = request.params;
 
-    const result = db
-      .prepare(`DELETE FROM profiles WHERE account_id = ?`)
-      .run(account_id);
+    const result = db.prepare(`DELETE FROM profiles WHERE account_id = ?`).run(account_id);
     if (!result.changes) {
       reply.code(404).send(objects.accountNotFound);
     } else {
@@ -182,8 +156,6 @@ export default function router(fastify, opts, done) {
   );
 
   schema = {
-    tags: ["Profiles"],
-    summary: "Modify a profile",
     description: "Modify the profile associated with an account ID",
     params: {
       type: "object",
@@ -201,11 +173,6 @@ export default function router(fastify, opts, done) {
       },
       additionalProperties: false
     },
-    response: {
-      204: {
-        description: "Sucess"
-      }
-    }
   };
 
   fastify.patch("/:account_id", { schema }, async function handler(request, reply) {
@@ -213,14 +180,12 @@ export default function router(fastify, opts, done) {
     const { setClause, params } = YATT.patchBodyToSql(request.body);
 
     try {
-      const update = db
-        .prepare(`
-          UPDATE profiles
-          SET ${setClause}
-          WHERE account_id = ?
-          RETURNING *;
-        `)
-        .get(...params, account_id);
+      const update = db.prepare(`
+        UPDATE profiles
+        SET ${setClause}
+        WHERE account_id = ?
+        RETURNING *;
+      `).get(...params, account_id);
       console.log("PATCH:", update);
       reply.send(update);
     } catch (err) {

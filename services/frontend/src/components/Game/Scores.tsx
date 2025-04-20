@@ -13,7 +13,6 @@ export default function Scores({
 	const [deltaTime, setDeltaTime] = Babact.useState<number>(0);
 
 	Babact.useEffect(() => {
-		console.log('startTime', startTime);
 		if (!startTime) {
 			return;
 		}

@@ -13,8 +13,9 @@ export class Match {
     return new Match(qresult);
   }
 
-  constructor(players, gamemode) {
+  constructor(players, gamemode, tournament_id = null) {
     if (Array.isArray(players) && gamemode instanceof GameMode) {
+      this.tournament_id = tournament_id;
       this.players = players.map((player, index) => ({
         ...player,
         team_index: Math.floor(index / gamemode.team_size),
@@ -28,6 +29,7 @@ export class Match {
     } else if (typeof players === "object" && gamemode === undefined) {
       const match = players;
       this.match_id = match.match_id;
+      this.tournament_id = match.tournament_id;
       this.gamemode = GameModes[match.gamemode];
       this.gamemode_name = match.gamemode;
       this.players = match.players;
@@ -43,10 +45,10 @@ export class Match {
     const insert = db
     .prepare(
       `
-      INSERT INTO matches (gamemode, score_0, score_1, state) VALUES (?, ?, ?, ?)
+      INSERT INTO matches (gamemode, score_0, score_1, state, tournament_id) VALUES (?, ?, ?, ?, ?)
       RETURNING *
       `
-    ).get(this.gamemode_name, this.score_0, this.score_1, this.state);
+    ).get(this.gamemode_name, this.score_0, this.score_1, this.state, this.tournament_id);
     this.match_id = insert.match_id;
     const player_insert = db.prepare(
       `
@@ -59,5 +61,14 @@ export class Match {
     }
     this.created_at = insert.created_at;
     this.updated_at = insert.updated_at;
+  }
+
+  cancel() {
+    db.prepare(
+      `
+      UPDATE matches SET state = ? WHERE match_id = ?
+      `
+    ).run(MatchState.CANCELLED, this.match_id);
+    this.state = MatchState.CANCELLED;
   }
 }

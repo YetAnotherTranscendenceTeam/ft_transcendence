@@ -2,6 +2,7 @@
 	padding: 0;
 	overflow: hidden;
 	margin-top: 16px;
+	z-index: 10;
 }
 
 .scores .score {
@@ -40,13 +41,13 @@
 	text-align: center;
 }
 
-.local-start-modal h2 {
-	font-size: medium;
-	font-weight: bold;
+.local-start-modal .timer h2 {
+	font-size: 150px;
 }
 
+/* Player hint */
 
-.local-start-modal .player-hint {
+.player-hint {
 	position: absolute;
 	background-color: var(--bg-2);
 	padding: 16px;
@@ -54,27 +55,26 @@
 	border-radius: 8px;
 	top: 50%;
 	width: fit-content;
-	color: var(--fg-1);
 	transform: translateY(-50%);
 }
 
-.local-start-modal .player-hint:nth-child(1) {
+.player-hint:nth-child(1) {
 	left: 32px;
 }
 
-.local-start-modal .player-hint:nth-child(2) {
+.player-hint:nth-child(2) {
 	right: 32px;
 }
 
+.player-hint h2 {
+	font-size: medium;
+	font-weight: bold;
+}
 
-.local-start-modal p {
+.player-hint p {
 	display: flex;
 	align-items: center;
 	gap: 4px;
-}
-
-.local-start-modal .timer h2 {
-	font-size: 150px;
 }
 
 /* Timer */
@@ -104,7 +104,10 @@
 /* Next round modal */
 
 .next-round-modal {
-	color: var(--fg-1);
 	width: 100%;
 	height: 100%;
+}
+
+.game-paused-modal .timer h2 {
+	font-size: 150px;
 }

@@ -8,13 +8,38 @@ import { GameModes } from "../GameModes.js";
 
 export default function router(fastify, opts, done) {
   fastify.get("/:account_id", function handler(request, reply) {
-    const users = db
-      .prepare("SELECT * FROM matchmaking_users WHERE account_id = ?")
+    const matchmaking_users = db
+      .prepare("SELECT gamemode, elo, created_at, updated_at FROM matchmaking_users WHERE account_id = ?")
       .all(request.params.account_id);
-    if (users.length === 0) {
-      return new HttpError.NotFound().send(reply);
-    }
-    reply.send(users);
+    let last_match = db
+      .prepare(`
+        SELECT
+          matches.*
+        FROM
+          match_players
+        JOIN
+          matches
+        ON
+          matches.match_id = match_players.match_id
+        WHERE match_players.account_id = ?
+        ORDER BY matches.created_at DESC
+        LIMIT 1
+      `)
+      .get(request.params.account_id) || null;
+    let last_tournament = db.prepare(`
+      SELECT
+        tournaments.*
+      FROM
+        tournament_players
+      JOIN
+        tournaments
+      ON
+        tournaments.tournament_id = tournament_players.tournament_id
+      WHERE tournament_players.account_id = ?
+      ORDER BY tournaments.created_at DESC
+      LIMIT 1
+    `).get(request.params.account_id) || null;
+    reply.send({matchmaking_users, last_match, last_tournament});
   });
   fastify.get("/:account_id/matches", {
     schema: {

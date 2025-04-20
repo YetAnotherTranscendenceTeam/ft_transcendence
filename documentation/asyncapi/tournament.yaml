@@ -92,7 +92,14 @@ components:
         - matches
         - gamemode
         - id
+        - active
       properties:
+        active:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: Whether the tournament is active or not
         id:
           type: number
           description: The id of the tournament
@@ -114,6 +121,24 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/tournament_match"
+        gamemode:
+          $ref: "./lobbies.yaml#/components/schemas/gamemode"
+    light_tournament:
+      type: object
+      required:
+        - gamemode
+        - id
+        - active
+      properties:
+        active:
+          type: integer
+          enum:
+            - 0
+            - 1
+          description: Whether the tournament is active or not
+        id:
+          type: number
+          description: The id of the tournament
         gamemode:
           $ref: "./lobbies.yaml#/components/schemas/gamemode"
   messages:

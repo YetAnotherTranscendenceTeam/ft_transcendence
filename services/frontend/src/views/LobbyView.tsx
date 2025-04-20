@@ -9,14 +9,11 @@ export default function LobbyView() {
 
 	const { code } = useParams();
 
-	const { join } = useLobby();
-	const { lobby } = useLobby();
-
+	const { join, lobby } = useLobby();
 
 	Babact.useEffect(() => {
 		if (code && lobby === null && !localStorage.getItem('lobby')) {
 			join(code);
-			console.log('join', code)
 		}
 	}, [])
 

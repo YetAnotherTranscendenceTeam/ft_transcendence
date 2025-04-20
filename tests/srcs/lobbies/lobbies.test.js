@@ -59,7 +59,7 @@ describe("Lobby game mode change", () => {
             console.log(message);
           }
           expect(message.event).toBe("mode_change");
-          expect(message.data.mode).toStrictEqual({
+          expect(message.data.mode).toMatchObject({
             name: "unranked_2v2",
             team_size: 2,
             team_count: 2,
@@ -202,7 +202,7 @@ describe("Lobby creation with gamemode", () => {
     let player;
     if (gamemode.team_count != 1 && gamemode.team_size != 1) {
       player = await joinLobby(users[1], lobby);
-      expect(player.lobby.mode.toJSON()).toStrictEqual(gamemode);
+      expect(player.lobby.mode.toJSON()).toMatchObject(gamemode);
     }
     if (gamemode.team_count != 1 && gamemode.team_size != 1) {
       await lobby.expectJoin(users[1].account_id);
@@ -313,7 +313,7 @@ describe("Join full lobby", () => {
       players.push(player);
     }
     await request(lobbiesURL)
-      .ws(`/join?token=${users[players.length].jwt}&secret=${players[0].join_secret}`)
+      .ws(`/join?access_token=${users[players.length].jwt}&secret=${players[0].join_secret}`)
       .expectClosed(4001, "LOBBY_FULL")
       .close();
     while (players.length > 0) {

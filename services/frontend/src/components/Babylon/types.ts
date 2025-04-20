@@ -1,5 +1,3 @@
-import { Mesh } from "@babylonjs/core";
-
 export enum KeyState {
 	IDLE = 0,
 	PRESSED,

@@ -180,11 +180,12 @@ services:
       - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
       - PONG_SECRET=${PONG_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
-      - MATCH_MANAGEMENT_JWT_SECRET=${MATCH_MANAGEMENT_JWT_SECRET}
+      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
     ports:
       - "127.0.0.1:4044:3000"
     networks:
       - frontend
+      - db-profiles
 
   db-profiles:
     build:
@@ -229,6 +230,7 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     ports:
       - 127.0.0.1:4004:3000
     networks:
@@ -282,7 +284,10 @@ services:
       - settings
 
   cdn-nginx:
-    build: services/CDN/nginx/
+    build:
+      context: services/CDN/nginx/
+      args:
+        - CDN_AUTOINDEX=on
     ports:
       - "8181:8181"
     volumes:
@@ -334,8 +339,8 @@ services:
       - ./services/pong/srcs:/services/pong/srcs
       - ./modules/:/modules:ro
     environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - MATCH_MANAGEMENT_JWT_SECRET=${MATCH_MANAGEMENT_JWT_SECRET}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
     ports:
       - 4124:3000
     # networks:

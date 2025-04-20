@@ -3,17 +3,21 @@ import Key from "../../ui/Key";
 import Card from "../../ui/Card";
 import Button from "../../ui/Button";
 import Timer from "./Timer";
+import config from "../../config";
 
 export default function LocalStartModal({
 		onStart,
+		onClick,
 	}: {
 		onStart: () => void,
+		onClick: () => void,
 	}) {
 
 	const [timer, setTimer] = Babact.useState<boolean>(false);
 
 	const handleStart = () => {
 		setTimer(true);
+		onClick();
 	}
 
 	return <div className='local-start-modal flex flex-col gap-4 justify-center items-center'>
@@ -37,7 +41,7 @@ export default function LocalStartModal({
 			<Button className="primary" onClick={() => handleStart()}>
 				<i className="fa-solid fa-play"></i> Start Game
 			</Button> :
-			<Timer timer={3} onTimeout={() => onStart()}/>
+			<Timer timer={config.PAUSE_TIMEOUT} onTimeout={() => onStart()}/>
 		}
 	</div>
 	

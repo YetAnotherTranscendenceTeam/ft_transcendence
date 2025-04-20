@@ -1,10 +1,12 @@
+import db from "./app/database.js";
 import { Match, MatchState } from "./Match.js";
 
 const TournamentMatchState = {
-	WAITING: 'waiting',
-	PLAYING: 'playing',
-	DONE: 'done'
-}
+  WAITING: "waiting",
+  PLAYING: "playing",
+  DONE: "done",
+  CANCELLED: "cancelled",
+};
 
 class TournamentPlayer {
   account_id;
@@ -14,13 +16,24 @@ class TournamentPlayer {
   tournament;
 
   subscriptions = new Set();
-  
-  constructor(iplayer, tournament) {
+
+  constructor(iplayer, tournament, team_index, player_index) {
     this.account_id = iplayer.account_id;
+    this.team_index = team_index;
+    this.player_index = player_index;
     this.elo = iplayer.elo;
     this.matchmaking_user = iplayer.matchmaking_user;
     this.profile = iplayer.profile;
     this.tournament = tournament;
+  }
+
+  insert() {
+    db.prepare(
+      `
+      INSERT INTO tournament_players (tournament_id, account_id, team_index, player_index) 
+      VALUES (?, ?, ?, ?)
+      `
+    ).run(this.tournament.id, this.account_id, this.team_index, this.player_index);
   }
 
   addSubscription(subscription) {
@@ -46,39 +59,79 @@ class TournamentPlayer {
 class TournamentMatch {
   state = TournamentMatchState.WAITING;
   stage;
-  index;
-  team_ids = [];
+  index = 0;
+  team_ids = [null, null];
   tournament;
   nextMatch = null;
+
+  // the team_ids index in which the winner of this match will be inserted into
+  nextMatchTeamIndex = 0;
   internal_match = null;
 
-  constructor(tournament, stage, nextMatch) {
+  constructor(tournament, stage, nextMatch, nextMatchTeamIndex) {
+    this.nextMatchTeamIndex = nextMatchTeamIndex;
     this.tournament = tournament;
     this.stage = stage;
     this.nextMatch = nextMatch;
   }
 
+  insert() {
+    db.prepare(
+      `
+      INSERT INTO tournament_matches (tournament_id, state, stage, match_index, team_0_index, team_1_index)
+      VALUES (?, ?, ?, ?, ?, ?)
+      `
+    ).run(
+      this.tournament.id,
+      this.state,
+      this.stage,
+      this.index,
+      this.team_ids[0],
+      this.team_ids[1]
+    );
+  }
+
+  updateDB() {
+    db.prepare(
+      `
+      UPDATE tournament_matches
+      SET state = ?, match_id = ?, team_0_index = ?, team_1_index = ?
+      WHERE tournament_id = ? AND match_index = ?
+      `
+    ).run(this.state, this.internal_match?.match_id, this.team_ids[0], this.team_ids[1], this.tournament.id, this.index);
+  }
+
+  shouldStart() {
+    return this.team_ids.every((team_id) => team_id !== null);
+  }
+
   setState(state) {
+    if (this.state === state) return;
     if (state === TournamentMatchState.PLAYING) {
       this.createInternalMatch();
     }
     this.state = state;
     this.tournament.broadcast("match_update", {
-      match: this
+      match: this,
     });
+    this.updateDB();
   }
 
   createInternalMatch() {
-    this.internal_match = new Match([
-      ...this.tournament.teams[this.team_ids[0]].players,
-      ...this.tournament.teams[this.team_ids[1]].players
-    ], this.tournament.gamemode);
+    this.internal_match = new Match(
+      [
+        ...this.tournament.teams[this.team_ids[0]].players,
+        ...this.tournament.teams[this.team_ids[1]].players,
+      ],
+      this.tournament.gamemode,
+      this.tournament.id,
+    );
     this.internal_match.insert();
     this.tournament.manager.registerTournamentMatch(this);
     return this.internal_match;
   }
 
-  updateMatch({state, score_0, score_1}) {
+  updateMatch({ state, score_0, score_1 }) {
     this.internal_match.score_0 = score_0;
     this.internal_match.score_1 = score_1;
     this.internal_match.state = state;
@@ -86,28 +139,33 @@ class TournamentMatch {
       [MatchState.RESERVED]: TournamentMatchState.PLAYING,
       [MatchState.PLAYING]: TournamentMatchState.PLAYING,
       [MatchState.DONE]: TournamentMatchState.DONE,
-    }
+      [MatchState.CANCELLED]: TournamentMatchState.CANCELLED,
+    };
     const newState = states[state];
     const oldState = this.state;
     this.state = newState;
     this.tournament.broadcast("match_update", {
-      match: this
+      match: this,
     });
     if (newState == TournamentMatchState.DONE && oldState != newState) {
+        this.updateDB();
       this.tournament.manager.unregisterTournamentMatch(this);
       const winner_team = this.internal_match.score_0 > this.internal_match.score_1 ? 0 : 1;
       if (!this.nextMatch) {
         this.tournament.finish();
         return;
       }
-      this.nextMatch.team_ids.push(this.team_ids[winner_team]);
-      if (this.nextMatch.team_ids.length == 2)
-        this.nextMatch.setState(TournamentMatchState.PLAYING);
-      else
+      this.nextMatch.team_ids[this.nextMatchTeamIndex] = this.team_ids[winner_team];
+      if (this.nextMatch.shouldStart()) this.nextMatch.setState(TournamentMatchState.PLAYING);
+      else {
+        this.nextMatch.updateDB();
         this.tournament.broadcast("match_update", {
-          match: this.nextMatch
-        })
+          match: this.nextMatch,
+        });
+      }
     }
+    else
+      this.updateDB();
   }
 
   toJSON() {
@@ -116,8 +174,8 @@ class TournamentMatch {
       stage: this.stage,
       index: this.index,
       team_ids: this.team_ids,
-      scores: [this.internal_match?.score_0, this.internal_match?.score_1],
-      match_id: this.internal_match?.match_id,
+      scores: [this.internal_match?.score_0 ?? null, this.internal_match?.score_1 ?? null],
+      match_id: this.internal_match?.match_id ?? null,
     };
   }
 }
@@ -130,15 +188,42 @@ export class Tournament {
   gamemode;
 
   constructor(teams, gamemode, manager) {
-    this.teams = teams.forEach((team) => {
-      team.players = team.players.map((player) => new TournamentPlayer(player, this));
+    teams.forEach((team, index) => {
+      team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
     this.teams = teams.sort(
       (a, b) => a.players.reduce((a, b) => a + b.elo, 0) - b.players.reduce((a, b) => a + b.elo, 0)
     );
     this.gamemode = gamemode;
     this.manager = manager;
-    this.createMatches();
+    this.insert();
+  }
+
+  insert() {
+    db.transaction(() => {
+      let obj = db
+        .prepare(
+          `
+        INSERT INTO tournaments (gamemode, active) VALUES (?, ?)
+        RETURNING tournament_id
+        `
+        )
+        .get(this.gamemode.name, 1);
+      this.id = obj.tournament_id;
+      const team_insert = db.prepare(`
+        INSERT INTO tournament_teams (tournament_id, team_index, name)
+        VALUES (?, ?, ?)
+        `);
+      for (let i = 0; i < this.teams.length; i++) {
+        const team = this.teams[i];
+        team_insert.run(this.id, i, team.name);
+        for (let player of this.teams[i].players) {
+          player.team_index = i;
+          player.insert();
+        }
+      }
+      this.createMatches();
+    })();
   }
 
   createMatches() {
@@ -150,7 +235,12 @@ export class Tournament {
     for (let stage = 0; stage < stageCount; stage++) {
       const stageMatches = [];
       for (let i = 0; i < stageMatchCount; i++) {
-        const match = new TournamentMatch(this, stage, previousStage ? previousStage[Math.floor(i / 2)] : null, []);
+        const match = new TournamentMatch(
+          this,
+          stage,
+          previousStage ? previousStage[Math.floor(i / 2)] : null,
+          i % 2
+        );
         stageMatches.push(match);
       }
       stages.push(stageMatches);
@@ -160,6 +250,7 @@ export class Tournament {
     }
     let teamIndex = 0;
     const prevStageLength = previousStage.length;
+    const toStart = [];
     // fill the matches with teams
     for (let i = 0; i < prevStageLength; i++) {
       const matchIndex = this.matches.length - prevStageLength + i;
@@ -169,21 +260,25 @@ export class Tournament {
       if (team2Index >= this.teams.length) {
         // remove this match and advance the single team to the next stage
         if (match.nextMatch) {
-          match.nextMatch.team_ids.push(teamIndex);
-          if (match.nextMatch.team_ids.length == 2)
-            match.nextMatch.setState(TournamentMatchState.PLAYING);
+          match.nextMatch.team_ids[match.nextMatchTeamIndex] = teamIndex;
+          if (match.nextMatch.shouldStart()) toStart.push(match.nextMatch);
         }
         previousStage[i] = null;
         this.matches[matchIndex] = null;
-      }
-      else {
+      } else {
         match.team_ids = [teamIndex, team2Index];
-        match.setState(TournamentMatchState.PLAYING);
+        toStart.push(match);
       }
       teamIndex++;
     }
-    this.matches = this.matches.filter(match => match);
-    this.matches.forEach((m, i) => m.index = i);
+    this.matches = this.matches.filter((match) => match);
+    this.matches.forEach((m, i) => {
+      m.index = i;
+      m.insert();
+    });
+    toStart.forEach((match) => {
+      match.setState(TournamentMatchState.PLAYING);
+    });
   }
 
   toJSON() {
@@ -206,17 +301,32 @@ export class Tournament {
     return null;
   }
 
+  cancel() {
+    this.finish();
+  }
+
   finish() {
+    db.prepare(
+      `
+      UPDATE tournaments
+      SET active = ?
+      WHERE tournament_id = ?
+      `
+    ).run(0, this.id);
     this.manager.unregisterTournament(this);
-    this.broadcast("finish", {
-      tournament: this
-    }, (subscriber) => {
-      subscriber.raw.end();
-    });
+    this.broadcast(
+      "finish",
+      {
+        tournament: this,
+      },
+      (subscriber) => {
+        subscriber.raw.end();
+      }
+    );
   }
 
   getMatch(match_id) {
-    return this.matches.find(match => match.internal_match?.match_id === match_id);
+    return this.matches.find((match) => match.internal_match?.match_id === match_id);
   }
 
   broadcast(event, data, cb) {
@@ -226,7 +336,6 @@ export class Tournament {
       cb?.(subscriber);
     }
   }
-
 }
 // basic tournament test (TODO: remove)
 // const teams = Array.from({ length: 9 }, (_, i) => ({

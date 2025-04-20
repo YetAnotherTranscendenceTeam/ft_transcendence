@@ -56,10 +56,10 @@ export class ConnectionManager {
   // Checks if the connection is valid and returns the corresponding lobby
   // Throws an error if the connection is invalid
   async checkConnection(socket, fastify, req) {
-    if (!req.query.token)
+    if (!req.query.access_token)
       throw WsCloseError.Unauthorized;
     try {
-      const token = req.query.token;
+      const token = req.query.access_token;
       const decoded = fastify.jwt.verify(token);
       req.account_id = decoded.account_id;
     }
