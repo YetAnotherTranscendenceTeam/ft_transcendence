@@ -1,8 +1,9 @@
 import request from "supertest";
-import { properties } from "../../../modules/yatt-utils/srcs";
 import crypto from "crypto";
 import Fastify from "fastify";
 import jwt from "@fastify/jwt"
+import { apiURL } from "../../URLs.js";
+import { TOTP } from "totp-generator";
 
 const app = Fastify();
 app.register(jwt, { secret: process.env.AUTHENTICATION_SECRET });
@@ -14,7 +15,12 @@ beforeAll(async () => {
 
 const baseUrl = "http://127.0.0.1:4022";
 const registerUrL = "http://127.0.0.1:4012";
-const credentialsUrl = "http://127.0.0.1:7002";
+
+const dummy = {
+  account_id: null,
+  email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
+  password: crypto.randomBytes(4).toString("hex"),
+};
 
 describe("POST /", () => {
   it("root", async () => {
@@ -142,12 +148,6 @@ describe("POST /", () => {
     });
   });
 
-  const dummy = {
-    account_id: null,
-    email: `dummy-account.${crypto.randomBytes(10).toString("hex")}@jest.com`,
-    password: crypto.randomBytes(4).toString("hex"),
-  };
-
   it("create dummy account", async () => {
     const response = await request(registerUrL)
       .post("/")
@@ -169,10 +169,7 @@ describe("POST /", () => {
   it("auth using password", async () => {
     const response = await request(baseUrl)
       .post("/")
-      .send({
-        email: dummy.email,
-        password: dummy.password,
-      })
+      .send({ email: dummy.email, password: dummy.password })
       .expect(200)
       .expect("Content-Type", /json/);
 
@@ -182,6 +179,8 @@ describe("POST /", () => {
         expire_at: expect.any(String),
       })
     );
+
+    dummy.access_token = response.body.access_token;
   });
 
   it("bad password", async () => {
@@ -194,85 +193,238 @@ describe("POST /", () => {
       .expect(401)
       .expect("Content-Type", /json/);
   });
+});
 
-  it("remove dummy account", async () => {
-    const response = await request(credentialsUrl)
-      .delete(`/${dummy.account_id}`)
-      .expect(204);
+describe("POST /2fa", () => {
+  it("no body", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send()
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body must be object",
+    });
   });
 
-  describe("2FA", () => {
-    it("missing otp", async () => {
-      const response = await request(baseUrl)
-        .post("/")
-        .send({ payload: {} })
-        .expect(400)
-        .expect("Content-Type", /json/);
+  it("empty body", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({})
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body must have required property 'payload_token'",
+    });
+  });
+
+  it("no otp method", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: {} })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body must have required property 'otp_method'",
+    });
+  });
+
+  it("no otp", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: {}, otp_method: {} })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body must have required property 'otp'",
+    });
+  });
+
+  it("payload_token not a string", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: {}, otp_method: {}, otp: {} })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body/payload_token must be string",
+    });
+  });
+
+  it("otp_method not a string", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: "", otp_method: {}, otp: {} })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body/otp_method must be string",
+    });
+  });
+
+  it("otp_method not from enum", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: "", otp_method: "", otp: {} })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body/otp_method must be equal to one of the allowed values",
+    });
+  });
+
+  it("otp not a string", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: "", otp_method: "none", otp: {} })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body/otp must be string",
+    });
+  });
+
+  it("otp too short", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: "", otp_method: "none", otp: "1234" })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body/otp must NOT have fewer than 6 characters",
+    });
+  });
+
+  it("otp too long", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: "", otp_method: "none", otp: "1234567" })
+      .expect(400)
+      .expect("Content-Type", /json/);
+
+    console.error(response.body);
+    expect(response.body).toEqual({
+      statusCode: 400,
+      code: "FST_ERR_VALIDATION",
+      error: "Bad Request",
+      message: "body/otp must NOT have more than 6 characters",
+    });
+  });
+
+  it("validation pass", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: "", otp_method: "none", otp: "123456" })
+      .expect(401)
+      .expect("Content-Type", /json/);
+  });
+
+  it("payload is invalid jwt", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({ payload_token: app.jwt.sign({}), otp_method: "app", otp: "123456" })
 
       console.error(response.body);
-      expect(response.body).toEqual({
-        statusCode: 400,
-        code: "FST_ERR_VALIDATION",
-        error: "Bad Request",
-        message: expect.any(String),
+      expect(response.statusCode).toBe(401);
+  });
+
+  it("payload is ok", async () => {
+    const response = await request(baseUrl)
+      .post("/2fa")
+      .send({
+        payload_token: app.jwt.two_fa.sign({ account_id: 42, method: "totp" }),
+        otp_method: "app",
+        otp: "123456"
       });
-    });
 
-    it("bad payload", async () => {
-      const response = await request(baseUrl)
-        .post("/")
-        .send({ payload: {}, otp: {} })
-        .expect(400)
-        .expect("Content-Type", /json/);
+    console.error(response.body);
+    expect(response.statusCode).toBe(403);
+  });
 
-      console.error(response.body);
-      expect(response.body).toEqual({
-        statusCode: 400,
-        code: "FST_ERR_VALIDATION",
-        error: "Bad Request",
-        message: expect.any(String),
-      });
-    });
+  describe("2FA full flow", () => {
+    it.skip("app", async () => {
+      const activate = await request(apiURL)
+        .get("/2fa/app/activate")
+        .set('Authorization', `Bearer ${dummy.access_token}`)
 
-    it("bad otp", async () => {
-      const response = await request(baseUrl)
-        .post("/")
-        .send({ payload: "", otp: {} })
-        .expect(400)
-        .expect("Content-Type", /json/);
+      expect(activate.statusCode).toBe(200);
 
-      console.error(response.body);
-      expect(response.body).toEqual({
-        statusCode: 400,
-        code: "FST_ERR_VALIDATION",
-        error: "Bad Request",
-        message: expect.any(String),
-      });
-    });
+      const queryString = activate.body.otpauth.split('?')[1];
+      const params = new URLSearchParams(queryString);
+      dummy.otpsecret = params.get('secret');
 
-    it("opt bad format", async () => {
-      const response = await request(baseUrl)
-        .post("/")
-        .send({ payload: ":)", otp: "------" })
-        .expect(400)
-        .expect("Content-Type", /json/);
-    });
+      const validate = await request(apiURL)
+        .post("/2fa/app/activate/verify")
+        .set('Authorization', `Bearer ${dummy.access_token}`)
+        .send({ otp: TOTP.generate(dummy.otpsecret).otp })
 
-    it("payload is invalid jwt", async () => {
-      const response = await request(baseUrl)
-        .post("/")
-        .send({ payload: app.jwt.sign({}), otp: "123456" })
-        .expect(401)
-        .expect("Content-Type", /json/);
-    });
+      expect(validate.statusCode).toBe(204);
 
-    it("payload is ok", async () => {
-      const response = await request(baseUrl)
-        .post("/")
-        .send({ payload: app.jwt.two_fa.sign({ account_id: 42, method: "totp" }), otp: "123456" });
+      const authenticate = await request(apiURL)
+        .post("/auth")
+        .send({ email: dummy.email, password: dummy.password })
 
-      console.error(response.body);
-      expect(response.statusCode).toBe(403);
-    });
-  })
+      expect(authenticate.statusCode).toBe(202);
+      expect(authenticate.body).toMatchObject({
+        statusCode: 202,
+        code: "2FA_VERIFICATION",
+        payload: expect.any(String)
+      })
+
+      const twofa = await request(apiURL)
+        .post("/auth/2fa")
+        .send({ otp: TOTP.generate(dummy.otpsecret).otp, payload: authenticate.body.payload })
+
+      expect(twofa.statusCode).toBe(200);
+      expect(twofa.body).toEqual({
+        access_token: expect.any(String),
+        expire_at: expect.any(String),
+      })
+    })
+  });
 });

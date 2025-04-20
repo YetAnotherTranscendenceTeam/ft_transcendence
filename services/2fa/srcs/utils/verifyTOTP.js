@@ -3,8 +3,8 @@
 import { createHmac } from "node:crypto";
 import { base32 } from "rfc4648";
 
-export function verifyTOTP(totp, secret) {
-  return totp === generateTOTP(secret) || totp === generateTOTP(secret, { timestamp: Date.now() - 30000 });
+export function verifyTOTP(otp, secret) {
+  return otp === generateTOTP(secret) || otp === generateTOTP(secret, { timestamp: Date.now() - 30000 });
 }
 
 export function generateTOTP(secret, options = {}) {

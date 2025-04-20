@@ -17,11 +17,10 @@ export default function router(fastify, opts, done) {
     }
   };
 
-  fastify.post("/totp/verify", { schema }, async function handler(request, reply) {
+  fastify.post("/app/verify", { schema }, async function handler(request, reply) {
     const { account_id, otp } = request.body;
 
     const otpauth = getActiveSecret.get(account_id);
-    console.log("get active", otpauth);
     if (!otpauth?.secret || !verifyTOTP(otp, otpauth.secret)) {
       throw new HttpError.Forbidden();
     }

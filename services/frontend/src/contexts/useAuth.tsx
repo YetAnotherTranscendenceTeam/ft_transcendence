@@ -23,7 +23,7 @@ export enum AuthMethod {
 
 export enum SecondFactor {
 	none = 'none',
-	totp = 'totp',
+	app = 'app',
 }
 
 interface ICredentials {

@@ -2,9 +2,9 @@
 
 import bearerAuth from "@fastify/bearer-auth";
 import { HttpError } from "yatt-utils";
-import root from "../routes/totp/root.js";
-import activate from "../routes/totp/activate.js";
-import deactivate from "../routes/totp/deactivate.js";
+import verifyApp from "../routes/app/verify.js";
+import activateApp from "../routes/app/activate.js";
+import deactivateApp from "../routes/app/deactivate.js";
 
 function protected_router(fastify, opts, done) {
   const serviceAuthorization = (token, request) => {
@@ -22,13 +22,13 @@ function protected_router(fastify, opts, done) {
       return new HttpError.Unauthorized().json();
     },
   });
-  fastify.register(root);
+  fastify.register(verifyApp);
   done();
 }
 
 export default function router(fastify, opts, done) {
-  fastify.register(activate);
-  fastify.register(deactivate);
+  fastify.register(activateApp);
+  fastify.register(deactivateApp);
   fastify.register(protected_router);
   done();
 }

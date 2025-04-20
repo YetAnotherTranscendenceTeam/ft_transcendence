@@ -87,10 +87,10 @@ describe("PATCH /2fa/:account_id", () => {
     });
   })
 
-  it("set to totp", async () => {
+  it("set to app", async () => {
     const response = await request(baseUrl)
       .patch(`/2fa/${users[0].account_id}`)
-      .send({ method: "totp" });
+      .send({ method: "app" });
 
     expect(response.statusCode).toBe(204);
     const verification = await request(baseUrl)
@@ -101,7 +101,7 @@ describe("PATCH /2fa/:account_id", () => {
       auth_method: "password_auth",
       created_at: expect.any(String),
       updated_at: expect.any(String),
-      second_factor: "totp",
+      second_factor: "app",
       email: users[0].email,
     });
   })

@@ -8,7 +8,7 @@ import { generateOTPAuth } from "../../utils/generateOTPAuth.js";
 import { verifyTOTP } from "../../utils/verifyTOTP.js";
 
 export default function router(fastify, opts, done) {
-  fastify.get("/totp/activate", { preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
+  fastify.get("/app/activate", { preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
 
     try {
@@ -36,7 +36,7 @@ export default function router(fastify, opts, done) {
     }
   }
 
-  fastify.post("/totp/activate/verify", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
+  fastify.post("/app/activate/verify", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
     const { otp } = request.body;
 
@@ -52,7 +52,7 @@ export default function router(fastify, opts, done) {
       headers: {
         "Content-Type": "application/json", 
       },
-      body: JSON.stringify({ method: "totp" }),
+      body: JSON.stringify({ method: "app" }),
     });
 
     activate.run(account_id);

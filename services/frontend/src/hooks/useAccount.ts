@@ -50,7 +50,7 @@ export default function useAccount() {
 
 
 	const enable2FA = async () => {
-		const response = await ft_fetch(`${config.API_URL}/2fa/totp/activate`, {}, {
+		const response = await ft_fetch(`${config.API_URL}/2fa/app/activate`, {}, {
 			show_error: true,
 			error_messages: {
 				409: "2FA already activated",
@@ -60,7 +60,7 @@ export default function useAccount() {
 	}
 
 	const confirm2FA = async (code: string) => {
-		const response = await ft_fetch(`${config.API_URL}/2fa/totp/activate/verify`, {
+		const response = await ft_fetch(`${config.API_URL}/2fa/app/activate/verify`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -82,7 +82,7 @@ export default function useAccount() {
 	}
 
 	const disable2FA = async (otp: string) => {
-		const response = await ft_fetch(`${config.API_URL}/2fa/totp/deactivate`, {
+		const response = await ft_fetch(`${config.API_URL}/2fa/app/deactivate`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
