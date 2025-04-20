@@ -203,7 +203,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -219,7 +218,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -235,7 +233,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -251,7 +248,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -267,7 +263,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -283,7 +278,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -299,7 +293,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -315,7 +308,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -331,7 +323,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -347,7 +338,6 @@ describe("POST /2fa", () => {
       .expect(400)
       .expect("Content-Type", /json/);
 
-    console.error(response.body);
     expect(response.body).toEqual({
       statusCode: 400,
       code: "FST_ERR_VALIDATION",
@@ -369,62 +359,49 @@ describe("POST /2fa", () => {
       .post("/2fa")
       .send({ payload_token: app.jwt.sign({}), otp_method: "app", otp: "123456" })
 
-      console.error(response.body);
-      expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(401);
   });
 
-  it("payload is ok", async () => {
-    const response = await request(baseUrl)
-      .post("/2fa")
-      .send({
-        payload_token: app.jwt.two_fa.sign({ account_id: 42, method: "totp" }),
-        otp_method: "app",
-        otp: "123456"
-      });
+});
 
-    console.error(response.body);
-    expect(response.statusCode).toBe(403);
-  });
+describe("2FA full flow", () => {
+  it("app", async () => {
+    const activate = await request(apiURL)
+      .get("/2fa/app/activate")
+      .set('Authorization', `Bearer ${dummy.access_token}`)
 
-  describe("2FA full flow", () => {
-    it.skip("app", async () => {
-      const activate = await request(apiURL)
-        .get("/2fa/app/activate")
-        .set('Authorization', `Bearer ${dummy.access_token}`)
+    expect(activate.statusCode).toBe(200);
 
-      expect(activate.statusCode).toBe(200);
+    const queryString = activate.body.otpauth.split('?')[1];
+    const params = new URLSearchParams(queryString);
+    dummy.otpsecret = params.get('secret');
 
-      const queryString = activate.body.otpauth.split('?')[1];
-      const params = new URLSearchParams(queryString);
-      dummy.otpsecret = params.get('secret');
+    const validate = await request(apiURL)
+      .post("/2fa/app/activate/verify")
+      .set('Authorization', `Bearer ${dummy.access_token}`)
+      .send({ otp: TOTP.generate(dummy.otpsecret).otp })
 
-      const validate = await request(apiURL)
-        .post("/2fa/app/activate/verify")
-        .set('Authorization', `Bearer ${dummy.access_token}`)
-        .send({ otp: TOTP.generate(dummy.otpsecret).otp })
+    expect(validate.statusCode).toBe(204);
 
-      expect(validate.statusCode).toBe(204);
+    const authenticate = await request(apiURL)
+      .post("/auth")
+      .send({ email: dummy.email, password: dummy.password })
 
-      const authenticate = await request(apiURL)
-        .post("/auth")
-        .send({ email: dummy.email, password: dummy.password })
-
-      expect(authenticate.statusCode).toBe(202);
-      expect(authenticate.body).toMatchObject({
-        statusCode: 202,
-        code: "2FA_VERIFICATION",
-        payload: expect.any(String)
-      })
-
-      const twofa = await request(apiURL)
-        .post("/auth/2fa")
-        .send({ otp: TOTP.generate(dummy.otpsecret).otp, payload: authenticate.body.payload })
-
-      expect(twofa.statusCode).toBe(200);
-      expect(twofa.body).toEqual({
-        access_token: expect.any(String),
-        expire_at: expect.any(String),
-      })
+    expect(authenticate.statusCode).toBe(202);
+    expect(authenticate.body).toMatchObject({
+      statusCode: 202,
+      code: "2FA_VERIFICATION",
+      payload_token: expect.any(String)
     })
-  });
+
+    const twofa = await request(apiURL)
+      .post("/auth/2fa")
+      .send({ otp_method: "app", otp: TOTP.generate(dummy.otpsecret).otp, payload_token: authenticate.body.payload_token })
+
+    expect(twofa.statusCode).toBe(200);
+    expect(twofa.body).toEqual({
+      access_token: expect.any(String),
+      expire_at: expect.any(String),
+    })
+  })
 });

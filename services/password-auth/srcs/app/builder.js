@@ -8,6 +8,7 @@ import fastifyFormbody from "@fastify/formbody";
 import router from "./router.js";
 import cors from "@fastify/cors";
 import { TOKEN_MANAGER_SECRET, TWO_FA_SECRET } from "./env.js";
+import crypto from "crypto";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -19,8 +20,10 @@ export default function build(opts = {}) {
     maxAge: 600,
   });
 
+  app.register(jwt, { secret: crypto.randomBytes(32).toString('hex'), namespace: "self" });
   app.register(jwt, { secret: TOKEN_MANAGER_SECRET, namespace: "token_manager" });
   app.register(jwt, { secret: TWO_FA_SECRET, namespace: "two_fa" });
+
   app.decorate("tokens", new JwtGenerator());
   app.addHook('onReady', async function () {
     this.tokens.register(app.jwt.token_manager, "token_manager");
