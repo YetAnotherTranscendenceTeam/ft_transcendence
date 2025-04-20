@@ -53,7 +53,7 @@ components:
       type: string
       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NedW50X2lkIjo5NiwiaWF0IjoxNzQwNYc1NzM5LCJleHAiOjE3NDA1NzY2Mzl9.7ZuX-M9EIdByqk0X2bjU0-YjgFyVZYzSI520YZbw9N8"
 
-    two_fa_method:
+    otp_method:
       description: A two factor authentication method
       type: string
       enum:
@@ -224,7 +224,7 @@ paths:
                   payload_token:
                     $ref: "#/components/schemas/payload_token"
                   method:
-                    $ref: "#/components/schemas/two_fa_method"
+                    $ref: "#/components/schemas/otp_method"
                 required:
                   - access_token
                   - expire_at
@@ -251,6 +251,8 @@ paths:
               properties:
                 payload_token:
                   $ref: "#/components/schemas/payload_token"
+                opt_method:
+                  $ref: "#/components/schemas/otp_method"
                 otp:
                   $ref: "#/components/schemas/otp"
               required:

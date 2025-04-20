@@ -17,3 +17,9 @@ if (!PASSWORD_PEPPER) {
   console.error("Missing environment variable: PASSWORD_PEPPER");
   process.exit(1);
 }
+
+export const AUTH_2FA_SECRET = process.env.AUTH_2FA_SECRET;
+if (!AUTH_2FA_SECRET) {
+  console.error("Missing environment variable: AUTH_2FA_SECRET");
+  process.exit(1);
+}

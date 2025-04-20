@@ -1,3 +1,5 @@
+"use strict";
+
 export const adjectives = [
 	'aback',
 	'abaft',

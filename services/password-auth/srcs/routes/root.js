@@ -61,7 +61,7 @@ export default function passwordRoutes(fastify, opts, done) {
     let decode;
 
     try {
-      decode = fastify.jwt.self.verify(payload_token);
+      decode = fastify.jwt.auth_2fa.verify(payload_token);
     } catch (err) {
       throw new HttpError.Unauthorized();
     }
@@ -81,7 +81,7 @@ export default function passwordRoutes(fastify, opts, done) {
   });
 
   async function require2FA(reply, account_id) {
-    const payload_token = fastify.jwt.self.sign({ account_id  }, { expiresIn: "5m" });
+    const payload_token = fastify.jwt.auth_2fa.sign({ account_id  }, { expiresIn: "5m" });
 
     reply.code(202).send({ statusCode: 202, code: "2FA_VERIFICATION", payload_token });
   }

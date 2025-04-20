@@ -55,6 +55,7 @@ generate() {
 secret_keys=( \
     "PASSWORD_PEPPER" \
     "AUTHENTICATION_SECRET" \
+    "AUTH_2FA_SECRET" \
     "REFRESH_TOKEN_SECRET" \
     "TOKEN_MANAGER_SECRET" \
     "CDN_SECRET" \

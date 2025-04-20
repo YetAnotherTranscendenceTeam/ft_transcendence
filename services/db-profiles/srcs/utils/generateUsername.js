@@ -1,3 +1,5 @@
+"use strict";
+
 import { adjectives } from "./adjectives.js";
 import { animals } from "./animals.js";
 import crypto from "crypto"
