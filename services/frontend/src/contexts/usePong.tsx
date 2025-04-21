@@ -11,6 +11,7 @@ const PongContext = Babact.createContext<{
 		setPaused: (paused: boolean) => void,
 		startGame: () => void,
 		setGameStatus: (status: GameStatus) => void,
+		resetGame: () => void,
 		gameTime: number,
 	}>();
 
@@ -69,6 +70,13 @@ export const PongProvider = ({ children } : {children?: any}) => {
 		}
 	}
 
+	const resetGame = () => {
+		setScores([0, 0]);
+		setLastWinner(null);
+		setGameTime(0);
+		setGameStatus(GameStatus.WAITING);
+	}
+
 	const startGame = () => {
 		setScores([0, 0]);
 		setLastWinner(null);
@@ -87,6 +95,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 				setPaused,
 				startGame,
 				setGameStatus,
+				resetGame,
 				gameTime,
 			}}
 		>

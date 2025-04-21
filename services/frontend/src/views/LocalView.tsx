@@ -11,11 +11,12 @@ import WinnerModal from "../components/Game/WinnerModal";
 
 export default function LocalView() {
 
-	const { app, scores, setPaused, gameStatus, gameTime, setGameStatus, startGame } = usePong();
+	const { app, scores, setPaused, gameStatus, gameTime, setGameStatus, startGame, resetGame } = usePong();
 	const [hidden, setHidden] = Babact.useState<boolean>(false);
 
 	Babact.useEffect(() => {
 		app.setGameScene(GameScene.LOCAL);
+		resetGame();
 	}, []);
 
 	const handleStart = () => {
