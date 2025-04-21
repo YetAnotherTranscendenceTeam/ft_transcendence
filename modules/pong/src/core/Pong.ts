@@ -193,10 +193,11 @@ export class Pong {
 			this._accumulator -= K.DT;
 		}
 		this._paddles.forEach((paddle: PH2D.Body) => { // block paddle movement within walls
-			if (paddle.position[1] > (K.mapData1v1.playGround.height / 2 - K.paddleSize[1] / 2)) {
-				paddle.position[1] = (K.mapData1v1.playGround.height / 2 - K.paddleSize[1] / 2);
-			} else if (paddle.position[1] < (-K.mapData1v1.playGround.height / 2 + K.paddleSize[1] / 2)) {
-				paddle.position[1] = (-K.mapData1v1.playGround.height / 2 + K.paddleSize[1] / 2);
+			const border: number = this._currentMap.wallTop.position.y - this._currentMap.wallTop.height / 2;
+			if (paddle.position[1] > (border - K.paddleSize[1] / 2)) {
+				paddle.position[1] = (border - K.paddleSize[1] / 2);
+			} else if (paddle.position[1] < (-border + K.paddleSize[1] / 2)) {
+				paddle.position[1] = (-border + K.paddleSize[1] / 2);
 			}
 		});
 		return this._accumulator / K.DT;
