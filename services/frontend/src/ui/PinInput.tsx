@@ -19,7 +19,7 @@ export default function PinInput({
 
 
 	const [pin, setPin] = Babact.useState<string[]>(new Array(length).fill(''));
-	const { updateField, updateFieldValidity } = useForm();
+	const { updateField, updateFieldValidity, fields } = useForm();
 
 	const handleChange = (index: number, value: string) => {
 		if (value.length > 1) return;
@@ -50,6 +50,13 @@ export default function PinInput({
 			target.blur();
 		}
 	}
+
+	Babact.useEffect(() => {
+		if (fields[field]?.value !== pin.join('')) {
+			const newPin = (fields[field].value as string).split('');
+			setPin([...newPin, ...new Array(length - newPin.length).fill('')]);
+		}
+	}, [fields[field]?.value]);
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		const target = event.target as HTMLInputElement;
@@ -89,15 +96,15 @@ export default function PinInput({
 		>
 			{new Array(length).fill(null).map((_, i) => (
 				<input
-				key={i}
-				id={`pin-input-${i}`}
-				type="text"
-				maxLength={1}
-				value={pin[i]}
-				onInput={(e) => handleChange(i, e.target.value)}
-				onKeyDown={(e) => handleKeyDown(e)}
-				pattern="[0-9]*"
-				inputMode="numeric"
+					key={i}
+					id={`pin-input-${i}`}
+					type="text"
+					maxLength={1}
+					value={pin[i]}
+					onInput={(e) => handleChange(i, e.target.value)}
+					onKeyDown={(e) => handleKeyDown(e)}
+					pattern="[0-9]*"
+					inputMode="numeric"
 				/>
 			))}
 		</div>
