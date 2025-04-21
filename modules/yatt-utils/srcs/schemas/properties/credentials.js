@@ -10,7 +10,7 @@ const credentialsProperties = {
   auth_method: {
     type: "string",
     enum: ['password-auth', 'google-auth', 'fortytwo-auth'],
-    description: "The account authentification method",
+    description: "The account authentication method",
   },
 
   email: {
@@ -55,7 +55,7 @@ const credentialsProperties = {
   otp_method: {
     type: "string",
     enum: ["none", "app"],
-    description: "A two-factor authentification method"
+    description: "A two-factor authentication method"
   },
 
   otp: {
