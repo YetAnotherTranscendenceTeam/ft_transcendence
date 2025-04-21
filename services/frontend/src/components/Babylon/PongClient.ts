@@ -8,7 +8,7 @@ import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/o
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { KeyState, GameScene, ScoredEvent } from "./types";
+import { KeyState, GameScene, KeyName, ScoredEvent } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
 
@@ -42,11 +42,9 @@ export default class PongClient extends PONG.Pong {
 		this._paddleInstance = new Map<number, ClientPaddle>();
 		this._meshMap = new Map<PONG.MapID, Array<AObject>>();
 		this._keyboard = new Map<string, KeyState>();
-		this._keyboard.set("ArrowUp", KeyState.IDLE);
-		this._keyboard.set("ArrowDown", KeyState.IDLE);
-		this._keyboard.set("w", KeyState.IDLE);
-		this._keyboard.set("s", KeyState.IDLE);
-		this._keyboard.set("c", KeyState.IDLE);
+		Object.keys(KeyName).map(key => KeyName[key]).forEach((name: string) => {
+			this._keyboard.set(name, KeyState.IDLE);
+		});
 
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
@@ -329,11 +327,11 @@ export default class PongClient extends PONG.Pong {
 		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
-			let keyStateProbe: KeyState = this._keyboard.get("ArrowUp") || KeyState.IDLE;
+			let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
 			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection += 1;
 			}
-			keyStateProbe = this._keyboard.get("ArrowDown") || KeyState.IDLE;
+			keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
 			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection -= 1;
 			}
@@ -343,11 +341,11 @@ export default class PongClient extends PONG.Pong {
 		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
-			let keyStateProbe: KeyState = this._keyboard.get("w") || KeyState.IDLE;
+			let keyStateProbe: KeyState = this._keyboard.get(KeyName.W) || KeyState.IDLE;
 			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection += 1;
 			}
-			keyStateProbe = this._keyboard.get("s") || KeyState.IDLE;
+			keyStateProbe = this._keyboard.get(KeyName.S) || KeyState.IDLE;
 			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
 				moveDirection -= 1;
 			}
@@ -356,7 +354,6 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
-		// console.log(ev);
 		// Shift+Ctrl+Alt+I
 		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
 		// 	if (this._babylonScene.debugLayer.isVisible()) {
@@ -365,26 +362,27 @@ export default class PongClient extends PONG.Pong {
 		// 		this._babylonScene.debugLayer.show();
 		// 	}
 		// }
+		const key = ev.key.toLowerCase();
 
-		if (this._keyboard.has(ev.key)) {
-			const keyStateProbe = this._keyboard.get(ev.key);
+		if (this._keyboard.has(key)) {
+			const keyStateProbe = this._keyboard.get(key);
 			if (keyStateProbe === KeyState.IDLE || keyStateProbe === KeyState.RELEASED) {
-				this._keyboard.set(ev.key, KeyState.PRESSED);
+				this._keyboard.set(key, KeyState.PRESSED);
 			} else if (keyStateProbe === KeyState.PRESSED) {
-				this._keyboard.set(ev.key, KeyState.HELD);
+				this._keyboard.set(key, KeyState.HELD);
 			}
 		}
 	}
 
 	private handleKeyUp = (ev: KeyboardEvent) => {
-		// console.log(ev);
+		const key = ev.key.toLowerCase();
 
-		if (this._keyboard.has(ev.key)) {
-			const keyStateProbe = this._keyboard.get(ev.key);
+		if (this._keyboard.has(key)) {
+			const keyStateProbe = this._keyboard.get(key);
 			if (keyStateProbe === KeyState.PRESSED || keyStateProbe === KeyState.HELD) {
-				this._keyboard.set(ev.key, KeyState.RELEASED);
+				this._keyboard.set(key, KeyState.RELEASED);
 			} else if (keyStateProbe === KeyState.RELEASED) {
-				this._keyboard.set(ev.key, KeyState.IDLE);
+				this._keyboard.set(key, KeyState.IDLE);
 			}
 		}
 	}
