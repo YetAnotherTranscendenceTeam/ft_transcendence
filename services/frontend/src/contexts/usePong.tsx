@@ -9,6 +9,7 @@ const PongContext = Babact.createContext<{
 		lastWinner: number,
 		paused: boolean,
 		setPaused: (paused: boolean) => void,
+		gameTime: number,
 	}>();
 
 export const PongProvider = ({ children } : {children?: any}) => {
@@ -17,6 +18,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 	const [scores, setScores] = Babact.useState([0, 0]);
 	const [lastWinner, setLastWinner] = Babact.useState<number>(null);
 	const [gamePaused, setGamePaused] = Babact.useState<boolean>(false);
+	const [gameTime, setGameTime] = Babact.useState<number>(0);
 
 	const handleScoreUpdate = (event: ScoredEvent) => {
 		setScores(event.score);
@@ -28,8 +30,10 @@ export const PongProvider = ({ children } : {children?: any}) => {
 			{ scoreUpdateCallback(score) {
 				handleScoreUpdate(score);
 			}, timeUpdateCallback(time) {
-				
-			},
+				if (gameTime !== time) {
+					setGameTime(time);
+				}
+			}
 		});
 
         return () => {
@@ -55,6 +59,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 				lastWinner,
 				paused: gamePaused,
 				setPaused,
+				gameTime,
 			}}
 		>
 			<Babylon key="babylon" app={appRef.current}/>

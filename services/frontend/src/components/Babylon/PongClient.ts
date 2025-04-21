@@ -317,7 +317,7 @@ export default class PongClient extends PONG.Pong {
 			return;
 		}
 		this._time += dt;
-		this.callbacks.timeUpdateCallback(this._time);
+		this.callbacks.timeUpdateCallback(Math.floor(this._time));
 
 		this.playerUpdate();
 		dt = this.physicsUpdate(dt);

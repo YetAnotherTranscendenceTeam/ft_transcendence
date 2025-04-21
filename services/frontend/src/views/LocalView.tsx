@@ -10,7 +10,7 @@ import GamePausedModal from "../components/Game/GamePausedModal";
 
 export default function LocalView() {
 
-	const { app, scores, setPaused, paused } = usePong();
+	const { app, scores, setPaused, paused, gameTime } = usePong();
 	const [startTime, setStartTime] = Babact.useState<Date>(null);
 	const [freeze, setFreeze] = Babact.useState<boolean>(false);
 	const [hidden, setHidden] = Babact.useState<boolean>(false);
@@ -69,7 +69,7 @@ export default function LocalView() {
 		modal={getModal()}
 	>
 		<div className='local-view flex flex-col gap-2 items-center'>
-			{startTime && <Scores scores={scores} startTime={startTime}/>}
+			{startTime && <Scores scores={scores} timer={gameTime}/>}
 		</div>
 	</Overlay>
 }
