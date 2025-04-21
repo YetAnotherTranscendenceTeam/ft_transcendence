@@ -1,4 +1,4 @@
-name: Build Docker images for production
+name: Production build
 
 on:
   push:
