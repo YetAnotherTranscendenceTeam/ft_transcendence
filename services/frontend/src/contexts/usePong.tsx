@@ -27,14 +27,20 @@ export const PongProvider = ({ children } : {children?: any}) => {
 
 	Babact.useEffect(() => {
         appRef.current = new PongClient(
-			{ scoreUpdateCallback(score) {
-				handleScoreUpdate(score);
-			}, timeUpdateCallback(time) {
-				if (gameTime !== time) {
-					setGameTime(time);
+			{
+				scoreUpdateCallback : (score) =>  {
+					handleScoreUpdate(score);
+				},
+				timeUpdateCallback: (time) =>  {
+					if (gameTime !== time) {
+						setGameTime(time);
+					}
+				},
+				endGameCallback: () => {
+					console.log("Game ended");
 				}
 			}
-		});
+		);
 
         return () => {
             appRef.current.destroy();

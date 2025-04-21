@@ -37,11 +37,13 @@ export default class PongClient extends PONG.Pong {
 	public callbacks: {
 		scoreUpdateCallback: (score: ScoredEvent) => void;
 		timeUpdateCallback: (time: number) => void;
+		endGameCallback: () => void;
 	};
 
 	public constructor(callbacks: {
-		scoreUpdateCallback: (score: ScoredEvent) => void;
-		timeUpdateCallback: (time: number) => void;
+		scoreUpdateCallback: (score: ScoredEvent) => void,
+		timeUpdateCallback: (time: number) => void,
+		endGameCallback: () => void
 	}) {
 		super();
 		this._gameScene = GameScene.MENU;
@@ -161,6 +163,12 @@ export default class PongClient extends PONG.Pong {
 	public resumeGame() {
 		this._running = 1;
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
+	}
+
+	public resetGame() {
+		this._running = 0;
+		this._time = 0;
+		this._score = [0, 0];
 	}
 	
 	private loop = () => {
@@ -331,7 +339,7 @@ export default class PongClient extends PONG.Pong {
 			this._running = 0;
 			if (this._winner) {
 				this._babylonScene.clearColor = Color4.FromColor3(Color3.Red());
-				// end game callback
+				this.callbacks.endGameCallback();
 			}
 		}
 	}
