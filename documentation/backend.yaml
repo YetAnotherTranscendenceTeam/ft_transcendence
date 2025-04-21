@@ -217,17 +217,16 @@ paths:
               schema:
                 type: object
                 properties:
+                  statusCode:
+                    type: number
+                    enum:
+                      - 202
                   code:
                     type: string
                     enum:
                       - 2FA_VERIFICATION
                   payload_token:
                     $ref: "#/components/schemas/payload_token"
-                  method:
-                    $ref: "#/components/schemas/otp_method"
-                required:
-                  - access_token
-                  - expire_at
         400:
           description: Bad Request
         401:
@@ -241,7 +240,7 @@ paths:
       description: 2FA validation route
       tags:
         - Authentication
-
+        - 2FA
       requestBody:
         required: true
         content:
@@ -251,7 +250,7 @@ paths:
               properties:
                 payload_token:
                   $ref: "#/components/schemas/payload_token"
-                opt_method:
+                otp_method:
                   $ref: "#/components/schemas/otp_method"
                 otp:
                   $ref: "#/components/schemas/otp"
@@ -259,7 +258,6 @@ paths:
                 - payload
                 - otp
               additionalProperties: false
-
       responses:
         200:
           $ref: "#/components/responses/AuthSuccess"
@@ -362,7 +360,7 @@ paths:
       summary: Application based 2FA activation start
       description: Retrieve a Time-based one-time password key meant for an authenticator application
       tags:
-        - 2FA
+        - 2FA Activation
       responses:
         200:
           description: Successful start of Application based 2FA activation process
@@ -389,7 +387,7 @@ paths:
       summary: Application based 2FA activation complete
       description: Retrieve a Time-based one-time password key meant for an authenticator application
       tags:
-        - 2FA
+        - 2FA Activation
       requestBody:
         required: true
         content:
@@ -411,6 +409,8 @@ paths:
           description: Unauthorized
         403:
           description: Invalid one-time password | No ongoing activation process
+      security:
+        - BearerAuth: []
 
   /me:
     get:
@@ -431,7 +431,7 @@ paths:
       tags:
         - Avatars
       responses:
-        "200":
+        200:
           description: Successful response
           content:
             application/json:
@@ -735,12 +735,8 @@ paths:
         content:
           application/json:
             schema:
-              oneOf:
-                - type: object
+                  type: object
                   properties:
-                    auth_method:
-                      type: string
-                      enum: ["password_auth"]
                     email:
                       type: string
                       format: email
@@ -751,35 +747,34 @@ paths:
                       type: string
                       minLength: 8
                   required:
-                    - auth_method
                     - old_password
                   additionalProperties: false
-
-                - type: object
-                  properties:
-                    auth_method:
-                      type: string
-                      enum: ["fortytwo_auth"]
-                    email:
-                      type: string
-                      format: email
-                  required:
-                    - auth_method
-                  additionalProperties: false
-
-                - type: object
-                  properties:
-                    auth_method:
-                      type: string
-                      enum: ["google_auth"]
-                  required:
-                    - auth_method
-                  additionalProperties: false
       responses:
+        202:
+          description: 2FA required
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: number
+                    enum:
+                      - 202
+                  code:
+                    type: string
+                    enum:
+                      - 2FA_VERIFICATION
+                  payload_token:
+                    $ref: "#/components/schemas/payload_token"
         204:
           description: Successful account edition
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
         403:
-          description: Invalid authentication method or password
+          description: Invalid password
         409:
           description: Email already in use
       security:
@@ -795,6 +790,43 @@ paths:
           description: Successful profile deletion
       security:
         - BearerAuth: []
+
+  /settings/account/2fa:
+    patch:
+      summary: account modification 2FA
+      description: 2FA validation route
+      tags:
+        - Settings
+        - 2FA
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payload_token:
+                  $ref: "#/components/schemas/payload_token"
+                otp_method:
+                  $ref: "#/components/schemas/otp_method"
+                otp:
+                  $ref: "#/components/schemas/otp"
+              required:
+                - payload
+                - otp_method
+                - otp
+              additionalProperties: false
+      responses:
+        200:
+          description: Successful account edition
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        403:
+          description: Invalid one-time password
+        502:
+          description: Bad Gateway
 
   /matchmaking/tournaments/{tournament_id}:
     parameters:
