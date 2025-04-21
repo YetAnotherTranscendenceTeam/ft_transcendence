@@ -27,7 +27,7 @@ export default function SocialUserCard({
 
 	return <div
 		className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'
-		onClick={() => navigate(`/profile/${user.account_id}`)}
+		onClick={() => navigate(`/profiles/${user.account_id}`)}
 	>
 		<div className='flex flex-row items-center gap-2'>
 			<Avatar

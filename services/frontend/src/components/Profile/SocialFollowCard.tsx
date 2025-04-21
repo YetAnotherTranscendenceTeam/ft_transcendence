@@ -70,7 +70,7 @@ export default function SocialFollowCard({
 
 	return <div
 		className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'
-		onClick={() => navigate(`/profile/${follow.account_id}`)}
+		onClick={() => navigate(`/profiles/${follow.account_id}`)}
 	>
 		<div className='flex flex-row items-center gap-2'>
 			<Avatar

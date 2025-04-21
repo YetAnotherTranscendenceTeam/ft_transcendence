@@ -23,7 +23,7 @@ export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]:
 		<div className='profile-card-header flex items-center gap-2 justify-between pointer'>
 			<div
 				className='flex flex-row items-center gap-2'
-				onClick={() => navigate(`/profile/${me.account_id}`)}
+				onClick={() => navigate(`/profiles/${me.account_id}`)}
 			>
 				<Avatar src={me.avatar} name={me.username} status={me.status?.type}/>
 				<div className='flex flex-col gap-1'>
