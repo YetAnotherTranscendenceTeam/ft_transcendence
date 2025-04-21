@@ -76,6 +76,11 @@ export default function PinInput({
 			target.value = event.key;
 			const index = parseInt(target.id.split('-')[2]);
 			if (index < length - 1) {
+				setPin((pin) => {
+					const newPin = [...pin];
+					newPin[index] = event.key;
+					return newPin;
+				})
 				const nextInput = document.getElementById(`pin-input-${index + 1}`) as HTMLInputElement;
 				if (nextInput) {
 					nextInput.focus();
