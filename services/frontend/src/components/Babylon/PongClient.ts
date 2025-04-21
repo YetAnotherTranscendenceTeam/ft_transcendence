@@ -354,7 +354,6 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
-		console.log(ev);
 		// Shift+Ctrl+Alt+I
 		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
 		// 	if (this._babylonScene.debugLayer.isVisible()) {
@@ -364,7 +363,6 @@ export default class PongClient extends PONG.Pong {
 		// 	}
 		// }
 		const key = ev.key.toLowerCase();
-		console.log(key);
 
 		if (this._keyboard.has(key)) {
 			const keyStateProbe = this._keyboard.get(key);
@@ -377,9 +375,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private handleKeyUp = (ev: KeyboardEvent) => {
-		console.log(ev);
 		const key = ev.key.toLowerCase();
-		console.log(key);
 
 		if (this._keyboard.has(key)) {
 			const keyStateProbe = this._keyboard.get(key);
