@@ -30,14 +30,24 @@ export default class PongClient extends PONG.Pong {
 	private _ballInstances: Array<ClientBall>;
 	private _paddleInstance: Map<number, ClientPaddle>;
 
-	private _running: number = 0;
+	protected _time: number;
+	private _running: number;
 
-	public scoreUpdateCallback: (score: ScoredEvent) => void;
+	// public scoreUpdateCallback: (score: ScoredEvent) => void;
+	public callbacks: {
+		scoreUpdateCallback: (score: ScoredEvent) => void;
+		timeUpdateCallback: (time: number) => void;
+	};
 
-	public constructor(scoreUpdateCallback: (score: ScoredEvent) => void) {
+	public constructor(callbacks: {
+		scoreUpdateCallback: (score: ScoredEvent) => void;
+		timeUpdateCallback: (time: number) => void;
+	}) {
 		super();
 		this._gameScene = GameScene.MENU;
-		this.scoreUpdateCallback = scoreUpdateCallback;
+		this.callbacks = callbacks;
+		this._running = 0;
+		this._time = 0;
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
 		this._meshMap = new Map<PONG.MapID, Array<AObject>>();
@@ -135,6 +145,7 @@ export default class PongClient extends PONG.Pong {
 
 	public startGame() {
 		this.start();
+		this._time = 0;
 		this._running = 1;
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
@@ -305,6 +316,8 @@ export default class PongClient extends PONG.Pong {
 		if (this._running === 0) {
 			return;
 		}
+		this._time += dt;
+		this.callbacks.timeUpdateCallback(this._time);
 
 		this.playerUpdate();
 		dt = this.physicsUpdate(dt);
@@ -316,7 +329,7 @@ export default class PongClient extends PONG.Pong {
 		});
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._score[0] + "-" + this._score[1]);
-			this.scoreUpdateCallback({ score: this._score, side: this._lastSide });
+			this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
 			this._running = 0;
 		}
 	}

@@ -24,7 +24,13 @@ export const PongProvider = ({ children } : {children?: any}) => {
 	}
 
 	Babact.useEffect(() => {
-        appRef.current = new PongClient((e) => handleScoreUpdate(e));
+        appRef.current = new PongClient(
+			{ scoreUpdateCallback(score) {
+				handleScoreUpdate(score);
+			}, timeUpdateCallback(time) {
+				
+			},
+		});
 
         return () => {
             appRef.current.destroy();
