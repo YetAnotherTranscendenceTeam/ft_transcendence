@@ -34,16 +34,21 @@ export default function Modal({
 	Babact.useEffect(() => {
 		if (!closeOnEscape) return;
 		document.addEventListener('keydown', handleEscape);
-		return () => document.removeEventListener('keydown', handleEscape);
+		return () => {
+			document.removeEventListener('keydown', handleEscape)
+		};
 	}, []);
-	
+
 	if (!isOpen) return null;
-	return <div className={`modal ${overlay ? 'overlay' : ''}`} onClick={handleBackgroundClick}>
+	return <div
+		className={`modal ${overlay ? 'overlay' : ''}`}
+		onClick={handleBackgroundClick}
+	>
 
 		<Card className={`modal-content ${className}`} {...props}>
 			{closeButton && <Button onClick={onClose} className='close icon ghost'><i className="fa-solid fa-xmark"></i></Button>}
 			{children}
 		</Card>
-
+		
 	</div>
 }

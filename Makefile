@@ -4,6 +4,7 @@ override SERVICES = \
 	password-auth \
 	registration \
 	token-manager \
+	2fa \
 
 override MODULES = \
 	yatt-utils \
@@ -24,9 +25,7 @@ TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 
 override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
-all: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SSL_CERTIFICATE)
-
-dev: $(SERVICES_DEPS)
+dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS) $(SSL_CERTIFICATE)
 
 $(MODULES_DEPS) $(SERVICES_DEPS):
 	(cd $(@D) && npm i)
@@ -53,15 +52,15 @@ else
 endif
 
 clean-modules:
-	rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
-	rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
-	rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
+	-rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
+	-rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
+	-rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
 
 clean-services:
-	rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
+	-rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
 
 clean-db:
-	rm $$HOME/goinfre/docker/volumes/ft_transcendence_sqlite/_data/*
+	-rm $$HOME/goinfre/docker/volumes/ft_transcendence_sqlite/_data/*
 
 fclean:
 	$(MAKE) clean-modules

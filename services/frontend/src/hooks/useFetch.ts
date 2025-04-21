@@ -49,7 +49,8 @@ export default function useFetch() {
 			show_error?: boolean
 			success_message?: string,
 			error_messages?: { [key: number | string]: string },
-			disable_bearer?: boolean
+			disable_bearer?: boolean,
+			on_error?: (res: Response) => void
 		} = {}
 	) => {
 		setIsLoading(true);
@@ -76,6 +77,8 @@ export default function useFetch() {
 				return data as any;
 			}
 			else {
+				if (option.on_error)
+					option.on_error(response);
 				const { message, statusCode, code } = await response.json();
 				throw new Error(option.error_messages?.[code] || option.error_messages?.[statusCode] || message);
 			}

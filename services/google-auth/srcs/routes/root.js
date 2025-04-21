@@ -26,19 +26,11 @@ export default function routes(fastify, opts, done) {
 
     // Decode jwt and extract user informations
     try {
-      const ticket = await google.verifyIdToken({
-        idToken: token,
-        audience: GOOGLE_CLIENT_ID,
-      });
+      const ticket = await google.verifyIdToken({ idToken: token, audience: GOOGLE_CLIENT_ID });
       const payload = ticket.getPayload();
       user = getUser(payload);
     } catch (err) {
-      console.log(err);
-      if (err instanceof HttpError) {
-        return err.send(reply);
-      } else {
-        return new HttpError.Unauthorized().send(reply);
-      }
+      throw err instanceof HttpError ? err : new HttpError.Unauthorized();
     }
 
     let tokens;
@@ -46,6 +38,12 @@ export default function routes(fastify, opts, done) {
     try {
       // Fetch database for a matching account
       const account = await YATT.fetch(`http://credentials:3000/google/${user.id}`);
+
+      // Check for a multi authentication method
+      if (account.second_factor !== "none") {
+        return require2FA(reply, account.account_id);
+      }
+
       // Authenticate user
       tokens = await authenticate(account.account_id);
     } catch (err) {
@@ -137,6 +135,12 @@ export default function routes(fastify, opts, done) {
       },
       body: JSON.stringify(body),
     })
+  }
+
+  async function require2FA(reply, account_id) {
+    const payload_token = fastify.jwt.auth_2fa.sign({ account_id }, { expiresIn: "5m" });
+
+    reply.code(202).send({ statusCode: 202, code: "2FA_VERIFICATION", payload_token });
   }
 
   async function authenticate(account_id) {

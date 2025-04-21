@@ -48,9 +48,65 @@ export default function useAccount() {
 		return response;
 	}
 
+
+	const enable2FA = async () => {
+		const response = await ft_fetch(`${config.API_URL}/2fa/app/activate`, {}, {
+			show_error: true,
+			error_messages: {
+				409: "2FA already activated",
+			}
+		})
+		return response;
+	}
+
+	const confirm2FA = async (code: string) => {
+		const response = await ft_fetch(`${config.API_URL}/2fa/app/activate/verify`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				otp: code,
+			})
+		}, {
+			success_message: "2FA activated successfully",
+			show_error: true,
+			error_messages: {
+				403: "Invalid code",
+			}
+		})
+
+		if (response)
+			refresh();
+		return response;
+	}
+
+	const disable2FA = async (otp: string) => {
+		const response = await ft_fetch(`${config.API_URL}/2fa/app/deactivate`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				otp,
+			})
+		}, {
+			success_message: "2FA disabled successfully",
+			show_error: true,
+			error_messages: {
+				403: "Invalid code",
+			}
+		});
+
+		return response;
+	}
+
 	return {
 		setSettings,
-		isLoading
+		isLoading,
+		enable2FA,
+		confirm2FA,
+		disable2FA
 	}
 
 }

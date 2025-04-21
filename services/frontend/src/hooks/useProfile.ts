@@ -15,7 +15,7 @@ export default function useProfile() {
 		} = {};
 		if (settings.avatar !== me.avatar)
 			patch.avatar = settings.avatar;
-		if (settings.username !== me.username)
+		if (settings.username !== me.username && settings.username !== '')
 			patch.username = settings.username;
 		const response = await ft_fetch(`${config.API_URL}/settings/profile`, {
 			method: "PATCH",

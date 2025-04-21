@@ -7,7 +7,6 @@ import { HttpError } from "yatt-utils";
 
 export default function router(fastify, opts, done) {
   let schema = {
-    tags: ["42Intra credentials"],
     description: "Get all 42Intra based credentials",
     querystring: {
       type: "object",
@@ -15,32 +14,18 @@ export default function router(fastify, opts, done) {
         limit: properties.limit,
         offset: properties.offset,
       },
-    },
-    response: {
-      200: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            account_id: properties.account_id,
-            intra_user_id: properties.intra_user_id,
-          },
-          required: ["account_id", "intra_user_id"],
-        },
-      },
+      additionalProperties: false,
     },
   };
 
   fastify.get("/", { schema }, async function handler(request, reply) {
     const { limit, offset } = request.query;
 
-    return db
-      .prepare(`SELECT * FROM fortytwo_auth LIMIT ? OFFSET ?`)
+    return db.prepare(`SELECT * FROM fortytwo_auth LIMIT ? OFFSET ?`)
       .all(limit, offset);
   });
 
   schema = {
-    tags: ["42Intra credentials"],
     description: "Get the account associated with a specific 42Intra user_id",
     params: {
       type: "object",
@@ -48,24 +33,7 @@ export default function router(fastify, opts, done) {
       properties: {
         intra_user_id: properties.intra_user_id,
       },
-    },
-    response: {
-      200: {
-        description:
-          "The account credentials associtated with a 42Intra user_id",
-        type: "object",
-        properties: {
-          account_id: properties.account_id,
-          email: properties.email,
-          intra_user_id: properties.intra_user_id,
-        },
-        required: ["account_id", "email", "intra_user_id"],
-      },
-      404: {
-        description: "Account not found",
-        type: "object",
-        properties: objects.errorBody,
-      },
+      additionalProperties: false,
     },
   };
 
@@ -73,11 +41,11 @@ export default function router(fastify, opts, done) {
     const { intra_user_id } = request.params;
 
     const account = db.prepare(`
-      SELECT accounts.account_id, accounts.email, fortytwo_auth.*
-      FROM accounts
+      SELECT * FROM accounts
       INNER JOIN fortytwo_auth
         ON accounts.account_id = fortytwo_auth.account_id
-      WHERE auth_method = 'fortytwo_auth' AND fortytwo_auth.intra_user_id = ?;
+      WHERE auth_method = 'fortytwo_auth'
+        AND fortytwo_auth.intra_user_id = ?;
     `).get(intra_user_id);
 
     if (!account) {
@@ -85,11 +53,9 @@ export default function router(fastify, opts, done) {
     } else {
       reply.send(account);
     }
-  }
-  );
+  });
 
   schema = {
-    tags: ["42Intra credentials"],
     description: "Create a new account with 42Intra credentials",
     body: {
       type: "object",
@@ -98,24 +64,7 @@ export default function router(fastify, opts, done) {
         intra_user_id: properties.intra_user_id,
       },
       required: ["email", "intra_user_id"],
-    },
-    response: {
-      201: {
-        description:
-          "Successfully created new account with 42Intra authentication",
-        type: "object",
-        properties: {
-          account_id: properties.account_id,
-          intra_user_id: properties.intra_user_id,
-        },
-        required: ["account_id", "intra_user_id"],
-      },
-      409: {
-        description: "Email address is already associated with an account",
-        type: "object",
-        properties: objects.errorBody,
-        required: ["statusCode", "code", "error", "message"],
-      },
+      additionalProperties: false,
     },
   };
 
@@ -154,6 +103,7 @@ export default function router(fastify, opts, done) {
         account_id: properties.account_id,
       },
       required: ["account_id"],
+      additionalProperties: false,
     },
     body: {
       type: "object",
