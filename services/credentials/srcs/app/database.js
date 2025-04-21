@@ -13,7 +13,7 @@ db.exec(`
     email TEXT UNIQUE,
     auth_method TEXT NOT NULL,
     second_factor TEXT NOT NULL DEFAULT 'none'
-      CHECK (second_factor IN ('none', 'totp')),
+      CHECK (second_factor IN ('none', 'app')),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
@@ -55,6 +55,19 @@ db.exec(`
     FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
   )
 `);
+
+
+// 2FA Methods
+// db.exec(`
+//   CREATE TABLE IF NOT EXISTS otp_methods (
+//   account_id INTEGER NOT NULL,
+//   method TEXT NOT NULL
+//     CHECK (factor_type IN ('app', 'email'),
+//   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+//   PRIMARY KEY (account_id, method),
+//   FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
+//   )
+// `)
 
 export default db;
 

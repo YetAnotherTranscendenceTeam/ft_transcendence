@@ -52,10 +52,10 @@ const credentialsProperties = {
     description: "The google id associated with the account",
   },
 
-  second_auth_method: {
+  otp_method: {
     type: "string",
-    enum: ["none", "totp"],
-    description: "The account two-factor authentification method"
+    enum: ["none", "app"],
+    description: "A two-factor authentification method"
   },
 
   otp: {

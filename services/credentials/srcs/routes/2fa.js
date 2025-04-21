@@ -18,7 +18,7 @@ export default function router(fastify, opts, done) {
     body: {
       type: "object",
       properties: {
-        method: properties.second_auth_method,
+        method: properties.otp_method,
       },
       required: ["method"],
       additionalProperties: false,

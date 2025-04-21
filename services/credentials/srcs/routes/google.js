@@ -44,8 +44,7 @@ export default function router(fastify, opts, done) {
     const { google_id } = request.params;
 
     const account = db.prepare(`
-      SELECT accounts.account_id, accounts.email, google_auth.*
-      FROM accounts
+      SELECT * FROM accounts
       INNER JOIN google_auth
         ON accounts.account_id = google_auth.account_id
       WHERE auth_method = 'google_auth'

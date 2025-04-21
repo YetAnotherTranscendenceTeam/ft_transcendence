@@ -55,13 +55,14 @@ generate() {
 secret_keys=( \
     "PASSWORD_PEPPER" \
     "AUTHENTICATION_SECRET" \
+    "AUTH_2FA_SECRET" \
     "REFRESH_TOKEN_SECRET" \
     "TOKEN_MANAGER_SECRET" \
     "CDN_SECRET" \
     "MATCHMAKING_SECRET" \
     "PONG_SECRET"
     "MATCH_MANAGEMENT_SECRET" \
-    "TWO_FA_SECRET"
+    "TWO_FA_SECRET" \
 )  
 
 echo "[SECRETS]"

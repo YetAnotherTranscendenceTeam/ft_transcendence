@@ -16,7 +16,7 @@ export default function router(fastify, opts, done) {
     }
   }
 
-  fastify.post("/totp/deactivate", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
+  fastify.post("/app/deactivate", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
     const { account_id } = request;
     const { otp } = request.body;
 
