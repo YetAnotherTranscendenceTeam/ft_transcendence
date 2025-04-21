@@ -48,7 +48,6 @@ export class Match {
         (acc, p) => acc + player.elo / p.elo,
         0
       ) / this.gamemode.team_size;
-      Math.
       player.win_probability = Math.min(2, Math.max(0, player.win_probability));
     }
   }
