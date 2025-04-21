@@ -4,6 +4,8 @@ import LobbyTeamsList from "../components/Lobby/LobbyTeamsList";
 import { useLobby } from "../contexts/useLobby";
 import './views.css'
 import Overlay from "../templates/Overlay";
+import { usePong } from "../contexts/usePong";
+import { GameScene } from "../components/Babylon/types";
 
 export default function LobbyView() {
 
@@ -11,10 +13,13 @@ export default function LobbyView() {
 
 	const { join, lobby } = useLobby();
 
+	const { app } = usePong();
+
 	Babact.useEffect(() => {
 		if (code && lobby === null && !localStorage.getItem('lobby')) {
 			join(code);
 		}
+		app.setGameScene(GameScene.LOBBY);
 	}, [])
 
 	Babact.useEffect(() => {
