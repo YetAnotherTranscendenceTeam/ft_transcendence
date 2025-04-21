@@ -1,4 +1,4 @@
-"user strict";
+"use strict";
 
 import tokenProperties from "../properties/jwt.js";
 import responseBodyProperties from "../properties/reponse-body.js";
