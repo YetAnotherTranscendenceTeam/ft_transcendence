@@ -46,7 +46,7 @@ export default function ProfileForm({ me }: { me: any }) {
 					fields={['profile-username', 'profile-avatar']}
 					onSubmit={handleSubmit}
 					loading={isLoading}
-					disabled={(fields) => fields['profile-username'].value === me.username && fields['profile-avatar'].value === me.avatar}
+					disabled={(fields) => (fields['profile-username'].value === '' || fields['profile-username'].value === me.username) && fields['profile-avatar'].value === me.avatar}
 				>
 					Save
 					<i className="fa-regular fa-floppy-disk"></i>
