@@ -170,7 +170,7 @@ export class Pong {
 		this._lastSide = undefined;
 		this._winner = undefined;
 
-		this.launchBall();
+		this.roundStart();
 	}
 
 	protected roundStart() {

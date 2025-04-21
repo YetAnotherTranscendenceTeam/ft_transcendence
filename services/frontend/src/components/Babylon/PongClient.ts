@@ -332,7 +332,7 @@ export default class PongClient extends PONG.Pong {
 			this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
 			this._running = 0;
 			if (this._winner !== undefined) {
-				this._babylonScene.clearColor = Color4.FromColor3(Color3.Red());
+				this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
 				this.callbacks.endGameCallback();
 			}
 		}
