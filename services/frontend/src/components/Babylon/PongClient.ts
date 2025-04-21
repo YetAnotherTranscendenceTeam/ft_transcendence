@@ -46,7 +46,6 @@ export default class PongClient extends PONG.Pong {
 		endGameCallback: () => void
 	}) {
 		super();
-		this._gameScene = GameScene.MENU;
 		this.callbacks = callbacks;
 		this._running = 0;
 		this._time = 0;
