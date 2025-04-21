@@ -331,7 +331,7 @@ export default class PongClient extends PONG.Pong {
 			console.log("score: " + this._score[0] + "-" + this._score[1]);
 			this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
 			this._running = 0;
-			if (this._winner) {
+			if (this._winner !== undefined) {
 				this._babylonScene.clearColor = Color4.FromColor3(Color3.Red());
 				this.callbacks.endGameCallback();
 			}
