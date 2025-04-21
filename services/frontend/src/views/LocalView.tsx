@@ -1,18 +1,17 @@
 import Babact from "babact";
 import { GameScene } from "../components/Babylon/types";
-import { usePong } from "../contexts/usePong";
+import { GameStatus, usePong } from "../contexts/usePong";
 import Scores from "../components/Game/Scores";
 import LocalStartModal from "../components/Game/LocalStartModal";
 import Overlay from "../templates/Overlay";
 import NextRoundModal from "../components/Game/NextRoundModal";
 import useEscape from "../hooks/useEscape";
 import GamePausedModal from "../components/Game/GamePausedModal";
+import WinnerModal from "../components/Game/WinnerModal";
 
 export default function LocalView() {
 
-	const { app, scores, setPaused, paused, gameTime } = usePong();
-	const [startTime, setStartTime] = Babact.useState<Date>(null);
-	const [freeze, setFreeze] = Babact.useState<boolean>(false);
+	const { app, scores, setPaused, gameStatus, gameTime, setGameStatus, startGame } = usePong();
 	const [hidden, setHidden] = Babact.useState<boolean>(false);
 
 	Babact.useEffect(() => {
@@ -20,15 +19,15 @@ export default function LocalView() {
 	}, []);
 
 	const handleStart = () => {
-		app.startGame();
-		setStartTime(new Date());
+		startGame();
 	}
 
 	Babact.useEffect(() => {
-		if (scores[0] > 0 || scores[1] > 0) {
-			setFreeze(true);
+		if ((scores[0] > 0 || scores[1] > 0) && gameStatus !== GameStatus.ENDED) {
+			setGameStatus(GameStatus.FREEZE);
+			console.log("Score updated");
 		}
-	}, [scores[0], scores[1]]);
+	}, [scores]);
 
 	const handlePause = () => {
 		setPaused(true);
@@ -37,39 +36,52 @@ export default function LocalView() {
 
 	const handleResume = () => {
 		setPaused(false);
-		setHidden(true)
 	}
-	
-	useEscape(startTime && !paused && !freeze, () => handlePause())
+
+	useEscape(gameStatus === GameStatus.PLAYING, () => handlePause())
 
 	const getModal = () => {
-		if (freeze)
+		if (gameStatus === GameStatus.FREEZE)
 			return <NextRoundModal
 				onNextRound={() => {
-					setFreeze(false);
+					setGameStatus(GameStatus.PLAYING);
 					app.nextRound();
 				}}
 			/>
-		if (!startTime)
+		if (gameStatus === GameStatus.WAITING)
 			return <LocalStartModal
 				onClick={() => setHidden(true)}
 				onStart={() => handleStart()}
 			/>
-		if (paused)
+		if (gameStatus === GameStatus.PAUSED)
 			return <GamePausedModal
 				onClick={() => setHidden(true)}
 				onResume={() => handleResume()}
 			/>
+		if (gameStatus === GameStatus.ENDED)
+			return <WinnerModal
+				onClick={() => setHidden(true)}
+				onPlayAgain={() => {
+					handleStart();
+				}}
+			/>
 		return null;
 	}
 
+	const displayScores = hidden || gameStatus === GameStatus.PAUSED;
+
+	Babact.useEffect(() => {
+		if (gameStatus === GameStatus.ENDED) {
+			setHidden(false);
+		}
+	}, [gameStatus])
 
 	return <Overlay
 		hidden={hidden}
 		modal={getModal()}
 	>
 		<div className='local-view flex flex-col gap-2 items-center'>
-			{startTime && <Scores scores={scores} timer={gameTime}/>}
+			{displayScores && <Scores scores={scores} timer={gameTime}/>}
 		</div>
 	</Overlay>
 }
