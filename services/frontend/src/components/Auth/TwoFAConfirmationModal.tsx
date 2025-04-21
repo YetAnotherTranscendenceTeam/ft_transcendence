@@ -43,7 +43,7 @@ export default function TwoFAConfirmationModal({
 			<PinInput
 				field='2fa-otp'
 				length={6}
-				label='One Tine Code'
+				label='One Time Code'
 				help="Enter the code from your authenticator app."
 				required
 			/>

@@ -3,6 +3,7 @@
 	min-width: 300px;
 	font-size: medium;
 	transition: height 0.4s;
+	backdrop-filter: none;
 }
 
 .auth-card-login, .auth-card-register {
@@ -13,7 +14,6 @@
 	text-align: center;
 	flex: 1;
 }
-
 
 .auth-card-form {
 	max-height: 0;
@@ -72,7 +72,7 @@
 
 
 .mfa-modal-qrcode {
-	margin: 32px 0;
+	margin: 32px 16px 0 0;
 	width: 100%;
 
 }

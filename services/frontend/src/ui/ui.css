@@ -408,7 +408,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	z-index: 2000;
+	z-index: 99999999;
 }
 
 .toast {
@@ -474,6 +474,10 @@
 .modal-content {
 	max-width: 60%;
 	animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal .card {
+	background-color: var(--bg-1);
 }
 
 @keyframes fadeIn {

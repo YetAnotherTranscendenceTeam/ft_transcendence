@@ -1,4 +1,4 @@
-.aside > *, .overlay > *, .template-content > * {
+.aside-content > *, .overlay > *, .template-content > * {
 	pointer-events: initial;
 }
 
@@ -49,6 +49,7 @@
 	left: 0;
 	width: 100vw;
 	height: 64px;
+	z-index: 2;
 	transform: translateY(0);
 	transition: transform 0.4s;
 }
@@ -59,16 +60,23 @@
 
 .aside {
 	pointer-events: none;
+	width: 100vw;
+	height: 100vh;
+	justify-content: flex-end;
+	align-items: flex-end;
 	position: fixed;
-	bottom: 0;
-	right: 0;
+	top: 0;
+	left: 0;
+}
+
+.aside-content {
+	pointer-events: none;
 	height: calc(100vh - 64px);
 	width: 400px;
 	align-items: center;
 	justify-content: flex-end;
 	padding: 16px;
 	box-sizing: border-box;
-	overflow: auto;
 	z-index: 2;
 	transition: transform 0.4s;
 }
