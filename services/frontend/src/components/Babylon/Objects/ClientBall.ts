@@ -3,16 +3,13 @@ import '@babylonjs/loaders';
 import * as BABYLON from '@babylonjs/core';
 import * as PH2D from "physics-engine";
 import * as PONG from "pong";
+import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 
-export default class ClientBall {
-	private _scene: Scene;
-	private _mesh: Mesh;
-	private _physicsBody: PH2D.Body; // for reference
+export default class ClientBall extends AObject {
 
 	public constructor(scene: Scene, physicsBody: PH2D.Body) {
-		this._scene = scene;
-		this._physicsBody = physicsBody;
+		super(scene, physicsBody);
 		this._mesh = MeshBuilder.CreateSphere(
 			"ball",
 			{ diameter: PONG.K.ballRadius * 2 },
@@ -30,16 +27,9 @@ export default class ClientBall {
 	}
 
 	public update(dt: number): void {
+		if (!this._isEnabled) return;
 		const ballPos = this._physicsBody.interpolatePosition(dt) as Vec2;
 		this._mesh.position.x = ballPos.x;
 		this._mesh.position.z = ballPos.y;
-	}
-
-	public get mesh(): Mesh {
-		return this._mesh;
-	}
-
-	public dispose() {
-		this._mesh?.dispose();
 	}
 };

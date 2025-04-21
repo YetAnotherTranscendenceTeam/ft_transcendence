@@ -1,7 +1,8 @@
 
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
-import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, InputBlock, AudioEngine } from "@babylonjs/core";
+import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
+import * as BABYLON from "@babylonjs/core";
 import { GameMode, GameModeType, IPlayer } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
@@ -9,6 +10,9 @@ import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { KeyState, GameScene, ScoredEvent } from "./types";
 import * as PONG from "pong";
+import AObject from "./Objects/AObject";
+
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
@@ -21,7 +25,9 @@ export default class PongClient extends PONG.Pong {
 	private _camera: ArcRotateCamera;
 	private _light: HemisphericLight;
 
-	private _ballInstances: ClientBall[];
+	private _meshMap: Map<PONG.MapID, Array<AObject>>;
+
+	private _ballInstances: Array<ClientBall>;
 	private _paddleInstance: Map<number, ClientPaddle>;
 
 	private _running: number = 0;
@@ -32,8 +38,9 @@ export default class PongClient extends PONG.Pong {
 		super();
 		this._gameScene = GameScene.MENU;
 		this.scoreUpdateCallback = scoreUpdateCallback;
-		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
-		this._engine = new Engine(this._canvas, true);
+		this._ballInstances = [];
+		this._paddleInstance = new Map<number, ClientPaddle>();
+		this._meshMap = new Map<PONG.MapID, Array<AObject>>();
 		this._keyboard = new Map<string, KeyState>();
 		this._keyboard.set("ArrowUp", KeyState.IDLE);
 		this._keyboard.set("ArrowDown", KeyState.IDLE);
@@ -41,19 +48,35 @@ export default class PongClient extends PONG.Pong {
 		this._keyboard.set("s", KeyState.IDLE);
 		this._keyboard.set("c", KeyState.IDLE);
 
-		// (async () => {
-		// 	const audioEngine = new AudioEngine();
-		
-		// 	// Create sounds here, but don't call `play()` on them, yet ...
-		
-		// 	// Wait until audio engine is ready to play sounds.
-		// 	audioEngine.unlock();
-		
-		// 	// Start sound playback ...
-		// })();
+		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+		this._engine = new Engine(this._canvas, true);
 
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
+		this._babylonScene = new Scene(this._engine);
+		// Optimize for performance
+		// this._babylonScene.performancePriority = BABYLON.ScenePerformancePriority.Intermediate;
+		// this._babylonScene.collisionsEnabled = false;
+		this._babylonScene.autoClear = true;
+		// this._babylonScene.autoClearDepthAndStencil = false;
+
+
+		// // Ball Mesh // TODO: not implemented yet
+		// this._ballMesh = MeshBuilder.CreateSphere(
+		// 	"ball",
+		// 	{ diameter: PONG.K.ballRadius * 2 },
+		// 	this._babylonScene
+		// );
+		// this._ballMesh.position = new Vector3(
+		// 	0,
+		// 	-1,
+		// 	0
+		// );
+		// const material = new StandardMaterial("ballMaterial", this._babylonScene);
+		// material.diffuseColor = Color3.White();
+		// material.specularColor = Color3.Black();
+		// this._ballMesh.material = material;
+		// this._ballMesh.isVisible = false;
+		// this._ballMesh.isPickable = false;
+		// this._ballMesh.checkCollisions = false;
 
 		// this._babylonScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
 		// this._babylonScene = createScene(this._engine, this._canvas);
@@ -80,27 +103,40 @@ export default class PongClient extends PONG.Pong {
 		this._websocket.onclose = (ev) => {
 			console.log(ev);
 		}
-		
+
 	}
-	
+
 	public setGameScene(scene: GameScene) {
+		if (this._gameScene === scene) {
+			return;
+		}
+		this._ballInstances.forEach((ball: ClientBall) => {
+			ball.dispose();
+		});
+		this._ballInstances = [];
+		this._paddleInstance = new Map<number, ClientPaddle>();
+		// disabble active map
+		if (this._currentMap) {
+			this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+				map.disable();
+			});
+		}
 		this._gameScene = scene;
-		if (this._gameScene === GameScene.LOCAL) {
-			this.localGame();
-		} else if (this._gameScene === GameScene.MENU) {
-			this.cleanup();
-			this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
-		} else if (this._gameScene === GameScene.ONLINE) {
-			this.onlineGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
+		if (this._gameScene === GameScene.MENU) {
+			this.menuScene();
 		} else if (this._gameScene === GameScene.LOBBY) {
-			this._babylonScene.clearColor = Color4.FromColor3(Color3.Green());
+			this.lobbyScene();
+		} else if (this._gameScene === GameScene.LOCAL) {
+			this.localScene();
+		} else if (this._gameScene === GameScene.ONLINE) {
+			this.onlineScene(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
 		}
 	}
 
 	public startGame() {
 		this.start();
 		this._running = 1;
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
+		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
 	public nextRound() {
@@ -128,72 +164,139 @@ export default class PongClient extends PONG.Pong {
 		this._engine.resize();
 	}
 
-	private cleanup() {
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.dispose();
-		});
-		this._paddleInstance.forEach((paddle: ClientPaddle) => {
-			paddle.dispose();
-		});
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
-	}
-
 	private sceneSetup() {
-		
-		this._babylonScene = new Scene(this._engine);
 		// scene.clearColor = Color4.FromColor3(Color3.Black());
 		// scene.createDefaultEnvironment();
 		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 20, Vector3.Zero(), this._babylonScene);
-		// camera.attachControl(canvas, true);
-		// camera.lowerRadiusLimit = 1.5;
-		// camera.upperRadiusLimit = 15;
-		// camera.wheelPrecision = 50;
+		camera.attachControl(this._canvas, true);
+		camera.lowerRadiusLimit = 1.5;
+		camera.upperRadiusLimit = 30;
+		camera.wheelPrecision = 50;
 
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
 
-		// default setup
-		const wallSize: Vector2 = new Vector2(PONG.K.smallWallSize.x, PONG.K.smallWallSize.y);
-		const wallBottom: ClientWall = new ClientWall(this._babylonScene, "wallBottom", new Vector2(0, PONG.K.smallWallBottomPosition.y), wallSize);
-		const wallTop: ClientWall = new ClientWall(this._babylonScene, "wallTop", new Vector2(0, PONG.K.smallWallTopPosition.y), wallSize);
+		this._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
+			const mapMesh: Array<AObject> = [];
+			
+			if (map.wallBottom) {
+				const wallBottom: ClientWall = new ClientWall(this._babylonScene, ("wallBottom" + map.mapId.toString()), map.wallBottom);
+				wallBottom.disable();
+				mapMesh.push(wallBottom);
+			}
+			if (map.wallTop) {
+				const wallTop: ClientWall = new ClientWall(this._babylonScene, ("wallTop" + map.mapId.toString()), map.wallTop);
+				wallTop.disable();
+				mapMesh.push(wallTop);
+			}
+			if (map.goalLeft && isDevelopment) {
+				const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, ("goalLeft" + map.mapId.toString()), map.goalLeft);
+				goalLeft.disable();
+				mapMesh.push(goalLeft);
+			}
+			if (map.goalRight && isDevelopment) {
+				const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, ("goalRight" + map.mapId.toString()), map.goalRight);
+				goalRight.disable();
+				mapMesh.push(goalRight);
+			}
+			if (map.paddleLeftBack) {
+				const paddleLeftBack: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleLeftBack" + map.mapId.toString()), map.paddleLeftBack);
+				paddleLeftBack.disable();
+				mapMesh.push(paddleLeftBack);
+			}
+			if (map.paddleLeftFront) {
+				const paddleLeftFront: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleLeftFront" + map.mapId.toString()), map.paddleLeftFront);
+				paddleLeftFront.disable();
+				mapMesh.push(paddleLeftFront);
+			}
+			if (map.paddleRightBack) {
+				const paddleRightBack: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleRightBack" + map.mapId.toString()), map.paddleRightBack);
+				paddleRightBack.disable();
+				mapMesh.push(paddleRightBack);
+			}
+			if (map.paddleRightFront) {
+				const paddleRightFront: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleRightFront" + map.mapId.toString()), map.paddleRightFront);
+				paddleRightFront.disable();
+				mapMesh.push(paddleRightFront);
+			}
+			if (map.obstacles) {
+				map.obstacles.forEach((obstacle: PONG.Wall) => {
+					const wall: ClientWall = new ClientWall(this._babylonScene, ("obstacle" + map.mapId.toString()), obstacle);
+					wall.disable();
+					mapMesh.push(wall);
+				});
+			}
 
-		const goalSize: Vector2 = new Vector2(PONG.K.smallGoalSize.x, PONG.K.smallGoalSize.y);
-		const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, "goalLeft", new Vector2(PONG.K.smallGoalLeftPosition.x, 0), goalSize, Color3.Red());
-		const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, "goalRight", new Vector2(PONG.K.smallGoalRightPosition.x, 0), goalSize, Color3.Red());
+			this._meshMap.set(mapId, mapMesh);
+		});
 	}
 
-	private onlineGame(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
-		this.onlineSetup(match_id, gamemode, players, state);
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
-		// this._babylonScene.createDefaultEnvironment();
-		
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
-		this._balls.forEach((ball: PONG.Ball) => {
-			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
-			this._ballInstances.push(ballInstance);
+	private menuScene() {
+		this.menuSetup();
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
+
+		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+			map.enable();
 		});
-		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-			const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
-			this._paddleInstance.set(playerId, paddleInstance);
-		});
+
+		this.loadBalls();
+		this.bindPaddles();
 	}
 
-	private localGame() {
+	private lobbyScene() {
+		this.lobbySetup();
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Green());
+
+		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+			map.enable();
+		});
+
+		this.loadBalls();
+		this.bindPaddles();
+	}
+
+	private localScene() {
 		this.localSetup();
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black());
-		// this._babylonScene.createDefaultEnvironment();
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
+
+		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+			map.enable();
+		});
 		
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
-		this._balls.forEach((ball: PONG.Ball) => {
+		this.loadBalls();
+		this.bindPaddles();
+	}
+
+	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
+		this.onlineSetup(match_id, gamemode, players, state);
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
+
+		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+			map.enable();
+		});
+	
+		this.loadBalls();
+		this.bindPaddles();
+	}
+
+	private loadBalls() {
+		this._balls.forEach((ball: PH2D.Body) => {
 			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
 			this._ballInstances.push(ballInstance);
 		});
+	}
+
+	private bindPaddles() {
 		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-			const paddleInstance: ClientPaddle = new ClientPaddle(this._babylonScene, paddle);
-			this._paddleInstance.set(playerId, paddleInstance);
+			const paddleInstance: ClientPaddle | undefined = this._meshMap.get(this._currentMap.mapId)?.find((object: AObject) => {
+				if (object instanceof ClientPaddle) {
+					return object.physicsBody === paddle;
+				}
+				return false;
+			}
+			) as ClientPaddle;
+			if (paddleInstance) {
+				this._paddleInstance.set(playerId, paddleInstance);
+			}
 		});
 	}
 
@@ -205,11 +308,11 @@ export default class PongClient extends PONG.Pong {
 
 		this.playerUpdate();
 		dt = this.physicsUpdate(dt);
-		this._paddleInstance.forEach((paddle: ClientPaddle) => {
-			paddle.update(dt);
-		});
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
+		});
+		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+			map.update(dt);
 		});
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._score[0] + "-" + this._score[1]);
@@ -219,7 +322,11 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private playerUpdate() { // TODO: refactor to use playerId
-		let paddle: ClientPaddle | undefined = this._paddleInstance.get(1);
+		if (this._gameScene !== GameScene.LOCAL) {
+			return;
+		}
+
+		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			let keyStateProbe: KeyState = this._keyboard.get("ArrowUp") || KeyState.IDLE;
@@ -233,7 +340,7 @@ export default class PongClient extends PONG.Pong {
 			paddle.move(moveDirection);
 		}
 
-		paddle = this._paddleInstance.get(0);
+		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			let keyStateProbe: KeyState = this._keyboard.get("w") || KeyState.IDLE;
@@ -252,20 +359,12 @@ export default class PongClient extends PONG.Pong {
 		// console.log(ev);
 		// Shift+Ctrl+Alt+I
 		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
-		// 	if (this._scene[this._activeScene].debugLayer.isVisible()) {
-		// 		this._scene[this._activeScene].debugLayer.hide();
+		// 	if (this._babylonScene.debugLayer.isVisible()) {
+		// 		this._babylonScene.debugLayer.hide();
 		// 	} else {
-		// 		this._scene[this._activeScene].debugLayer.show();
+		// 		this._babylonScene.debugLayer.show();
 		// 	}
 		// }
-
-		if (ev.key === "z") {
-			this.onlineGame(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
-		}
-
-		if (ev.key === "x") {
-			this.startGame();
-		}
 
 		if (this._keyboard.has(ev.key)) {
 			const keyStateProbe = this._keyboard.get(ev.key);

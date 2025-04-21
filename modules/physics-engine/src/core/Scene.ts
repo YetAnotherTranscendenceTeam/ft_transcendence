@@ -18,6 +18,9 @@ export class Scene {
 	}
 
 	public addBody(body: Body): void {
+		if (!body) {
+			return;
+		}
 		this._bodies.push(body);
 	}
 
@@ -29,11 +32,10 @@ export class Scene {
 	}
 
 	public step(): void {
-		this._contact = [];
-
 		const substepDT = this._dt / this._substeps;
 		for (let substep = 0; substep < this._substeps; substep++) {
-
+			this._contact = [];
+			
 			for (let i = 0; i < this._bodies.length; i++) {
 				const bodyA = this._bodies[i];
 				for (let j = i + 1; j < this._bodies.length; j++) {

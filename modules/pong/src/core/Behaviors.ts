@@ -1,11 +1,11 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { paddleSize } from "./constants.js";
+import { paddleSize, ballMaxAngle } from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 
-export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
+export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) {
 	const { emitter, other, manifold } = event.detail;
 	console.log("collision " + emitter.id + "-" + other.id);
 	// console.log(emitter);
@@ -18,7 +18,7 @@ export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other:
 		let relativePositionY: number = ballEmitter.position[1] - other.position[1];
 		relativePositionY /= (paddleSize[1] / 2);
 		let clampedPosition: number = Math.max(-1, Math.min(1, relativePositionY));
-		const angle: number = Math.PI / 3 * clampedPosition; // angle between -60 and 60 degrees
+		const angle: number = ballMaxAngle * clampedPosition; // angle between -60 and 60 degrees
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		let relativePositionX: number = ballEmitter.position[0] - other.position[0];
 		relativePositionX /= (paddleSize[0] / 2);
@@ -42,7 +42,8 @@ export const ballCollision = (event: CustomEventInit<{emitter: PH2D.Body, other:
 			console.log("out velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
 			console.log("out mag: " + ballEmitter.velocity.magnitude);
 		}
-		ballEmitter.correctSpeed();
+		// ballEmitter.correctSpeed();
+		ballEmitter.faster();
 
 
 		// ballEmitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);

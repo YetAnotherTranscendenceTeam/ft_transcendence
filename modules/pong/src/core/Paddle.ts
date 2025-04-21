@@ -5,10 +5,8 @@ import { DT, bounceMaterial, paddleShape } from "./constants.js";
 export default class Paddle extends PH2D.Body {
 	private _speed: number;
 
-	public constructor(scene: PH2D.Scene, position: Vec2, direction: Vec2, speed: number) {
+	public constructor(position: Vec2, direction: Vec2, speed: number) {
 		super(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, position, Vec2.create());
-
-		scene.addBody(this);
 	}
 
 	public get speed(): number {
