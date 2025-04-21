@@ -165,7 +165,11 @@ export class Pong {
 
 	protected start() {
 		this._state = PongState.PLAYING;
+		this._accumulator = 0;
+		this._score = [0, 0];
+		this._lastSide = undefined;
 		this._winner = undefined;
+
 		this.launchBall();
 	}
 
