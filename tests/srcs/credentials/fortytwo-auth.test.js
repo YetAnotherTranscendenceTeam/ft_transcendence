@@ -345,6 +345,7 @@ describe("PATCH", () => {
           account_id: user.account_id,
           email: newMail,
           auth_method: 'fortytwo_auth',
+          second_factor: "none",
           created_at: expect.any(String),
           updated_at: expect.any(String),
         })
@@ -355,6 +356,7 @@ describe("PATCH", () => {
         account_id: user.account_id,
         auth_method: "fortytwo_auth",
         email: newMail,
+        second_factor: "none",
         created_at: expect.any(String),
         updated_at: expect.any(String),
       });

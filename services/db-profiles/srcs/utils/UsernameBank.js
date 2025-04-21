@@ -1,3 +1,5 @@
+"use strict";
+
 import db from "../app/database.js";
 import { generateUsername, backupUsername } from "./generateUsername.js";
 

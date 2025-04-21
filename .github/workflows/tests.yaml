@@ -21,6 +21,8 @@ jobs:
       PONG_SECRET: 9y6vhC5cD2T8/Uqe5NgT5oEjzeSpbxt72oUPVTlc135SVU3Ht9OBgrxbgZk6bo2k570FJ7X2SxbjiUr50zGceA==
       MATCHMAKING_SECRET: dewadjpgjfsiodjfoiawj0d432qid20j0a99ar9wfhx90wdax0wek0jdwedaiso
       MATCH_MANAGEMENT_SECRET: ZmCCT7xAT8mEx4N7gQcVlLggpH/41ctm1HXDvjz5f5/Wb+HPSenhnTQQkB1XoAdQFHBGkjtCQVRuUDP6WCrYtQ==
+      TWO_FA_SECRET: bS68olbRIYXn9iWa7W9JWXwgEWrhtc0rAtXWnypPcXgsUDjcjDRf+PJLbSlkY1rxA9HIOX4TPsd2l2tu9XRoZw==
+      AUTH_2FA_SECRET: UktfTf6mPDdfz3Z7BS96NP6GUX490X1K8fBSVX/JIy97HMMtSGkSsVuO1hZQy2F0cKdRQVeSwdgG4G/U9O6Q1w==
       FRONTEND_URL: https://localhost:8080
       BACKEND_URL: https://localhost:7979
       CDN_URL: https://cdn-nginx:8181

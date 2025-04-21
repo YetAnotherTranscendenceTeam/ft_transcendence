@@ -2,11 +2,13 @@ import Babact from "babact";
 import useFetch from "../../hooks/useFetch";
 import config from "../../config";
 import { useAuth } from "../../contexts/useAuth";
+import TwoFAConfirmationModal from "./TwoFAConfirmationModal";
 
 export default function GoogleAuthButton() {
 
 	const { ft_fetch } = useFetch();
-	const { auth } = useAuth();
+	const { auth, confirm2FA } = useAuth();
+	const [payload, setPayload] = Babact.useState<string>(null);
 
 	const handleCredential = async (response: any) => {
 		const res = await ft_fetch(`${config.API_URL}/auth/google`, {
@@ -19,7 +21,10 @@ export default function GoogleAuthButton() {
 		}, {
 			show_error: true,
 		})
-		if (res)
+		if (res && res.statusCode === 202 && res.code === '2FA_VERIFICATION') {
+			setPayload(res.payload_token);
+		}
+		else if (res)
 			auth(res.access_token, res.expire_at);
 	};
 
@@ -47,5 +52,19 @@ export default function GoogleAuthButton() {
 			data-width="336"
 			>
 		</div>
+		<TwoFAConfirmationModal
+			title="2FA Verification"
+			isOpen={!!payload}
+			onClose={() => setPayload(null)}
+			onConfirm={
+				async (otp) => confirm2FA({
+					otp,
+					otp_method: 'app',
+					payload_token: payload,
+				},
+				() => setPayload(null),
+				() => setPayload(null))
+			}
+		/>
 	</div>
 }

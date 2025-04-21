@@ -28,6 +28,12 @@ export default function routes(fastify, opts, done) {
       try {
         // Fetch database for a matching account
         const account = await YATT.fetch(`http://credentials:3000/fortytwo/${user.id}`);
+
+        // Check for a multi authentication method
+        if (account.second_factor !== "none") {
+          return require2FA(reply, account.account_id);
+        }
+
         // Authenticate user
         tokens = await authenticate(account.account_id);
       } catch (err2) {
@@ -45,7 +51,7 @@ export default function routes(fastify, opts, done) {
         sameSite: "strict",
         path: "/token",
       });
-      reply.redirect(`${FRONTEND_URL}/fortytwo?token=${tokens.access_token}&expire_at=${tokens.expire_at}`);
+      reply.redirect(`${FRONTEND_URL}/fortytwo?statusCode=200&token=${tokens.access_token}&expire_at=${tokens.expire_at}`);
     } catch (err) {
       if (err instanceof HttpError) {
         err.redirect(reply, `${FRONTEND_URL}/fortytwo`);
@@ -160,6 +166,12 @@ export default function routes(fastify, opts, done) {
       },
       body: JSON.stringify(body),
     })
+  }
+
+  async function require2FA(reply, account_id) {
+    const payload_token = fastify.jwt.auth_2fa.sign({ account_id  }, { expiresIn: "5m" });
+
+    reply.redirect(`${FRONTEND_URL}/fortytwo?statusCode=202&code=2FA_VERIFICATION&payload_token=${payload_token}`);
   }
 
   async function authenticate(account_id) {

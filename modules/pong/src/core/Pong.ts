@@ -33,7 +33,6 @@ export class Pong {
 	protected _paddles: Map<number, PH2D.Body>;
 	protected _goals: Map<number, Goal>;
 
-	protected _time: number;
 	protected _score: number[];
 	protected _lastSide: MapSide;
 	protected _winner: MapSide;
@@ -107,7 +106,6 @@ export class Pong {
 
 	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: PongState = PongState.RESERVED) {
 		this._accumulator = 0;
-		this._time = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
 
@@ -126,7 +124,6 @@ export class Pong {
 
 	protected localSetup() {
 		this._accumulator = 0;
-		this._time = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
 
@@ -144,7 +141,6 @@ export class Pong {
 
 	protected menuSetup() {
 		this._accumulator = 0;
-		this._time = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
 
@@ -157,7 +153,6 @@ export class Pong {
 
 	protected lobbySetup() {
 		this._accumulator = 0;
-		this._time = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
 

@@ -12,6 +12,13 @@ export enum GameScene {
 	LOCAL,
 }
 
+export enum KeyName {
+	W = "w",
+	S = "s",
+	ArrowUp = "arrowup",
+	ArrowDown = "arrowdown",
+}
+
 export interface ScoredEvent {
 	score: Array<number>;
 	side: number;

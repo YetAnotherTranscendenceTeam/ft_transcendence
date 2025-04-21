@@ -54,9 +54,11 @@ export default function Overlay({
 					setSelected={setSelected}
 				/>
 			</header>
-			<aside className='aside flex flex-col gap-4' key='aside'>
-				{lobby && <LobbyCard/>}
-				{me ? <ProfileCard me={me}/> : <AuthCard/>}
+			<aside className='aside flex' key='aside'>
+				<div className='aside-content flex flex-col gap-4'>
+					{lobby && <LobbyCard/>}
+					{me ? <ProfileCard me={me}/> : <AuthCard/>}
+				</div>
 			</aside>
 		</div>
 }
