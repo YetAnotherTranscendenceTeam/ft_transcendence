@@ -44,6 +44,6 @@ export default function Modal({
 			{closeButton && <Button onClick={onClose} className='close icon ghost'><i className="fa-solid fa-xmark"></i></Button>}
 			{children}
 		</Card>
-
+		
 	</div>
 }

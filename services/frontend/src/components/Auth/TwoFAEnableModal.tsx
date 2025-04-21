@@ -16,7 +16,7 @@ export default function TwoFAEnableModal({
 		onClose: () => void;
 	}) {
 
-	const { enable2FA, confirm2FA } = useAccount();
+	const { enable2FA, confirm2FA, isLoading } = useAccount();
 	const [QRCodeDataURL, setQRCodeDataUrl] = Babact.useState(null);
 
 	const handleEnable2FA = async () => {
@@ -42,6 +42,8 @@ export default function TwoFAEnableModal({
 		if (isOpen) {
 			handleEnable2FA();
 		}
+		else
+			setQRCodeDataUrl(null);
 	}, [isOpen]);
 
 	useEscape(isOpen, onClose);
@@ -50,6 +52,7 @@ export default function TwoFAEnableModal({
 		isOpen={isOpen}
 		onClose={onClose}
 		className='mfa-modal flex flex-col items-center justify-center gap-4'
+		closeButton={true}
 	>
 		<h1>2FA activation</h1>
 		{QRCodeDataURL ? <div
@@ -75,6 +78,7 @@ export default function TwoFAEnableModal({
 			<Submit
 				fields={['2fa-otp']}
 				onSubmit={handleSubmit}
+				loading={isLoading}
 			>
 				Activate 2FA <i className="fa-solid fa-shield-halved"></i>
 			</Submit>

@@ -13,16 +13,20 @@ export default function TwoFAConfirmationModal({
 	}: {
 		isOpen: boolean;
 		onClose: () => void;
-		onConfirm: (otp: string) => Promise<void>;
+		onConfirm: (otp: string) => Promise<Response>;
 		title?: string;
 	}) {
 
+	const [isLoading, setIsLoading] = Babact.useState<boolean>(false);
 	
 	const handleSubmit = async (fields, clear) => {
+		setIsLoading(true);
 		const { '2fa-otp': otp } = fields;
 		const res = await onConfirm(otp.value);
+		setIsLoading(false);
 		clear();
-		onClose();
+		if (res)
+			onClose();
 	}
 
 	useEscape(isOpen, onClose);
@@ -30,7 +34,8 @@ export default function TwoFAConfirmationModal({
 	return <Modal
 		isOpen={isOpen}
 		onClose={onClose}
-		className='mfa-modal flex flex-col items-center justify-center gap-4'
+		className='mfa-modal mfa-confirm flex flex-col items-center justify-center gap-4'
+		closeButton={true}
 	>
 		<h1>{title}</h1>
 
@@ -45,9 +50,10 @@ export default function TwoFAConfirmationModal({
 			<div className='flex flex-col gap-4'>
 				<Submit
 					onSubmit={handleSubmit}
-					fields={['2fa-otp']}	
+					fields={['2fa-otp']}
+					loading={isLoading}
 				>
-					Confirm
+					Confirm <i className="fa-solid fa-check"></i>
 				</Submit>
 			</div>
 		</Form>

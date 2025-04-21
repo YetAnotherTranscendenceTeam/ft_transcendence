@@ -91,3 +91,7 @@
 .mfa-modal .pin-input {
 	width: 350px;
 }
+
+.mfa-confirm .pin-input {
+	width: fit-content;
+}
