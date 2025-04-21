@@ -22,7 +22,7 @@ export default function router(fastify, opts, done) {
         ON
           matches.match_id = match_players.match_id
         WHERE match_players.account_id = ?
-        ORDER BY matches.created_at DESC
+        ORDER BY matches.match_id DESC
         LIMIT 1
       `)
       .get(request.params.account_id) || null;
@@ -36,7 +36,7 @@ export default function router(fastify, opts, done) {
       ON
         tournaments.tournament_id = tournament_players.tournament_id
       WHERE tournament_players.account_id = ?
-      ORDER BY tournaments.created_at DESC
+      ORDER BY tournaments.tournament_id DESC
       LIMIT 1
     `).get(request.params.account_id) || null;
     reply.send({matchmaking_users, last_match, last_tournament});
