@@ -164,12 +164,6 @@ export default class PongClient extends PONG.Pong {
 		this._running = 1;
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
 	}
-
-	public resetGame() {
-		this._running = 0;
-		this._time = 0;
-		this._score = [0, 0];
-	}
 	
 	private loop = () => {
 		this.update();
