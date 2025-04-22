@@ -359,8 +359,8 @@ paths:
 
   /2fa/app/activate:
     get:
-      summary: Application based 2FA activation start
-      description: Retrieve a Time-based one-time password key meant for an authenticator application
+      summary: 2FA app generation
+      description: Retrieve a time-based one-time password key meant for an authenticator application
       tags:
         - 2FA
       responses:
@@ -377,6 +377,8 @@ paths:
                     example: otpauth://totp/yetanothertranscendenceteam@gmail.com?secret=XTRT253WS3I62NSRXUIKLSZ4SUEBJ2EG&issuer=YATT&algorithm=SHA1&digits=6&period=30
                 required:
                   - otpauth
+        400:
+          description: Bad request
         401:
           description: Unauthorized
         409:
@@ -386,8 +388,8 @@ paths:
 
   /2fa/app/activate/verify:
     post:
-      summary: Application based 2FA activation complete
-      description: Retrieve a Time-based one-time password key meant for an authenticator application
+      summary: 2FA app activation
+      description: Confirm application based 2FA activation using a one-time password
       tags:
         - 2FA
       requestBody:
@@ -411,6 +413,40 @@ paths:
           description: Unauthorized
         403:
           description: Invalid one-time password | No ongoing activation process
+      security:
+        - BearerAuth: []
+  
+  /2fa/app/deactivate:
+    post:
+      summary: 2FA app deactivation
+      description: Remove the application based 2FA activation using a one-time password
+      tags:
+        - 2FA Activation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                otp:
+                  $ref: "#/components/schemas/otp"
+              required:
+                - otp
+              additionalProperties: false
+      responses:
+        204:
+          description: Successfull deactivation
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
+        403:
+          description: Invalid one-time password
+        502:
+          description: Bad gateway
+      security:
+        - BearerAuth: []
 
   /me:
     get:
