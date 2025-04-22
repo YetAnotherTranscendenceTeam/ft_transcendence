@@ -2,6 +2,7 @@
 
 import { objects, properties } from "yatt-utils";
 import db from "../app/database.js";
+import * as dbAction from "../utils/dbAction.js";
 
 export default function router(fastify, opts, done) {
   let schema = {
@@ -37,13 +38,14 @@ export default function router(fastify, opts, done) {
   fastify.get("/:account_id", { schema }, async function handler(request, reply) {
     const { account_id } = request.params;
 
-    const account = db.prepare(`SELECT * FROM accounts WHERE account_id = ?`)
-      .get(account_id);
-
-    if (!account) {
+    const query = dbAction.getById(account_id);
+    if (!query) {
       reply.status(404).send(objects.accountNotFound);
     }
-    return account;
+
+    // Add array of multi authentication methods
+    query.otp_methods = dbAction.getOTPMethods(account_id).map(m => m.method);
+    return query;
   });
 
   schema = {

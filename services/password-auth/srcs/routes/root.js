@@ -34,7 +34,7 @@ export default function passwordRoutes(fastify, opts, done) {
     }
 
     // Check for a multi authentication method
-    if (account.second_factor !== "none") {
+    if (account.otp_methods.length !== 0) {
       return require2FA(reply, account.account_id);
     }
 

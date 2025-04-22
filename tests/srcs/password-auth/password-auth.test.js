@@ -304,7 +304,7 @@ describe("POST /2fa", () => {
   it("otp not a string", async () => {
     const response = await request(baseUrl)
       .post("/2fa")
-      .send({ payload_token: "", otp_method: "none", otp: {} })
+      .send({ payload_token: "", otp_method: "app", otp: {} })
       .expect(400)
       .expect("Content-Type", /json/);
 
@@ -319,7 +319,7 @@ describe("POST /2fa", () => {
   it("otp too short", async () => {
     const response = await request(baseUrl)
       .post("/2fa")
-      .send({ payload_token: "", otp_method: "none", otp: "1234" })
+      .send({ payload_token: "", otp_method: "app", otp: "1234" })
       .expect(400)
       .expect("Content-Type", /json/);
 
@@ -334,7 +334,7 @@ describe("POST /2fa", () => {
   it("otp too long", async () => {
     const response = await request(baseUrl)
       .post("/2fa")
-      .send({ payload_token: "", otp_method: "none", otp: "1234567" })
+      .send({ payload_token: "", otp_method: "app", otp: "1234567" })
       .expect(400)
       .expect("Content-Type", /json/);
 
@@ -349,7 +349,7 @@ describe("POST /2fa", () => {
   it("validation pass", async () => {
     const response = await request(baseUrl)
       .post("/2fa")
-      .send({ payload_token: "", otp_method: "none", otp: "123456" })
+      .send({ payload_token: "", otp_method: "app", otp: "123456" })
       .expect(401)
       .expect("Content-Type", /json/);
   });

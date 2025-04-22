@@ -39,7 +39,7 @@ export default function router(fastify, opts, done) {
     delete request.body.old_password;
 
     // Check for a multi authentication method
-    if (account.second_factor !== "none") {
+    if (account.otp_methods.length !== 0) {
       return require2FA(reply, { account_id: request.account_id, body: request.body });
     }
 

@@ -54,7 +54,7 @@ const credentialsProperties = {
 
   otp_method: {
     type: "string",
-    enum: ["none", "app"],
+    enum: ["app", "email"],
     description: "A two-factor authentication method"
   },
 
