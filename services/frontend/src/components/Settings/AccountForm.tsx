@@ -74,7 +74,7 @@ export default function AccountForm({
 			</>
 			}
 
-			{ me.credentials.second_factor === SecondFactor.none ? <div
+			{ !me.credentials.otp_methods.length ? <div
 				className='flex flex-col gap-2'
 			>
 				<Button
@@ -118,7 +118,7 @@ export default function AccountForm({
 				}
 			</div>
 		</Form>
-		{  me.credentials.second_factor === SecondFactor.none ? <TwoFAEnableModal
+		{  !me.credentials.otp_methods.length ? <TwoFAEnableModal
 			isOpen={isOpen}
 			onClose={() => setIsOpen(false)}
 		/> : <TwoFAConfirmationModal
