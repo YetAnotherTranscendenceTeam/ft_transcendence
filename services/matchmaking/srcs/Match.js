@@ -45,7 +45,7 @@ export class Match {
       return ;
     for (let player of this.players) {
       player.win_probability = this.players.filter((p) => p.team_index !== player.team_index).reduce(
-        (acc, p) => acc + player.elo / p.elo,
+        (acc, p) => acc + ((player.elo - p.elo) * 0.009) + 1,
         0
       ) / this.gamemode.team_size;
       player.win_probability = Math.min(2, Math.max(0, player.win_probability));

@@ -60,7 +60,7 @@ export default function router(fastify, opts, done) {
                   END
                 ) - match_players.win_probability)
                 * (15
-                * (10 - (SELECT MIN(10, matchmaking_users.match_count))) * 0.6),
+                * (1 + (10 - (SELECT MIN(10, matchmaking_users.match_count))) * 0.3)),
               match_count = match_count + 1
           FROM match_players
           WHERE
