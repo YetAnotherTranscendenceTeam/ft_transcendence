@@ -218,7 +218,7 @@ paths:
                 type: object
                 properties:
                   statusCode:
-                    type: number
+                    type: integer
                     enum:
                       - 202
                   code:
@@ -792,7 +792,7 @@ paths:
                 type: object
                 properties:
                   statusCode:
-                    type: number
+                    type: integer
                     enum:
                       - 202
                   code:

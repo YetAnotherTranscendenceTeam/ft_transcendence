@@ -7,6 +7,8 @@ import { createUsers_2fa, users_2fa } from "../../../dummy/dummy-account_2fa";
 createUsers(1);
 createUsers_2fa(2);
 
+const patch_2fa = {};
+
 describe('Settings Router', () => {
   describe("PATCH /settings/account", () => {
     describe("Bad request", () => {
@@ -295,6 +297,9 @@ describe('Settings Router', () => {
           })
 
         expect(response.statusCode).toBe(202);
+        patch_2fa.payload_token = response.body.payload_token;
+        patch_2fa.email = new_email;
+        patch_2fa.password = new_password;
       });
 
       it("update email with same email", async () => {
@@ -310,4 +315,147 @@ describe('Settings Router', () => {
       });
     })
   }); // 2FA activated
+
+  describe("PATCH /settings/account/2fa", () => {
+    describe("Bad Request", () => {
+      let error = "body must be object"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send();
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body must have required property 'payload_token'";
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({});
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body must have required property 'otp_method'"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({ payload_token: {} });
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body must have required property 'otp'"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({ payload_token: {}, otp_method: {} });
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body/payload_token must be string"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({ payload_token: {}, otp_method: {}, otp: {} });
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body/otp_method must be string"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({ payload_token: "", otp_method: {}, otp: {} });
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body/otp_method must be equal to one of the allowed values"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({ payload_token: "", otp_method: "", otp: {} });
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body/otp must be string"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({ payload_token: "", otp_method: "app", otp: {} });
+
+        expect(response.statusCode).toBe(400);
+      });
+
+      error = "body/otp must NOT have fewer than 6 characters"
+      it(error, async () => {
+        const response = await request(apiURL)
+          .patch("/settings/account/2fa")
+          .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+          .send({ payload_token: "", otp_method: "app", otp: "1234567" });
+
+        expect(response.statusCode).toBe(400);
+      });
+    }) // Bad Request
+
+    it("invalid payload_token", async () => {
+      const response = await request(apiURL)
+        .patch("/settings/account/2fa")
+        .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+        .send({ payload_token: "45645", otp_method: "app", otp: "123456" });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    it("authentication token", async () => {
+      const response = await request(apiURL)
+        .patch("/settings/account/2fa")
+        .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+        .send({ payload_token: users_2fa[0].jwt, otp_method: "app", otp: "123456" });
+
+      expect(response.statusCode).toBe(401);
+    });
+
+    it("bad otp", async () => {
+      const response = await request(apiURL)
+        .patch("/settings/account/2fa")
+        .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+        .send({ payload_token: patch_2fa.payload_token, otp_method: "app", otp: "123456" });
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    it("Success", async () => {
+      const response = await request(apiURL)
+        .patch("/settings/account/2fa")
+        .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
+        .send({ payload_token: patch_2fa.payload_token, otp_method: "app", otp: users_2fa[0].otp() });
+
+      console.error(response.body);
+      expect(response.statusCode).toBe(204);
+
+      const old_auth = await request(apiURL)
+        .post("/auth")
+        .send({ email: users_2fa[0].email, password: users_2fa[0].password });
+
+      expect(old_auth.statusCode).toBe(401);
+
+      const new_auth = await request(apiURL)
+        .post("/auth")
+        .send({ email: patch_2fa.email, password: patch_2fa.password });
+
+      expect(new_auth.statusCode).toBe(202);
+    });
+  });
 });

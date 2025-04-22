@@ -4,7 +4,7 @@ import YATT, { HttpError, properties } from "yatt-utils";
 import { PASSWORD_PEPPER } from "../app/env.js";
 
 export default function router(fastify, opts, done) {
-  const schema = {
+  let schema = {
     body: {
       type: "object",
       properties: {
@@ -42,11 +42,7 @@ export default function router(fastify, opts, done) {
     if (account.second_factor !== "none") {
       return require2FA(reply, { account_id: request.account_id, body: request.body });
     }
-    
-    // Hash new password
-    request.body.password &&= await YATT.crypto.hashPassword(request.body.password, PASSWORD_PEPPER);
 
-    // Update credential database
     await updateCredentials(reply, request);
   });
 
@@ -56,12 +52,28 @@ export default function router(fastify, opts, done) {
     reply.code(202).send({ statusCode: 202, code: "2FA_VERIFICATION", payload_token });
   }
 
+  schema = {
+    body: {
+      type: "object",
+      properties: {
+        payload_token: properties.payload_token,
+        otp_method: properties.otp_method,
+        otp: properties.otp,
+      },
+      required: ["payload_token", "otp_method", "otp"],
+      additionalProperties: false,
+    }
+  }
+
   fastify.patch("/account/2fa", { schema }, async function handler(request, reply) {
+    const { payload_token, otp_method, otp } = request.body;
+
     let decode;
 
     try {
       decode = fastify.jwt.self.verify(payload_token);
     } catch (err) {
+      console.error(err);
       throw new HttpError.Unauthorized();
     }
 
@@ -80,6 +92,11 @@ export default function router(fastify, opts, done) {
   });
 
   async function updateCredentials(reply, request) {
+
+    // Hash new password
+    request.body.password &&= await YATT.crypto.hashPassword(request.body.password, PASSWORD_PEPPER);
+
+    // Update credential database
     await YATT.fetch(`http://credentials:3000/password/${request.account_id}`, {
       method: "PATCH",
       headers: {
