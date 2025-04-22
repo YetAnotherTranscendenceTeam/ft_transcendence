@@ -42,7 +42,7 @@ export default function build(opts = {}) {
     try {
       const decoded = app.jwt.verify(token);
       if (decoded.refresh) return false;
-      request.acess_token = token;
+      request.access_token = token;
       request.account_id = decoded.account_id;
     } catch (err) {
       return false;

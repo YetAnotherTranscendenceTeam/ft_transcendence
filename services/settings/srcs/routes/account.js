@@ -110,7 +110,7 @@ export default function router(fastify, opts, done) {
 
   fastify.delete("/account", async function handler(request, reply) {
     const headers = {
-      "Authorization": `Bearer ${request.acess_token}`,
+      "Authorization": `Bearer ${request.access_token}`,
     }
 
     // Delete account from credentials database
