@@ -51,7 +51,7 @@ export default function router(fastify, opts, done) {
         const updated_elo = db.prepare(`
           UPDATE matchmaking_users
             SET
-              elo = elo
+              rating = rating
                 + ((
                   CASE WHEN match_players.team_index = @winning_team THEN
                     2
@@ -69,7 +69,7 @@ export default function router(fastify, opts, done) {
             AND matchmaking_users.gamemode = ?
           RETURNING 
             matchmaking_users.account_id,
-            matchmaking_users.elo,
+            matchmaking_users.rating,
             matchmaking_users.match_count,
             matchmaking_users.updated_at
         `).all({winning_team}, request.params.match_id, updated.gamemode);

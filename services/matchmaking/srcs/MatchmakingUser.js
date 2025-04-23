@@ -4,7 +4,7 @@ export class MatchmakingUser {
   constructor(account_id, gamemode) {
     this.account_id = account_id;
     this.gamemode = gamemode;
-    this.elo = 200;
+    this.rating = 200;
     this.created_at = new Date();
     this.updated_at = new Date();
   }
@@ -12,9 +12,9 @@ export class MatchmakingUser {
   insert() {
     db.prepare(
       `
-	  INSERT INTO matchmaking_users (account_id, gamemode, elo)
+	  INSERT INTO matchmaking_users (account_id, gamemode, rating)
 	  VALUES (?, ?, ?)
 	  `
-    ).run(this.account_id, this.gamemode, this.elo);
+    ).run(this.account_id, this.gamemode, this.rating);
   }
 }

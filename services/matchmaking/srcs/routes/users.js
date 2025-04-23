@@ -9,7 +9,7 @@ import { GameModes } from "../GameModes.js";
 export default function router(fastify, opts, done) {
   fastify.get("/:account_id", function handler(request, reply) {
     const matchmaking_users = db
-      .prepare("SELECT gamemode, elo, created_at, updated_at FROM matchmaking_users WHERE account_id = ?")
+      .prepare("SELECT gamemode, rating, created_at, updated_at FROM matchmaking_users WHERE account_id = ?")
       .all(request.params.account_id);
     let last_match = db
       .prepare(`
