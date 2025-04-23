@@ -3,6 +3,7 @@ import { useForm } from "../contexts/useForm";
 import useToast, { ToastType } from "../hooks/useToast";
 import WebcamModal from "./WebcamModal";
 import Spinner from "./Spinner";
+import PopHover from "./PopHover";
 
 export type Image = {
 	url: string,
@@ -18,6 +19,9 @@ export default function ImageSelector({
 		onImageRemove,
 		defaultValue,
 		webcam = false,
+		limit,
+		help,
+		tooltip,
 		...props
 	}: {
 		label: string,
@@ -28,6 +32,9 @@ export default function ImageSelector({
 		onImageRemove?: (url: string) => Promise<any>,
 		defaultValue?: string,
 		webcam?: boolean,
+		limit?: number,
+		help?: string,
+		tooltip?: string,
 		[key: string]: any
 	}) {
 
@@ -70,18 +77,30 @@ export default function ImageSelector({
 	}, []);
 
 	return <div className='image-selector' {...props}>
-		<label>
-			{label}
-			{required && <span>*</span>}
-		</label>
+		{label &&
+			<div className='flex gap-2'>
+				<label>
+					{label}
+					{props.required && <span>*</span>}
+				</label>
+				{tooltip && <PopHover
+					content={tooltip}
+				>
+					<i className="fa-solid fa-circle-info"></i>
+				</PopHover>}
+			</div>
+		}
+		{help && <p className='input-help'>
+			{help}
+		</p>}
 		<div className='image-selector-container scrollbar'>
-			<label
+			{ (images.filter(i => i.isRemovable).length < limit || !limit) &&  <label
 				key='file'
 			>
 				<input type="file" onChange={handleFileChange} accept='image/*' />
 				<i className="fa-solid fa-plus"></i>
-			</label>
-			{webcam && <label
+			</label>}
+			{ (images.filter(i => i.isRemovable).length < limit || !limit) && webcam && <label
 				key='webcam'
 				onClick={() => setWebcamModalOpen(true)}
 			>
