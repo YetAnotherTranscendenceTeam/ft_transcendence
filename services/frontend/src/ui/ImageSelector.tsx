@@ -3,6 +3,8 @@ import { useForm } from "../contexts/useForm";
 import useToast, { ToastType } from "../hooks/useToast";
 import WebcamModal from "./WebcamModal";
 import Spinner from "./Spinner";
+import PopHover from "./PopHover";
+import AvatarDeletionModal from "./AvatarDeletionModal";
 
 export type Image = {
 	url: string,
@@ -18,6 +20,9 @@ export default function ImageSelector({
 		onImageRemove,
 		defaultValue,
 		webcam = false,
+		limit,
+		help,
+		tooltip,
 		...props
 	}: {
 		label: string,
@@ -28,6 +33,9 @@ export default function ImageSelector({
 		onImageRemove?: (url: string) => Promise<any>,
 		defaultValue?: string,
 		webcam?: boolean,
+		limit?: number,
+		help?: string,
+		tooltip?: string,
 		[key: string]: any
 	}) {
 
@@ -36,6 +44,7 @@ export default function ImageSelector({
 	const { updateField, updateFieldValidity, fields } = useForm();
 
 	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState<boolean>(false);
+	const [deleteImage, setDeleteImage] = Babact.useState<string>(null);
 
 	const handleFileChange = (e: any) => {
 		const file = e.target.files[0];
@@ -70,18 +79,30 @@ export default function ImageSelector({
 	}, []);
 
 	return <div className='image-selector' {...props}>
-		<label>
-			{label}
-			{required && <span>*</span>}
-		</label>
+		{label &&
+			<div className='flex gap-2'>
+				<label>
+					{label}
+					{props.required && <span>*</span>}
+				</label>
+				{tooltip && <PopHover
+					content={tooltip}
+				>
+					<i className="fa-solid fa-circle-info"></i>
+				</PopHover>}
+			</div>
+		}
+		{help && <p className='input-help'>
+			{help}
+		</p>}
 		<div className='image-selector-container scrollbar'>
-			<label
+			{ (images.filter(i => i.isRemovable).length < limit || !limit) &&  <label
 				key='file'
 			>
 				<input type="file" onChange={handleFileChange} accept='image/*' />
 				<i className="fa-solid fa-plus"></i>
-			</label>
-			{webcam && <label
+			</label>}
+			{ (images.filter(i => i.isRemovable).length < limit || !limit) && webcam && <label
 				key='webcam'
 				onClick={() => setWebcamModalOpen(true)}
 			>
@@ -95,7 +116,7 @@ export default function ImageSelector({
 							className={fields[field].value === image.url ? 'selected' : ''}
 							onClick={() => handleImageClick(image.url)}
 						/>
-						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => handleImageRemove(image.url)}/>}
+						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => setDeleteImage(image.url)}/>}
 						<Spinner />
 					</div>
 				))
@@ -105,6 +126,15 @@ export default function ImageSelector({
 			isOpen={webcamModalOpen}
 			onClose={() => setWebcamModalOpen(false)}
 			onCapture={onChange}
+		/>
+		<AvatarDeletionModal
+			isOpen={deleteImage !== null}
+			onClose={() => setDeleteImage(null)}
+			onDelete={async () => {
+				await handleImageRemove(deleteImage);
+				setDeleteImage(null);
+			}}
+			imageUrl={deleteImage}
 		/>
 	</div>
 }

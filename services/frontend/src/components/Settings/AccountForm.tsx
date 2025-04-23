@@ -62,7 +62,22 @@ export default function AccountForm({
 						name='password'
 						type='password'
 						pattern={config.PASSWORD_REGEX}
-						help={`Password must be between 8 and 24 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character. (!@#$%^&*()_-+=[]{}|;:'",.<>/?).`}
+						help='Your password is used to log in to the game and manage your account.'
+						tooltip={
+							<div
+								className='settings-tooltip flex flex-col'
+							>
+								Password must follow these rules:
+								<ul>
+									<li>At least 8 characters</li>
+									<li>At most 24 characters</li>
+									<li>At least one uppercase letter</li>
+									<li>At least one lowercase letter</li>
+									<li>At least one number</li>
+									<li>{`At least one special character (!@#$%^&*()_-+=[]{}|;:'",.<>/?)`}</li>
+								</ul>
+							</div>
+						}
 					/>
 					<Input
 						field="account-confirm-password"

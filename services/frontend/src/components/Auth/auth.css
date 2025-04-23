@@ -17,7 +17,6 @@
 
 .auth-card-form {
 	max-height: 0;
-	overflow: hidden;
 	transition: max-height 0.4s ease-in-out, padding-bottom 0.4s;
 }
 
@@ -33,12 +32,25 @@
 .auth-card-form.open {
 	max-height: 60vh;
 	padding-bottom: 1rem;
+	animation: openOverflow 0.4s;
 }
 
 .auth-card-form.closed {
 	padding: 0;
+	overflow: hidden;
 }
 
+@keyframes openOverflow {
+	0% {
+		overflow: hidden;
+	}
+	99% {
+		overflow: hidden;
+	}
+	100% {
+		overflow: auto;
+	}
+}
 
 
 .fortytwo-auth-button {

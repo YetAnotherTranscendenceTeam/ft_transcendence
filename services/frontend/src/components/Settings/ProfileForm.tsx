@@ -31,13 +31,17 @@ export default function ProfileForm({ me }: { me: any }) {
 				type='text'
 				placeholder={me.username}
 				pattern={config.USERNAME_REGEX}
-				help={<>
-					Your unique identifier on the platform. It's how other players find and recognize you.
-					<br />
-					<br />
-					Username must be between 4 and 15 characters long, and can only contain letters, numbers, dashes (-), and underscores (_).
-				</>
-				}
+				help="Your unique identifier on the platform. It's how other players find and recognize you."
+				tooltip={<div
+					className='settings-tooltip flex flex-col'
+				>
+					Username must follow these rules:
+					<ul>
+						<li>At least 4 characters</li>
+						<li>At most 15 characters</li>
+						<li>Only letters, numbers, underscores and hyphen</li>
+					</ul>
+				</div>}
 			/>
 			<ImageSelector
 				field="profile-avatar"
@@ -47,6 +51,19 @@ export default function ProfileForm({ me }: { me: any }) {
 				onChange={(e: any) => uploadAvatar(e.target.result)}
 				onImageRemove={deleteAvatar}
 				webcam
+				limit={5}
+				help="Your avatar is your identity on the platform. Choose one that represents you best!"
+				tooltip={
+					<div className='settings-tooltip flex flex-col'>
+						Upload constraints:
+						<ul>
+							<li>Maximum 5 avatars</li>
+							<li>Maximum 4Mo</li>
+							<li>Available formats: PNG, JPG, JPEG, GIF or WEBP</li>
+							<li>Minimum resolution of 32 x 32 pixels </li>
+						</ul>
+					</div>
+				}
 			/>
 
 			<div className='flex gap-4 justify-end'>
