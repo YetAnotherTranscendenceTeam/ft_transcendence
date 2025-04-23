@@ -1,4 +1,3 @@
-import db from "../app/database.js";
 import { offline_delay } from "../app/env.js";
 import { Client } from "./Client.js";
 
@@ -42,7 +41,7 @@ export class ConnectionManager {
     }
   }
 
-  #getFollowers = db.prepare(`SELECT account_id FROM follows WHERE following = ?`);
+  // #getFollowers = db.prepare(`SELECT account_id FROM follows WHERE following = ?`);
 
   broadcastStatus(client, status = client.status(), self = true) {
     // Prepare broadcast payload
@@ -53,7 +52,8 @@ export class ConnectionManager {
     console.log("BROADCASTING:", { account_id: client.account_id, payload: JSON.stringify(payload) });
 
     // Get accounts to broadcast to
-    const targets = this.#getFollowers.all(client.account_id).map(follower => follower.account_id);
+    const targets = [];
+    // this.#getFollowers.all(client.account_id).map(follower => follower.account_id);
     // Add own account
     if (self) {
       targets.push(client.account_id);
