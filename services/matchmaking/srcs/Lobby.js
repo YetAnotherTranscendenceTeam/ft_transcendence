@@ -21,6 +21,7 @@ export class Lobby extends LobbyBase {
    */
   constructor(lobby, queue) {
     super(lobby);
+    this.queue = queue;
     const maxLobbySize = this.getCapacity();
     if (this.players.length > maxLobbySize)
       throw new Error(
@@ -29,7 +30,7 @@ export class Lobby extends LobbyBase {
     const playersMatches = this.getInGamePlayer();
     if (playersMatches.length > 0) {
       throw new Error(
-        `${playersMatches.length} players in this lobby are currently in a match wait for them to finish`
+        `Player(s) in this lobby are currently in a match and/or tournament wait for them to finish`
       );
     }
     const rank_name = rank_gamemode_remap[this.mode.name] || this.mode.name;
@@ -55,12 +56,11 @@ export class Lobby extends LobbyBase {
       player.matchmaking_user = matchmaking_user;
       player.elo = matchmaking_user.elo;
     }
-    this.queue = queue;
     this.tolerance = 0.0;
   }
 
   getInGamePlayer() {
-    const res = db.prepare(
+    const matches = db.prepare(
       `
       SELECT * FROM
         match_players
@@ -77,7 +77,30 @@ export class Lobby extends LobbyBase {
       MatchState.PLAYING,
       MatchState.RESERVED
     );
-    return res;
+    const to_check = this.players.filter(
+      (player) =>
+        !matches.some((match) => match.account_id === player.account_id)
+    );
+    if (to_check.length === 0)
+      return matches;
+    const tournaments = db.prepare(
+      `
+      SELECT * FROM
+        tournament_players
+      JOIN
+        tournaments
+      ON
+        tournaments.tournament_id = tournament_players.tournament_id
+      WHERE
+        account_id IN (${to_check.map(() => "?").join(",")})
+        AND tournaments.active = 1
+      ORDER BY
+        tournaments.created_at DESC
+      `
+    ).all(
+      ...to_check.map((player) => player.account_id)
+    ).filter((tournament) => this.queue.fastify.tournaments.tournaments.has(tournament.tournament_id));
+    return [...matches, ...tournaments];
   }
 
   toJSON() {

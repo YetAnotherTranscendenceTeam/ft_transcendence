@@ -66,7 +66,7 @@ export default function RegisterForm({
 				// error="Invalid Email"
 				required
 				field="register-email"
-				help="Email must be valid and unique"
+				help="Your email is used to log in to the game and manage your account."
 				pattern={config.EMAIL_REGEX}
 				/>
 			<Input

@@ -235,7 +235,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 	});
 
 	const connect = () => {
-		ws.connect(`${config.WS_URL}/social/notify?access_token=${localStorage.getItem('access_token')}`);
+		ws.connect(`${config.WS_URL}/social/notify`, true);
 	};
 
 	const ping = () => {

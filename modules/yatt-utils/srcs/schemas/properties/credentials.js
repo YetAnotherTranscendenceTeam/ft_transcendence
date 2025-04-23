@@ -10,7 +10,7 @@ const credentialsProperties = {
   auth_method: {
     type: "string",
     enum: ['password-auth', 'google-auth', 'fortytwo-auth'],
-    description: "The account authentification method",
+    description: "The account authentication method",
   },
 
   email: {
@@ -52,6 +52,20 @@ const credentialsProperties = {
     minimum: 1,
     description: "The google id associated with the account",
   },
+
+  otp_method: {
+    type: "string",
+    enum: ["none", "app"],
+    description: "A two-factor authentication method"
+  },
+
+  otp: {
+    type: "string",
+    minLength: 6,
+    maxLength: 6,
+    description: "A unique code generated via two-factor authentication",
+    pattern: "^[0-9]{6}$",
+  }
 };
 
 export default credentialsProperties;

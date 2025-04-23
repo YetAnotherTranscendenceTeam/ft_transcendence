@@ -13,11 +13,34 @@ const AuthContext = Babact.createContext<{
 		refresh: () => void,
 		ping: () => void,
 		status: (status: FollowStatus) => void,
+		confirm2FA: (
+			body: {
+				payload_token: string,
+				otp: string,
+				otp_method: string,
+			},
+			onError: () => void,
+			onSuccess: (access_token: string, expire_at: string) => void,
+			login?: boolean,
+		) => Promise<Response | null>,
 	}>();
+
+export enum AuthMethod {
+	password_auth = 'password_auth',
+	google_auth = 'google_auth',
+	fortytwo_auth = 'fortytwo_auth',
+}
+
+export enum SecondFactor {
+	none = 'none',
+	app = 'app',
+}
 
 interface ICredentials {
 	account_id: number,
 	email: string,
+	auth_method: AuthMethod,
+	second_factor: string,
 }
 
 export interface IMe extends IUser {
@@ -85,6 +108,43 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		return meRef.current;
 	};
 
+	const confirm2FA = async (
+		body : {
+			payload_token: string,
+			otp: string,
+			otp_method: string,
+		},
+		onError: () => void,
+		onSuccess: (access_token: string, expire_at: string) => void,
+		login: boolean = true,
+	) => {
+		const response = await ft_fetch(`${config.API_URL}/auth/2fa`, {
+			method: 'POST',
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(body)
+		}, {
+			show_error: true,
+			on_error: (res) => {
+				if (res.status !== 403)
+					onError();
+			},
+			error_messages: {
+				403: 'Invalid code',
+			}
+		})
+
+		if (response) {
+			const { access_token, expire_at } = response;
+			if (login)
+				auth(access_token, expire_at);
+			onSuccess(access_token, expire_at);
+		}
+		return response;
+	}
+
 	const { connect, follows, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
 
 	return (
@@ -98,6 +158,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 				refresh,
 				ping,
 				status,
+				confirm2FA,
 			}}
 		>
 			{children}

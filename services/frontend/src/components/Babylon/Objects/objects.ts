@@ -1,4 +1,4 @@
-export { default as ClientBall } from './Ball';
-export { default as ClientWall } from './Wall';
-export { default as ClientPaddle } from './Paddle';
-export { default as ClientTrigger } from './Trigger';
+export { default as ClientBall } from './ClientBall';
+export { default as ClientWall } from './ClientWall';
+export { default as ClientPaddle } from './ClientPaddle';
+export { default as ClientTrigger } from './ClientGoal';

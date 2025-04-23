@@ -5,7 +5,7 @@ import { useLobby } from "../../contexts/useLobby";
 import { useAuth } from "../../contexts/useAuth";
 import Editable from "../../ui/Editable";
 import { IPlayer } from "yatt-lobbies";
-import { ITeam } from "yatt-lobbies/dist/Lobby";
+import { Team } from "../../hooks/useTournament";
 
 class DraggableCard {
 
@@ -49,7 +49,6 @@ class DraggableCard {
 		this.switchCard.style.position = 'absolute';
 		this.switchCard.style.left = `${this.initialX}px`;
 		this.switchCard.style.top = `${this.initialY}px`;
-		console.log('switchCard', this.switchCard);
 	}
 
 	resetSwitchCard() {
@@ -82,7 +81,7 @@ export default function LobbyTeamsList() {
 	const draggingCard = Babact.useRef<DraggableCard>(null);
 	const { lobby } = useLobby();
 
-	const [teams, setTeams] = Babact.useState<ITeam[]>([]);
+	const [teams, setTeams] = Babact.useState<Team[]>([]);
 
 	const { me } = useAuth();
 
@@ -163,7 +162,7 @@ export default function LobbyTeamsList() {
 			>
 				<Editable
 					key={'editable'}
-					defaultValue={team.name ?? `Team ${i + 1}`}
+					defaultValue={team.getDisplayName()}
 					disabled={!team.players.find(p => p.account_id === me.account_id)}
 					maxLength={20}
 					onEdit={(value) => {

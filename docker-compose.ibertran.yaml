@@ -82,6 +82,7 @@ services:
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - TWO_FA_SECRET=${TWO_FA_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
     networks:
       - credentials
@@ -159,6 +160,7 @@ services:
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     networks:
       - frontend
+      - db-profiles
 
   db-profiles:
     build: 

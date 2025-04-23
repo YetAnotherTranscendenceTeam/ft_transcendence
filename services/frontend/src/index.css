@@ -17,7 +17,7 @@
 	--bg-5: #adb5bd;
 	--shadow: 0px 0px 16px 4px var(--primary-color);
 	--team-1-color: #ff3c3c;
-	--team-2-color: #72b8f1;
+	--team-2-color: #1b99ff;
 	--offline-color: #b3b3b3;
 	--online-color: #39df5d;
 	--inactive-color: #ff9f32;
@@ -51,6 +51,8 @@
 	--success-color-40: color-mix(in srgb, var(--success-color), transparent 40%);
 	--success-color-20: color-mix(in srgb, var(--success-color), transparent 20%);
 	--success-color-10: color-mix(in srgb, var(--success-color), transparent 10%);
+	--team-1-color-60: color-mix(in srgb, var(--team-1-color), transparent 60%);
+	--team-2-color-60: color-mix(in srgb, var(--team-2-color), transparent 60%);
 }
 
 .flex {
@@ -132,6 +134,11 @@
 body {
 	font-family: "Ubuntu", serif;
 	overflow: hidden;
+	background-image: url('https://img2.wallspic.com/crops/6/5/5/6/6/166556/166556-nature_esprit_relaxant-nature-esprit-relaxation-eau-1920x1278.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+	height: 100vh;
+	background-position: center;
 }
 
 

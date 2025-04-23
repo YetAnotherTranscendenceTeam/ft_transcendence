@@ -9,6 +9,7 @@ import Submit from "../../ui/Submit";
 import Button from "../../ui/Button";
 import useFetch from "../../hooks/useFetch";
 import { useAuth } from "../../contexts/useAuth";
+import TwoFAConfirmationModal from "./TwoFAConfirmationModal";
 
 export default function LoginForm({
 		isOpen = false,
@@ -19,7 +20,8 @@ export default function LoginForm({
 	}) {
 
 	const { ft_fetch, isLoading } = useFetch();
-	const { auth } = useAuth();
+	const { auth, confirm2FA } = useAuth();
+	const [payload, setPayload] = Babact.useState<string>(null);
 
 	const handleSubmit = async (fields, clear) => {
 		const { 'login-email': email, 'login-password': password } = fields;
@@ -39,7 +41,12 @@ export default function LoginForm({
 			}
 		});
 
-		if (response) {
+		if (response && response.statusCode === 202 && response.code === '2FA_VERIFICATION') {
+			const { payload_token } = response;
+			console.log('payload_token', payload_token);
+			setPayload(payload_token);
+		}
+		else if (response) {
 			const { access_token, expire_at } = response;
 			clear();
 			onClose();
@@ -50,10 +57,11 @@ export default function LoginForm({
 		}
 	}
 
-	return <Form formFields={['login-email*', 'login-password*']} className="gap-0">
+	return <>
+		<Form formFields={['login-email*', 'login-password*']} className="gap-0">
 			<div
 				className={`auth-card-form flex flex-col gap-4 ${isOpen ? 'open' : 'closed'}`}
-			>
+				>
 				<GoogleAuthButton />
 				<FortyTwoAuthButton isOpen={isOpen}/>
 				<Separator>or</Separator>
@@ -65,7 +73,7 @@ export default function LoginForm({
 					field="login-email"
 					pattern={config.EMAIL_REGEX}
 					type="email"
-				/>
+					/>
 				<Input
 					label="Password"
 					type="password"
@@ -73,7 +81,7 @@ export default function LoginForm({
 					required
 					error="Invalid Password"
 					field="login-password"
-				/>
+					/>
 			</div>
 
 			{ isOpen &&
@@ -82,7 +90,7 @@ export default function LoginForm({
 						fields={['login-email', 'login-password']}
 						onSubmit={handleSubmit}
 						loading={isLoading}
-					>
+						>
 						Login <i className="fa-solid fa-arrow-right-to-bracket"></i>
 					</Submit>
 					<Button className="icon" onClick={onClose}>
@@ -90,5 +98,20 @@ export default function LoginForm({
 					</Button>
 				</div>
 			}
-	</Form>
+		</Form>
+		<TwoFAConfirmationModal
+			title="2FA Verification"
+			isOpen={!!payload}
+			onClose={() => setPayload(null)}
+			onConfirm={
+				async (otp) => confirm2FA({
+					otp_method: 'app',
+					payload_token: payload,
+					otp
+				},
+				() => setPayload(null),
+				() => setPayload(null),
+			)}
+		/>
+	</>
 }

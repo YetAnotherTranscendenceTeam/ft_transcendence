@@ -57,7 +57,7 @@ describe('Settings Router', () => {
               password: "newPassword123",
               old_password: "oldPassword123",
             })
-            .expect(403); // Forbiden
+            .expect(403); // Forbidden
         });
 
         it("nothing to do", async () => {
