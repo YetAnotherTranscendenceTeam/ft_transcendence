@@ -47,12 +47,8 @@ export default function router(fastify, opts, done) {
     }
 
     // Update credential database
-    await YATT.fetch(`http://credentials:3000/2fa/${account_id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json", 
-      },
-      body: JSON.stringify({ method: "app" }),
+    await YATT.fetch(`http://credentials:3000/accounts/${account_id}/otp_methods/app`, {
+      method: "POST"
     });
 
     activate.run(account_id);

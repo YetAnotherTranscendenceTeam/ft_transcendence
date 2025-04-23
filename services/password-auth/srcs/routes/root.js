@@ -34,7 +34,7 @@ export default function passwordRoutes(fastify, opts, done) {
     }
 
     // Check for a multi authentication method
-    if (account.second_factor !== "none") {
+    if (account.otp_methods.length !== 0) {
       return require2FA(reply, account.account_id);
     }
 
@@ -81,7 +81,7 @@ export default function passwordRoutes(fastify, opts, done) {
   });
 
   async function require2FA(reply, account_id) {
-    const payload_token = fastify.jwt.auth_2fa.sign({ account_id  }, { expiresIn: "5m" });
+    const payload_token = fastify.jwt.auth_2fa.sign({ account_id }, { expiresIn: "5m" });
 
     reply.code(202).send({ statusCode: 202, code: "2FA_VERIFICATION", payload_token });
   }

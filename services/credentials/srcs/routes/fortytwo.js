@@ -1,7 +1,8 @@
 "use strict";
 
 import { objects, properties } from "yatt-utils";
-import db, { updateEmail } from "../app/database.js";
+import db from "../app/database.js";
+import * as dbAction from "../utils/dbAction.js";
 import { createProfile } from "../utils/createProfile.js";
 import { HttpError } from "yatt-utils";
 
@@ -51,6 +52,7 @@ export default function router(fastify, opts, done) {
     if (!account) {
       reply.status(404).send(objects.accountNotFound);
     } else {
+      account.otp_methods = dbAction.getOTPMethods(account.account_id);
       reply.send(account);
     }
   });
@@ -127,7 +129,7 @@ export default function router(fastify, opts, done) {
     try {
       const transaction = db.transaction(() => {
         // Update email
-        if (email && updateEmail.run(email, account_id).changes === 0) {
+        if (email && dbAction.updateEmail(email, account_id).changes === 0) {
           throw new HttpError.NotFound();
         }
       })();

@@ -1,6 +1,7 @@
 "use strict";
 
-import db, { updateEmail, updatePassword } from "../app/database.js";
+import db from "../app/database.js";
+import * as dbAction from "../utils/dbAction.js"
 import { HttpError, objects, properties } from "yatt-utils";
 import { createProfile } from "../utils/createProfile.js";
 
@@ -50,6 +51,7 @@ export default function router(fastify, opts, done) {
     if (!account) {
       reply.status(404).send(objects.accountNotFound);
     } else {
+      account.otp_methods = dbAction.getOTPMethods(account.account_id);
       reply.send(account);
     }
   });
@@ -134,11 +136,11 @@ export default function router(fastify, opts, done) {
     try {
       const transaction = db.transaction(() => {
         // Update email
-        if (email && updateEmail.run(email, account_id).changes === 0) {
+        if (email && dbAction.updateEmail(email, account_id).changes === 0) {
           throw new HttpError.NotFound();
         }
         // Update password
-        if (password && updatePassword.run(password.hash, password.salt, account_id).changes === 0) {
+        if (password && dbAction.updatePassword(password.hash, password.salt, account_id).changes === 0) {
           throw new HttpError.NotFound();
         }
       })();

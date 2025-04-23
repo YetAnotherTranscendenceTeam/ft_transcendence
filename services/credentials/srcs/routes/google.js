@@ -2,6 +2,7 @@
 
 import { properties, objects } from "yatt-utils";
 import db from "../app/database.js";
+import * as dbAction from "../utils/dbAction.js";
 import { createProfile } from "../utils/createProfile.js";
 
 export default function router(fastify, opts, done) {
@@ -49,6 +50,7 @@ export default function router(fastify, opts, done) {
     if (!account) {
       reply.status(404).send({ error: "Account not found" });
     }
+    account.otp_methods = dbAction.getOTPMethods(account.account_id);
     return account;
   });
 

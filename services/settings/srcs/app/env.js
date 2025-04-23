@@ -1,3 +1,5 @@
+"use strict";
+
 export const AUTHENTICATION_SECRET = process.env.AUTHENTICATION_SECRET;
 if (!AUTHENTICATION_SECRET) {
   console.error("Missing environment variable: AUTHENTICATION_SECRET");
@@ -10,8 +12,14 @@ if (!TOKEN_MANAGER_SECRET) {
   process.exit(1);
 }
 
-export const password_pepper = process.env.PASSWORD_PEPPER;
-if (!password_pepper) {
+export const TWO_FA_SECRET = process.env.TWO_FA_SECRET;
+if (!TWO_FA_SECRET) {
+  console.error("Missing environment variable: TWO_FA_SECRET");
+  process.exit(1);
+}
+
+export const PASSWORD_PEPPER = process.env.PASSWORD_PEPPER;
+if (!PASSWORD_PEPPER) {
   console.error("Missing environment variable: PASSWORD_PEPPER");
   process.exit(1);
 }

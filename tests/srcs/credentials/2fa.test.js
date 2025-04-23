@@ -1,109 +1,121 @@
-import request from "supertest";
+import { properties } from "../../../modules/yatt-utils/srcs";
+import { credentialsURL } from "../../URLs";
 import { createUsers, users } from "../../dummy/dummy-account";
+import request from "supertest";
 
-createUsers(1);
+createUsers(2);
 
-const baseUrl = "http://127.0.0.1:7002";
+let account_id;
 
-describe("PATCH /2fa/:account_id", () => {
-  describe("Bad request", () => {
-    it("bad account_id", async () => {
-      const response = await request(baseUrl)
-        .patch('/2fa/not-an-account_id')
+beforeAll(() => {
+  account_id = users[0].account_id;
+})
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.message).toBe("params/account_id must be integer");
-    })
+it("non existing account_id", async () => {
+  const response = await request(credentialsURL)
+    .post(`/accounts/99999999999/otp_methods/app`)
 
-    it("no account_id", async () => {
-      const response = await request(baseUrl)
-        .patch('/2fa/')
+  expect(response.statusCode).toBe(404);
+});
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.message).toBe("params/account_id must be integer");
-    })
+describe("otp_methods Router", () => {
+  it("bad account_id", async () => {
+    const response = await request(credentialsURL)
+      .post(`/accounts/:account_id/otp_methods/:otp_method`)
 
-    it("no body", async () => {
-      const response = await request(baseUrl)
-        .patch('/2fa/1')
+    expect(response.statusCode).toBe(400);
+    expect(response.body.message).toBe("params/account_id must be integer");
+  });
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.message).toBe("body must be object");
-    })
+  it("bad otp_method", async () => {
+    const response = await request(credentialsURL)
+      .post(`/accounts/${account_id}/otp_methods/:otp_method`)
 
-    it("empty body", async () => {
-      const response = await request(baseUrl)
-        .patch('/2fa/1')
-        .send({});
+    expect(response.statusCode).toBe(400);
+    expect(response.body.message).toBe("params/method must be equal to one of the allowed values");
+  });
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.message).toBe("body must have required property 'method'");
-    })
+  it("add method", async () => {
+    const response = await request(credentialsURL)
+      .post(`/accounts/${account_id}/otp_methods/app`)
 
-    it("bad body/method type", async () => {
-      const response = await request(baseUrl)
-        .patch('/2fa/1')
-        .send({ method: {} });
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toMatchObject({
+      account_id,
+      method: "app",
+      created_at: expect.any(String),
+    });
+  });
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.message).toBe("body/method must be string");
-    })
+  it("conflict", async () => {
+    const response = await request(credentialsURL)
+      .post(`/accounts/${account_id}/otp_methods/app`)
 
-    it("bad body/method type", async () => {
-      const response = await request(baseUrl)
-        .patch('/2fa/1')
-        .send({ method: "kporceil" });
+    expect(response.statusCode).toBe(409);
+  });
 
-      expect(response.statusCode).toBe(400);
-      expect(response.body.message).toBe("body/method must be equal to one of the allowed values");
-    })
+  it("delete", async () => {
+    const response = await request(credentialsURL)
+      .delete(`/accounts/${account_id}/otp_methods/app`)
 
-    it("account not found", async () => {
-      const response = await request(baseUrl)
-        .patch('/2fa/99999999')
-        .send({ method: "none" });
+    expect(response.statusCode).toBe(204);
+  });
 
-      expect(response.statusCode).toBe(404);
-    })
-  })
+  it("not found", async () => {
+    const response = await request(credentialsURL)
+      .delete(`/accounts/${account_id}/otp_methods/app`)
 
-  it("set to none", async () => {
-    const response = await request(baseUrl)
-      .patch(`/2fa/${users[0].account_id}`)
-      .send({ method: "none" });
+    expect(response.statusCode).toBe(404);
+  });
+
+  it("readd method", async () => {
+    const response = await request(credentialsURL)
+      .post(`/accounts/${account_id}/otp_methods/app`)
+
+    expect(response.statusCode).toBe(200);
+  });
+
+  it("get by id", async () => {
+    const getbyid = await request(credentialsURL)
+      .get(`/${account_id}`)
+
+    expect(getbyid.statusCode).toBe(200);
+    expect(getbyid.body.otp_methods).toEqual(["app"]);
+  });
+
+  it("re delete", async () => {
+    const response = await request(credentialsURL)
+      .delete(`/accounts/${account_id}/otp_methods/app`)
 
     expect(response.statusCode).toBe(204);
 
-    const verification = await request(baseUrl)
-      .get(`/${users[0].account_id}`);
+    const getbyid = await request(credentialsURL)
+      .get(`/${account_id}`)
 
-    expect(verification.body).toEqual({
-      account_id: users[0].account_id,
-      auth_method: "password_auth",
-      created_at: expect.any(String),
-      updated_at: expect.any(String),
-      second_factor: "none",
-      email: users[0].email,
+    expect(getbyid.statusCode).toBe(200);
+    expect(getbyid.body.otp_methods).toEqual([]);
+  });
+
+  properties.otp_method.enum.forEach(method => {
+    it(`add ${method}`, async () => {
+      const response = await request(credentialsURL)
+        .post(`/accounts/${account_id}/otp_methods/${method}`)
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toMatchObject({
+        account_id,
+        method,
+        created_at: expect.any(String),
+      });
     });
   })
 
-  it("set to app", async () => {
-    const response = await request(baseUrl)
-      .patch(`/2fa/${users[0].account_id}`)
-      .send({ method: "app" });
+  it("verify methods", async () => {
+    const getbyid = await request(credentialsURL)
+      .get(`/${account_id}`)
 
-    expect(response.statusCode).toBe(204);
-    const verification = await request(baseUrl)
-      .get(`/${users[0].account_id}`);
-
-    expect(verification.body).toEqual({
-      account_id: users[0].account_id,
-      auth_method: "password_auth",
-      created_at: expect.any(String),
-      updated_at: expect.any(String),
-      second_factor: "app",
-      email: users[0].email,
-    });
-  })
-
-}); // PATCH /2fa/:account_id
+    expect(getbyid.statusCode).toBe(200);
+    expect(getbyid.body.otp_methods).toEqual(
+      expect.arrayContaining(properties.otp_method.enum));
+  });
+});

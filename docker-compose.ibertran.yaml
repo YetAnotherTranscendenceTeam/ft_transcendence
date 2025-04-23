@@ -128,6 +128,22 @@ services:
       - db-profiles
       - avatars
 
+  2fa:
+    build:
+      context: services/2fa/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ibertran/transcendence.2fa:latest
+    volumes:
+      - sqlite:/database
+    environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - TWO_FA_SECRET=${TWO_FA_SECRET}
+    networks:
+      - frontend
+      - credentials
+
   lobbies:
     build: 
       context: services/lobbies/
