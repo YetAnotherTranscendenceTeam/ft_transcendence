@@ -81,6 +81,6 @@
 	transition: transform 0.4s;
 }
 
-.overlay.hidden .aside {
+.overlay.hidden .aside-content {
 	transform: translateX(100%);
 }

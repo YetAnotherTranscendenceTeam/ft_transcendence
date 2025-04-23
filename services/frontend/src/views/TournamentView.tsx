@@ -7,9 +7,10 @@ import useToast, { ToastType } from "../hooks/useToast";
 import JoinMatchButton from "../components/Tournament/JoinMatchButton";
 import useTournament, { MatchState } from "../hooks/useTournament";
 import TournamentEndModal from "../components/Tournament/TournamentEndModal";
+import { usePong } from "../contexts/usePong";
+import { GameScene } from "../components/Babylon/types";
 
 export default function TournamentView() {
-
 
 	const { id } = useParams();
 	const { matches, currentMatch } = useTournament(id, (e) => setIsOpen(e));
@@ -25,6 +26,13 @@ export default function TournamentView() {
 			timeoutRef.current = new Date(new Date().getTime() + 10000);
 		}
 	}, [currentMatch?.match_id]);
+
+	
+	const { app } = usePong();
+
+	Babact.useEffect(() => {
+		app.setGameScene(GameScene.LOBBY);
+	}, [])
 
 	const tournamentWinner = (matches.length > 0 && matches[0].state === MatchState.DONE && matches[0]) || null;
 
