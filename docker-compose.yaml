@@ -29,6 +29,7 @@ services:
       - BACKEND_URL=${BACKEND_URL}
       - WS_URL=${WS_URL}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - "127.0.0.1:4242:8080"
     networks:
@@ -78,12 +79,13 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - "127.0.0.1:4012:3000"
     networks:
       - credentials
       - frontend
-    
+
   password-auth:
     build:
       context: services/password-auth/
@@ -97,6 +99,7 @@ services:
       - TWO_FA_SECRET=${TWO_FA_SECRET}
       - AUTH_2FA_SECRET=${AUTH_2FA_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - "127.0.0.1:4022:3000"
     networks:
@@ -252,7 +255,9 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
+      - TWO_FA_SECRET=${TWO_FA_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - 127.0.0.1:4004:3000
     networks:

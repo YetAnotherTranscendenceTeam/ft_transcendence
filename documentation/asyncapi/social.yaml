@@ -17,7 +17,7 @@ channels:
         query:
           type: object
           required:
-            - acess_token
+            - access_token
           properties:
             token:
               type: string

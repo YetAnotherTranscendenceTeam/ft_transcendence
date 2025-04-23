@@ -54,7 +54,7 @@ export class Lobby extends LobbyBase {
         this.matchmaking_users.push(matchmaking_user);
       }
       player.matchmaking_user = matchmaking_user;
-      player.elo = matchmaking_user.elo;
+      player.rating = matchmaking_user.rating;
     }
     this.tolerance = 0.0;
   }
@@ -119,7 +119,7 @@ export class Lobby extends LobbyBase {
     let rating = 0;
     for (let matchmaking_user of this.matchmaking_users) {
       for (let otherUser of other.matchmaking_users) {
-        rating += Math.abs(matchmaking_user.elo - otherUser.elo) * WEIGHT_ELO_DIFF;
+        rating += Math.abs(matchmaking_user.rating - otherUser.rating) * WEIGHT_ELO_DIFF;
       }
     }
     rating += Math.abs(this.players.length - other.players.length) * WEIGHT_PLAYER_COUNT_DIFF;

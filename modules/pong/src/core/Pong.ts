@@ -26,15 +26,16 @@ export class Pong {
 	protected _players: IPlayer[] = [];
 	protected _state: PongState = PongState.RESERVED;
 
+	protected _map: Map<MapID, IPongMap>;
+	protected _currentMap: IPongMap;
+
 	protected _balls: Ball[] = [];
 	protected _paddles: Map<number, PH2D.Body>;
 	protected _goals: Map<number, Goal>;
 
 	protected _score: number[];
 	protected _lastSide: MapSide;
-
-	protected _map: Map<MapID, IPongMap>;
-	protected _currentMap: IPongMap;
+	protected _winner: MapSide;
 
 	public constructor() {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, K.substeps);
@@ -164,7 +165,12 @@ export class Pong {
 
 	protected start() {
 		this._state = PongState.PLAYING;
-		this.launchBall();
+		this._accumulator = 0;
+		this._score = [0, 0];
+		this._lastSide = undefined;
+		this._winner = undefined;
+
+		this.roundStart();
 	}
 
 	protected roundStart() {
@@ -213,15 +219,12 @@ export class Pong {
 				scored = true;
 			}
 		});
-		// console.log("total score: " + this._score[0] + "-" + this._score[1]);
-		// check if game ended
-		if (this._score[0] == 5) {
+		if (this._score[0] >= K.defaultPointsToWin) {
 			this._state = PongState.ENDED;
-			console.log("game ended");
-		}
-		if (this._score[1] == 5) {
+			this._winner = MapSide.LEFT;
+		} else if (this._score[1] >= K.defaultPointsToWin) {
 			this._state = PongState.ENDED;
-			console.log("game ended");
+			this._winner = MapSide.RIGHT;
 		}
 		return scored;
 	}

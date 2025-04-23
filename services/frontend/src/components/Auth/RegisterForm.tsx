@@ -51,7 +51,7 @@ export default function RegisterForm({
 
 	return <Form
 		className="gap-0"
-		formFields={['register-email*', 'register-password*', 'register-confirm-password*', 'register-terms*']}
+		formFields={['register-email*', 'register-password*', 'register-confirm-password*']}
 	>
 		<div
 			className={`auth-card-form flex flex-col gap-4 ${isOpen ? 'open' : 'closed'}`}
@@ -63,31 +63,42 @@ export default function RegisterForm({
 			<Input
 				label="Email"
 				type="email"
-				error="Invalid Email"
 				required
-				field="register-email"	
+				field="register-email"
+				help="Your email is used to log in to the game and manage your account."
+				pattern={config.EMAIL_REGEX}
 				/>
 			<Input
 				label="Password"
 				type="password"
 				pattern={config.PASSWORD_REGEX}
 				required
-				error="Invalid Password"
 				field="register-password"
-				/>
+				help='Your password is used to log in to the game and manage your account.'
+				tooltip={
+					<div
+						className='settings-tooltip flex flex-col'
+					>
+						Password must follow these rules:
+						<ul>
+							<li>At least 8 characters</li>
+							<li>At most 24 characters</li>
+							<li>At least one uppercase letter</li>
+							<li>At least one lowercase letter</li>
+							<li>At least one number</li>
+							<li>{`At least one special character (!@#$%^&*()_-+=[]{}|;:'",.<>/?)`}</li>
+						</ul>
+					</div>
+				}
+			/>
 			<Input
 				label="Confirm Password"
 				type="password"
 				pattern={config.PASSWORD_REGEX}
 				required
-				error="Invalid Password"
 				field="register-confirm-password"
 				matching="register-password"
-				/>
-			<Checkbox
-				label="I agree to the terms and conditions"
-				field="register-terms"
-				required
+				help="Confirm password must match the password"
 				/>
 		</div>
 		{
@@ -95,7 +106,7 @@ export default function RegisterForm({
 			<div className="flex items-center justify-between">
 				<Submit
 					loading={isLoading}
-					fields={['register-email', 'register-password', 'register-confirm-password', 'register-terms']}
+					fields={['register-email', 'register-password', 'register-confirm-password']}
 					onSubmit={handleSubmit}
 				>
 					Register <i className="fa-solid fa-user-plus"></i>

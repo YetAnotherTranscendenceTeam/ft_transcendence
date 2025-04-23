@@ -1,3 +1,4 @@
+import { GameModeType } from "yatt-lobbies";
 import { GameModes, GameMode } from "./GameModes.js";
 import db from "./app/database.js";
 
@@ -19,6 +20,7 @@ export class Match {
       this.players = players.map((player, index) => ({
         ...player,
         team_index: Math.floor(index / gamemode.team_size),
+        player_index: index % gamemode.team_size,
       }));
       this.gamemode = gamemode;
       // gamemode name is saved in case the gamemode doesn't exist anymore
@@ -39,6 +41,15 @@ export class Match {
       this.created_at = match.created_at;
       this.updated_at = match.updated_at;
     } else throw new Error("Invalid arguments");
+    if (this.gamemode.type !== GameModeType.RANKED)
+      return ;
+    for (let player of this.players) {
+      player.win_probability = this.players.filter((p) => p.team_index !== player.team_index).reduce(
+        (acc, p) => acc + ((player.rating - p.rating) * 0.009) + 1,
+        0
+      ) / this.gamemode.team_size;
+      player.win_probability = Math.min(2, Math.max(0, player.win_probability));
+    }
   }
 
   insert() {
@@ -52,12 +63,12 @@ export class Match {
     this.match_id = insert.match_id;
     const player_insert = db.prepare(
       `
-      INSERT INTO match_players (match_id, account_id, team_index)
-      VALUES (?, ?, ?)
+      INSERT INTO match_players (match_id, account_id, team_index, player_index, win_probability)
+      VALUES (?, ?, ?, ?, ?)
       `
     );
     for (const player of this.players) {
-      player_insert.run(this.match_id, player.account_id, player.team_index);
+      player_insert.run(this.match_id, player.account_id, player.team_index, player.player_index, player.win_probability);
     }
     this.created_at = insert.created_at;
     this.updated_at = insert.updated_at;

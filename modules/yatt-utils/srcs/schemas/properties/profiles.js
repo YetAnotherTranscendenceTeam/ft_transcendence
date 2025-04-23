@@ -6,6 +6,7 @@ const profilesProperties = {
     minLength: 4,
     maxLength: 15,
     description: "The user unique name",
+    pattern: '^[a-zA-Z0-9_-]{4,15}$',
   },
 
   avatar: {

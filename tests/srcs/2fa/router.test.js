@@ -149,7 +149,7 @@ describe("2FA Router", () => {
           .set('Authorization', `Bearer ${users[1].jwt}`)
 
         expect(me.statusCode).toBe(200);
-        expect(me.body.credentials.second_factor).toBe("none");
+        expect(me.body.credentials.otp_methods).toEqual([]);
       }
 
       const activate = await request(apiURL)
@@ -185,7 +185,7 @@ describe("2FA Router", () => {
           .set('Authorization', `Bearer ${users[1].jwt}`)
 
         expect(me.statusCode).toBe(200);
-        expect(me.body.credentials.second_factor).toBe("app");
+        expect(me.body.credentials.otp_methods).toEqual(["app"]);
       }
     })
 
@@ -306,7 +306,7 @@ describe("2FA Router", () => {
           .set('Authorization', `Bearer ${users[3].jwt}`)
 
         expect(me.statusCode).toBe(200);
-        expect(me.body.credentials.second_factor).toBe("app");
+        expect(me.body.credentials.otp_methods).toEqual(["app"]);
       }
 
       const response = await request(apiURL)
@@ -322,7 +322,7 @@ describe("2FA Router", () => {
           .set('Authorization', `Bearer ${users[3].jwt}`)
 
         expect(me.statusCode).toBe(200);
-        expect(me.body.credentials.second_factor).toBe("none");
+        expect(me.body.credentials.otp_methods).toEqual([]);
       }
     });
   }); // POST /app/activate

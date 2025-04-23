@@ -42,3 +42,16 @@
 	font-size: large;
 	font-weight: bold;
 }
+
+.settings-tooltip {
+	width: 200px;
+	gap: 2px;
+}
+
+.settings-tooltip li {
+	list-style: circle;
+	padding: initial;
+	margin-left: 16px;
+	line-gap-override: 0.5rem;
+	padding: 2px 0;
+}

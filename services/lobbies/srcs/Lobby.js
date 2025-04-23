@@ -104,7 +104,7 @@ export class Lobby extends LobbyBase {
 
   removePlayer(player) {
     const rm_index = this.players.findIndex((p) => p.account_id == player.account_id);
-    if (rm_index == -1) throw new Error("Player not in lobby");
+    if (rm_index == -1) return;
     if (this.isLeader(player)) this.setLeader(rm_index == 0 ? this.players[1] : this.players[0]);
     super.removePlayer(rm_index);
     if (this.state.type == LobbyStateType.QUEUED) this.unqueue();

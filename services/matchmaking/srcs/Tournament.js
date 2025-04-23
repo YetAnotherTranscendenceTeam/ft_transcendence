@@ -10,7 +10,7 @@ const TournamentMatchState = {
 
 class TournamentPlayer {
   account_id;
-  elo;
+  rating;
   matchmaking_user;
   profile;
   tournament;
@@ -21,7 +21,7 @@ class TournamentPlayer {
     this.account_id = iplayer.account_id;
     this.team_index = team_index;
     this.player_index = player_index;
-    this.elo = iplayer.elo;
+    this.rating = iplayer.rating;
     this.matchmaking_user = iplayer.matchmaking_user;
     this.profile = iplayer.profile;
     this.tournament = tournament;
@@ -49,7 +49,7 @@ class TournamentPlayer {
   toJSON() {
     return {
       account_id: this.account_id,
-      elo: this.elo,
+      rating: this.rating,
       matchmaking_user: this.matchmaking_user,
       profile: this.profile,
     };
@@ -192,7 +192,7 @@ export class Tournament {
       team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
     this.teams = teams.sort(
-      (a, b) => a.players.reduce((a, b) => a + b.elo, 0) - b.players.reduce((a, b) => a + b.elo, 0)
+      (a, b) => a.players.reduce((a, b) => a + b.rating, 0) - b.players.reduce((a, b) => a + b.rating, 0)
     );
     this.gamemode = gamemode;
     this.manager = manager;
@@ -339,7 +339,7 @@ export class Tournament {
 }
 // basic tournament test (TODO: remove)
 // const teams = Array.from({ length: 9 }, (_, i) => ({
-//   players: [{ elo: i }]
+//   players: [{ rating: i }]
 // }));
 // function test() {
 //   const tournament = new Tournament(teams, {});

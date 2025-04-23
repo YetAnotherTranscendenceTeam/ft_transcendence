@@ -1,11 +1,15 @@
+import Babact from "babact";
 import config from "../config";
 import { useAuth } from "../contexts/useAuth";
 import useFetch from "./useFetch";
+import useToast from "./useToast";
 
 export default function useAccount() {
 
 	const { ft_fetch, isLoading } = useFetch();
 	const { me, refresh } = useAuth();
+	const [payload, setPayload] = Babact.useState<string>(null);
+	const { createToast } = useToast();
 
 	const setSettings = async (settings: {
 		email?: string,
@@ -13,12 +17,10 @@ export default function useAccount() {
 		old_password: string,
 	}) => {
 		const patch: {
-			auth_method: string,
 			email?: string,
 			password?: string,
 			old_password: string,
 		} = {
-			auth_method: me.credentials.auth_method,
 			old_password: settings.old_password,
 		};
 
@@ -34,7 +36,6 @@ export default function useAccount() {
 			},
 			body: JSON.stringify(patch)
 		}, {
-			success_message: "Settings updated successfully",
 			show_error: true,
 			error_messages: {
 				403: "Invalid password",
@@ -42,8 +43,14 @@ export default function useAccount() {
 			}
 		});
 
-		if (response)
+		if (response && response.statusCode === 202) {
+			setPayload(response.payload_token);
+		}
+		else if (response) {
+			createToast('Settings updated successfully');
 			refresh();
+
+		}
 
 		return response;
 	}
@@ -101,12 +108,46 @@ export default function useAccount() {
 		return response;
 	}
 
+	const setSettings2FA = async (body: {
+		otp: string,
+		otp_method: string,
+	}) => {
+		const response = await ft_fetch(`${config.API_URL}/settings/account/2fa`, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				payload_token: payload,
+				...body
+			})
+		}, {
+			show_error: true,
+			success_message: "Settings updated successfully",
+			error_messages: {
+				403: "Invalid password",
+				409: "Email already in use",
+			},
+			on_error: (res) => {
+				if (res.status !== 403)
+					setPayload(null);
+			}
+		})
+
+		if (response)
+			refresh();
+		return response;
+	}
+
 	return {
 		setSettings,
 		isLoading,
 		enable2FA,
 		confirm2FA,
-		disable2FA
+		disable2FA,
+		setSettings2FA,
+		setPayload,
+		payload,
 	}
 
 }

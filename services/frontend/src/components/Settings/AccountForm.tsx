@@ -6,10 +6,10 @@ import Submit from "../../ui/Submit";
 import Button from "../../ui/Button";
 import { AuthMethod, IMe, SecondFactor, useAuth } from "../../contexts/useAuth";
 import Alert from "../../ui/Alert";
-import { ToastType } from "../../hooks/useToast";
 import useAccount from "../../hooks/useAccount";
 import TwoFAEnableModal from "../Auth/TwoFAEnableModal";
 import TwoFAConfirmationModal from "../Auth/TwoFAConfirmationModal";
+import config from "../../config";
 
 export default function AccountForm({
 		me,
@@ -20,7 +20,7 @@ export default function AccountForm({
 	}) {
 
 	const { logout, refresh } = useAuth();
-	const { setSettings, isLoading, disable2FA } = useAccount();
+	const { setSettings, isLoading, disable2FA, setPayload, setSettings2FA, payload } = useAccount();
 	const [isOpen, setIsOpen] = Babact.useState<boolean>(false);
 
 	const handleSubmit = async (fields, clearFields) => {
@@ -46,7 +46,14 @@ export default function AccountForm({
 			}
 			{ me.credentials.auth_method === 'password_auth' &&
 			<>
-				<Input field="account-email" label='Edit your email' type='email' placeholder={me.credentials.email}/>
+				<Input
+					field="account-email"
+					label='Edit your email'
+					type='email'
+					pattern={config.EMAIL_REGEX}
+					placeholder={me.credentials.email}
+					help="Your email is used to log in to the game and manage your account."
+				/>
 
 				<div className='flex flex-col gap-2'>
 					<Input
@@ -54,6 +61,23 @@ export default function AccountForm({
 						label='Edit your password'
 						name='password'
 						type='password'
+						pattern={config.PASSWORD_REGEX}
+						help='Your password is used to log in to the game and manage your account.'
+						tooltip={
+							<div
+								className='settings-tooltip flex flex-col'
+							>
+								Password must follow these rules:
+								<ul>
+									<li>At least 8 characters</li>
+									<li>At most 24 characters</li>
+									<li>At least one uppercase letter</li>
+									<li>At least one lowercase letter</li>
+									<li>At least one number</li>
+									<li>{`At least one special character (!@#$%^&*()_-+=[]{}|;:'",.<>/?)`}</li>
+								</ul>
+							</div>
+						}
 					/>
 					<Input
 						field="account-confirm-password"
@@ -61,6 +85,8 @@ export default function AccountForm({
 						name='confirm-password'
 						type='password'
 						matching="account-password"
+						help='Confirm password must match the new password'
+						pattern={config.PASSWORD_REGEX}
 					/>
 				</div>
 
@@ -70,11 +96,12 @@ export default function AccountForm({
 					type='password'
 					required
 					help='You must enter your current password to save account changes'
+					pattern={config.PASSWORD_REGEX}
 				/>
 			</>
 			}
 
-			{ me.credentials.second_factor === SecondFactor.none ? <div
+			{ !me.credentials.otp_methods.length ? <div
 				className='flex flex-col gap-2'
 			>
 				<Button
@@ -111,6 +138,9 @@ export default function AccountForm({
 						fields={['account-email', 'account-password', 'account-confirm-password', 'account-current-password']}
 						loading={isLoading}
 						onSubmit={handleSubmit}
+						disabled={(fields) => {
+							return !(fields['account-email'].value !== '' || (fields['account-password'].value !== '' && fields['account-confirm-password'].value !== ''));
+						}}
 					>
 						Save
 						<i className="fa-regular fa-floppy-disk"></i>
@@ -118,7 +148,7 @@ export default function AccountForm({
 				}
 			</div>
 		</Form>
-		{  me.credentials.second_factor === SecondFactor.none ? <TwoFAEnableModal
+		{  !me.credentials.otp_methods.length ? <TwoFAEnableModal
 			isOpen={isOpen}
 			onClose={() => setIsOpen(false)}
 		/> : <TwoFAConfirmationModal
@@ -132,5 +162,19 @@ export default function AccountForm({
 			}}
 			title='Disable 2FA'
 		/>}
+		<TwoFAConfirmationModal
+			isOpen={!!payload}
+			onClose={() => setPayload(null)}
+			onConfirm={async (otp: string) => {
+				const res = await setSettings2FA({
+					otp,
+					otp_method: SecondFactor.app,
+				});
+				if (res)
+					refresh();
+				return res;
+			}}
+			title='Confirm Account Changes with 2FA'
+		/>
 	</SettingsSection>
 }

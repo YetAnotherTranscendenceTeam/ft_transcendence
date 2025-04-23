@@ -40,7 +40,7 @@ interface ICredentials {
 	account_id: number,
 	email: string,
 	auth_method: AuthMethod,
-	second_factor: string,
+	otp_methods: string[],
 }
 
 export interface IMe extends IUser {

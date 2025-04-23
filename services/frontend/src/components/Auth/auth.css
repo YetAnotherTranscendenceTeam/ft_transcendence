@@ -17,7 +17,6 @@
 
 .auth-card-form {
 	max-height: 0;
-	overflow: hidden;
 	transition: max-height 0.4s ease-in-out, padding-bottom 0.4s;
 }
 
@@ -33,12 +32,25 @@
 .auth-card-form.open {
 	max-height: 60vh;
 	padding-bottom: 1rem;
+	animation: openOverflow 0.4s;
 }
 
 .auth-card-form.closed {
 	padding: 0;
+	overflow: hidden;
 }
 
+@keyframes openOverflow {
+	0% {
+		overflow: hidden;
+	}
+	99% {
+		overflow: hidden;
+	}
+	100% {
+		overflow: auto;
+	}
+}
 
 
 .fortytwo-auth-button {
@@ -72,9 +84,8 @@
 
 
 .mfa-modal-qrcode {
-	margin: 32px 16px 0 0;
+	padding: 8px 0;
 	width: 100%;
-
 }
 
 .mfa-modal-qrcode p {
@@ -89,7 +100,7 @@
 }
 
 .mfa-modal .pin-input {
-	width: 350px;
+	width: calc(6 * 42px + 5 * 0.5rem);
 }
 
 .mfa-confirm .pin-input {

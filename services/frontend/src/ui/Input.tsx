@@ -1,5 +1,6 @@
 import Babact from "babact";
 import { useForm } from "../contexts/useForm";
+import PopHover from "./PopHover";
 
 export default function Input({ 
 		label,
@@ -11,6 +12,7 @@ export default function Input({
 		defaultValue,
 		help,
 		color,
+		tooltip,
 		...props 
 	}: {
 		label?: string,
@@ -22,6 +24,7 @@ export default function Input({
 		defaultValue?: string,
 		help?: string,
 		color?: string | ((fields: any) => string),
+		tooltip?: string,
 		[key: string]: any
 	}) {
 
@@ -45,10 +48,17 @@ export default function Input({
 
 	return <div className='input-container'>
 		{label &&
-			<label>
-				{label}
-				{props.required && <span>*</span>}
-			</label>
+			<div className='flex gap-2'>
+				<label>
+					{label}
+					{props.required && <span>*</span>}
+				</label>
+				{tooltip && <PopHover
+					content={tooltip}
+				>
+					<i className="fa-solid fa-circle-info"></i>
+				</PopHover>}
+			</div>
 		}
 		<input
 			type={type}
@@ -58,7 +68,7 @@ export default function Input({
 			style={`--input-color: ${color ? typeof color === 'function' ? color(fields) : color : ''}`}
 			{...props}
 		/>
-		{error && <p className='input-error'>{!isFieldValid && error}</p>}
 		{help && <p className='input-help'>{help}</p>}
+		{error && <p className='input-error'>{!isFieldValid && error}</p>}
 	</div>
 }
