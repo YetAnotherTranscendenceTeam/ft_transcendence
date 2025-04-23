@@ -231,7 +231,7 @@ export default class PongClient extends PONG.Pong {
 
 	private menuScene() {
 		this.menuSetup();
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
+		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.305882353, 0.384313725, 0.521568627));
 
 		this.loadBalls();
 		this.bindPaddles();

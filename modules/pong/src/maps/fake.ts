@@ -36,9 +36,9 @@ export function createMap(): IPongMap {
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: null,
 		goalRight: null,
-		paddleLeftBack: null,
+		paddleLeftBack: new Paddle(paddleLeftPosition, Vec2.create(), K.paddleSpeed),
 		paddleLeftFront: null,
-		paddleRightBack: null,
+		paddleRightBack: new Paddle(paddleRightPosition, Vec2.create(), K.paddleSpeed),
 		paddleRightFront: null,
 		obstacles: [],
 		getObjects(): PH2D.Body[] {
