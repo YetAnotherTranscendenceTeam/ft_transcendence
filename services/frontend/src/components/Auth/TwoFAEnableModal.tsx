@@ -7,6 +7,7 @@ import PinInput from "../../ui/PinInput";
 import useEscape from "../../hooks/useEscape";
 import { Form } from "../../contexts/useForm";
 import Submit from "../../ui/Submit";
+import Button from "../../ui/Button";
 
 export default function TwoFAEnableModal({
 		isOpen,
@@ -18,6 +19,7 @@ export default function TwoFAEnableModal({
 
 	const { enable2FA, confirm2FA, isLoading } = useAccount();
 	const [QRCodeDataURL, setQRCodeDataUrl] = Babact.useState(null);
+	const [tab, setTab] = Babact.useState('qrcode');
 
 	const handleEnable2FA = async () => {
 		const res = await enable2FA();
@@ -42,8 +44,10 @@ export default function TwoFAEnableModal({
 		if (isOpen) {
 			handleEnable2FA();
 		}
-		else
+		else {
+			setTab('qrcode');
 			setQRCodeDataUrl(null);
+		}
 	}, [isOpen]);
 
 	useEscape(isOpen, onClose);
@@ -55,16 +59,26 @@ export default function TwoFAEnableModal({
 		closeButton={true}
 	>
 		<h1>2FA activation</h1>
-		{QRCodeDataURL ? <div
-			className='mfa-modal-qrcode flex flex-col gap-2 items-center justify-center'
-		>
-				<img src={QRCodeDataURL} alt="QR Code" id="2fa" />
-				<p>Use your authenticator app to scan this QR code</p>
-			</div>
-			: <Spinner />
-		}
 
-		<Form
+		{tab === 'qrcode' && <div
+			className='flex flex-col items-center justify-center gap-4'
+		>
+			{QRCodeDataURL ? <div
+				className='mfa-modal-qrcode flex flex-col gap-2 items-center justify-center'
+				>
+					<img src={QRCodeDataURL} alt="QR Code" id="2fa" />
+					<p>Use your authenticator app to scan this QR code</p>
+				</div>
+				: <Spinner />
+			}
+			<Button
+				onClick={() => setTab('confirm')}
+			>
+				Continue <i className="fa-solid fa-arrow-right"></i>
+			</Button>
+		</div>}
+
+		{tab === 'confirm' && <Form
 			formFields={['2fa-otp*']}
 		>
 
@@ -75,13 +89,20 @@ export default function TwoFAEnableModal({
 				help='Enter the code from your authenticator app to confirm 2FA activation.'
 				length={6}
 			/>
-			<Submit
-				fields={['2fa-otp']}
-				onSubmit={handleSubmit}
-				loading={isLoading}
-			>
-				Activate 2FA <i className="fa-solid fa-shield-halved"></i>
-			</Submit>
-		</Form>
+			<div className='flex gap-2 items-center justify-between'>
+				<Button
+					onClick={() => setTab('qrcode')}
+				>
+					<i className="fa-solid fa-arrow-left"></i> Back
+				</Button>
+				<Submit
+					fields={['2fa-otp']}
+					onSubmit={handleSubmit}
+					loading={isLoading}
+				>
+					Activate 2FA <i className="fa-solid fa-shield-halved"></i>
+				</Submit>
+			</div>
+		</Form>}
 	</Modal>
 }
