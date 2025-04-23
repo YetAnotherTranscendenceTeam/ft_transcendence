@@ -14,7 +14,7 @@ const get_otp_methods = db.prepare(`
   SELECT method FROM otp_methods WHERE account_id = ?
 `)
 export function getOTPMethods(account_id) {
-  return get_otp_methods.all(account_id);
+  return get_otp_methods.all(account_id).map(m => m.method);
 }
 
 

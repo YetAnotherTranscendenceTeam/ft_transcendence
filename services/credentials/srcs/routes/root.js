@@ -44,7 +44,7 @@ export default function router(fastify, opts, done) {
     }
 
     // Add array of multi authentication methods
-    query.otp_methods = dbAction.getOTPMethods(account_id).map(m => m.method);
+    query.otp_methods = dbAction.getOTPMethods(account_id);
     return query;
   });
 
