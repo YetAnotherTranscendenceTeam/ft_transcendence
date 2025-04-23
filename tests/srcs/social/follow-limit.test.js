@@ -7,7 +7,6 @@ createUsers(MAX_FOLLOWS + 2);
 const baseUrl = 'https://127.0.0.1:7979';
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-
 describe('Follow limitation', () => {
   it("follow up to limit", async () => {
     for (let i = 2; i < users.length; ++i) {
