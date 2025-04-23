@@ -63,6 +63,7 @@ export default function LoginForm({
 					error="Invalid Email"
 					required
 					field="login-email"
+					pattern={config.EMAIL_REGEX}
 					type="email"
 				/>
 				<Input

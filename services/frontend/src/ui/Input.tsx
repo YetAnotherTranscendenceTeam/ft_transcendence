@@ -58,7 +58,7 @@ export default function Input({
 			style={`--input-color: ${color ? typeof color === 'function' ? color(fields) : color : ''}`}
 			{...props}
 		/>
-		{error && <p className='input-error'>{!isFieldValid && error}</p>}
 		{help && <p className='input-help'>{help}</p>}
+		{error && <p className='input-error'>{!isFieldValid && error}</p>}
 	</div>
 }
