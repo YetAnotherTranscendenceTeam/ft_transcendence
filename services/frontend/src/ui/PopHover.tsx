@@ -15,7 +15,7 @@ export default function PopHover({
 
 
 	return <div
-		className={`pop-hover-container ${className ?? ''}`}
+		className={`pop-hover-container flex ${className ?? ''}`}
 		{...props}
 	>
 		{children}
