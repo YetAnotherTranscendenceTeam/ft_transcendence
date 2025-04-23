@@ -4,6 +4,7 @@ import useToast, { ToastType } from "../hooks/useToast";
 import WebcamModal from "./WebcamModal";
 import Spinner from "./Spinner";
 import PopHover from "./PopHover";
+import AvatarDeletionModal from "./AvatarDeletionModal";
 
 export type Image = {
 	url: string,
@@ -43,6 +44,7 @@ export default function ImageSelector({
 	const { updateField, updateFieldValidity, fields } = useForm();
 
 	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState<boolean>(false);
+	const [deleteImage, setDeleteImage] = Babact.useState<string>(null);
 
 	const handleFileChange = (e: any) => {
 		const file = e.target.files[0];
@@ -114,7 +116,7 @@ export default function ImageSelector({
 							className={fields[field].value === image.url ? 'selected' : ''}
 							onClick={() => handleImageClick(image.url)}
 						/>
-						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => handleImageRemove(image.url)}/>}
+						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => setDeleteImage(image.url)}/>}
 						<Spinner />
 					</div>
 				))
@@ -124,6 +126,15 @@ export default function ImageSelector({
 			isOpen={webcamModalOpen}
 			onClose={() => setWebcamModalOpen(false)}
 			onCapture={onChange}
+		/>
+		<AvatarDeletionModal
+			isOpen={deleteImage !== null}
+			onClose={() => setDeleteImage(null)}
+			onDelete={async () => {
+				await handleImageRemove(deleteImage);
+				setDeleteImage(null);
+			}}
+			imageUrl={deleteImage}
 		/>
 	</div>
 }

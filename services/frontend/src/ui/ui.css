@@ -615,6 +615,18 @@
 /* ============= Spinner ============ */
 /* ================================== */
 
+.avatar-deletion-modal img {
+	width: 300px;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+	background-color: var(--bg-2);
+	border-radius: 8px;
+}
+
+/* ================================== */
+/* ============= Spinner ============ */
+/* ================================== */
+
 .spinner i {
 	animation: spin 1s linear infinite;
 }
