@@ -184,6 +184,27 @@ export default class PongClient extends PONG.Pong {
 
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
 
+
+		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
+		ballMaterial.metallic = 1;
+		ballMaterial.roughness = 1;
+		ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_albedo.tif", this._babylonScene);
+		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.tif", this._babylonScene);
+		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.tif", this._babylonScene);
+		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.tif", this._babylonScene);
+		ballMaterial.reflectanceTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
+		// ballMaterial.albedoColor = new Color3(1, 1, 1);
+		ClientBall.material = ballMaterial;
+
+		const skybox = MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._babylonScene);
+		const skyboxMaterial = new StandardMaterial("skyBox", this._babylonScene);
+		skyboxMaterial.backFaceCulling = false;
+		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
+		skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+		skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+		skyboxMaterial.specularColor = new Color3(0, 0, 0);
+		skybox.material = skyboxMaterial;
+
 		this._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];
 			
@@ -364,6 +385,19 @@ export default class PongClient extends PONG.Pong {
 			}
 			paddle.move(moveDirection);
 		}
+	}
+
+	private createMaterials() {
+		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
+		ballMaterial.metallic = 1;
+		ballMaterial.roughness = 1;
+		ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_albedo.tif", this._babylonScene);
+		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.tif", this._babylonScene);
+		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.tif", this._babylonScene);
+		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.tif", this._babylonScene);
+		ballMaterial.reflectanceTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
+		// ballMaterial.albedoColor = new Color3(1, 1, 1);
+		ClientBall.material = ballMaterial;
 	}
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
