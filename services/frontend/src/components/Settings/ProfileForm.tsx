@@ -36,7 +36,7 @@ export default function ProfileForm({ me }: { me: any }) {
 					<br />
 					<br />
 					Username must be between 4 and 15 characters long, and can only contain letters, numbers, dashes (-), and underscores (_).
-					</>
+				</>
 				}
 			/>
 			<ImageSelector

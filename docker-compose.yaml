@@ -29,6 +29,7 @@ services:
       - BACKEND_URL=${BACKEND_URL}
       - WS_URL=${WS_URL}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - PASSWORD_REGEX=^.{8,24}$
     ports:
       - "127.0.0.1:4242:8080"
     networks:
@@ -84,7 +85,7 @@ services:
     networks:
       - credentials
       - frontend
-    
+
   password-auth:
     build:
       context: services/password-auth/
