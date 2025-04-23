@@ -29,15 +29,25 @@ export const paddleRightPosition: Vec2 = new Vec2(playGround.width / 2 - K.wallT
 // shapes
 export const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(wallSize[0] / 2, wallSize[1] / 2);
 
-export const map: IPongMap = {
-	mapId: MapID.FAKE,
-	wallTop: new Wall(wallShape, wallTopPosition, wallSize),
-	wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
-	goalLeft: null,
-	goalRight: null,
-	paddleLeftBack: null,
-	paddleLeftFront: null,
-	paddleRightBack: null,
-	paddleRightFront: null,
-	obstacles: []
+export function createMap(): IPongMap {
+	return {
+		mapId: MapID.FAKE,
+		wallTop: new Wall(wallShape, wallTopPosition, wallSize),
+		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
+		goalLeft: null,
+		goalRight: null,
+		paddleLeftBack: null,
+		paddleLeftFront: null,
+		paddleRightBack: null,
+		paddleRightFront: null,
+		obstacles: [],
+		getObjects(): PH2D.Body[] {
+			return [
+				this.wallTop,
+				this.wallBottom,
+				...this.obstacles
+			];
+		},
+		clone: createMap
+	}
 }

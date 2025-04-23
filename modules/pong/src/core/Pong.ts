@@ -7,26 +7,31 @@ import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import Wall from "./Wall.js";
 import { ballCollision } from "./Behaviors.js";
-import { MapSide, IPongMap, MapID, PaddleID } from "./types.js";
+import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState } from "./types.js";
 import * as maps from "../maps/index.js";
 
-export enum PongState {
-	RESERVED = "reserved",
-	PLAYING = "playing",
-	PAUSED = "paused",
-	ENDED = "ended"
+export enum PlayerMovement {
+	UP = 1,
+	DOWN = -1,
+	NONE = 0
+}
+
+export type IPongPlayer = IPlayer & {
+	paddleId: number;
+	movement: PlayerMovement;
 }
 
 export class Pong {
 	private readonly _physicsScene: PH2D.Scene;
-	private _accumulator: number = 0;
+	private _tick: number;
+	private _accumulator: number;
 
 	protected _matchId: number;
 	protected _gameMode: GameMode;
-	protected _players: IPlayer[] = [];
-	protected _state: PongState = PongState.RESERVED;
+	protected _players: IPongPlayer[] = [];
+	protected _state: PongState;
 
-	protected _map: Map<MapID, IPongMap>;
+	protected static _map: Map<MapID, IPongMap> = Pong.loadMaps();
 	protected _currentMap: IPongMap;
 
 	protected _balls: Ball[] = [];
@@ -39,32 +44,27 @@ export class Pong {
 
 	public constructor() {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, K.substeps);
-		this._map = new Map();
 		this._paddles = new Map();
 		this._goals = new Map();
 		this._balls = [];
-		this.loadMaps();
+		this._tick = 0;
 		this._accumulator = 0;
 		this._currentMap = undefined;
+		this._state = PongState.RESERVED.clone();
 	}
 
-	public toJSON() {
-		return {
-			players: this._players,
-			match_id: this._matchId,
-			gamemode: this._gameMode
-		};
-	}
-
-	private loadMaps() {
-		this._map.set(MapID.SMALL, maps.small.map);
-		this._map.set(MapID.BIG, maps.big.map);
-		this._map.set(MapID.FAKE, maps.fake.map);
+	private static loadMaps(): Map<MapID, IPongMap> {
+		const map = new Map<MapID, IPongMap>();
+		map.set(MapID.SMALL, maps.small.createMap());
+		map.set(MapID.BIG, maps.big.createMap());
+		map.set(MapID.FAKE, maps.fake.createMap());
+		return map;
 	}
 
 	protected switchMap(mapId: MapID) {
 		if (!this._currentMap || this._currentMap.mapId !== mapId) {
-			this._currentMap = this._map.get(mapId);
+
+			this._currentMap = Pong._map?.get(mapId).clone();
 			if (!this._currentMap) {
 				throw new Error("Map not found");
 			}
@@ -104,25 +104,36 @@ export class Pong {
 		}
 	}
 
-	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: PongState = PongState.RESERVED) {
+	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED) {
+		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
 
 		this._matchId = match_id;
 		this._gameMode = gamemode;
-		this._players = players;
-		this._state = state;
+		this._players = players.map((player: IPlayer, index: number) => {
+			return {
+				...player,
+				paddleId: index,
+				movement: PlayerMovement.NONE
+			}
+		});
+		if (state instanceof PongState)
+			this._state = state;
+		else
+			this._state = new PongState(state.name, state);
 
 		// do things based on gamemode (not implemented yet)
 		this.switchMap(MapID.SMALL);
 
-		this._balls.push(new Ball());
-		this._physicsScene.addBody(this._balls[0]);
-		this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		// this._balls.push(new Ball());
+		// this._physicsScene.addBody(this._balls[0]);
+		// this._balls[0].addEventListener("collision", ballCollision.bind(this));
 	}
 
 	protected localSetup() {
+		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
@@ -130,7 +141,6 @@ export class Pong {
 		this._matchId = 0;
 		this._gameMode = undefined;
 		this._players = [];
-		this._state = PongState.RESERVED;
 
 		this.switchMap(MapID.SMALL);
 
@@ -140,6 +150,7 @@ export class Pong {
 	}
 
 	protected menuSetup() {
+		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
@@ -152,6 +163,7 @@ export class Pong {
 	}
 
 	protected lobbySetup() {
+		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
@@ -164,7 +176,7 @@ export class Pong {
 	}
 
 	protected start() {
-		this._state = PongState.PLAYING;
+		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
 		this._lastSide = undefined;
@@ -173,7 +185,7 @@ export class Pong {
 		this.roundStart();
 	}
 
-	protected roundStart() {
+	public roundStart() {
 		this.launchBall();
 		for (const paddle of this._paddles.values()) {
 			paddle.position[1] = 0;
@@ -192,6 +204,7 @@ export class Pong {
 		while (this._accumulator >= K.DT) {
 			this._physicsScene.step();
 			this._accumulator -= K.DT;
+			this._tick++;
 		}
 		this._paddles.forEach((paddle: PH2D.Body) => { // block paddle movement within walls
 			const border: number = this._currentMap.wallTop.position.y - this._currentMap.wallTop.height / 2;
@@ -220,10 +233,10 @@ export class Pong {
 			}
 		});
 		if (this._score[0] >= K.defaultPointsToWin) {
-			this._state = PongState.ENDED;
+			this._state = PongState.ENDED.clone();
 			this._winner = MapSide.LEFT;
 		} else if (this._score[1] >= K.defaultPointsToWin) {
-			this._state = PongState.ENDED;
+			this._state = PongState.ENDED.clone();
 			this._winner = MapSide.RIGHT;
 		}
 		return scored;
@@ -240,4 +253,10 @@ export class Pong {
 		this._balls[0].speed = K.defaultBallSpeed;
 		this._balls[0].setDirection(ballVelocity);
 	}
+
+	public get tick(): number {
+		return this._tick;
+	}
 }
+
+

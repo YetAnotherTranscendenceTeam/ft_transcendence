@@ -11,6 +11,7 @@ import { Vec2 } from "gl-matrix";
 import { KeyState, GameScene, KeyName, ScoredEvent } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
+import { useAuth } from "../../contexts/useAuth";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -30,8 +31,9 @@ export default class PongClient extends PONG.Pong {
 	private _ballInstances: Array<ClientBall>;
 	private _paddleInstance: Map<number, ClientPaddle>;
 
-	protected _time: number;
-	private _running: number;
+	private _time: number;
+
+	private _paddleID: PONG.PaddleID;
 
 	// public scoreUpdateCallback: (score: ScoredEvent) => void;
 	public callbacks: {
@@ -47,7 +49,6 @@ export default class PongClient extends PONG.Pong {
 	}) {
 		super();
 		this.callbacks = callbacks;
-		this._running = 0;
 		this._time = 0;
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
@@ -67,28 +68,6 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.autoClear = true;
 		// this._babylonScene.autoClearDepthAndStencil = false;
 
-
-		// // Ball Mesh // TODO: not implemented yet
-		// this._ballMesh = MeshBuilder.CreateSphere(
-		// 	"ball",
-		// 	{ diameter: PONG.K.ballRadius * 2 },
-		// 	this._babylonScene
-		// );
-		// this._ballMesh.position = new Vector3(
-		// 	0,
-		// 	-1,
-		// 	0
-		// );
-		// const material = new StandardMaterial("ballMaterial", this._babylonScene);
-		// material.diffuseColor = Color3.White();
-		// material.specularColor = Color3.Black();
-		// this._ballMesh.material = material;
-		// this._ballMesh.isVisible = false;
-		// this._ballMesh.isPickable = false;
-		// this._ballMesh.checkCollisions = false;
-
-		// this._babylonScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
-		// this._babylonScene = createScene(this._engine, this._canvas);
 		this.sceneSetup();
 
 		window.addEventListener("keydown", this.handleKeyDown);
@@ -143,24 +122,24 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	public startGame() {
+		this._state = PONG.PongState.PLAYING.clone();
 		this.start();
 		this._time = 0;
-		this._running = 1;
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
 	public nextRound() {
-		this._running = 1;
-		this.roundStart();
+		// this._state = PONG.PongState.PLAYING.clone();
+		// this.roundStart();
 	}
 
 	public pauseGame() {
-		this._running = 0;
+		this._state = PONG.PongState.PAUSED.clone();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Yellow());
 	}
 
 	public resumeGame() {
-		this._running = 1;
+		this._state = PONG.PongState.PLAYING.clone();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
 	}
 	
@@ -185,9 +164,9 @@ export default class PongClient extends PONG.Pong {
 
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
 
-		this._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
+		PONG.Pong._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];
-			
+
 			if (map.wallBottom) {
 				const wallBottom: ClientWall = new ClientWall(this._babylonScene, ("wallBottom" + map.mapId.toString()), map.wallBottom);
 				wallBottom.disable();
@@ -240,13 +219,19 @@ export default class PongClient extends PONG.Pong {
 		});
 	}
 
+	protected switchMap(mapId: PONG.MapID) {
+		super.switchMap(mapId);
+		const objects: PH2D.Body[] = this._currentMap.getObjects();
+		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject, index: number) => {
+			object.enable();
+			object.updateBodyReference(objects[index]);
+		});
+
+	}
+
 	private menuScene() {
 		this.menuSetup();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
-
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.enable();
-		});
 
 		this.loadBalls();
 		this.bindPaddles();
@@ -255,11 +240,7 @@ export default class PongClient extends PONG.Pong {
 	private lobbyScene() {
 		this.lobbySetup();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Green());
-
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.enable();
-		});
-
+	
 		this.loadBalls();
 		this.bindPaddles();
 	}
@@ -267,10 +248,6 @@ export default class PongClient extends PONG.Pong {
 	private localScene() {
 		this.localSetup();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
-
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.enable();
-		});
 		
 		this.loadBalls();
 		this.bindPaddles();
@@ -278,11 +255,11 @@ export default class PongClient extends PONG.Pong {
 
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
 
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.enable();
-		});
+		const { me } = useAuth();
+		//const myPlayer = players.find((player: IPongPlayer) => player.account_id === me?.account_id);
+
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
 	
 		this.loadBalls();
 		this.bindPaddles();
@@ -312,9 +289,17 @@ export default class PongClient extends PONG.Pong {
 
 	private update() {
 		let dt: number = this._engine.getDeltaTime() / 1000;
-		if (this._running === 0) {
+		if (this._state.tick(dt)) {
 			return;
 		}
+
+		if (this._state.getNext()) {
+			if (this._state.endCallback) {
+				this._state.endCallback(this);
+			}
+			this._state = this._state.getNext().clone();
+		}
+
 		this._time += dt;
 		this.callbacks.timeUpdateCallback(Math.floor(this._time));
 
@@ -323,51 +308,65 @@ export default class PongClient extends PONG.Pong {
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
 		});
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.update(dt);
+		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
+			object.update(dt);
 		});
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._score[0] + "-" + this._score[1]);
 			this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
-			this._running = 0;
 			if (this._winner !== undefined) {
 				this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
 				this.callbacks.endGameCallback();
+				this._state = PONG.PongState.ENDED.clone();
+			} else {
+				this._state = PONG.PongState.FREEZE.clone();
 			}
 		}
 	}
 
 	private playerUpdate() { // TODO: refactor to use playerId
-		if (this._gameScene !== GameScene.LOCAL) {
-			return;
-		}
-
-		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
-		if (paddle) {
-			let moveDirection: number = 0;
-			let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-				moveDirection += 1;
+		if (this._gameScene === GameScene.LOCAL) {
+			let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
+			if (paddle) {
+				let moveDirection: number = 0;
+				let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
+				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+					moveDirection += 1;
+				}
+				keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
+				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+					moveDirection -= 1;
+				}
+				paddle.move(moveDirection);
 			}
-			keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-				moveDirection -= 1;
+	
+			paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
+			if (paddle) {
+				let moveDirection: number = 0;
+				let keyStateProbe: KeyState = this._keyboard.get(KeyName.W) || KeyState.IDLE;
+				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+					moveDirection += 1;
+				}
+				keyStateProbe = this._keyboard.get(KeyName.S) || KeyState.IDLE;
+				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+					moveDirection -= 1;
+				}
+				paddle.move(moveDirection);
 			}
-			paddle.move(moveDirection);
-		}
-
-		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
-		if (paddle) {
-			let moveDirection: number = 0;
-			let keyStateProbe: KeyState = this._keyboard.get(KeyName.W) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-				moveDirection += 1;
+		} else if (this._gameScene === GameScene.ONLINE) {
+			const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._paddleID);
+			if (paddle) {
+				let moveDirection: number = 0;
+				let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
+				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+					moveDirection += 1;
+				}
+				keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
+				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+					moveDirection -= 1;
+				}
+				paddle.move(moveDirection);
 			}
-			keyStateProbe = this._keyboard.get(KeyName.S) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-				moveDirection -= 1;
-			}
-			paddle.move(moveDirection);
 		}
 	}
 

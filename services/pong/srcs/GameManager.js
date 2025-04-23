@@ -1,4 +1,6 @@
 import { PongServer } from './PongServer.js';
+import { K } from "pong"
+import { GameMode, GameModeType } from 'yatt-lobbies';
 
 export class GameManager {
 
@@ -7,7 +9,28 @@ export class GameManager {
    */
   pongs = new Map();
 
+  timeout;
+
   constructor() {
+    this.pongs.set(0, new PongServer(0, new GameMode("unranked_1v1", {
+      type: GameModeType.UNRANKED,
+      team_size: 1,
+      team_count: 2,
+      match_parameters: {}
+    })), [{account_id: 1, account_id: 2}]);
+    setTimeout(() => {
+      this.pongs.forEach((pong, match_id) => {
+        pong.update();
+      });
+    }, K.DT * 1000);
+  }
+
+  destroy() {
+    this.pongs.forEach((pong) => {
+      pong.destroy();
+    });
+    this.pongs.clear();
+    clearTimeout(this.timeout);
   }
 
   registerGame(match_id, gamemode, teams) {

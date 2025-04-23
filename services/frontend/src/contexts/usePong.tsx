@@ -32,7 +32,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 	const [gameTime, setGameTime] = Babact.useState<number>(0);
 
 	const handleScoreUpdate = (event: ScoredEvent) => {
-		setScores(event.score);
+		setScores([...event.score]);
 		setLastWinner(event.side);
 	}
 

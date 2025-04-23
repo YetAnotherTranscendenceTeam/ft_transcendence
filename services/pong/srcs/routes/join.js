@@ -13,7 +13,7 @@ export default function router(fastify, opts, done) {
       return;
     }
 
-    let match = gameManager.getMatch(match_id);
+    let match = gameManager.getGame(match_id);
     if (!match) {
       WsCloseError.NotFound.close(socket);
       return;
@@ -24,7 +24,10 @@ export default function router(fastify, opts, done) {
       WsCloseError.Inaccessible.close(socket);
       return;
     }
-
+    socket.send(JSON.stringify({
+      type: "join",
+      match: match
+    }));
     player.socket = socket;
     socket.on("message", (message) => {
       try {

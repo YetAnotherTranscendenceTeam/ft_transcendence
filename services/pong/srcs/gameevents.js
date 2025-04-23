@@ -1,12 +1,28 @@
 import { EventManager } from "yatt-ws";
+import { PlayerMovement } from "pong"
 
 export const gameEvents = new EventManager();
 
-gameEvents.register("increment", {handler: (socket, payload, game) => {
-	console.log(game)
-	game.incrementCounter();
+const data_schema = {
+	type: "object",
+	required: ["tick", "movement"],
+	properties: {
+		tick: {
+			type: "number",
+			minimum: 0,
+		},
+		movement: {
+			type: "number",
+			enum: [PlayerMovement.DOWN, PlayerMovement.UP, PlayerMovement.NONE],
+		}
+	},
+    additionalProperties: false,
+}
+
+gameEvents.register("movement", {
+	schema: data_schema,
+	handler: (socket, payload, game, player) => {
+		player.movement = payload.movement;
+		console.log("movement", payload.tick, payload.movement);
 }})
 
-gameEvents.register("decrement", {handler: (socket, payload, game) => {
-	game.decrementCounter();
-}})
