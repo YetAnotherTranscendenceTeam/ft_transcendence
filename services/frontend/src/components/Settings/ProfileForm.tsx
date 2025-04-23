@@ -6,6 +6,7 @@ import Submit from "../../ui/Submit";
 import ImageSelector from "../../ui/ImageSelector";
 import useAvatars from "../../hooks/useAvatars";
 import useProfile from "../../hooks/useProfile";
+import config from "../../config";
 
 export default function ProfileForm({ me }: { me: any }) {
 
@@ -29,7 +30,14 @@ export default function ProfileForm({ me }: { me: any }) {
 				label='Edit your username'
 				type='text'
 				placeholder={me.username}
-				maxlength={15}
+				pattern={config.USERNAME_REGEX}
+				help={<>
+					Your unique identifier on the platform. It's how other players find and recognize you.
+					<br />
+					<br />
+					Username must be between 4 and 15 characters long, and can only contain letters, numbers, dashes (-), and underscores (_).
+				</>
+				}
 			/>
 			<ImageSelector
 				field="profile-avatar"

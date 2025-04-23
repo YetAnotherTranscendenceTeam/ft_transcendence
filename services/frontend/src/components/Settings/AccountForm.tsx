@@ -6,10 +6,10 @@ import Submit from "../../ui/Submit";
 import Button from "../../ui/Button";
 import { AuthMethod, IMe, SecondFactor, useAuth } from "../../contexts/useAuth";
 import Alert from "../../ui/Alert";
-import { ToastType } from "../../hooks/useToast";
 import useAccount from "../../hooks/useAccount";
 import TwoFAEnableModal from "../Auth/TwoFAEnableModal";
 import TwoFAConfirmationModal from "../Auth/TwoFAConfirmationModal";
+import config from "../../config";
 
 export default function AccountForm({
 		me,
@@ -46,7 +46,14 @@ export default function AccountForm({
 			}
 			{ me.credentials.auth_method === 'password_auth' &&
 			<>
-				<Input field="account-email" label='Edit your email' type='email' placeholder={me.credentials.email}/>
+				<Input
+					field="account-email"
+					label='Edit your email'
+					type='email'
+					pattern={config.EMAIL_REGEX}
+					placeholder={me.credentials.email}
+					help="Your email is used to log in to the game and manage your account."
+				/>
 
 				<div className='flex flex-col gap-2'>
 					<Input
@@ -54,6 +61,8 @@ export default function AccountForm({
 						label='Edit your password'
 						name='password'
 						type='password'
+						pattern={config.PASSWORD_REGEX}
+						help={`Password must be between 8 and 24 characters, contain at least one uppercase letter, one lowercase letter, one number, and one special character. (!@#$%^&*()_-+=[]{}|;:'",.<>/?).`}
 					/>
 					<Input
 						field="account-confirm-password"
@@ -61,6 +70,8 @@ export default function AccountForm({
 						name='confirm-password'
 						type='password'
 						matching="account-password"
+						help='Confirm password must match the new password'
+						pattern={config.PASSWORD_REGEX}
 					/>
 				</div>
 
@@ -70,6 +81,7 @@ export default function AccountForm({
 					type='password'
 					required
 					help='You must enter your current password to save account changes'
+					pattern={config.PASSWORD_REGEX}
 				/>
 			</>
 			}
@@ -111,6 +123,9 @@ export default function AccountForm({
 						fields={['account-email', 'account-password', 'account-confirm-password', 'account-current-password']}
 						loading={isLoading}
 						onSubmit={handleSubmit}
+						disabled={(fields) => {
+							return !(fields['account-email'].value !== '' || (fields['account-password'].value !== '' && fields['account-confirm-password'].value !== ''));
+						}}
 					>
 						Save
 						<i className="fa-regular fa-floppy-disk"></i>
