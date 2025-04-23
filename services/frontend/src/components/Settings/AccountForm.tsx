@@ -20,7 +20,7 @@ export default function AccountForm({
 	}) {
 
 	const { logout, refresh } = useAuth();
-	const { setSettings, isLoading, disable2FA } = useAccount();
+	const { setSettings, isLoading, disable2FA, setPayload, setSettings2FA, payload } = useAccount();
 	const [isOpen, setIsOpen] = Babact.useState<boolean>(false);
 
 	const handleSubmit = async (fields, clearFields) => {
@@ -147,5 +147,19 @@ export default function AccountForm({
 			}}
 			title='Disable 2FA'
 		/>}
+		<TwoFAConfirmationModal
+			isOpen={!!payload}
+			onClose={() => setPayload(null)}
+			onConfirm={async (otp: string) => {
+				const res = await setSettings2FA({
+					otp,
+					otp_method: SecondFactor.app,
+				});
+				if (res)
+					refresh();
+				return res;
+			}}
+			title='Confirm Account Changes with 2FA'
+		/>
 	</SettingsSection>
 }
