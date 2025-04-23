@@ -184,17 +184,20 @@ export default class PongClient extends PONG.Pong {
 		camera.wheelPrecision = 50;
 
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
+		light.intensity = 0.7;
+		light.diffuse = new Color3(1, 1, 1);
+		light.specular = new Color3(1, 1, 1);
 
 
 		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
 		ballMaterial.metallic = 1;
 		ballMaterial.roughness = 1;
-		ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_albedo.tif", this._babylonScene);
-		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.tif", this._babylonScene);
-		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.tif", this._babylonScene);
-		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.tif", this._babylonScene);
-		ballMaterial.reflectanceTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
-		// ballMaterial.albedoColor = new Color3(1, 1, 1);
+		ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._babylonScene);
+		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._babylonScene);
+		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.png", this._babylonScene);
+		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.png", this._babylonScene);
+		ballMaterial.reflectionTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
+		ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
 		ClientBall.material = ballMaterial;
 
 		const skybox = MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._babylonScene);
@@ -407,13 +410,13 @@ export default class PongClient extends PONG.Pong {
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
 		// Shift+Ctrl+Alt+I
-		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
-		// 	if (this._babylonScene.debugLayer.isVisible()) {
-		// 		this._babylonScene.debugLayer.hide();
-		// 	} else {
-		// 		this._babylonScene.debugLayer.show();
-		// 	}
-		// }
+		if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
+			if (this._babylonScene.debugLayer.isVisible()) {
+				this._babylonScene.debugLayer.hide();
+			} else {
+				this._babylonScene.debugLayer.show();
+			}
+		}
 		const key = ev.key.toLowerCase();
 
 		if (this._keyboard.has(key)) {
