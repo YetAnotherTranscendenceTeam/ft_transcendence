@@ -177,7 +177,11 @@ export default class PongClient extends PONG.Pong {
 	private sceneSetup() {
 		// scene.clearColor = Color4.FromColor3(Color3.Black());
 		// scene.createDefaultEnvironment();
-		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, Math.PI / 4, 1, Vector3.Zero(), this._babylonScene);
+		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 20, Vector3.Zero(), this._babylonScene);
+		camera.inputs.clear();
+		camera.inputs.addMouseWheel();
+		camera.inputs.addPointers();
+		// camera.inputs.attached.pointers.buttons = [0, 1];
 		camera.attachControl(this._canvas, true);
 		camera.lowerRadiusLimit = 1.5;
 		camera.upperRadiusLimit = 30;
