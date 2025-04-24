@@ -29,6 +29,7 @@ describe("Friends router", () => {
         .set("Authorization", `Bearer ${users[0].jwt}`)
 
       expect(friendRequest.statusCode).toEqual(403);
+      expect(friendRequest.body.code).toEqual("SELF_REQUEST");
     });
 
     it("send friend request", async () => {
@@ -45,6 +46,7 @@ describe("Friends router", () => {
         .set("Authorization", `Bearer ${users[0].jwt}`)
 
       expect(friendRequest.statusCode).toEqual(409);
+      expect(friendRequest.body.code).toEqual("PENDING");
     });
 
     it("target sends request back", async () => {
@@ -76,7 +78,8 @@ describe("Friends router", () => {
         .post(`/social/requests/${users[1].account_id}`)
         .set("Authorization", `Bearer ${users[0].jwt}`)
 
-      expect(friendRequest.statusCode).toEqual(409);
+      expect(friendRequest.statusCode).toEqual(403);
+      expect(friendRequest.body.code).toEqual("IS_FRIEND");
     });
   });
 
@@ -263,7 +266,7 @@ describe("Friends router", () => {
         .set("Authorization", `Bearer ${user1.jwt}`)
 
       expect(response.statusCode).toBe(403);
-      expect(response.body.code).toBe("BLOCKED");
+      expect(response.body.code).toBe("IS_BLOCKED");
     });
 
     it("1 request 2", async () => {
@@ -272,7 +275,7 @@ describe("Friends router", () => {
         .set("Authorization", `Bearer ${user1.jwt}`)
 
       expect(response.statusCode).toBe(403);
-      expect(response.body.code).toBe("BLOCKED");
+      expect(response.body.code).toBe("IS_BLOCKED");
     });
 
     it("1 unblock 2", async () => {

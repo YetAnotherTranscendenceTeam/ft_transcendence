@@ -9,10 +9,10 @@ export function selectRequests(account_id) {
 // or a friendship if the receiving user has one pending
 export const handleFriendRequest = db.transaction((from, to) => {
   if (is_friendship.get(Math.min(from, to), Math.max(from, to))) {
-    throw new HttpError.Conflict().setCode("FRIENDSHIP");
+    throw new HttpError.Forbidden().setCode("IS_FRIEND");
   }
   if (is_blocked.get(from, to)) {
-    throw new HttpError.Forbidden().setCode("BLOCKED");
+    throw new HttpError.Forbidden().setCode("IS_BLOCKED");
   }
   insert_request.run(from, to);
   const reverse = get_reverse_request.get(from, to);

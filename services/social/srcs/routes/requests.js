@@ -38,7 +38,7 @@ export default function router(fastify, opts, done) {
       if (err.code === "SQLITE_CONSTRAINT_CHECK") {
         throw new HttpError.Forbidden().setCode("SELF_REQUEST");
       } else if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
-        throw new HttpError.Conflict();
+        throw new HttpError.Conflict().setCode("PENDING");
       } else if (err.code === "SQLITE_CONSTRAINT_TRIGGER") {
         throw new HttpError.Forbidden().setCode(err.message);
       } else {
