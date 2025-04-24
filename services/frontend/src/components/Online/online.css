@@ -61,6 +61,7 @@
 	transition: border 0.3s, transform 0.3s;
 	cursor: pointer;
 	background-color: color-mix(in srgb, var(--bg-1), transparent 20%);
+	overflow: hidden;
 }
 
 /* .mode-button.ranked {
@@ -73,9 +74,9 @@
 	background: linear-gradient(326deg, rgba(245,22,255,1) 20%, rgba(178,22,255,1) 80%);
 }
 
-.mode-button.tournament {
-	background: rgb(22,255,127);
-	background: linear-gradient(326deg, rgba(22,255,127,1) 20%, rgba(171,255,22,1) 80%);
+.mode-button.custom {
+	background: #00a803;
+	background: linear-gradient(90deg,rgba(0, 168, 3, 1) 0%, rgba(110, 255, 117, 1) 100%);
 } */
 
 .mode-button.disabled {
@@ -90,18 +91,30 @@
 
 
 .mode-button h1 {
-	font-size: 75px;
+	font-size: xx-large;
 	color: var(--fg-1);
 	font-weight: 900;
+	text-transform: uppercase;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	top: 0;
+	left: 0;
+}
+
+.mode-button h2 {
+	font-size: x-large;
+	color: var(--fg-1);
+	text-transform: capitalize;
 }
 
 .mode-button p {
+	width: 100%;
+	color: var(--fg-3);
 	font-size: medium;
-	color: var(--bg-4);
-	position: absolute;
-	bottom: 16px;
-	left: 16px;
-	text-transform: capitalize;
 }
 
 .online-join-form {
