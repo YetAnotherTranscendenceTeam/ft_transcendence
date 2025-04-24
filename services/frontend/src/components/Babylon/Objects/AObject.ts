@@ -1,4 +1,4 @@
-import { Mesh, Scene} from "@babylonjs/core";
+import { Mesh, Scene, PBRMaterial } from "@babylonjs/core";
 import * as PH2D from "physics-engine";
 
 export default abstract class AObject {
@@ -6,6 +6,8 @@ export default abstract class AObject {
 	protected _mesh: Mesh;
 	protected _physicsBody: PH2D.Body;
 	protected _isEnabled: boolean = true;
+
+	public static material: PBRMaterial;
 
 	public constructor(scene: Scene, physicsBody: PH2D.Body) {
 		this._scene = scene;

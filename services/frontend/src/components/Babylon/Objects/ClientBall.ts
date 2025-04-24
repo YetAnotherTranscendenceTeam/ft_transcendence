@@ -7,7 +7,7 @@ import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 
 export default class ClientBall extends AObject {
-	public static material: BABYLON.PBRMaterial;
+	// public static material: BABYLON.PBRMaterial;
 
 	public constructor(scene: Scene, physicsBody: PH2D.Body) {
 		super(scene, physicsBody);
