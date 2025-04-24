@@ -16,9 +16,18 @@ export default function ModeButton({
 		if (gamemode.type === GameModeType.CUSTOM)
 			return "Up to 16 teams, any rules. 3+ teams? It's tournament time.";
 		if (gamemode.type === GameModeType.RANKED)
-			return 'Competitive 1v1 battles with power-ups enabled. Every match affects your MMR';
+			return 'Competitive matches with power-ups enabled. Every match affects your MMR';
 		if (gamemode.type === GameModeType.UNRANKED)
-			return '1v1 matches with power-ups enabled. Play freely without affecting your MMR';
+			return 'Matches with power-ups enabled. Play freely without affecting your MMR';
+	}
+
+	const getIcon = () => {
+		if (gamemode.type === GameModeType.CUSTOM)
+			return <i className="fa-solid fa-users"></i>;
+		if (gamemode.type === GameModeType.RANKED)
+			return <i className="fa-solid fa-trophy"></i>;
+		if (gamemode.type === GameModeType.UNRANKED)
+			return <i className="fa-solid fa-gamepad"></i>;
 	}
 
 
@@ -28,8 +37,10 @@ export default function ModeButton({
 		className={`mode-button flex flex-col justify-end gap-2 ${gamemode.type} ${disabled ? 'disabled' : ''}`}
 		onClick={() => onSelect(gamemode.name)}
 	>
-		<h1>{gamemode.type}</h1>
-		<h2>{gamemode.getDisplayName()}</h2>
+		<div className='flex gap-1 items-end'>
+			<h1>{getIcon()} {gamemode.type}</h1>
+			<h2>{gamemode.getDisplayName()}</h2>
+		</div>
 		<p>{getDescription()}</p>
 	</div>
 }
