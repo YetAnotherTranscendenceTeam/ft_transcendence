@@ -31,6 +31,9 @@ export default function Menu({
 
 	return <Card className={`menu bottom flex items-center justify-center gap-2`}>
 
+			<Link to='/' className={`button ghost ${window.location.pathname === '/' && !selected ? 'active' : ''}`}>
+				<i className="fa-solid fa-house"></i><p>Home</p>
+			</Link>
 			<Button
 				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}
@@ -47,7 +50,7 @@ export default function Menu({
 				</PopHover>
 			</Button>
 
-			<Link to='/local' className='button ghost'>
+			<Link to='/local' className={`button ghost ${window.location.pathname.startsWith('/local') && !selected ? 'active' : ''}`}>
 				<i className="fa-solid fa-network-wired"></i><p>Local</p>
 			</Link>
 		</Card>
