@@ -19,9 +19,11 @@ export default function ConfirmLobbyLeaveModal({
 	return <Modal
 		isOpen={isOpen}
 		onClose={() => onClose()}
-		className="flex flex-col gap-4"
+		className="lobby-leave-modal flex flex-col gap-4"
 	>
-		<h1>Are you sure you want to leave?</h1>
+		<h1>
+			Are you sure you want to leave the lobby?
+		</h1>
 		<div
 			className="flex gap-4 justify-between items-center"
 		>

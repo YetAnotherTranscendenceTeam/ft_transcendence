@@ -7,6 +7,7 @@ import Avatar from "../../ui/Avatar";
 import { useNavigate } from "babact-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
+import CopyButton from "../../ui/CopyButton";
 
 export default function LobbyCard() {
 
@@ -85,6 +86,13 @@ export default function LobbyCard() {
 					</Button>
 				))
 			}
+			<CopyButton
+				className="info"
+				clipboardText={lobby.join_secret}
+			>
+				<i className="fa-solid fa-copy"></i>
+				Code
+			</CopyButton>
 			<Button className="danger" onClick={onLeave}>
 				<i className="fa-solid fa-person-walking-arrow-right"></i>
 				Leave

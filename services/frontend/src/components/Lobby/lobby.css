@@ -1,6 +1,5 @@
 .lobby-card {
 	width: 100%;
-	backdrop-filter: none;
 }
 
 .lobby-card h1 {
@@ -185,3 +184,11 @@
 	min-width: 300px;
 }
 
+.lobby-leave-modal {
+	max-width: 300px;
+}
+
+.lobby-leave-modal h1 {
+	font-size: large;
+	font-weight: 500;
+}

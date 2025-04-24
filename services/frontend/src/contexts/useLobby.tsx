@@ -130,7 +130,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const onModeChange = (mode: any) => {
 		const newMode = new GameMode(mode);
-		createToast(`Gamemode changed to ${newMode.getDisplayName()}`, ToastType.INFO);
+		createToast(`Gamemode changed to ${newMode.getDisplayName()} ${newMode.type}`, ToastType.INFO);
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setMode(mode)));
 	};
 
@@ -163,6 +163,8 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 
 	const onPlayerConnect = (lobby: LobbyClient) => {
 		setLobby(new LobbyClient(lobby, ws));
+		if (window.location.pathname === '/')
+			navigate(`/lobby/${lobby.join_secret}`);
 	}
 
 	const onMessage = (message: string) => {
@@ -234,7 +236,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	};
 
 	const join = async (id: string) => {
-		console.log('join', id, lobby);
 		const handleJoin = () => ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}`, true);
 		if (lobby)
 			setOnLeave(() => handleJoin)
@@ -255,10 +256,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				type: StatusType.ONLINE,
 			});
 	}, [lobby]);
-
-	Babact.useEffect(() => {
-		console.log('onLeave', onLeave);
-	}, [onLeave]);
 
 	return (
 		<LobbyContext.Provider
