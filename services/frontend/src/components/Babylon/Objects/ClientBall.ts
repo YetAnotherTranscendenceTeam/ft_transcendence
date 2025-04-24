@@ -7,7 +7,6 @@ import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 
 export default class ClientBall extends AObject {
-	// public static material: BABYLON.PBRMaterial;
 
 	public constructor(scene: Scene, physicsBody: PH2D.Body) {
 		super(scene, physicsBody);
@@ -21,9 +20,6 @@ export default class ClientBall extends AObject {
 			0.05,
 			this._physicsBody.position.y
 		);
-		// const material = new StandardMaterial("ballMaterial", this._scene);
-		// material.diffuseColor = Color3.White();
-		// material.specularColor = Color3.Black();
 		this._mesh.material = ClientBall.material;
 	}
 

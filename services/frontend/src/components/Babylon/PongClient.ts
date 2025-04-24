@@ -11,6 +11,7 @@ import { Vec2 } from "gl-matrix";
 import { KeyState, GameScene, KeyName, ScoredEvent } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
+import ClientGoal from "./Objects/ClientGoal";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -192,6 +193,14 @@ export default class PongClient extends PONG.Pong {
 		light.diffuse = new Color3(1, 1, 1);
 		light.specular = new Color3(1, 1, 1);
 
+		const skybox = MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._babylonScene);
+		const skyboxMaterial = new StandardMaterial("skyBox", this._babylonScene);
+		skyboxMaterial.backFaceCulling = false;
+		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
+		skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+		skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
+		skyboxMaterial.specularColor = new Color3(0, 0, 0);
+		skybox.material = skyboxMaterial;
 
 		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
 		ballMaterial.metallic = 1;
@@ -204,14 +213,26 @@ export default class PongClient extends PONG.Pong {
 		ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
 		ClientBall.material = ballMaterial;
 
-		const skybox = MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._babylonScene);
-		const skyboxMaterial = new StandardMaterial("skyBox", this._babylonScene);
-		skyboxMaterial.backFaceCulling = false;
-		skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
-		skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-		skyboxMaterial.diffuseColor = new Color3(0, 0, 0);
-		skyboxMaterial.specularColor = new Color3(0, 0, 0);
-		skybox.material = skyboxMaterial;
+		const wallMaterial = new BABYLON.PBRMaterial("wallMaterial", this._babylonScene);
+		wallMaterial.metallic = 0;
+		wallMaterial.roughness = 0.5;
+		wallMaterial.albedoColor = new Color3(0.25, 0.5, 0.62);
+		// wallMaterial.reflectionTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
+		// wallMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
+		ClientWall.material = wallMaterial;
+
+		const paddleMaterial = new BABYLON.PBRMaterial("paddleMaterial", this._babylonScene);
+		paddleMaterial.metallic = 0;
+		paddleMaterial.roughness = 0.5;
+		paddleMaterial.albedoColor = Color3.White();
+		ClientPaddle.material = paddleMaterial;
+
+		const goalMaterial = new BABYLON.PBRMaterial("goalMaterial", this._babylonScene);
+		goalMaterial.metallic = 0;
+		goalMaterial.roughness = 0.5;
+		goalMaterial.albedoColor = Color3.Red();
+		goalMaterial.alpha = 0.5;
+		ClientGoal.material = goalMaterial;
 
 		this._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];

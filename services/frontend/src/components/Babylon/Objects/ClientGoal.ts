@@ -24,11 +24,7 @@ export default class ClientGoal extends AObject {
 			0.05,
 			this._physicsBody.position.y
 		);
-		const material = new StandardMaterial("wallMaterial", this._scene);
-		material.diffuseColor = Color3.Red();
-		material.specularColor = new Color3(0, 0, 0);
-		material.alpha = 0.5;
-		this._mesh.material = material;
+		this._mesh.material = ClientGoal.material;
 	}
 
 	public update(dt: number): void {

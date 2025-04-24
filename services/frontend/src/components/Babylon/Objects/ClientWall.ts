@@ -23,11 +23,7 @@ export default class ClientWall extends AObject {
 			0.25,
 			this._physicsBody.position.y
 		);
-
-		const material = new StandardMaterial("wallMaterial", this._scene);
-		material.diffuseColor = new Color3(0.25, 0.5, 0.62);
-		material.specularColor = new Color3(0, 0, 0);
-		this._mesh.material = material;
+		this._mesh.material = ClientWall.material;
 	}
 
 	public update(dt: number): void {

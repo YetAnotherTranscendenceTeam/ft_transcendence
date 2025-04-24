@@ -20,10 +20,7 @@ export default class ClientPaddle extends AObject {
 			0.05,
 			this._physicsBody.position.y
 		);
-		const material = new StandardMaterial("wallMaterial", this._scene);
-		material.diffuseColor = Color3.White();
-		material.specularColor = Color3.Black();
-		this._mesh.material = material;
+		this._mesh.material = ClientPaddle.material;
 	}
 
 	public update(dt: number): void {
