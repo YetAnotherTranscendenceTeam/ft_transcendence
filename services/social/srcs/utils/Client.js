@@ -19,10 +19,6 @@ export class Client {
   allClients;
   lastBroadcast = null;
 
-  pending = [];
-  friends = [];
-  blocks = [];
-
   constructor(account_id, clients) {
     this.account_id = account_id;
     this.allClients = clients;
@@ -40,7 +36,7 @@ export class Client {
     console.log("CLIENT SOCKET-:", { account_id: this.account_id, sockets: this.sockets.size });
   }
 
-  send(payload) {
+  send(payload, target) {
     const data = JSON.stringify(payload);
     this.sockets.forEach(socket => {
       socket.send(data);
@@ -48,20 +44,20 @@ export class Client {
   }
 
   async welcome(clients, socket) {
-    this.friends = dbAction.selectFriendships(this.account_id).map(f => f.account_id);
-    this.pending = dbAction.selectRequests(this.account_id).map(r => r.account_id);
-    this.blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
+    const friends = dbAction.selectFriendships(this.account_id).map(f => f.account_id);
+    const pending = dbAction.selectRequests(this.account_id).map(r => r.account_id);
+    const blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
 
     const payload = {
       event: "welcome",
       data: {
-        pending: await Promise.all(this.pending.map(async friend_id => {
+        pending: await Promise.all(pending.map(async friend_id => {
           return userInfos(friend_id, clients);
         })),
-        friends: await Promise.all(this.friends.map(async friend_id => {
+        friends: await Promise.all(friends.map(async friend_id => {
           return userInfos(friend_id, clients, { include_status: true });
         })),
-        blocked: await Promise.all(this.friends.map(async friend_id => {
+        blocked: await Promise.all(friends.map(async friend_id => {
           return userInfos(friend_id, clients);
         })),
         self: this.status(),
@@ -72,19 +68,19 @@ export class Client {
   }
 
   async follow(account_id, clients) {
-    const payload = {
-      event: "follow",
-      data: await userInfos(account_id, clients),
-    }
-    this.send(payload);
+    // const payload = {
+    //   event: "follow",
+    //   data: await userInfos(account_id, clients),
+    // }
+    // this.send(payload);
   }
 
   async unfollow(account_id) {
-    const payload = {
-      event: "unfollow",
-      data: { account_id },
-    }
-    this.send(payload);
+    // const payload = {
+    //   event: "unfollow",
+    //   data: { account_id },
+    // }
+    // this.send(payload);
   }
 
   goInactive() {

@@ -36,11 +36,11 @@ export default function router(fastify, opts, done) {
 
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_CHECK") {
-        throw new HttpError.Forbidden("Cannot follow your own account").setCode("SELF_INVITE");
+        throw new HttpError.Forbidden().setCode("SELF_REQUEST");
       } else if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
         throw new HttpError.Conflict();
       } else if (err.code === "SQLITE_CONSTRAINT_TRIGGER") {
-        throw new HttpError.Forbidden(err.message).setCode("LIMIT_REACHED");
+        throw new HttpError.Forbidden().setCode(err.message);
       } else {
         console.error(err);
         throw err;

@@ -3,6 +3,9 @@
 import Database from "better-sqlite3";
 const db = new Database("/database/social.sqlite");
 
+const MAX_FRIENDS = 50;
+const MAX_BLOCKS = 50;
+
 // Friend request table
 db.exec(`
   CREATE TABLE IF NOT EXISTS friend_requests (
@@ -14,6 +17,21 @@ db.exec(`
     CHECK(from_user != to_user)
   )
 `);
+
+db.exec(`
+  CREATE TRIGGER IF NOT EXISTS max_friends
+  BEFORE INSERT ON friend_requests
+  BEGIN
+    SELECT CASE
+      WHEN
+        (SELECT COUNT(*) FROM friend_requests WHERE from_user = NEW.from_user)
+        +
+        (SELECT COUNT(*) FROM friendships WHERE user1 = NEW.from_user OR user2 = NEW.from_user)
+        >= ${MAX_BLOCKS}
+      THEN RAISE(ABORT, 'MAX_FRIENDS')
+    END;
+  END;
+`)
 
 // Friendship table
 db.exec(`
@@ -38,5 +56,16 @@ db.exec(`
     CHECK(blocker != blocked)
   )
 `);
+
+db.exec(`
+  CREATE TRIGGER IF NOT EXISTS max_blocks
+  BEFORE INSERT ON blocks
+  BEGIN
+    SELECT CASE
+      WHEN (SELECT COUNT(*) FROM blocks WHERE blocker = NEW.blocker) >= ${MAX_BLOCKS}
+      THEN RAISE(ABORT, 'MAX_BLOCKS')
+    END;
+  END;
+`)
 
 export default db;
