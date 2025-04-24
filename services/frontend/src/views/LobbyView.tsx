@@ -16,7 +16,7 @@ export default function LobbyView() {
 	const { app } = usePong();
 
 	Babact.useEffect(() => {
-		if (code && lobby === null && !localStorage.getItem('lobby')) {
+		if (code && lobby === null) {
 			join(code);
 		}
 		app.setGameScene(GameScene.LOBBY);

@@ -8,17 +8,16 @@ import { useNavigate } from "babact-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
 
-
 export default function LobbyCard() {
 
-	const { lobby } = useLobby();
+	const { lobby, setOnLeave } = useLobby();
 
 	const navigate = useNavigate();
 
 	const { me } = useAuth();
 
 	const onLeave = () => {
-		lobby.leave();
+		setOnLeave(() => (() => {}));
 	}
 
 	if (lobby)
@@ -87,7 +86,7 @@ export default function LobbyCard() {
 				))
 			}
 			<Button className="danger" onClick={onLeave}>
-				<i className="fa-solid fa-sign-out"></i>
+				<i className="fa-solid fa-person-walking-arrow-right"></i>
 				Leave
 			</Button>
 		</div>

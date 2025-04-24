@@ -8,6 +8,7 @@ import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
 import { StatusType } from "../hooks/useSocials";
 import { useAuth } from "./useAuth";
 import { Team } from "../hooks/useTournament";
+import ConfirmLobbyLeaveModal from "../components/Lobby/ConfirmLobbyLeaveModal";
 
 export class LobbyClient extends Lobby {
 
@@ -91,12 +92,14 @@ export class LobbyClient extends Lobby {
 const LobbyContext = Babact.createContext<{
 		lobby: LobbyClient,
 		create: (mode: string) => void,
-		join: (id: string) => void
+		join: (id: string) => void,
+		setOnLeave: (onLeave: () => void) => void
 	}>();
 
 export const LobbyProvider = ({ children } : { children?: any }) => {
 	
 	const [lobby, setLobby] = Babact.useState<LobbyClient>(null);
+	const [onLeave, setOnLeave] = Babact.useState<() => void>(null);
 	const { createToast } = useToast();
 
 	const { me } = useAuth();
@@ -159,7 +162,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	}
 
 	const onPlayerConnect = (lobby: LobbyClient) => {
-		localStorage.setItem('lobby', lobby.join_secret);
 		setLobby(new LobbyClient(lobby, ws));
 	}
 
@@ -197,7 +199,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const onClose = (e) => {
 		if (window.location.pathname.startsWith('/lobby'))
 			navigate('/');
-		localStorage.removeItem('lobby');
 		setLobby(null);
 		const errorMessages = {
 			1000: 'Disconnected from lobby',
@@ -225,20 +226,21 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	});
 
 	const create = async (mode: string = 'ranked_1v1') => {
-		ws.connect(`${config.WS_URL}/lobbies/join?gamemode=${mode}`, true);
+		const handleCreate = () => ws.connect(`${config.WS_URL}/lobbies/join?gamemode=${mode}`, true);
+		if (lobby)
+			setOnLeave(() => handleCreate)
+		else
+			handleCreate();
 	};
 
 	const join = async (id: string) => {
-		ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}`, true);
+		console.log('join', id, lobby);
+		const handleJoin = () => ws.connect(`${config.WS_URL}/lobbies/join?secret=${id}`, true);
+		if (lobby)
+			setOnLeave(() => handleJoin)
+		else
+			handleJoin();
 	};
-
-	// TODO: Add a refresh alert to confirm leaving the lobby
-	Babact.useEffect(() => {
-		const lobby = localStorage.getItem('lobby');
-		if (lobby) {
-			join(lobby);
-		}
-	}, []);
 
 	const { status, connected } = useAuth();
 
@@ -254,14 +256,26 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			});
 	}, [lobby]);
 
+	Babact.useEffect(() => {
+		console.log('onLeave', onLeave);
+	}, [onLeave]);
+
 	return (
 		<LobbyContext.Provider
 			value={{
 				lobby,
 				create,
 				join,
+				setOnLeave
 			}}
 		>
+			<ConfirmLobbyLeaveModal
+				isOpen={!!onLeave}
+				onClose={() => setOnLeave(null)}
+				onConfirm={() => onLeave()}
+				lobby={lobby}
+				key={'lobby-leave-modal'}
+			/>
 			{children}
 		</LobbyContext.Provider>
 	);
