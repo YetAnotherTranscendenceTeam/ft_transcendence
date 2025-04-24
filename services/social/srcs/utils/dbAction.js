@@ -11,7 +11,6 @@ export const handleFriendRequest = db.transaction((from, to) => {
   if (is_friendship.get(Math.min(from, to), Math.max(from, to))) {
     throw new HttpError.Conflict().setCode("FRIENDSHIP");
   }
-  console.log(is_blocked.get(from, to));
   if (is_blocked.get(from, to)) {
     throw new HttpError.Forbidden().setCode("BLOCKED");
   }
@@ -49,7 +48,7 @@ const delete_request = db.prepare(`
 `);
 
 // Retreive the friendship of a user
-export function selectFriends(account_id) {
+export function selectFriendships(account_id) {
   return select_friends.all({ account_id });
 }
 

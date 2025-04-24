@@ -3,7 +3,7 @@ import { createUsers, users } from "../../dummy/dummy-account";
 import { apiURL } from "../../URLs";
 import { testFriendship } from "../../dummy/friendship";
 
-createUsers(8);
+createUsers(10);
 
 describe("Friends router", () => {
   describe("Baic tests", () => {
@@ -292,20 +292,37 @@ describe("Friends router", () => {
     });
   }); // Block / Unblock
 
-  describe("Multiple friends", () => {
-    let mainUser;
+  describe("Multiple pending requests", () => {
+    let sender;
 
     beforeAll(async () => {
-      mainUser = users[users.length - 1];
-      for (let i = 0; i < users.length - 2; ++i) {
-        await testFriendship(mainUser, users[i]);
-      }
-    });
+      sender = users[8];
+    })
+
+    for (let i = 0; i < 8; ++i) {
+      it(`8 request ${i}`, async () => {
+        const response = await request(apiURL)
+          .post(`/social/requests/${users[i].account_id}`)
+          .set("Authorization", `Bearer ${sender.jwt}`)
+
+        expect(response.statusCode).toBe(204);
+      });
+    }
+
+    for (let i = 0; i < 8; ++i) {
+      it(`${i} request 8`, async () => {
+        const response = await request(apiURL)
+          .post(`/social/requests/${sender.account_id}`)
+          .set("Authorization", `Bearer ${users[i].jwt}`)
+
+        expect(response.statusCode).toBe(204);
+      });
+    }
 
     it("Get friends", async () => {
       const response = await request(apiURL)
         .get('/social/friends')
-        .set("Authorization", `Bearer ${mainUser.jwt}`);
+        .set("Authorization", `Bearer ${sender.jwt}`);
 
       expect(response.body).toEqual(
         expect.arrayContaining(

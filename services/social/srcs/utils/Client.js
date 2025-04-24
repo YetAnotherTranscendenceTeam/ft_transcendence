@@ -1,5 +1,6 @@
 import YATT from "yatt-utils";
 import db from "../app/database.js";
+import * as dbAction from "../utils/dbAction.js"
 import { inactivity_delay } from "../app/env.js";
 import { inactive, offline, online } from "./activityStatuses.js";
 import { userInfos } from "./userInfos.js";
@@ -17,6 +18,10 @@ export class Client {
 
   allClients;
   lastBroadcast = null;
+
+  pending = [];
+  friends = [];
+  blocks = [];
 
   constructor(account_id, clients) {
     this.account_id = account_id;
@@ -43,13 +48,21 @@ export class Client {
   }
 
   async welcome(clients, socket) {
-    const friends = db.prepare("SELECT following FROM follows WHERE account_id = ?").all(this.account_id);
+    this.friends = dbAction.selectFriendships(this.account_id).map(f => f.account_id);
+    this.pending = dbAction.selectRequests(this.account_id).map(r => r.account_id);
+    this.blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
 
     const payload = {
       event: "welcome",
       data: {
-        follows: await Promise.all(friends.map(async element => {
-          return userInfos(element.following, clients);
+        pending: await Promise.all(this.pending.map(async friend_id => {
+          return userInfos(friend_id, clients);
+        })),
+        friends: await Promise.all(this.friends.map(async friend_id => {
+          return userInfos(friend_id, clients, { include_status: true });
+        })),
+        blocked: await Promise.all(this.friends.map(async friend_id => {
+          return userInfos(friend_id, clients);
         })),
         self: this.status(),
       }

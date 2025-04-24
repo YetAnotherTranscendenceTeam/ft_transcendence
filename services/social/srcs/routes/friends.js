@@ -1,11 +1,11 @@
 "use strict";
 
-import YATT, { HttpError, properties } from "yatt-utils";
+import { HttpError, properties } from "yatt-utils";
 import * as dbAction from "../utils/dbAction.js"
 
 export default function router(fastify, opts, done) {
   fastify.get("/friends", { preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
-    reply.send(dbAction.selectFriends(request.account_id));
+    return dbAction.selectFriendships(request.account_id);
   })
 
   let schema = {
