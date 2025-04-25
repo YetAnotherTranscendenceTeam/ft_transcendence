@@ -127,6 +127,10 @@
 	width: fit-content;
 }
 
+.w-max {
+	width: max-content;
+}
+
 .h-full {
 	height: 100%;
 }

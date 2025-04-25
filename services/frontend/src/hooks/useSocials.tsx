@@ -215,11 +215,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 	};
 
 	const onConnect = () => {
-		const { lobby } = useLobby();
-		if (lobby)
-			status({type: StatusType.INLOBBY, data: {...lobby, join_secret: null}});
-		else
-			status({type: StatusType.ONLINE});
+		status({type: StatusType.ONLINE});
 	};
 
 	const ws = useWebSocket({

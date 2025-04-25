@@ -53,6 +53,8 @@ export default function ProfileForm({ me }: { me: any }) {
 				webcam
 				limit={5}
 				help="Your avatar is your identity on the platform. Choose one that represents you best!"
+				ignore={[me.avatar]}
+				ignoreMessage="You can't delete your current avatar"
 				tooltip={
 					<div className='settings-tooltip flex flex-col'>
 						Upload constraints:
