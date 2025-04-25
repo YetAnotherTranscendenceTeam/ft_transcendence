@@ -76,12 +76,11 @@ export default class PongClient extends PONG.Pong {
 		
 		this._engine.runRenderLoop(this.loop);
 
-		this._websocket = new WebSocket("ws://localhost:4124");
+		this._websocket = new WebSocket(`ws://localhost:4124/join?match_id=0&access_token=${localStorage.getItem("access_token")}`);
 
 		this._websocket.onmessage = (ev) => {
 			const msg = JSON.parse(ev.data);
 			if (msg.event === "state") {
-				console.log({counter: msg.data.counter});
 				// this.counter = msg.data.counter;
 			}
 		}
@@ -289,7 +288,7 @@ export default class PongClient extends PONG.Pong {
 
 	private update() {
 		let dt: number = this._engine.getDeltaTime() / 1000;
-		if (this._state.tick(dt)) {
+		if (this._state.tick(dt, this)) {
 			return;
 		}
 

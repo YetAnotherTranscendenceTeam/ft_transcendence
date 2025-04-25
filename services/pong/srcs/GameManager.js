@@ -18,7 +18,7 @@ export class GameManager {
       team_count: 2,
       match_parameters: {}
     }), [[{account_id: 1}], [{account_id: 2}]]));
-    setTimeout(() => {
+    setInterval(() => {
       this.pongs.forEach((pong, match_id) => {
         pong.update();
       });
@@ -30,7 +30,7 @@ export class GameManager {
       pong.destroy();
     });
     this.pongs.clear();
-    clearTimeout(this.timeout);
+    clearInterval(this.timeout);
   }
 
   registerGame(match_id, gamemode, teams) {

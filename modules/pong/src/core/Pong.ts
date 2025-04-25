@@ -116,7 +116,15 @@ export class Pong {
 			return {
 				...player,
 				paddleId: index,
-				movement: PlayerMovement.NONE
+				movement: PlayerMovement.NONE,
+				toJSON() {
+					return {
+						account_id: this.account_id,
+						profile: this.profile,
+						paddleId: this.paddleId,
+						movement: this.movement,
+					}
+				}
 			}
 		});
 		if (state instanceof PongState)
@@ -256,6 +264,10 @@ export class Pong {
 
 	public get tick(): number {
 		return this._tick;
+	}
+
+	public get players(): IPongPlayer[] {
+		return this._players;
 	}
 }
 

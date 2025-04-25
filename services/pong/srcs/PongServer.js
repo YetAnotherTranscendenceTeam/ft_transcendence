@@ -1,6 +1,13 @@
 import { Pong, PongState } from "pong";
 import { WsCloseError } from "yatt-ws";
 
+PongState.RESERVED.tickCallback = function (dt, pong) {
+	if (pong.players.some(player => !player.socket)) {
+		return false;
+	}
+	return true;
+}
+
 export class PongServer extends Pong {
 	collisions = [];
 
@@ -46,17 +53,6 @@ export class PongServer extends Pong {
 		return this._players.find(player => player.account_id === account_id);
 	}
 
-	join(socket, account_id) {
-		const player = this.getPlayer(account_id);
-		if (!player) {
-			throw new Error("Player not part of this game");
-		}
-		if (player.socket) {
-			WsCloseError.OtherLocation.close(player.socket);
-		}
-		player.socket = socket;
-	}
-
 	removeSocket(account_id) {
 		const player = this.getPlayer(account_id);
 		if (player) {
@@ -79,15 +75,19 @@ export class PongServer extends Pong {
 		const now = Date.now();
 		let dt = now - this._lastUpdate;
 		this._lastUpdate = now;
-		if (this._state.tick()) {
-			this.broadcast({
-				event: "state",
-				state: this._state,
-			})
+		if (this._state.tick(dt, this)) {
+			//this.broadcast({
+			//	event: "state",
+			//	state: this._state,
+			//})
 			return;
 		}
-		if (this._state.getNext())
+		if (this._state.getNext()) {
+			if (this._state.endCallback) {
+				this._state.endCallback(this);
+			}
 			this._state = this._state.getNext().clone();
+		}
 		this._time += dt;
 		this.physicsUpdate(dt);
 		const paddle_positions = new Array(this._paddles.length);
