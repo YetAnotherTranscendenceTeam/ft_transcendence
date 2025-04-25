@@ -35,7 +35,7 @@ export class PongServer extends Pong {
 			gamemode: this._gameMode,
 			state: this._state,
 			score: this._score,
-			paddles: getPaddlePositions(),
+			paddles: this.getPaddlePositions(),
 			balls: this._balls,
 			tick: this.tick,
 		};
@@ -108,7 +108,7 @@ export class PongServer extends Pong {
 			data: {
 				collisions: this.collisions,
 				balls: this._balls,
-				paddles: getPaddlePositions(),
+				paddles: this.getPaddlePositions(),
 				tick: this.tick,
 			}
 		});
