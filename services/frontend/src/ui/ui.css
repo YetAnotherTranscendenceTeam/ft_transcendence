@@ -860,7 +860,7 @@
 .segmented-control {
 	display: flex;
 	position: relative;
-	color: var(--fg-1);
+	color: var(--fg-3);
 	padding: 8px 0;
 	font-size: medium;
 	background-color: var(--bg-3);
@@ -887,6 +887,7 @@
 	z-index: 1;
 	padding: 0 8px;
 	position: relative;
+	transition: 0.3s;
 }
 
 .segmented-control-button.disabled {
@@ -902,4 +903,8 @@
 	content: "";
 	right: -1px;
 	background-color: var(--fg-3);
+}
+
+.segmented-control-button.selected {
+	color: var(--fg-1);
 }

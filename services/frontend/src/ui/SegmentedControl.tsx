@@ -28,7 +28,7 @@ export default function SegmentedControl({
 		}
 	}, [value]);
 
-	return <div className="segmented-control" style={`--segment-translate: ${100 / buttons.length * buttons.findIndex(b => b.value === selected)}%; --width: ${100 / buttons.length}%`} {...props}>
+	return <div className={`segmented-control ${className}`} style={`--segment-translate: ${100 / buttons.length * buttons.findIndex(b => b.value === selected)}%; --width: ${100 / buttons.length}%`} {...props}>
 		{buttons.map((button, i) => {
 			return <div
 				onClick={() => {

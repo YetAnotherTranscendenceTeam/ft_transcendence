@@ -47,7 +47,6 @@
 	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
-	gap: 16px;
 }
 
 .mode-button {
@@ -62,21 +61,6 @@
 	background-color: color-mix(in srgb, var(--bg-1), transparent 20%);
 	overflow: hidden;
 }
-
-/* .mode-button.ranked {
-	background: rgb(22,136,255);
-	background: linear-gradient(326deg, rgba(22,136,255,1) 20%, rgba(22,230,255,1) 80%);
-}
-
-.mode-button.unranked {
-	background: rgb(245,22,255);
-	background: linear-gradient(326deg, rgba(245,22,255,1) 20%, rgba(178,22,255,1) 80%);
-}
-
-.mode-button.custom {
-	background: #00a803;
-	background: linear-gradient(90deg,rgba(0, 168, 3, 1) 0%, rgba(110, 255, 117, 1) 100%);
-} */
 
 .mode-button.disabled {
 	pointer-events: none;
@@ -138,4 +122,13 @@
 	transform: translateX(-50%);
 	padding: 8px;
 	font-size: medium;
+}
+
+.mode-buttons .segmented-control {
+	font-size: x-large;
+	font-weight: 900;
+}
+
+.mode-buttons .segmented-control-button {
+	padding: 0 16px;
 }
