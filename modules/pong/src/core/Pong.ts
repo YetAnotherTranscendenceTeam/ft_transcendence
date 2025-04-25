@@ -266,6 +266,30 @@ export class Pong {
 		this._balls[0].setDirection(ballVelocity);
 	}
 
+	protected ballSync(balls: Array<Object>) {
+		console.log("sync balls", balls);
+		if (balls.length < 1) {
+			return;
+		}
+		console.log("sync length", balls.length);
+		for (let i = 0; i < this._balls.length; i++) {
+			if (i >= balls.length) {
+				break;
+			}
+			console.log("sync", i, balls[i]);
+			this._balls[i].sync(balls[i]);
+		}
+		for (let i = this._balls.length; i < balls.length; i++) {
+			this._balls.push(new Ball());
+			this._physicsScene.addBody(this._balls[i]);
+			this._balls[i].addEventListener("collision", ballCollision.bind(this));
+		}
+		for (let i = balls.length; i < this._balls.length; i++) {
+			this._physicsScene.removeBody(this._balls[i]);
+			this._balls.splice(i, 1);
+		}
+	}
+
 	public get tick(): number {
 		return this._tick;
 	}

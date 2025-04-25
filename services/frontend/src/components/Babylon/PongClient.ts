@@ -78,10 +78,12 @@ export default class PongClient extends PONG.Pong {
 
 		this._websocket = new WebSocket(`ws://localhost:4124/join?match_id=0&access_token=${localStorage.getItem("access_token")}`);
 
-		this._websocket.onmessage = (ev) => {
+		this._websocket.onmessage = (ev) => { // step, state, sync
 			const msg = JSON.parse(ev.data);
-			if (msg.event === "state") {
+			console.log(msg);
+			if (msg.event === "step") {
 				// this.counter = msg.data.counter;
+				this.serverStep(msg.data);
 			}
 		}
 		this._websocket.onopen = (ev) => {
@@ -91,6 +93,7 @@ export default class PongClient extends PONG.Pong {
 			console.log(ev);
 		}
 
+		this.setGameScene(GameScene.ONLINE);
 	}
 
 	public setGameScene(scene: GameScene) {
@@ -143,7 +146,12 @@ export default class PongClient extends PONG.Pong {
 	}
 	
 	private loop = () => {
-		this.update();
+		// if (this._websocket) {
+			this.updateOnline();
+		// } else {
+			// this.updateLocal();
+		// }
+		// this.update();
 		this._babylonScene.render();
 		// console.log(this.);
 	}
@@ -286,7 +294,7 @@ export default class PongClient extends PONG.Pong {
 		});
 	}
 
-	private update() {
+	private updateLocal() {
 		let dt: number = this._engine.getDeltaTime() / 1000;
 		if (this._state.tick(dt, this)) {
 			return;
@@ -302,7 +310,7 @@ export default class PongClient extends PONG.Pong {
 		this._time += dt;
 		this.callbacks.timeUpdateCallback(Math.floor(this._time));
 
-		this.playerUpdate();
+		this.playerUpdateLocal();
 		dt = this.physicsUpdate(dt);
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
@@ -323,49 +331,94 @@ export default class PongClient extends PONG.Pong {
 		}
 	}
 
-	private playerUpdate() { // TODO: refactor to use playerId
-		if (this._gameScene === GameScene.LOCAL) {
-			let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
-			if (paddle) {
-				let moveDirection: number = 0;
-				let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
-				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-					moveDirection += 1;
-				}
-				keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
-				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-					moveDirection -= 1;
-				}
-				paddle.move(moveDirection);
+	private updateOnline() {
+		let dt: number = this._engine.getDeltaTime() / 1000;
+		// let dt: number = 1.0;
+		// if (this._state.tick(dt, this)) {
+		// 	return;
+		// }
+
+		// if (this._state.getNext()) {
+		// 	if (this._state.endCallback) {
+		// 		this._state.endCallback(this);
+		// 	}
+		// 	this._state = this._state.getNext().clone();
+		// }
+
+		// this._time += dt;
+		// this.callbacks.timeUpdateCallback(Math.floor(this._time));
+
+		this.playerUpdateOnline();
+		dt = this.physicsUpdate(dt);
+		this._ballInstances.forEach((ball: ClientBall) => {
+			ball.update(dt);
+		});
+		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
+			object.update(dt);
+		});
+		// if (this.scoreUpdate()) {
+		// 	console.log("score: " + this._score[0] + "-" + this._score[1]);
+		// 	this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
+		// 	if (this._winner !== undefined) {
+		// 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
+		// 		this.callbacks.endGameCallback();
+		// 		this._state = PONG.PongState.ENDED.clone();
+		// 	} else {
+		// 		this._state = PONG.PongState.FREEZE.clone();
+		// 	}
+		// }
+		// console.log("balls", this._balls);
+		// console.log("instances", this._ballInstances);
+	}
+
+	private serverStep(data: {collision: Array<Object>, balls: Array<Object>, paddles: Array<Object>, tick: number}) {
+		console.log("server step", data);
+		this.ballSync(data.balls);
+	}
+
+	private playerUpdateLocal() {
+		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
+		if (paddle) {
+			let moveDirection: number = 0;
+			let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+				moveDirection += 1;
 			}
-	
-			paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
-			if (paddle) {
-				let moveDirection: number = 0;
-				let keyStateProbe: KeyState = this._keyboard.get(KeyName.W) || KeyState.IDLE;
-				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-					moveDirection += 1;
-				}
-				keyStateProbe = this._keyboard.get(KeyName.S) || KeyState.IDLE;
-				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-					moveDirection -= 1;
-				}
-				paddle.move(moveDirection);
+			keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+				moveDirection -= 1;
 			}
-		} else if (this._gameScene === GameScene.ONLINE) {
-			const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._paddleID);
-			if (paddle) {
-				let moveDirection: number = 0;
-				let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
-				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-					moveDirection += 1;
-				}
-				keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
-				if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
-					moveDirection -= 1;
-				}
-				paddle.move(moveDirection);
+			paddle.move(moveDirection);
+		}
+
+		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
+		if (paddle) {
+			let moveDirection: number = 0;
+			let keyStateProbe: KeyState = this._keyboard.get(KeyName.W) || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+				moveDirection += 1;
 			}
+			keyStateProbe = this._keyboard.get(KeyName.S) || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+				moveDirection -= 1;
+			}
+			paddle.move(moveDirection);
+		}
+	}
+
+	private playerUpdateOnline() {
+		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._paddleID);
+		if (paddle) {
+			let moveDirection: number = 0;
+			let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+				moveDirection += 1;
+			}
+			keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
+			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+				moveDirection -= 1;
+			}
+			paddle.move(moveDirection);
 		}
 	}
 

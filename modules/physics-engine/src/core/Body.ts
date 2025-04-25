@@ -114,7 +114,7 @@ export class Body extends EventTarget {
 		}
 		this._position.add(Vec2.scale(Vec2.create(), this._velocity, dt));
 		this._orientation += this._angularVelocity * dt;
-		this._setOrientation(this._orientation);
+		this.setOrientation(this._orientation);
 		this.integrateForces(dt, gravity);
 	}
 
@@ -179,7 +179,7 @@ export class Body extends EventTarget {
 		return this._velocity;
 	}
 
-	private _setOrientation(radians: number): void {
+	public setOrientation(radians: number): void {
 		this._orientation = radians;
 		this._shape.setOrientation(radians);
 	}
@@ -190,5 +190,9 @@ export class Body extends EventTarget {
 
 	public set velocity(velocity: Vec2) {
 		this._velocity = velocity;
+	}
+
+	public set angularVelocity(angularVelocity: number) {
+		this._angularVelocity = angularVelocity;
 	}
 }

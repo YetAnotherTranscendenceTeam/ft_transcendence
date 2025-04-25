@@ -39,7 +39,7 @@ export const defaultBallSpeed = 5;
 export const maxBallSpeed = 10;
 export const ballMaxAngle = Math.PI / 3; // 60 degrees
 export const paddleSpeed = 3;
-export const defaultPointsToWin = 5;
+export const defaultPointsToWin = 500;
 
 export const ballShape: PH2D.CircleShape = new PH2D.CircleShape(ballRadius);
 export const paddleShape: PH2D.PolygonShape = new PH2D.PolygonShape(paddleSize[0] / 2, paddleSize[1] / 2);
