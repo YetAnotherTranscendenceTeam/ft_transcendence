@@ -17,7 +17,7 @@ export class GameManager {
       team_size: 1,
       team_count: 2,
       match_parameters: {}
-    })), [{account_id: 1, account_id: 2}]);
+    }), [[{account_id: 1}], [{account_id: 2}]]));
     setTimeout(() => {
       this.pongs.forEach((pong, match_id) => {
         pong.update();

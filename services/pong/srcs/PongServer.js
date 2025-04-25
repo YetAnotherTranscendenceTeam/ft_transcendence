@@ -9,7 +9,7 @@ export class PongServer extends Pong {
 		this._running = 0;
 		this._time = 0;
 		this._lastUpdate = 0;
-		this.onlineSetup(match_id, gamemode, teams, PongState.RESERVED);
+		this.onlineSetup(match_id, gamemode, teams.flat(), PongState.RESERVED);
 		for (let ball of this._balls) {
 			ball.addEventListener("collision", (event) => {
 				console.log("Ball collision", event);
@@ -66,8 +66,8 @@ export class PongServer extends Pong {
 
 	broadcast(message) {
 		const messageString = JSON.stringify(message);
-		for (const client of this.clients) {
-			client.socket?.send(messageString);
+		for (const player of this._players) {
+			player.socket?.send(messageString);
 		}
 	}
 
