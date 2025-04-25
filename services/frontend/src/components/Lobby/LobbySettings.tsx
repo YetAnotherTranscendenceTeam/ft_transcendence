@@ -35,7 +35,7 @@ export default function LobbySettings({
 			<div
 				className='flex gap-2 items-center justify-between'
 			>
-				<p>Team size</p>
+				<p>Team format</p>
 				<SegmentedControl
 					buttons={modes}
 					onChange={(value) => {

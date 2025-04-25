@@ -8,7 +8,7 @@ import Submit from "../../ui/Submit";
 import useEscape from "../../hooks/useEscape";
 import Button from "../../ui/Button";
 import useGamemodes from "../../hooks/useGamemodes";
-import { GameMode } from "yatt-lobbies";
+import { GameMode, GameModeType } from "yatt-lobbies";
 
 export default function SelectModeOverlay({
 		isOpen,
@@ -38,20 +38,22 @@ export default function SelectModeOverlay({
 		onClick={(e) => e.target === e.currentTarget && onClose()}
 	>
 		<Button onClick={onClose} className='close icon ghost'><i className="fa-solid fa-xmark"></i></Button>
-		<div className='online-select-overlay-content flex flex-col'>
-			<div className='mode-buttons flex flex-col'>
-				<div className='flex flex-row gap-4'>
-					{
-						gamemodes.filter((mode) => mode.team_size === 1).map((mode, i) => (
-							<ModeButton gamemode={mode} onSelect={onSelect} />))
-					}
-				</div>
-				<div className='flex flex-row gap-4'>
-					{
-						gamemodes.filter((mode) => mode.team_size === 2).map((mode, i) => (
-							<ModeButton gamemode={mode} onSelect={onSelect} />))
-					}
-				</div>
+		<div className='mode-buttons flex flex-row'>
+			<div className='flex flex-col gap-4'>
+				{
+					gamemodes.filter((mode) => mode.type === GameModeType.RANKED).map((mode, i) => (
+						<ModeButton gamemode={mode} onSelect={onSelect} />))
+				}
+			</div>
+			<div className='flex flex-col gap-4'>
+				{
+					gamemodes.filter((mode) => mode.type === GameModeType.UNRANKED).map((mode, i) => (
+						<ModeButton gamemode={mode} onSelect={onSelect} />))
+				}
+			</div>
+			<div className='flex flex-col gap-4'>
+				<ModeButton gamemode={gamemodes.find(g => g.name === "custom_1v1")} onSelect={onSelect} />
+				<ModeButton gamemode={gamemodes.find(g => g.name === "tournament_1v1")} onSelect={onSelect} />
 			</div>
 		</div>
 		<Form className="online-join-form flex flex-row" formFields={['lobby-code*']}>

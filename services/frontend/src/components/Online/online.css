@@ -43,7 +43,6 @@
 }
 
 .mode-buttons {
-	width: 100%;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
@@ -114,6 +113,10 @@
 
 .mode-button.unranked h1 i {
 	color: rgb(247, 94, 255);
+}
+
+.mode-button.tournament h1 i {
+	color: #ffb24e;
 }
 
 .mode-button h2 {
