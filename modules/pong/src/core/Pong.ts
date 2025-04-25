@@ -104,7 +104,7 @@ export class Pong {
 		}
 	}
 
-	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED) {
+	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED.clone()) {
 		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
@@ -112,10 +112,21 @@ export class Pong {
 
 		this._matchId = match_id;
 		this._gameMode = gamemode;
+		if (state instanceof PongState)
+			this._state = state;
+		else
+			this._state = new PongState(state.name, state);
+
+		// do things based on gamemode (not implemented yet)
+		this.switchMap(MapID.SMALL);
+		let paddleId: number = 0;
 		this._players = players.map((player: IPlayer, index: number) => {
+			if (!this._paddles.has(paddleId)) {
+				paddleId++;
+			}
 			return {
 				...player,
-				paddleId: index,
+				paddleId: paddleId++,
 				movement: PlayerMovement.NONE,
 				toJSON() {
 					return {
@@ -127,17 +138,10 @@ export class Pong {
 				}
 			}
 		});
-		if (state instanceof PongState)
-			this._state = state;
-		else
-			this._state = new PongState(state.name, state);
 
-		// do things based on gamemode (not implemented yet)
-		this.switchMap(MapID.SMALL);
-
-		// this._balls.push(new Ball());
-		// this._physicsScene.addBody(this._balls[0]);
-		// this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		this._balls.push(new Ball());
+		this._physicsScene.addBody(this._balls[0]);
+		this._balls[0].addEventListener("collision", ballCollision.bind(this));
 	}
 
 	protected localSetup() {

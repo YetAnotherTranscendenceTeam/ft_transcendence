@@ -39,7 +39,7 @@ export class PongState implements IPongState {
 	public readonly name: string;
 	public readonly next?: PongState = null;
 	public frozen_until: number;
-	public  endCallback?: ((game: Pong) => void) = null;
+	public endCallback?: ((game: Pong) => void) = null;
 	public tickCallback?: ((dt: number, game: Pong) => boolean) = null;
 
 	constructor(name: string, { frozen_until, next, endCallback, tickCallback }: { frozen_until: number, next?: PongState, endCallback?: (game: Pong) => void, tickCallback?: (dt: number, game: Pong) => boolean }) {
@@ -53,8 +53,8 @@ export class PongState implements IPongState {
 	// returns true if frozen
 	public tick(dt: number, game: Pong): boolean {
 		if (this.tickCallback) {
-			if (this.tickCallback(dt, game)) {
-				return true;
+			if (!this.tickCallback(dt, game)) {
+				return false;
 			}
 		}
 		if (this.frozen_until > 0) {

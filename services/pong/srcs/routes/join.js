@@ -26,10 +26,9 @@ export default function router(fastify, opts, done) {
         WsCloseError.Inaccessible.close(socket);
         return;
       }
-      console.log("Player", player);
       player.socket = socket;
       socket.send(JSON.stringify({
-        event: "join",
+        event: "sync",
         data: {match}
       }));
       socket.on("message", (message) => {

@@ -1,11 +1,10 @@
 import { Pong, PongState } from "pong";
-import { WsCloseError } from "yatt-ws";
 
 PongState.RESERVED.tickCallback = function (dt, pong) {
 	if (pong.players.some(player => !player.socket)) {
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 export class PongServer extends Pong {
@@ -16,7 +15,7 @@ export class PongServer extends Pong {
 		this._running = 0;
 		this._time = 0;
 		this._lastUpdate = 0;
-		this.onlineSetup(match_id, gamemode, teams.flat(), PongState.RESERVED);
+		this.onlineSetup(match_id, gamemode, teams.flat(), PongState.RESERVED.clone());
 		for (let ball of this._balls) {
 			ball.addEventListener("collision", (event) => {
 				console.log("Ball collision", event);
@@ -43,7 +42,7 @@ export class PongServer extends Pong {
 			gamemode: this._gameMode,
 			state: this._state,
 			score: this._score,
-			paddles: this._paddles,
+			paddles,
 			balls: this._balls,
 			tick: this.tick,
 		};
@@ -71,41 +70,58 @@ export class PongServer extends Pong {
 		super.start();
 	}
 
+	setState(state) {
+		this._state = state;
+		this.broadcast({
+			event: "state",
+			data: {state: this._state}
+		});
+	}
+
 	update() {
 		const now = Date.now();
-		let dt = now - this._lastUpdate;
+		let dt = (now - this._lastUpdate) / 1000;
 		this._lastUpdate = now;
 		if (this._state.tick(dt, this)) {
-			//this.broadcast({
-			//	event: "state",
-			//	state: this._state,
-			//})
 			return;
 		}
 		if (this._state.getNext()) {
+			console.log("State changed", this._state.getNext());
 			if (this._state.endCallback) {
 				this._state.endCallback(this);
 			}
-			this._state = this._state.getNext().clone();
+			this.setState(this._state.getNext().clone());
+			if (this._state.tick(dt, this)) {
+				return;
+			}
 		}
 		this._time += dt;
 		this.physicsUpdate(dt);
-		const paddle_positions = new Array(this._paddles.length);
-		for (let [id, paddle] of this._paddles) {
-			paddle_positions[paddle_index] = {
-				id: id,
+		const paddle_positions = {};
+		for (let player of this._players) {
+			const paddle = this._paddles.get(player.paddleId);
+			paddle_positions[player.paddleId] = {
+				id: player.paddleId,
 				y: paddle.position.y,
-				movement: this._players[id].movement
+				movement: player.movement
 			};
-			paddle_index++;
 		}
 		this.broadcast({
 			event: "step",
-			collisions: this.collisions,
-			paddles: paddle_positions,
-			tick: this.tick,
-			state: this._state,
+			data: {
+				collisions: this.collisions,
+				balls: this._balls,
+				paddles: paddle_positions,
+				tick: this.tick,
+			}
 		});
+		if (this.scoreUpdate()) {
+			if (this._winner !== undefined) {
+				this.setState(PongState.ENDED.clone());
+			}
+			else
+				this.setState(PongState.FREEZE.clone());
+		}
 		this.collisions.length = 0;
 	}
 }
