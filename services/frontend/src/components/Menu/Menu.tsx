@@ -45,7 +45,7 @@ export default function Menu({
 				className={`button ghost ${selected === 'online' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'online' ? 'online' : null)}
 			>
-				<PopHover content={disabledMessage()} className="flex items-center">
+				<PopHover content={<div className='menu-pophover'>{disabledMessage()}</div>} className="flex items-center">
 					<i className="fa-solid fa-globe"></i><p>Online</p>
 				</PopHover>
 			</Button>
