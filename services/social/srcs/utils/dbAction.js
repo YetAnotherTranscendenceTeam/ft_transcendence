@@ -1,8 +1,14 @@
+"use strict";
+
 import { HttpError } from "yatt-utils";
 import db from "../app/database.js";
 
-export function selectRequests(account_id) {
-  return select_requests.all(account_id);
+export function selectRequestsSent(account_id) {
+  return select_requests_from.all(account_id);
+}
+
+export function selectRequestsReceived(account_id) {
+  return select_requests_to.all(account_id);
 }
 
 // Create a friend request from a user to another,
@@ -27,11 +33,15 @@ export const handleFriendRequest = db.transaction((from, to) => {
 // Remove a pending friend request between two users
 export function cancelFriendRequest(from, to) {
   return delete_request.run({ from_user: from, to_user: to });
-}
+};
 
-const select_requests = db.prepare(`
+const select_requests_from = db.prepare(`
   SELECT to_user as account_id FROM friend_requests WHERE from_user = ?  
-`)
+`);
+
+const select_requests_to = db.prepare(`
+  SELECT from_user as account_id FROM friend_requests WHERE to_user = ?  
+`);
 
 const insert_request = db.prepare(`
   INSERT INTO friend_requests (from_user, to_user) VALUES (?, ?)

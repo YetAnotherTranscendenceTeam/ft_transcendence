@@ -1,9 +1,10 @@
+"use strict";
+
 import YATT from "yatt-utils";
-import db from "../app/database.js";
 import * as dbAction from "../utils/dbAction.js"
 import { inactivity_delay } from "../app/env.js";
 import { inactive, offline, online } from "./activityStatuses.js";
-import { userInfos } from "./userInfos.js";
+import { fetchProfiles, userInfos } from "./userInfos.js";
 import { WsError } from "yatt-ws";
 
 export class Client {
@@ -44,28 +45,33 @@ export class Client {
   }
 
   async welcome(clients, socket) {
+    // Retreive all friends / pending requests / blocked
     const friends = dbAction.selectFriendships(this.account_id).map(f => f.account_id);
-    const pending = dbAction.selectRequests(this.account_id).map(r => r.account_id);
+    const pending = {
+      sent: dbAction.selectRequestsSent(this.account_id).map(r => r.account_id),
+      received: dbAction.selectRequestsReceived(this.account_id).map(r => r.account_id),
+    }
     const blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
 
+    // Fetch all related profiles
+    const profiles = await fetchProfiles([...friends, ...pending.sent, ...pending.received, ...blocked]);
+
+    // Send welcome payload
     const payload = {
       event: "welcome",
       data: {
-        pending: await Promise.all(pending.map(async friend_id => {
-          return userInfos(friend_id, clients);
-        })),
-        friends: await Promise.all(friends.map(async friend_id => {
-          return userInfos(friend_id, clients, { include_status: true });
-        })),
-        blocked: await Promise.all(friends.map(async friend_id => {
-          return userInfos(friend_id, clients);
-        })),
+        friends: friends.map(id => userInfos(id, clients, profiles, { include_status: true })),
+        pending: {
+          sent: pending.sent.map(id => userInfos(id, clients, profiles)),
+          received: pending.received.map(id => userInfos(id, clients, profiles)),
+        },
+        blocked: blocked.map(id => userInfos(id, clients, profiles)),
         self: this.status(),
       }
     };
     const data = JSON.stringify(payload);
     socket.send(data);
-  }
+  };
 
   async follow(account_id, clients) {
     // const payload = {
