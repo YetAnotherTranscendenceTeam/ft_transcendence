@@ -7,20 +7,20 @@ import { useNavigate } from "babact-router-dom";
 export default function TournamentCard() {
 
 	const { me } = useAuth();
-	const naviagte = useNavigate();
+	const navigate = useNavigate();
 
 	if (me && me.last_tournament && me.last_tournament.active === 1 && !window.location.pathname.startsWith('/tournaments'))
 	return <Card
 		className="tournament-card left w-full gap-2"
 	>
 		<h1>
-			You'r currently in a tournament
+			You're currently in a tournament
 		</h1>
 
 		<Button
 			className="success"
 			onClick={() => {
-				naviagte(`/tournaments/${me.last_tournament.tournament_id}`);
+				navigate(`/tournaments/${me.last_tournament.tournament_id}`);
 			}}
 		>
 			Go to tournament <i className="fa-solid fa-people-group"></i>
