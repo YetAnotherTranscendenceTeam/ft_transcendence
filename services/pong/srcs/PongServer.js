@@ -29,23 +29,29 @@ export class PongServer extends Pong {
 	}
 
 	toJSON() {
-		const paddles = new Array(this._paddles.length);
-		for (let [id, paddle] of this._paddles) {
-			paddles[id] = {
-				id: id,
-				position: paddle.position,
-			}
-		}
 		return {
 			players: this._players,
 			match_id: this._matchId,
 			gamemode: this._gameMode,
 			state: this._state,
 			score: this._score,
-			paddles,
+			paddles: getPaddlePositions(),
 			balls: this._balls,
 			tick: this.tick,
 		};
+	}
+
+	getPaddlePositions() {
+		const paddle_positions = {};
+		for (let player of this._players) {
+			const paddle = this._paddles.get(player.paddleId);
+			paddle_positions[player.paddleId] = {
+				id: player.paddleId,
+				y: paddle.position.y,
+				movement: player.movement
+			};
+		}
+		return paddle_positions;
 	}
 
 	getPlayer(account_id) {
@@ -97,21 +103,12 @@ export class PongServer extends Pong {
 		}
 		this._time += dt;
 		this.physicsUpdate(dt);
-		const paddle_positions = {};
-		for (let player of this._players) {
-			const paddle = this._paddles.get(player.paddleId);
-			paddle_positions[player.paddleId] = {
-				id: player.paddleId,
-				y: paddle.position.y,
-				movement: player.movement
-			};
-		}
 		this.broadcast({
 			event: "step",
 			data: {
 				collisions: this.collisions,
 				balls: this._balls,
-				paddles: paddle_positions,
+				paddles: getPaddlePositions(),
 				tick: this.tick,
 			}
 		});
