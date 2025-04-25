@@ -9,9 +9,7 @@ export default function TournamentCard() {
 	const { me } = useAuth();
 	const naviagte = useNavigate();
 
-
-	if (!me || (me && me.last_tournament && me.last_tournament.active === 0) || window.location.pathname.startsWith('/tournaments'))
-		return;
+	if (me && me.last_tournament && me.last_tournament.active === 1 && !window.location.pathname.startsWith('/tournaments'))
 	return <Card
 		className="tournament-card left w-full gap-2"
 	>

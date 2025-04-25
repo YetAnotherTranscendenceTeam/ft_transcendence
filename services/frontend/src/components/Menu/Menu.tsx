@@ -21,11 +21,11 @@ export default function Menu({
 
 	const disabledMessage = () => {
 		if (!me)
-			return 'You must be logged in';
+			return <div className='menu-pophover'>You must be logged in</div>;
 		if (lobby && lobby.leader_account_id !== me.account_id)
-			return 'You must be leader of the lobby';
+			return <div className='menu-pophover'>You must be leader of the lobby</div>;
 		if (lobby && !lobby.state?.joinable)
-			return `Cannot change mode while lobby is ${lobby.state.type}`;
+			return <div className='menu-pophover'>Cannot change mode while lobby is ${lobby.state.type}</div>;
 		return '';
 	}
 
@@ -45,7 +45,7 @@ export default function Menu({
 				className={`button ghost ${selected === 'online' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'online' ? 'online' : null)}
 			>
-				<PopHover content={<div className='menu-pophover'>{disabledMessage()}</div>} className="flex items-center">
+				<PopHover content={disabledMessage()} className="flex items-center">
 					<i className="fa-solid fa-globe"></i><p>Online</p>
 				</PopHover>
 			</Button>

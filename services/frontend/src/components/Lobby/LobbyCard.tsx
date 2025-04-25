@@ -8,6 +8,10 @@ import { useNavigate } from "babact-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
 import CopyButton from "../../ui/CopyButton";
+import Accordion from "../../ui/Accordion";
+import SegmentedControl from "../../ui/SegmentedControl";
+import LobbySettings from "./LobbySettings";
+import { GameModeType } from "yatt-lobbies";
 
 export default function LobbyCard() {
 
@@ -65,6 +69,10 @@ export default function LobbyCard() {
 			
 			})}
 		</div>
+		{
+			(lobby.mode.type === GameModeType.TOURNAMENT || lobby.mode.type === GameModeType.CUSTOM) && me && lobby.leader_account_id === me.account_id &&
+			<LobbySettings lobby={lobby} />
+		}
 		<div className='lobby-card-footer flex gap-2'>
 			{ me && lobby.leader_account_id === me.account_id &&
 				((lobby.state.type === 'queued' &&
