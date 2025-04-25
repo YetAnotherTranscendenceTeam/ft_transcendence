@@ -19,13 +19,12 @@ export default function useAvatars(): {
 		user: string[]
 	}>(null);
 	const { ft_fetch } = useFetch();
-	const { me } = useAuth();
 
 	const mapAvatars = (avatars) => {
 		if (!avatars) return [];
 		const mappedAvatars = avatars.user.map((avatar) => ({
 				url: avatar,
-				isRemovable: me?.avatar !== avatar
+				isRemovable: true
 		}));
 		mappedAvatars.push(...avatars.default.map((avatar) => ({
 			url: avatar,

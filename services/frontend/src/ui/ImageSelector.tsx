@@ -23,6 +23,8 @@ export default function ImageSelector({
 		limit,
 		help,
 		tooltip,
+		ignore = [],
+		ignoreMessage,
 		...props
 	}: {
 		label: string,
@@ -36,6 +38,8 @@ export default function ImageSelector({
 		limit?: number,
 		help?: string,
 		tooltip?: string,
+		ignore?: string[],
+		ignoreMessage?: string,
 		[key: string]: any
 	}) {
 
@@ -78,6 +82,8 @@ export default function ImageSelector({
 			updateField(field, defaultValue);
 	}, []);
 
+	const limitReached = limit && images.filter(i => i.isRemovable).length >= limit;
+
 	return <div className='image-selector' {...props}>
 		{label &&
 			<div className='flex gap-2'>
@@ -95,19 +101,34 @@ export default function ImageSelector({
 		{help && <p className='input-help'>
 			{help}
 		</p>}
-		<div className='image-selector-container scrollbar'>
-			{ (images.filter(i => i.isRemovable).length < limit || !limit) &&  <label
-				key='file'
+		<div className='image-selector-container'>
+			<PopHover
+				content={limitReached ? <p className='image-selector-help'>
+					You can only upload {limit} images
+				</p> : null}
 			>
-				<input type="file" onChange={handleFileChange} accept='image/*' />
-				<i className="fa-solid fa-plus"></i>
-			</label>}
-			{ (images.filter(i => i.isRemovable).length < limit || !limit) && webcam && <label
-				key='webcam'
-				onClick={() => setWebcamModalOpen(true)}
+				<label
+					className={`${limitReached ? 'disabled' : ''}`}
+					key='file'
+				>
+					{ !limitReached && <input type="file" onChange={handleFileChange} accept='image/*' />}
+					<i className="fa-solid fa-plus"></i>
+				</label>
+			</PopHover>
+			{ webcam && 
+			<PopHover
+				content={limitReached ? <p className='image-selector-help'>
+					You can only upload {limit} images
+				</p> : null}
 			>
-				<i className="fa-solid fa-camera" ></i>
-			</label>}
+				<label
+					key='webcam'
+					className={`${limitReached ? 'disabled' : ''}`}
+					onClick={() => !limitReached && setWebcamModalOpen(true)}
+				>
+					<i className="fa-solid fa-camera" ></i>
+				</label>
+			</PopHover>}
 			{
 				images.map((image: Image, i: number) => (
 					<div className={`image-selector-item ${inDeletion === image.url ? 'loading' : ''}`} key={image.url}>
@@ -116,7 +137,11 @@ export default function ImageSelector({
 							className={fields[field].value === image.url ? 'selected' : ''}
 							onClick={() => handleImageClick(image.url)}
 						/>
-						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => setDeleteImage(image.url)}/>}
+						{image.isRemovable && !inDeletion &&
+							<i
+								className="fa-solid fa-trash"
+								onClick={() => setDeleteImage(image.url)}
+							/>}
 						<Spinner />
 					</div>
 				))
@@ -128,6 +153,8 @@ export default function ImageSelector({
 			onCapture={onChange}
 		/>
 		<AvatarDeletionModal
+			ignore={ignore}
+			ignoreMessage={ignoreMessage}
 			isOpen={deleteImage !== null}
 			onClose={() => setDeleteImage(null)}
 			onDelete={async () => {
