@@ -64,7 +64,7 @@ export class GameMode implements IGameMode {
   }
 
   getLobbyCapacity(): number {
-    return this.type === GameModeType.TOURNAMENT ? this.team_size * this.team_count : this.team_size;
+    return this.type === GameModeType.TOURNAMENT || this.type === GameModeType.CUSTOM ? this.team_size * this.team_count : this.team_size;
   }
 
   getDisplayName(): string {
