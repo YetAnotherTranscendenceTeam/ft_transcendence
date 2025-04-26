@@ -10,8 +10,10 @@ export const GameModes = {
     new GameMode("unranked_1v1", { team_size: 1, team_count: 2, type: GameModeType.UNRANKED }),
     new GameMode("ranked_2v2", { team_size: 2, team_count: 2, type: GameModeType.RANKED }),
     new GameMode("ranked_1v1", { team_size: 1, team_count: 2, type: GameModeType.RANKED }),
-    new GameMode("custom_2v2", { team_size: 2, team_count: 16, type: GameModeType.CUSTOM }),
-    new GameMode("custom_1v1", { team_size: 1, team_count: 16, type: GameModeType.CUSTOM }),
+    new GameMode("custom_2v2", { team_size: 2, team_count: 2, type: GameModeType.CUSTOM }),
+    new GameMode("custom_1v1", { team_size: 1, team_count: 2, type: GameModeType.CUSTOM }),
+    new GameMode("tournament_2v2", { team_size: 2, team_count: 16, type: GameModeType.TOURNAMENT }),
+    new GameMode("tournament_1v1", { team_size: 1, team_count: 16, type: GameModeType.TOURNAMENT }),
   ].reduce((prev, curr) => ({ ...prev, [curr.name]: curr }), {}),
   equals(other) {
     for (let key in this) {

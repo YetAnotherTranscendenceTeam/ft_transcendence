@@ -814,3 +814,105 @@
 .pin-input input:focus {
 	border: 1px solid var(--fg-3);
 }
+
+
+/* ================================== */
+/* =========== Accordion ============ */
+/* ================================== */
+
+.accordion {
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.accordion-header {
+	padding: 8px;
+	box-sizing: border-box;
+	background-color: var(--bg-3);
+	transition: 0.4s;
+}
+
+.accordion-header:hover {
+	background-color: var(--bg-2);
+}
+
+.accordion-header.open {
+	background-color: var(--bg-2);
+}
+
+.accordion-header .accordion-icon {
+	transition: transform 0.3s ease-in-out;
+}
+
+.accordion-header.open .accordion-icon {
+	transform: rotate(-90deg);
+}
+
+.accordion-content {
+	/* border-top: 2px solid var(--bg-2); */
+	/* background-color: var(--bg-3); */
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.3s ease-in-out;
+}
+
+.accordion-content.open {
+	max-height: 400px;
+	overflow: hidden;
+}
+
+/* ================================== */
+/* ======== Segmented control ======= */
+/* ================================== */
+
+.segmented-control {
+	display: flex;
+	position: relative;
+	color: var(--fg-3);
+	padding: 8px 0;
+	font-size: medium;
+	background-color: var(--bg-3);
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.segmented-control::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: var(--segment-translate);
+	width: var(--width);
+	height: 100%;
+	background-color: var(--bg-1);
+	box-shadow: 0px 0px 16px 2px rgba(0, 0, 0, 0.452);
+	border-radius: 4px;
+	z-index: 0;
+	transition: left 0.3s ease-in-out;
+}
+
+.segmented-control-button {
+	flex: 1;
+	z-index: 1;
+	padding: 0 8px;
+	position: relative;
+	transition: 0.3s;
+}
+
+.segmented-control-button.disabled {
+	color: var(--fg-4);
+	cursor: not-allowed;
+}
+
+.segmented-control-button:not(:last-child)::after {
+	position: absolute;
+	top: 0%;
+	height: 100%;
+	width: 2px;
+	content: "";
+	right: -1px;
+	background-color: var(--fg-3);
+}
+
+.segmented-control-button.selected {
+	color: var(--fg-1);
+}

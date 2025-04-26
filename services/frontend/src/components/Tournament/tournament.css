@@ -165,3 +165,11 @@
 .tournament-end-modal .button{
 	margin-top: 20vh;
 }
+
+
+/* ===== Tournament Card ====== */
+
+.tournament-card h1{
+	font-size: medium;
+	font-weight: bold;
+}

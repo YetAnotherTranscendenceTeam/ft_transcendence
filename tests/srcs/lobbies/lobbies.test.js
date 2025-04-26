@@ -306,7 +306,7 @@ describe("Join full lobby", () => {
     let players = [];
     players.push(await createLobby(users[0], gamemode));
     const lobby_capacity =
-      gamemode.type === "custom" ? gamemode.team_size * gamemode.team_count: gamemode.team_size;
+      gamemode.type === "tournament" ? gamemode.team_size * gamemode.team_count: gamemode.team_size;
     for (let i = 1; i < lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -363,14 +363,14 @@ describe("Change gamemode with too many players", () => {
     let players = [];
     players.push(
       await createLobby(users[0], {
-        name: "custom_2v2",
+        name: "tournament_2v2",
         team_size: 2,
         team_count: 16,
-        type: "custom",
+        type: "tournament",
       })
     );
     const lobby_capacity =
-      gamemode.type === "custom" ? gamemode.team_size * gamemode.team_count : gamemode.team_size;
+      gamemode.type === "tournament" ? gamemode.team_size * gamemode.team_count : gamemode.team_size;
     for (let i = 1; i <= lobby_capacity; i++) {
       let player = await joinLobby(users[i], players[0]);
       await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
@@ -429,13 +429,13 @@ describe("Change gamemode with too many players", () => {
 
 describe("Team names", () => {
   let players = [];
-  it("create a 32 players custom lobby", async () => {
+  it("create a 32 players tournament lobby", async () => {
     players.push(
       await createLobby(users[0], {
-        name: "custom_2v2",
+        name: "tournament_2v2",
         team_size: 2,
         team_count: 16,
-        type: "custom",
+        type: "tournament",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
@@ -491,13 +491,13 @@ describe("Team names", () => {
 
 describe("Invalid team name", () => {
   let players = [];
-  test("create a 2v2 unranked lobby", async () => {
+  test("create a 2v2 tournament lobby", async () => {
     players.push(
       await createLobby(users[0], {
-        name: "custom_2v2",
+        name: "tournament_2v2",
         team_size: 2,
         team_count: 16,
-        type: "custom",
+        type: "tournament",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
@@ -524,16 +524,16 @@ describe("Invalid team name", () => {
   });
 });
 
-describe("Leave a 2v2 custom lobby starting from differente indexes", () => {
+describe("Leave a 2v2 tournament lobby starting from differente indexes", () => {
   const attempts = Array.from({ length: 32 }, (_, i) => i);
   test.each(attempts)("attempt %i", async (attempt) => {
     let players = [];
     players.push(
       await createLobby(users[0], {
-        name: "custom_2v2",
+        name: "tournament_2v2",
         team_size: 2,
         team_count: 16,
-        type: "custom",
+        type: "tournament",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {
@@ -557,13 +557,13 @@ describe("Leave a 2v2 custom lobby starting from differente indexes", () => {
 
 describe("swap team members", () => {
   let players = [];
-  it("create a 2v2 custom lobby and fill it up", async () => {
+  it("create a 2v2 tournament lobby and fill it up", async () => {
     players.push(
       await createLobby(users[0], {
-        name: "custom_2v2",
+        name: "tournament_2v2",
         team_size: 2,
         team_count: 16,
-        type: "custom",
+        type: "tournament",
       })
     );
     for (let i = 1; i < players[0].lobby.mode.team_size * players[0].lobby.mode.team_count; i++) {

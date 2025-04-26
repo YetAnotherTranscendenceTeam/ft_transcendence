@@ -42,8 +42,8 @@ describe("already in a tournament and queue for another", () => {
 		account_id: users[index].account_id,
 		profile: users[index].profile,
 	  })),
-	  mode: GameModes["custom_2v2"],
-	  join_secret: "custom_2v2_6",
+	  mode: GameModes["tournament_2v2"],
+	  join_secret: "tournament_2v2_6",
 	};
 
 	await ws
@@ -74,8 +74,8 @@ describe("already in a tournament and queue for another", () => {
 			account_id: users[index].account_id,
 			profile: users[index].profile,
 		  })),
-		  mode: GameModes["custom_2v2"],
-		  join_secret: "custom_2v2_6",
+		  mode: GameModes["tournament_2v2"],
+		  join_secret: "tournament_2v2_6",
 		},
 	  },
 	});
@@ -83,7 +83,7 @@ describe("already in a tournament and queue for another", () => {
   it("expect queue failure", async() => {
 	await ws.expectJson((message) => {
 	  expect(message.event).toBe("confirm_unqueue");
-	  expect(message.data.lobby.join_secret).toBe("custom_2v2_6");
+	  expect(message.data.lobby.join_secret).toBe("tournament_2v2_6");
 	});
   });
   it("finish tournament", async () => {
