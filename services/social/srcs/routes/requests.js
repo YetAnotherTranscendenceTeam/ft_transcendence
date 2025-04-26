@@ -17,48 +17,53 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.post("/requests/:account_id", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
-    const { account_id } = request.params;
+    const sender = request.account_id;
+    const receiver = request.params.account_id;
 
     try {
       // Verify account exists
-      await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+      const profile = await YATT.fetch(`http://db-profiles:3000/${receiver}`);
 
-      const friendship = dbAction.handleFriendRequest(request.account_id, account_id);
+      // 
+      const friendship = dbAction.handleFriendRequest(sender, receiver);
+      // Send notification through websocket(s)
       if (friendship) {
-        console.log("NEW FRIENDSHIP:", [request.account_id, account_id]);
+        console.log("NEW FRIENDSHIP:", [sender, receiver]);
+        await fastify.clients.get(sender)?.newFriendship(receiver, fastify.clients, { profile });
+        await fastify.clients.get(receiver)?.newFriendship(sender, fastify.clients);
       } else {
-        console.log("FRIEND REQUEST:", { from_user: request.account_id, to_user: account_id });
+        console.log("FRIEND REQUEST:", { sender, receiver });
+        await fastify.clients.newFriendRequest(sender, receiver, profile);
       }
-      reply.code(204);
-
-      // // Send notification through websocket(s)
-      // await fastify.clients.get(request.account_id)?.follow(account_id, fastify.clients);
-
     } catch (err) {
-      if (err.code === "SQLITE_CONSTRAINT_CHECK") {
-        throw new HttpError.Forbidden().setCode("SELF_REQUEST");
-      } else if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
+      if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
         throw new HttpError.Conflict().setCode("PENDING");
-      } else if (err.code === "SQLITE_CONSTRAINT_TRIGGER") {
+      } if (err.code === "SQLITE_CONSTRAINT_TRIGGER") {
         throw new HttpError.Forbidden().setCode(err.message);
+      } else if (err.code === "SQLITE_CONSTRAINT_CHECK") {
+        throw new HttpError.Forbidden().setCode("SELF_REQUEST");
       } else {
         console.error(err);
         throw err;
       }
     }
+    reply.code(204);
   });
 
   fastify.delete("/requests/:account_id", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
-    const { account_id } = request.params;
+    const actor = request.account_id;
+    const target = request.params.account_id;
 
-    const deletion = dbAction.cancelFriendRequest(request.account_id, account_id);
-    if (deletion.changes === 0) {
+    const deletion = dbAction.cancelFriendRequest(actor, target);
+    if (!deletion === 0) {
       throw new HttpError.NotFound();
-    }
-    reply.code(204).send();
+    };
 
     // Send notification through websocket(s)
-    // await fastify.clients.get(request.account_id)?.unfollow(account_id);
+    console.log(deletion);
+    await fastify.clients.deleteFriendRequest(deletion.sender, deletion.receiver);
+
+    reply.code(204);
   });
 
   done();

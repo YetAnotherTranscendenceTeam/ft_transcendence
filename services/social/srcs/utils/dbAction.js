@@ -23,38 +23,38 @@ export const handleFriendRequest = db.transaction((from, to) => {
   insert_request.run(from, to);
   const reverse = get_reverse_request.get(from, to);
   if (reverse) {
-    delete_request.run({ from_user: from, to_user: to });
+    delete_request.run({ sender: from, receiver: to });
     insert_friendship.run(Math.min(from, to), Math.max(from, to));
-    return 0;
   }
-  return 1;
+  return !!reverse;
 });
 
 // Remove a pending friend request between two users
 export function cancelFriendRequest(from, to) {
-  return delete_request.run({ from_user: from, to_user: to });
+  return delete_request.get({ sender: from, receiver: to });
 };
 
 const select_requests_from = db.prepare(`
-  SELECT to_user as account_id FROM friend_requests WHERE from_user = ?  
+  SELECT receiver as account_id FROM friend_requests WHERE sender = ?  
 `);
 
 const select_requests_to = db.prepare(`
-  SELECT from_user as account_id FROM friend_requests WHERE to_user = ?  
+  SELECT sender as account_id FROM friend_requests WHERE receiver = ?  
 `);
 
 const insert_request = db.prepare(`
-  INSERT INTO friend_requests (from_user, to_user) VALUES (?, ?)
+  INSERT INTO friend_requests (sender, receiver) VALUES (?, ?)
 `);
 
 const get_reverse_request = db.prepare(`
-  SELECT 1 FROM friend_requests WHERE to_user = ? AND from_user = ?
+  SELECT 1 FROM friend_requests WHERE receiver = ? AND sender = ?
 `);
 
 const delete_request = db.prepare(`
   DELETE FROM friend_requests 
-  WHERE (from_user = @from_user AND to_user = @to_user)
-    OR (from_user = @to_user AND to_user = @from_user)
+  WHERE (sender = @sender AND receiver = @receiver)
+    OR (sender = @receiver AND receiver = @sender)
+  RETURNING *
 `);
 
 // Retreive the friendship of a user

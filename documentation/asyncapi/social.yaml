@@ -27,12 +27,12 @@ channels:
     # sent from server to client
       welcome:
         $ref: '#/components/messages/welcome'
-      status:
-        $ref: '#/components/messages/status'
-      follow:
-        $ref: '#/components/messages/follow'
-      unfollow:
-        $ref: '#/components/messages/unfollow'
+      receive_status:
+        $ref: '#/components/messages/receive_status'
+      receive_new_friend_request:
+        $ref: '#/components/messages/receive_new_friend_request'
+      receive_delete_friend_request:
+        $ref: '#/components/messages/receive_delete_friend_request'    
       receive_lobby_invite:
         $ref: '#/components/messages/receive_lobby_invite'
       receive_lobby_request:
@@ -43,8 +43,8 @@ channels:
     # sent from client to server
       ping:
         $ref: '#/components/messages/ping'
-      update_status:
-        $ref: '#/components/messages/update_status'
+      send_status:
+        $ref: '#/components/messages/send_status'
       send_lobby_invite:
         $ref: '#/components/messages/send_lobby_invite'
       send_lobby_request:
@@ -59,9 +59,9 @@ operations:
       $ref: '#/channels/social'
     messages:
       - $ref: '#/channels/social/messages/welcome'
-      - $ref: '#/channels/social/messages/status'
-      - $ref: '#/channels/social/messages/follow'
-      - $ref: '#/channels/social/messages/unfollow'
+      - $ref: '#/channels/social/messages/receive_status'
+      - $ref: '#/channels/social/messages/receive_new_friend_request'
+      - $ref: '#/channels/social/messages/receive_delete_friend_request'
       - $ref: '#/channels/social/messages/receive_lobby_invite'
       - $ref: '#/channels/social/messages/receive_lobby_request'
       - $ref: '#/channels/social/messages/error'
@@ -72,7 +72,7 @@ operations:
       $ref: '#/channels/social'
     messages:
       - $ref: '#/channels/social/messages/ping'
-      - $ref: '#/channels/social/messages/update_status'
+      - $ref: '#/channels/social/messages/send_status'
       - $ref: '#/channels/social/messages/send_lobby_invite'
       - $ref: '#/channels/social/messages/send_lobby_request'
       - $ref: '#/channels/social/messages/goodbye'
@@ -109,15 +109,15 @@ components:
           - event
           - data
     
-    status:
-      description: Message sent by the server when the status of a user you are following changes
+    receive_status:
+      description: Message sent by the server when the status of a friend changes
       payload:
         type: object
         properties:
           event:
             type: string
             enum:
-              - status
+              - receive_status
           data:
             type: object
             properties:
@@ -132,15 +132,16 @@ components:
           - event
           - data
 
-    follow:
-      description: Message sent by the server when the client follows another user
+    receive_new_friend_request:
+      description: Message sent by the server when a pending friend request get sent
       payload:
         type: object
         properties:
           event:
             type: string
+            description: The type of the event
             enum:
-              - follow
+              - receive_new_friend_request
           data:
             type: object
             properties:
@@ -148,32 +149,40 @@ components:
                 $ref: '#/components/schemas/account_id'
               profile:
                 $ref: '#/components/schemas/profile'
-              status:
-                $ref: '#/components/schemas/status'
+              sender:
+                description: The account ID of the user that initiated the friend request
+                type: number
+                example: 108244
             required:
               - account_id
               - profile
-              - status
+              - sender
         required:
           - event
           - data
-      
-    unfollow:
-      description: Message sent by the server when the client unfollows another user
+
+    receive_delete_friend_request:
+      description: Message sent by the server when a pending friend request get canceled
       payload:
         type: object
         properties:
           event:
             type: string
+            description: The type of the event
             enum:
-              - unfollow
+              - receive_delete_friend_request
           data:
             type: object
             properties:
               account_id:
                 $ref: '#/components/schemas/account_id'
+              sender:
+                description: The account ID of the user that initiated the friend request
+                type: number
+                example: 108244
             required:
               - account_id
+              - sender
         required:
           - event
           - data
@@ -226,7 +235,7 @@ components:
           - data
     
     error:
-      description: Message send by the server when an error occurs
+      description: Message sent by the server when an error occurs
       payload:
         type: object
         properties:
@@ -259,7 +268,7 @@ components:
         required:
           - event
     
-    update_status:
+    send_status:
       description: |
         Send this message to the server to update your own status.
         For any other status type that `online``, an optional data object
@@ -271,7 +280,7 @@ components:
             type: string
             description: The type of the event
             enum:
-              - update_status
+              - send_status
           data:
             description: An activity status
             type: object
@@ -284,7 +293,7 @@ components:
                   - inlobby
               data:
                 type: object
-                decription: Custom information about the user activity
+                description: Custom information about the user activity
             required:
               - type
         required:
@@ -366,7 +375,7 @@ components:
             - inlobby
         data:
           type: object
-          decription: Custom information about the user activity
+          description: Custom information about the user activity
       required:
         - type
 

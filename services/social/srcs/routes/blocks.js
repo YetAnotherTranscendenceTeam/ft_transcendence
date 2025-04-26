@@ -53,7 +53,7 @@ export default function router(fastify, opts, done) {
       throw new HttpError.NotFound();
     }
     reply.code(204).send();
-    console.log("UNBLOCK:", { from_user: request.account_id, to_user: account_id });
+    console.log("UNBLOCK:", { sender: request.account_id, receiver: account_id });
 
     // Send notification through websocket(s)
     // await fastify.clients.get(request.account_id)?.unfollow(account_id);

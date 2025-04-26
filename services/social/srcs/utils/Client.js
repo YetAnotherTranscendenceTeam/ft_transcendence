@@ -60,12 +60,20 @@ export class Client {
     const payload = {
       event: "welcome",
       data: {
-        friends: friends.map(id => userInfos(id, clients, profiles, { include_status: true })),
+        friends: await Promise.all(friends.map(id =>
+          userInfos(id, clients, { profiles, include_status: true })
+        )),
         pending: {
-          sent: pending.sent.map(id => userInfos(id, clients, profiles)),
-          received: pending.received.map(id => userInfos(id, clients, profiles)),
+          sent: await Promise.all(pending.sent.map(id =>
+            userInfos(id, clients, { profiles })
+          )),
+          received: await Promise.all(pending.received.map(id =>
+            userInfos(id, clients, { profiles })
+          )),
         },
-        blocked: blocked.map(id => userInfos(id, clients, profiles)),
+        blocked: await Promise.all(blocked.map(id =>
+          userInfos(id, clients, { profiles })
+        )),
         self: this.status(),
       }
     };
@@ -73,20 +81,53 @@ export class Client {
     socket.send(data);
   };
 
-  async follow(account_id, clients) {
-    // const payload = {
-    //   event: "follow",
-    //   data: await userInfos(account_id, clients),
-    // }
-    // this.send(payload);
+  async newFriendRequestSent(receiver, profile) {
+    const payload = {
+      event: "receive_new_friend_request",
+      data: {
+        ...await userInfos(receiver, this.allClients, { profile }),
+        sender: this.account_id,
+      },
+    }
+    this.send(payload);
+  };
+
+  async newFriendRequestReceived(sender) {
+    const payload = {
+      event: "receive_new_friend_request",
+      data: {
+        ...await userInfos(sender, this.allClients),
+        sender,
+      },
+    }
+    this.send(payload);
+  };
+
+  async deleteFriendRequest(sender, receiver) {
+    const payload = {
+      event: "receive_delete_friend_request",
+      data: {
+        account_id: sender !== this.account_id ? sender : receiver,
+        sender
+      },
+    };
+    this.send(payload);
+  };
+
+  async newFriend(account_id, clients) {
+    const payload = {
+      event: "receive_new_friend",
+      data: await userInfos(account_id, clients),
+    }
+    this.send(payload);
   }
 
-  async unfollow(account_id) {
-    // const payload = {
-    //   event: "unfollow",
-    //   data: { account_id },
-    // }
-    // this.send(payload);
+  async deleteFriend(account_id, clients) {
+    const payload = {
+      event: "receive_delete_friend",
+      data: await userInfos(account_id, clients),
+    }
+    this.send(payload);
   }
 
   goInactive() {

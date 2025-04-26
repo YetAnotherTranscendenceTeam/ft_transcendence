@@ -14,13 +14,24 @@ export async function fetchProfiles(accounts) {
   return map;
 };
 
-export function userInfos(account_id, clients, profiles, options = {}) {
-  const user = {
-    account_id: account_id,
-    profile: profiles.get(account_id)
-  };
+export async function userInfos(account_id, clients, options = {}) {
+  const user = { account_id };
+
+  // Attach user profile
+  if (options.profiles) {
+    user.profile = options.profiles.get(account_id);
+  } else if (options.profile) {
+    user.profile = options.profile;
+  } else {
+    try {
+      user.profile = await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+    } catch (err) {
+      user.profile = null;
+    }
+  }
 
   if (options.include_status === true) {
+    // Attach user status
     const target = clients.get(account_id);
     if (target) {
       user.status = target.status();
@@ -28,5 +39,6 @@ export function userInfos(account_id, clients, profiles, options = {}) {
       user.status = offline;
     }
   };
+
   return user;
 }

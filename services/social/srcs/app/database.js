@@ -9,12 +9,12 @@ const MAX_BLOCKS = 50;
 // Friend request table
 db.exec(`
   CREATE TABLE IF NOT EXISTS friend_requests (
-    from_user INTEGER NOT NULL,
-    to_user INTEGER NOT NULL,
+    sender INTEGER NOT NULL,
+    receiver INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (from_user, to_user),
-    CHECK(from_user != to_user)
+    PRIMARY KEY (sender, receiver),
+    CHECK(sender != receiver)
   )
 `);
 
@@ -24,9 +24,9 @@ db.exec(`
   BEGIN
     SELECT CASE
       WHEN
-        (SELECT COUNT(*) FROM friend_requests WHERE from_user = NEW.from_user)
+        (SELECT COUNT(*) FROM friend_requests WHERE sender = NEW.sender)
         +
-        (SELECT COUNT(*) FROM friendships WHERE user1 = NEW.from_user OR user2 = NEW.from_user)
+        (SELECT COUNT(*) FROM friendships WHERE user1 = NEW.sender OR user2 = NEW.sender)
         >= ${MAX_BLOCKS}
       THEN RAISE(ABORT, 'MAX_FRIENDS')
     END;
