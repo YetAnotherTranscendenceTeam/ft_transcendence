@@ -32,12 +32,12 @@ export default function router(fastify, opts, done) {
       // await fastify.clients.get(request.account_id)?.follow(account_id, fastify.clients);
 
     } catch (err) {
-      if (err.code === "SQLITE_CONSTRAINT_CHECK") {
-        throw new HttpError.Forbidden().setCode("SELF_BLOCK");
-      } else if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
-        throw new HttpError.Conflict();
+      if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
+        throw new HttpError.Conflict().setCode("BLOCKED");
       } else if (err.code === "SQLITE_CONSTRAINT_TRIGGER") {
         throw new HttpError.Forbidden().setCode(err.message);
+      } else if (err.code === "SQLITE_CONSTRAINT_CHECK") {
+        throw new HttpError.Forbidden().setCode("SELF_BLOCK");
       } else {
         console.error(err);
         throw err;
