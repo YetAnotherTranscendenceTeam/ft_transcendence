@@ -370,7 +370,8 @@ services:
       - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
     ports:
       - 4124:3000
-    # networks:
+    networks:
+      - frontend
 
 networks:
   frontend:

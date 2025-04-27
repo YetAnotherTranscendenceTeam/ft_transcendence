@@ -8,19 +8,13 @@ import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/o
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { KeyState, GameScene, KeyName, ScoredEvent } from "./types";
+import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
 import { useAuth } from "../../contexts/useAuth";
+import config from "../../config";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-
-export interface IServerStep {
-	collision: Array<Object>;
-	balls: Array<Object>;
-	paddles: Array<Object>;
-	tick: number;
-}
 
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
@@ -86,7 +80,7 @@ export default class PongClient extends PONG.Pong {
 		this._serverSteps = [];
 		this._engine.runRenderLoop(this.loop);
 		
-		this._websocket = new WebSocket(`ws://localhost:4124/join?match_id=0&access_token=${localStorage.getItem("access_token")}`);
+		this._websocket = new WebSocket(`${config.WS_URL}/pong/join?match_id=0&access_token=${localStorage.getItem("access_token")}`);
 		
 		this._websocket.onmessage = (ev) => { // step, state, sync
 			const msg = JSON.parse(ev.data);
