@@ -2,15 +2,18 @@ import Babact from "babact";
 import Button from "../../ui/Button";
 import Input from "../../ui/Input";
 import { Form } from "../../contexts/useForm";
-import useUsers from "../../hooks/useUsers";
-import { Follow, StatusType } from "../../hooks/useSocials";
+import useUsers, { User } from "../../hooks/useUsers";
+import { Friend, StatusType } from "../../hooks/useSocials";
 import SocialUserCard from "./SocialUserCard";
 import { useAuth } from "../../contexts/useAuth";
-import SocialFollowCard from "./SocialFollowCard";
+import SocialFollowCard from "./SocialFriendCard";
 import SegmentedControl from "../../ui/SegmentedControl";
 import Accordion from "../../ui/Accordion";
 import Label from "../../ui/Label";
 import SocialRequestCard from "./SocialRequestCard";
+import useFetch from "../../hooks/useFetch";
+import SocialFriendCard from "./SocialFriendCard";
+import SocialBlockedCard from "./SocialBlockCard";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
 
@@ -18,32 +21,33 @@ export default function SocialManager({ className = '', children, ...props }: { 
 
 	const {users, search} = useUsers();
 
-	const { me, follows } = useAuth();
+	const { me, socials } = useAuth();
 
 	const handleSearch = (e) => {
-		search(e.target.value, 20, follows.map(f => f.account_id).concat(me.account_id));
+		search(e.target.value, 20, socials.friends.map(f => f.account_id).concat(me.account_id));
 	};
 
 	Babact.useEffect(() => {
 		if (me)
-			search('', 20, follows.map(f => f.account_id).concat(me.account_id));
-	}, [me, follows]);
+			search('', 20, [me.account_id]);
+	}, [me]);
 
-	const sortFollows = (follows: Follow[]) => {
+	const sortFollows = (follows: Friend[]) => {
 		return follows.sort((a, b) => {
 			const order = [StatusType.INLOBBY, StatusType.INGAME, StatusType.ONLINE, StatusType.INACTIVE, StatusType.OFFLINE];
 			return order.indexOf(a.status.type) - order.indexOf(b.status.type);
 		});
 	};
 
-
+	if (!socials)
+		return null;
 	return <div className={`social-manager ${className}`} {...props}>
 		<div className='social-manager-tabbar flex flex-row'>
 			<Button className={`ghost ${selected === 'follow' ? 'selected' : ''}`} onClick={() => setSelected('follow')}>
 				<i className="fa-solid fa-user-group"></i> Friends
-				<p>
+				{/* <p>
 					{follows.filter(f => f.status.type !== StatusType.OFFLINE).length ?? '0'}/{follows.length}
-				</p>
+				</p> */}
 			</Button>
 			<Button className={`ghost ${selected === 'search' ? 'selected' : ''}`} onClick={() => setSelected('search')}>
 				<i className="fa-solid fa-magnifying-glass"></i> Search
@@ -51,63 +55,104 @@ export default function SocialManager({ className = '', children, ...props }: { 
 		</div>
 		<div className='social-manager-content flex flex-row gap-4'>
 			<div className={`social-manager-tab scrollbar flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
-				{/* {
-					follows.length ?
-					sortFollows(follows).map((follow, i) =>
-						<SocialFollowCard
-							key={follow.account_id}
-							follow={follow}
-						/>
-					):
-					<div className='flex flex-col w-full items-center justify-center h-full gap-4'>
-						No friend yet
-						<Button className="primary" onClick={() => setSelected('add')}>
-							Add one now <i className="fa-solid fa-plus"></i>
-						</Button>
-					</div>
-				} */}
-
 				<Accordion
-					openButton={<><i className="fa-solid fa-clock"></i> Pending <Label>3</Label></>}
+					openDefault={socials?.pending.received.length > 0}
+					openButton={<>
+						<i className="fa-solid fa-clock"></i> Pending 
+							{socials?.pending.received.length > 0 && <Label>{socials.pending.received.length}</Label>}
+						</>}
 				>
-					{/* <div className='social-manager-empty flex flex-col gap-2'>
+					{socials && socials.pending.received.length + socials.pending.sent.length === 0 && <div className='social-manager-empty flex flex-col gap-2'>
 						No pending friend request
-					</div> */}
-					{follows && follows.length > 0 && <div
+					</div>}
+					{socials && socials.pending.received.length + socials.pending.sent.length > 0 &&  <div
 						className='social-manager-user-list flex flex-col gap-1'
+						key='pending'
 					>
-						<h2>Received request</h2>
-						<SocialRequestCard user={follows[0].profile}/>
-						<SocialRequestCard user={follows[0].profile}/>
-						<h2>Send request</h2>
-						<SocialRequestCard user={follows[0].profile}/>
-						<SocialRequestCard user={follows[0].profile}/>
+						{
+							socials?.pending.received.length > 0 &&
+							<div
+								key='pending-received'
+								className='flex flex-col gap-1'
+							>
+								<h2>Received request</h2>
+								{
+									socials?.pending.received.map((request, i) =>
+										<SocialRequestCard
+											requestType="recieved"
+											key={request.account_id}
+											request={request}
+										/>
+									)
+								}
+							</div>
+						}
+						{
+							socials?.pending.sent.length > 0 &&
+							<div
+								key='pending-sent'
+								className='flex flex-col gap-1'
+							>
+								<h2>Sent request</h2>
+								{
+									socials?.pending.sent.map((request, i) =>
+										<SocialRequestCard
+											requestType="sent"
+											key={request.account_id}
+											request={request}
+										/>
+									)
+								}
+							</div>
+						}
 					</div>}
 				</Accordion>
 
 				<Accordion
+					openDefault={true}
 					openButton={<><i className="fa-solid fa-user-group"></i> Friends</>}
 				>
-					{/* <div className='social-manager-empty flex flex-col gap-2'>
+					{ socials?.friends.length === 0 && <div className='social-manager-empty flex flex-col gap-2'>
 						No friend yet
-					</div> */}
-					<div
-						className='social-manager-user-list flex flex-col gap-1'
-					>
-						{follows?.length && sortFollows(follows).map((follow, i) =>
-							<SocialFollowCard
-								key={follow.account_id}
-								follow={follow}
-							/>
-						)}
 					</div>
+					}
+					{
+						socials?.friends.length > 0 &&
+						<div
+							className='social-manager-user-list flex flex-col gap-1'
+						>
+							{
+								socials?.friends.map((request, i) =>
+									<SocialFriendCard
+										key={request.account_id}
+										friend={request}
+									/>
+								)
+							}
+						</div>
+					}
 				</Accordion>
 				<Accordion
 					openButton={<><i className="fa-solid fa-ban"></i> Blocked</>}
 				>
-					<div className='social-manager-empty flex flex-col gap-2'>
+					{socials?.blocked.length === 0 && <div className='social-manager-empty flex flex-col gap-2'>
 						No blocked user
-					</div>
+					</div>}
+					{
+						socials?.blocked.length > 0 &&
+						<div
+							className='social-manager-user-list flex flex-col gap-1'
+						>
+							{
+								socials?.blocked.map((user, i) =>
+									<SocialBlockedCard
+										key={user.account_id}
+										user={user}
+									/>
+								)
+							}
+						</div>
+					}
 				</Accordion>
 			</div>
 			<div className={`social-manager-tab social-manager-add flex flex-col gap-2 ${selected === 'search' ? 'open' : ''}`}>

@@ -5,16 +5,18 @@ export default function Accordion({
 		className,
 		openButton,
 		openButtonClassName,
+		openDefault = false,
 		...props
 	}: {
 		children?: any;
 		className?: string;
 		openButton: any;
 		openButtonClassName?: string;
+		openDefault?: boolean;
 		[props: string]: any;
 	}) {
 
-	const [open, setOpen] = Babact.useState(false);
+	const [open, setOpen] = Babact.useState(openDefault);
 
 	return <div className={`accordion flex flex-col ${className ?? ''}`} {...props}>
 		<div

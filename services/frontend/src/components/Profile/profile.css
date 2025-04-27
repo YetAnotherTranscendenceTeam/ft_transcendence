@@ -81,8 +81,6 @@
 	box-sizing: border-box;
 	font-size: small;
 	border-radius: 4px;
-	cursor: pointer;
-	/* background-color: var(--bg-4); */
 }
 
 .social-manager-follow-card:hover {
@@ -189,6 +187,20 @@
 	transition: 0.4s;
 }
 
+.request-card .button {
+	font-weight: normal;
+}
+
 .request-card:hover {
 	background-color: var(--bg-4);
+}
+
+.request-toast {
+	position: relative;
+}
+
+.resquest-toast .close-button {
+	position: absolute;
+	top: 8px;
+	right: 8px;
 }

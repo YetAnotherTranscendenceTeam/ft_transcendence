@@ -22,18 +22,32 @@ export class User implements IUser {
 		this.avatar = user.avatar;
 	}
 
-	async follow() {
-		return await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
+	async request() {
+		const response = await this.ft_fetch(`${config.API_URL}/social/requests/${this.account_id}`, {
 			method: 'POST',
 		}, {
-			success_message: `You are now following ${this.username}`,
-			show_error: true,
 			error_messages: {
-				"MAX_FOLLOWS": `You can't follow more users`,
-				"SELF_FOLLOW": `You can't follow yourself`,
-				409: `You are already following ${this.username}`,
+				409: 'Already requested',
+				404: 'User not found',
+				'MAX_FRIENDS': 'Max friends reached',
+				'IS_BLOCKED': 'You are blocked',
+				'IS_FRIEND': 'Already friends',
+				'SELF_REQUEST': 'You cannot request yourself',
 			}
 		});
+		return response;
+	}
+
+	async block() {
+		const response = await this.ft_fetch(`${config.API_URL}/social/blocks/${this.account_id}`, {
+			method: 'POST',
+		}, {
+			error_messages: {
+				404: 'User not found',
+				409: 'Already blocked',
+			}
+		});
+		return response;
 	}
 }
 

@@ -22,13 +22,14 @@ export type FollowStatus = {
 	data?: any,
 }
 
-export interface IFollow {
+export interface IFriend {
 	account_id: number,
 	profile: IUser,
 	status: FollowStatus,
 }
 
-export class Follow implements IFollow {
+
+export class Friend implements IFriend {
 	account_id: number;
 	profile: User;
 	status: FollowStatus;
@@ -36,25 +37,25 @@ export class Follow implements IFollow {
 	ft_fetch: any;
 
 
-	constructor(follow: IFollow, ws: WebSocketHook, ft_fetch?: any) {
+	constructor(friend: IFriend, ws: WebSocketHook, ft_fetch?: any) {
 		this.ft_fetch = ft_fetch;
 		this.ws = ws;
-		this.account_id = follow.account_id;
-		this.profile = new User(follow.profile, ft_fetch);
-		this.status = follow.status;
+		this.account_id = friend.account_id;
+		this.profile = new User(friend.profile, ft_fetch);
+		this.status = friend.status;
 	}
 
-	async unfollow() {
-		return await this.ft_fetch(`${config.API_URL}/social/follows/${this.account_id}`, {
+	async remove() {
+		const response = await this.ft_fetch(`${config.API_URL}/social/friends/${this.account_id}`, {
 			method: 'DELETE',
 		}, {
-			success_message: `You unfollowed ${this.profile.username}`,
-			show_error: true,
+			success_message: `${this.profile.username} removed from friends`,
 			error_messages: {
-				404: `You are not following ${this.profile.username}`,
+				404: 'Friend not found',
 			}
 		});
-	};
+		return response;
+	}
 
 	invite(gamemode: GameMode, join_secret: string): void {
 		this.ws.send({
@@ -83,8 +84,78 @@ export class Follow implements IFollow {
 
 }
 
+export interface IBlockedUser {
+	account_id: number,
+	profile: User,
+}
+
+export class BlockedUser extends User implements IBlockedUser {
+	account_id: number;
+	profile: User;
+
+	constructor(user: IBlockedUser, ft_fetch: any) {
+		super(user.profile, ft_fetch);
+		this.account_id = user.account_id;
+		this.profile = new User(user.profile, ft_fetch);
+	}
+
+	async unblock() {
+		const response = await this.ft_fetch(`${config.API_URL}/social/blocks/${this.account_id}`, {
+			method: 'DELETE',
+		}, {
+			success_message: 'User unblocked',
+			error_messages: {
+				404: 'User not found',
+			}
+		});
+		return response;
+	}
+
+}
+
+export interface IRequest {
+	account_id: number,
+	profile: IUser,
+}
+
+export class Request implements IRequest {
+	account_id: number;
+	profile: User;
+	ft_fetch: any;
+
+	constructor(request: IRequest, ft_fetch: any) {
+		this.account_id = request.account_id;
+		this.profile = new User(request.profile, ft_fetch);
+		this.ft_fetch = ft_fetch;
+	}
+
+	async cancel() {
+		const response = await this.ft_fetch(`${config.API_URL}/social/requests/${this.account_id}`, {
+			method: 'DELETE',
+		}, {
+			error_messages: {
+				404: 'Request not found',
+			}
+		});
+		return response;
+	};
+
+	async accept() {
+		return await this.profile.request();
+	}
+}
+
+export interface ISocials {
+	friends: Friend[],
+	pending: {
+		sent: Request[],
+		received: Request[],
+	},
+	blocked: BlockedUser[],
+}
+
 export default function useSocial(setMeStatus: (status: FollowStatus) => void, getMe: () => IMe): {
-		follows: Follow[],
+		socials: ISocials,
 		connected: boolean,
 		connect: () => void
 		ping: () => void
@@ -92,32 +163,155 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		disconnect: () => void
 	} {
 
-	const [follows, setFollows] = Babact.useState<Follow[]>([]);
 	const { ft_fetch } = useFetch();
+	const [socials, setSocials] = Babact.useState<ISocials>(null);
 
 	const inivites = Babact.useRef([]);
 
-	const onWelcome = ({ follows, self }: {follows: IFollow[], self: FollowStatus}) => {
-		setFollows(follows.map(f => new Follow(f, ws, ft_fetch)));
+	const onWelcome = ({
+			self,
+			friends,
+			pending,
+			blocked
+		}: {
+			self: FollowStatus,
+			friends: IFriend[],
+			pending: {
+				sent: IRequest[],
+				received: IRequest[],
+			},
+			blocked: IBlockedUser[],
+		}) => {
+
+		setSocials({
+			friends: friends.map((f: IFriend) => new Friend(f, ws, ft_fetch)),
+			pending: {
+				sent: pending.sent.map((r: IRequest) => new Request(r, ft_fetch)),
+				received: pending.received.map((r: IRequest) => new Request(r, ft_fetch)),
+			},
+			blocked: blocked.map((b: IBlockedUser) => new BlockedUser(b, ft_fetch)),
+		});
+
 		setMeStatus(self);
 	};
 
 	const onStatusChange = ({ account_id, status }: {account_id: number, status: FollowStatus}) => {
 		if (getMe()?.account_id === account_id)
 			setMeStatus(status);
-		setFollows(follows => follows.map(f => {
-			if (f.account_id === account_id)
-				return f.setStatus(status);
-			return f;
+		setSocials(s => ({
+			...s,
+			friends: s.friends.map(f => {
+				if (f.account_id === account_id)
+					return f.setStatus(status);
+				return f;
+			})
 		}));
 	};
 
-	const onFollow = (follow: IFollow) => {
-		setFollows(follows => follows.concat(new Follow(follow, ws, ft_fetch)));
-	};
+	const onNewFriendRequest = ({ account_id, profile, sender }: {account_id: number, profile: IUser, sender: number}) => {
+		const { createToast, removeToast } = useToast();
+		if (getMe()?.account_id === sender) {
+			setSocials(s => ({
+				...s,
+				pending: {
+					...s.pending,
+					sent: [...s.pending.sent, new Request({account_id, profile}, ft_fetch)],
+				}
+			}));
+		}
+		else {
 
-	const onUnfollow = ({ account_id }: {account_id: number}) => {
-		setFollows(follows => follows.filter(f => f.account_id !== account_id));
+			if (inivites.current.includes(profile.username))
+				return;
+			inivites.current.push(profile.username);
+
+			const message = (id: number) => <div className="resquest-toast flex flex-col gap-2">
+				<Button
+					className="close-button ghost icon"
+					onClick={() => {
+						inivites.current = inivites.current.filter(i => i !== profile.username);
+						removeToast(id);
+					}}
+				>
+					<i className="fa-solid fa-xmark"></i>
+				</Button>
+				<h1>{profile.username} sent you a friend request</h1>
+				<div className="flex gap-2">
+					<Button
+						className="success w-full"
+						onClick={() => {
+							const request = new Request({account_id, profile}, ft_fetch);
+							inivites.current = inivites.current.filter(i => i !== profile.username);
+							request.accept();
+							removeToast(id);
+						}}
+					>
+						<i className="fa-solid fa-user-check"></i> Accept
+					</Button>
+					<Button
+						className="danger w-full"
+						onClick={() => {
+							const request = new Request({account_id, profile}, ft_fetch);
+							inivites.current = inivites.current.filter(i => i !== profile.username);
+							request.cancel();
+							removeToast(id);
+						}}
+					>
+						<i className="fa-solid fa-xmark"></i> Decline
+					</Button>
+				</div>
+			</div>;
+
+			createToast(message, ToastType.SUCCESS, 0);
+			setSocials(s => ({
+				...s,
+				pending: {
+					...s.pending,
+					received: [...s.pending.received, new Request({account_id, profile}, ft_fetch)],
+				}
+			}));
+		}
+	}
+
+	const onDeleteFriendRequest = ({ account_id, sender }: {account_id: number, sender: number}) => {
+		if (getMe()?.account_id === sender) {
+			setSocials(s => ({
+				...s,
+				pending: {
+					...s.pending,
+					sent: s.pending.sent.filter(r => r.account_id !== account_id),
+				}
+			}));
+		}
+		else {
+			setSocials(s => ({
+				...s,
+				pending: {
+					...s.pending,
+					received: s.pending.received.filter(r => r.account_id !== account_id),
+				}
+			}));
+		}
+	}
+
+	const onNewFriend = ({account_id, profile, status}: {account_id: number, profile: IUser, status: FollowStatus}) => {
+		const { createToast } = useToast();
+		createToast(`You are now friends with ${profile.username}`, ToastType.SUCCESS);
+		setSocials(s => ({
+			...s,
+			friends: [...s.friends, new Friend({account_id, profile, status}, ws, ft_fetch)],
+			pending: {
+				sent: s.pending.sent.filter(r => r.account_id !== account_id),
+				received: s.pending.received.filter(r => r.account_id !== account_id),
+			}
+		}));
+	}
+
+	const onDeleteFriend = ({account_id}: {account_id: number}) => {
+		setSocials(s => ({
+			...s,
+			friends: s.friends.filter(f => f.account_id !== account_id),
+		}));
 	};
 
 	const onLobbyInvite = ({ join_secret, username, gamemode}: {join_secret: string, username: string, gamemode: IGameMode}) => {
@@ -161,7 +355,13 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		createToast(message, ToastType.INFO, 0);
 	};
 
-	const onLobbyRequest = ({ username, account_id }: {username: string, account_id: number}) => {
+	const onLobbyRequest = ({
+			username,
+			account_id
+		}: {
+			username: string,
+			account_id: number
+		}) => {
 
 		const { lobby } = useLobby();
 		if (inivites.current.includes(username) || !lobby)
@@ -171,7 +371,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		const { createToast, removeToast } = useToast();
 
 		const handleAccept = (id: number) => {
-			const follow = new Follow({
+			const follow = new Friend({
 				account_id,
 				profile: {
 					avatar: '',
@@ -222,8 +422,10 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		onEvent: {
 			'welcome': onWelcome,
 			'status': onStatusChange,
-			'follow': onFollow,
-			'unfollow': onUnfollow,
+			'receive_new_friend_request': onNewFriendRequest,
+			'receive_delete_friend_request': onDeleteFriendRequest,
+			'receive_new_friend': onNewFriend,
+			'receive_delete_friend': onDeleteFriend,
 			'receive_lobby_invite': onLobbyInvite,
 			'receive_lobby_request': onLobbyRequest,
 		},
@@ -247,7 +449,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 	};
 
 	return {
-		follows,
+		socials,
 		connected: ws.connected,
 		connect,
 		ping,

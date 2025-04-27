@@ -1,5 +1,5 @@
 import Babact from "babact";
-import { Follow, StatusType } from "../../hooks/useSocials";
+import { Friend, StatusType } from "../../hooks/useSocials";
 import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
 import FollowTypeText from "./FollowTypeText";
@@ -10,17 +10,17 @@ import { useAuth } from "../../contexts/useAuth";
 import { useNavigate } from "babact-router-dom";
 import Dropdown from "../../ui/Dropdown";
 
-export default function SocialFollowCard({
-		follow,
+export default function SocialFriendCard({
+		friend,
 		...props
 	}: { 
-		follow: Follow,
+		friend: Friend,
 		[key: string]: any
 	}) {
 
 	const { createToast } = useToast();
 
-	const inLobby = follow.status.type === StatusType.INLOBBY && follow.status.data && new Lobby(follow.status.data);
+	const inLobby = friend.status.type === StatusType.INLOBBY && friend.status.data && new Lobby(friend.status.data);
 	
 	const { lobby } = useLobby();
 
@@ -31,9 +31,9 @@ export default function SocialFollowCard({
 	const [inviteSend, setInviteSend] = Babact.useState<boolean>(false);
 	const [loading, setLoading] = Babact.useState<boolean>(false);
 
-	const inviteLobby = (follow.status.type === StatusType.ONLINE || follow.status.type === StatusType.INACTIVE)
+	const inviteLobby = (friend.status.type === StatusType.ONLINE || friend.status.type === StatusType.INACTIVE)
 		&& !inviteSend
-		&& !lobby?.players.find(p => p.account_id === follow.account_id)
+		&& !lobby?.players.find(p => p.account_id === friend.account_id)
 		&& lobby?.getCapacity() > lobby?.players.length
 		&& lobby;
 
@@ -48,47 +48,47 @@ export default function SocialFollowCard({
 
 	const handleInvite = (e: MouseEvent) => {
 		e.stopPropagation();
-		follow.invite(inviteLobby.mode, inviteLobby.join_secret);
+		// follow.invite(inviteLobby.mode, inviteLobby.join_secret);
 		setInviteSend(true);
-		createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
+		createToast(`You invited ${friend.profile.username} to your lobby`, ToastType.SUCCESS);
 	}
 
 	const handleRequest = (e: MouseEvent) => {
 		e.stopPropagation();
-		follow.request();
+		// follow.request();
 		setInviteSend(true);
-		createToast(`You requested to join ${follow.profile.username}'s lobby`, ToastType.SUCCESS);
+		createToast(`You requested to join ${friend.profile.username}'s lobby`, ToastType.SUCCESS);
 	}
 
-	const handleUnFollow = async (e: MouseEvent) => {
+	const handleRemove = async (e: MouseEvent) => {
 		e.stopPropagation();
 		setLoading(true);
-		const res = await follow.unfollow();
+		const res = await friend.remove();
 		if (!res)
 			setLoading(false);
 	}
 
+	const handleBlock = async (e: MouseEvent) => {
+		e.stopPropagation();
+		setLoading(true);
+		const res = await friend.profile.block();
+		if (!res)
+			setLoading(false);
+	}
 
 	return <div
 		className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'
-		onClick={() => navigate(`/profiles/${follow.account_id}`)}
 	>
 		<div className='flex flex-row items-center gap-2'>
 			<Avatar
-				src={follow.profile.avatar}
-				name={follow.profile.username}
-				status={ follow.status.type }
+				src={friend.profile.avatar}
+				name={friend.profile.username}
+				status={ friend.status.type }
 			>
-				<Button className='follow-remove icon'
-					onClick={(e) => handleUnFollow(e)}
-					loading={loading}
-				>
-					<i className="fa-solid fa-user-minus"></i>
-				</Button>
 			</Avatar>
 			<div className='flex flex-col gap-1'>
-				<h1>{follow.profile.username}</h1>
-				<FollowTypeText type={follow.status.type} />
+				<h1>{friend.profile.username}</h1>
+				<FollowTypeText type={friend.status.type} />
 			</div>
 		</div>
 		{inLobby && isRequestable &&
@@ -128,20 +128,25 @@ export default function SocialFollowCard({
 				className='social-follow-card-dropdown-content flex flex-col gap-2 w-max'
 			>
 				<Button
+					onClick={(e) => handleRemove(e)}
 					className='danger'
+					loading={loading}
 				>
 					<i className="fa-solid fa-user-minus"></i> Remove
 				</Button>
 				<Button
 					className='info'
 					onClick={() => {
-						navigate(`/profiles/${follow.account_id}`);
+						navigate(`/profiles/${friend.account_id}`);
 					}}
+
 				>
 					<i className="fa-solid fa-user"></i> Profile
 				</Button>
 				<Button
 					className="danger"
+					loading={loading}
+					onClick={(e) => handleBlock(e)}
 				>
 					<i className="fa-solid fa-ban"></i> Block
 				</Button>
