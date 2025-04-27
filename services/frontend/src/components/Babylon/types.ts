@@ -1,3 +1,5 @@
+import { IBall } from "pong";
+
 export enum KeyState {
 	IDLE = 0,
 	PRESSED,
@@ -22,4 +24,11 @@ export enum KeyName {
 export interface ScoredEvent {
 	score: Array<number>;
 	side: number;
+}
+
+export interface IServerStep {
+	collision: Array<Object>;
+	balls: Array<IBall>;
+	paddles: Array<Object>;
+	tick: number;
 }

@@ -1,6 +1,8 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { DT, bounceMaterial, ballShape, defaultBallSpeed, maxBallSpeed } from "./constants.js";
+import { IBall } from "./types.js"
+import trunc from "./trunc.js";
 
 export default class Ball extends PH2D.Body {
 	private _speed: number;
@@ -10,6 +12,19 @@ export default class Ball extends PH2D.Body {
 		this._speed = speed;
 		this.velocity = Vec2.normalize(Vec2.create(), direction) as Vec2;
 		Vec2.scale(this.velocity, this.velocity, this._speed);
+	}
+
+	public toJSON(): IBall {
+		return {
+			position: [trunc(this.position[0], 3), trunc(this.position[1], 3)],
+			// velocity: [this.velocity[0], this.velocity[1]],
+			velocity: [trunc(this.velocity[0], 3), trunc(this.velocity[1], 3)],
+			// angularVelocity: this.angularVelocity,
+			angularVelocity: trunc(this.angularVelocity, 3),
+			// orientation: this.orientation,
+			orientation: trunc(this.orientation, 3),
+			speed: this._speed
+		};
 	}
 
 	public faster() {
@@ -26,12 +41,12 @@ export default class Ball extends PH2D.Body {
 		}
 	}
 
-	public sync(ball: any, dt: number) {
-		this._speed = ball._speed;
-		this.position = new Vec2(ball._position[0], ball._position[1]);
-		this.velocity = new Vec2(ball._velocity[0], ball._velocity[1]);
-		this.angularVelocity = ball._angularVelocity;
-		this.setOrientation(ball._orientation);
+	public sync(ball: IBall, dt: number) {
+		this._speed = ball.speed;
+		this.position = new Vec2(ball.position[0], ball.position[1]);
+		this.velocity = new Vec2(ball.velocity[0], ball.velocity[1]);
+		this.angularVelocity = ball.angularVelocity;
+		this.setOrientation(ball.orientation);
 	}
 
 	public setDirection(direction: Vec2) {

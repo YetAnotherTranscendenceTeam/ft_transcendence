@@ -6,25 +6,25 @@ import { Vec2, Vec2Like } from "gl-matrix";
 export class Body extends EventTarget {
 	private static _idCounter: number = 0;
 
-	private _id: number;
+	protected _id: number;
 	
-	private _type: PhysicsType;
-	private _shape: Shape;
+	protected _type: PhysicsType;
+	protected _shape: Shape;
 	
-	private _material: Material;
-	private _massData: MassData;
+	protected _material: Material;
+	protected _massData: MassData;
 	
-	private _force: Vec2;
+	protected _force: Vec2;
 	
-	private _angularVelocity: number;
-	private _torque: number;
-	private _orientation: number;
+	protected _angularVelocity: number;
+	protected _torque: number;
+	protected _orientation: number;
 	
-	private _position: Vec2;
-	private _velocity: Vec2;
+	protected _position: Vec2;
+	protected _velocity: Vec2;
 	
-	private _previousPosition: Vec2;
-	private _previousOrientation: number;
+	protected _previousPosition: Vec2;
+	protected _previousOrientation: number;
 
 	public filter: number;
 	

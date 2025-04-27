@@ -7,14 +7,8 @@ import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import Wall from "./Wall.js";
 import { ballCollision } from "./Behaviors.js";
-import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState } from "./types.js";
+import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState, PlayerMovement, IBall } from "./types.js";
 import * as maps from "../maps/index.js";
-
-export enum PlayerMovement {
-	UP = 1,
-	DOWN = -1,
-	NONE = 0
-}
 
 export type IPongPlayer = IPlayer & {
 	paddleId: number;
@@ -266,7 +260,7 @@ export class Pong {
 		this._balls[0].setDirection(ballVelocity);
 	}
 
-	protected ballSync(balls: Array<Object>, dt: number) {
+	protected ballSync(balls: Array<IBall>, dt: number) {
 		console.log("sync balls", balls);
 		if (balls.length < 1) {
 			return;

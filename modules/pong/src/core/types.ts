@@ -93,11 +93,18 @@ export enum PaddleID {
 	RIGHT_FRONT = 3
 }
 
+export enum PlayerMovement {
+	UP = 1,
+	DOWN = -1,
+	NONE = 0
+}
+
 export enum MapID {
 	SMALL = 0,
 	BIG = 1,
 	FAKE = 2
 }
+
 export interface IPongMap {
 	mapId: MapID;
 
@@ -115,4 +122,18 @@ export interface IPongMap {
 	obstacles: Wall[];
 	getObjects: () => Body[];
 	clone: () => IPongMap;
+}
+
+export interface IBall {
+	position: number[];
+	velocity: number[];
+	angularVelocity: number;
+	orientation: number;
+	speed: number;
+}
+
+export interface IPaddle {
+	id: PaddleID;
+	position: number;
+	movement: PlayerMovement;
 }
