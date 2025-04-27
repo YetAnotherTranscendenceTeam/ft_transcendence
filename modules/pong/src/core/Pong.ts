@@ -112,7 +112,10 @@ export class Pong {
 			this._state = new PongState(state.name, state);
 
 		// do things based on gamemode (not implemented yet)
-		this.switchMap(MapID.SMALL);
+		if (gamemode.team_size === 2)
+			this.switchMap(MapID.BIG);
+		else
+			this.switchMap(MapID.SMALL);
 		let paddleId: number = 0;
 		this._players = players.map((player: IPlayer, index: number) => {
 			if (!this._paddles.has(paddleId)) {

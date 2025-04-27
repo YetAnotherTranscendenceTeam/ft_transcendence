@@ -12,12 +12,12 @@ export class GameManager {
   timeout;
 
   constructor() {
-    this.pongs.set(0, new PongServer(0, new GameMode("unranked_1v1", {
+    this.pongs.set(0, new PongServer(0, new GameMode("unranked_2v2", {
       type: GameModeType.UNRANKED,
-      team_size: 1,
+      team_size: 2,
       team_count: 2,
       match_parameters: {}
-    }), [[{account_id: 1}], [{account_id: 2}]]));
+    }), [[{account_id: 1}, {account_id: 2}], [{account_id: 3}, {account_id: 4}]]));
     setInterval(() => {
       this.pongs.forEach((pong, match_id) => {
         pong.update();
