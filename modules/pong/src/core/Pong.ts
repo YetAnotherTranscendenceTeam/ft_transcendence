@@ -23,8 +23,8 @@ export type IPongPlayer = IPlayer & {
 
 export class Pong {
 	private readonly _physicsScene: PH2D.Scene;
-	private _tick: number;
 	private _accumulator: number;
+	protected _tick: number;
 
 	protected _matchId: number;
 	protected _gameMode: GameMode;
@@ -266,7 +266,7 @@ export class Pong {
 		this._balls[0].setDirection(ballVelocity);
 	}
 
-	protected ballSync(balls: Array<Object>) {
+	protected ballSync(balls: Array<Object>, dt: number) {
 		console.log("sync balls", balls);
 		if (balls.length < 1) {
 			return;
@@ -277,7 +277,7 @@ export class Pong {
 				break;
 			}
 			console.log("sync", i, balls[i]);
-			this._balls[i].sync(balls[i]);
+			this._balls[i].sync(balls[i], dt);
 		}
 		for (let i = this._balls.length; i < balls.length; i++) {
 			this._balls.push(new Ball());
@@ -288,6 +288,10 @@ export class Pong {
 			this._physicsScene.removeBody(this._balls[i]);
 			this._balls.splice(i, 1);
 		}
+	}
+
+	public get cumulator(): number {
+		return this._accumulator;
 	}
 
 	public get tick(): number {

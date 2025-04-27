@@ -15,6 +15,13 @@ import { useAuth } from "../../contexts/useAuth";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+export interface IServerStep {
+	collision: Array<Object>;
+	balls: Array<Object>;
+	paddles: Array<Object>;
+	tick: number;
+}
+
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket: WebSocket;
@@ -27,6 +34,8 @@ export default class PongClient extends PONG.Pong {
 	private _light: HemisphericLight;
 
 	private _meshMap: Map<PONG.MapID, Array<AObject>>;
+
+	private _serverSteps: Array<IServerStep>;
 
 	private _ballInstances: Array<ClientBall>;
 	private _paddleInstance: Map<number, ClientPaddle>;
@@ -57,33 +66,37 @@ export default class PongClient extends PONG.Pong {
 		Object.keys(KeyName).map(key => KeyName[key]).forEach((name: string) => {
 			this._keyboard.set(name, KeyState.IDLE);
 		});
-
+		
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
-
+		
 		this._babylonScene = new Scene(this._engine);
 		// Optimize for performance
 		// this._babylonScene.performancePriority = BABYLON.ScenePerformancePriority.Intermediate;
 		// this._babylonScene.collisionsEnabled = false;
 		this._babylonScene.autoClear = true;
 		// this._babylonScene.autoClearDepthAndStencil = false;
-
+		
 		this.sceneSetup();
-
+		
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
 		window.addEventListener("resize", this.resize);
 		
+		this._serverSteps = [];
 		this._engine.runRenderLoop(this.loop);
-
+		
 		this._websocket = new WebSocket(`ws://localhost:4124/join?match_id=0&access_token=${localStorage.getItem("access_token")}`);
-
+		
 		this._websocket.onmessage = (ev) => { // step, state, sync
 			const msg = JSON.parse(ev.data);
 			console.log(msg);
 			if (msg.event === "step") {
 				// this.counter = msg.data.counter;
-				this.serverStep(msg.data);
+				this._serverSteps.push(msg.data as IServerStep);
+			}
+			else if (msg.event === "sync") {
+				this._tick = msg.data.tick;
 			}
 		}
 		this._websocket.onopen = (ev) => {
@@ -92,7 +105,7 @@ export default class PongClient extends PONG.Pong {
 		this._websocket.onclose = (ev) => {
 			console.log(ev);
 		}
-
+		
 		this.setGameScene(GameScene.ONLINE);
 	}
 
@@ -350,9 +363,13 @@ export default class PongClient extends PONG.Pong {
 
 		this.playerUpdateOnline();
 		dt = this.physicsUpdate(dt);
+		this._serverSteps.forEach((step: IServerStep) => {
+			this.serverStep(step, dt);
+		});
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt);
 		});
+		this._serverSteps = [];
 		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
 			object.update(dt);
 		});
@@ -371,9 +388,13 @@ export default class PongClient extends PONG.Pong {
 		// console.log("instances", this._ballInstances);
 	}
 
-	private serverStep(data: {collision: Array<Object>, balls: Array<Object>, paddles: Array<Object>, tick: number}) {
+	private serverStep(data: IServerStep, dt: number) {
 		console.log("server step", data);
-		this.ballSync(data.balls);
+		if (Math.abs(this._tick - data.tick) > 5) {
+			console.log("tick mismatch", this.tick, data.tick);
+			this._tick = data.tick;
+			this.ballSync(data.balls, dt);
+		}
 	}
 
 	private playerUpdateLocal() {

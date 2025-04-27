@@ -26,13 +26,10 @@ export default class Ball extends PH2D.Body {
 		}
 	}
 
-	public sync(ball: Object) {
-		console.log("sync ball", ball);
+	public sync(ball: any, dt: number) {
 		this._speed = ball._speed;
 		this.position = new Vec2(ball._position[0], ball._position[1]);
-		console.log("sync ball velocity 1", ball._velocity);
 		this.velocity = new Vec2(ball._velocity[0], ball._velocity[1]);
-		console.log("sync ball velocity 2", this.velocity[0], this.velocity[1]);
 		this.angularVelocity = ball._angularVelocity;
 		this.setOrientation(ball._orientation);
 	}

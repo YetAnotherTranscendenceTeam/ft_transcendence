@@ -18,7 +18,6 @@ export class PongServer extends Pong {
 		this.onlineSetup(match_id, gamemode, teams.flat(), PongState.RESERVED.clone());
 		for (let ball of this._balls) {
 			ball.addEventListener("collision", (event) => {
-				console.log("Ball collision", event);
 				this.collisions.push(event.detail);
 			});
 		}
@@ -85,10 +84,9 @@ export class PongServer extends Pong {
 	}
 
 	update() {
-		const now = Date.now();
-		let dt = (now - this._lastUpdate) / 1000;
-		this._lastUpdate = now;
+		let dt = (Date.now() - this._lastUpdate) / 1000;
 		if (this._state.tick(dt, this)) {
+			this._lastUpdate = Date.now();
 			return;
 		}
 		if (this._state.getNext()) {
@@ -98,11 +96,12 @@ export class PongServer extends Pong {
 			}
 			this.setState(this._state.getNext().clone());
 			if (this._state.tick(dt, this)) {
+				this._lastUpdate = Date.now();
 				return;
 			}
 		}
 		this._time += dt;
-		this.physicsUpdate(dt);
+		dt = this.physicsUpdate(dt);
 		this.broadcast({
 			event: "step",
 			data: {
@@ -120,5 +119,6 @@ export class PongServer extends Pong {
 				this.setState(PongState.FREEZE.clone());
 		}
 		this.collisions.length = 0;
+		this._lastUpdate = Date.now();
 	}
 }
