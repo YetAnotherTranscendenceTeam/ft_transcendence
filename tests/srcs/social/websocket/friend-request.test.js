@@ -11,10 +11,8 @@ describe('Friend requests', () => {
   beforeAll(async () => {
     user1 = new SocialDummy(users[0]);
     user1.connect();
-    user1.expectEvent("welcome");
     user2 = new SocialDummy(users[1]);
     user2.connect();
-    user2.expectEvent("welcome");
   });
 
   afterAll(async () => {
@@ -77,4 +75,23 @@ describe('Friend requests', () => {
     await user1.expectEvent("receive_delete_friend", { account_id: user2.id });
     await user2.expectEvent("receive_delete_friend", { account_id: user1.id });
   });
+
+  it("1 request -> 2 accept -> 2 refuse", async () => {
+    let response = await user1.sendFriendRequest(user2);
+    expect(response.statusCode).toBe(204);
+
+    await user1.expectEvent("receive_new_friend_request", { ...user2.me(), sender: user1.id });
+    await user2.expectEvent("receive_new_friend_request", { ...user1.me(), sender: user1.id });
+
+    response = await user2.sendFriendRequest(user1);
+    expect(response.statusCode).toBe(204);
+
+    await user1.expectEvent("receive_new_friend", { ...user2.me({ status: online }) });
+    await user2.expectEvent("receive_new_friend", { ...user1.me({ status: online }) });
+
+    response = await user2.cancelFriendRequest(user1);
+    expect(response.statusCode).toBe(404);
+
+  });
+
 });

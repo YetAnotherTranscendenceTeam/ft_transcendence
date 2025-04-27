@@ -37,7 +37,7 @@ export class Client {
     console.log("CLIENT SOCKET-:", { account_id: this.account_id, sockets: this.sockets.size });
   };
 
-  send(payload, target) {
+  send(payload) {
     const data = JSON.stringify(payload);
     this.sockets.forEach(socket => {
       socket.send(data);
@@ -85,7 +85,7 @@ export class Client {
     this.isInactive = true;
     if (this.inactivityTimeout) {
       clearTimeout(this.inactivityTimeout);
-    };
+    }
     this.allClients.broadcastStatus(this);
   };
 
@@ -104,14 +104,14 @@ export class Client {
       this.isInactive = false;
       this.allClients.broadcastStatus(this);
       return true
-    };
+    }
     return false
   };
 
   goOffline() {
     if (this.inactivityTimeout) {
       clearTimeout(this.inactivityTimeout);
-    };
+    }
     this.allClients.broadcastStatus(this, offline);
   };
 
@@ -122,10 +122,10 @@ export class Client {
       this.customStatus = null;
     } else {
       this.customStatus = { type, data };
-    };
+    }
     if (!this.resetInactivity()) {
       this.allClients.broadcastStatus(this);
-    };
+    }
   };
 
   status() {
@@ -135,25 +135,25 @@ export class Client {
       return this.customStatus
     } else {
       return online;
-    };
+    }
   };
 
   async sendLobbyInvite(invite) {
     if (invite.account_id === this.account_id) {
       throw new WsError.UserUnavailable({ account_id: this.account_id });
-    };
+    }
 
     const target = this.allClients.get(invite.account_id);
     if (!target) {
       throw new WsError.UserUnavailable({ account_id: invite.account_id });
-    };
+    }
 
     try {
       this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
     } catch (err) {
       console.error(err);
       throw new WsError.BadGateway();
-    };
+    }
 
     target.send({
       event: "receive_lobby_invite", data: {
@@ -167,31 +167,31 @@ export class Client {
   async sendLobbyJoinRequest(request) {
     if (request.account_id === this.account_id) {
       throw new WsError.UserUnavailable({ account_id: this.account_id });
-    };
+    }
 
     const target = this.allClients.get(request.account_id);
     if (!target) {
       throw new WsError.UserUnavailable({ account_id: request.account_id });
-    };
+    }
 
     try {
       this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
     } catch (err) {
       console.error(err);
       throw new WsError.BadGateway();
-    };
+    }
 
     target.send({
       event: "receive_lobby_request", data: {
         account_id: this.account_id,
         username: this.username,
-      }
+      },
     });
   };
 
-  /* ------------------------------------------------- *
- *  Friends - Pending requests - Block notifications *
- * ------------------------------------------------- */
+  /* ------------------------------------------------ *
+   * Friends - Pending requests - Block notifications *
+   * ------------------------------------------------ */
 
   async newFriendRequestSent(receiver, profile) {
     const payload = {
@@ -200,7 +200,7 @@ export class Client {
         ...await userInfos(receiver, this.allClients, { profile }),
         sender: this.account_id,
       },
-    }
+    };
     this.send(payload);
   };
 
@@ -211,11 +211,11 @@ export class Client {
         ...await userInfos(sender, this.allClients),
         sender,
       },
-    }
+    };
     this.send(payload);
   };
 
-  async deleteFriendRequest(sender, receiver) {
+  deleteFriendRequest(sender, receiver) {
     const payload = {
       event: "receive_delete_friend_request",
       data: {
@@ -238,12 +238,30 @@ export class Client {
     this.send(payload);
   };
 
-  async deleteFriendship(friend_id) {
+  deleteFriendship(friend_id) {
     const payload = {
       event: "receive_delete_friend",
       data: { account_id: friend_id },
-    }
+    };
     this.send(payload);
+  };
+
+  async newBlock(blocked_id) {
+    const payload = {
+      event: "receive_new_block",
+      data: { ...await userInfos(blocked_id, this.allClients) },
+    };
+    this.send(payload);
+    console.log("BLOCK:", { blocker_id: this.account_id, blocked_id });
+  };
+
+  deleteBlock(blocked_id) {
+    const payload = {
+      event: "receive_delete_block",
+      data: { account_id: blocked_id },
+    };
+    this.send(payload);
+    console.log("UNBLOCK:", { blocker_id: this.account_id, blocked_id });
   };
 
 }; // class Client

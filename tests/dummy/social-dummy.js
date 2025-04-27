@@ -7,8 +7,9 @@ export class SocialDummy {
     this.user = user;
   }
 
-  async connect() {
+  async connect(welcome_data) {
     this.ws = request(socialWS).ws(`/notify?access_token=${this.user.jwt}`);
+    this.expectEvent("welcome", welcome_data);
     return this.ws;
   }
 
@@ -42,7 +43,19 @@ export class SocialDummy {
     return await request(apiURL)
       .delete(`/social/friends/${dummy.user.account_id}`)
       .set('Authorization', `Bearer ${this.user.jwt}`)
-  }
+  };
+
+  async block(dummy) {
+    return await request(apiURL)
+      .post(`/social/blocks/${dummy.user.account_id}`)
+      .set('Authorization', `Bearer ${this.user.jwt}`)
+  };
+
+  async unblock(dummy) {
+    return await request(apiURL)
+      .delete(`/social/blocks/${dummy.user.account_id}`)
+      .set('Authorization', `Bearer ${this.user.jwt}`)
+  };
 
   me(options = {}) {
     if (options.id_only === true) {
@@ -56,11 +69,26 @@ export class SocialDummy {
         username: this.user.profile.username,
         created_at: expect.any(String),
         updated_at: expect.any(String),
-      }
+      },
     };
     if (options.status) {
       me.status = options.status
     }
     return me;
   }
-}
+
+  reset() {
+    this.close();
+    this.connect();
+  };
+};
+
+export const emptyWelcome = {
+  friends: [],
+  pending: {
+    sent: [],
+    received: [],
+  },
+  blocked: [],
+  self: { type: "online" },
+};

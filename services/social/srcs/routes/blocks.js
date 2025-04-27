@@ -20,16 +20,27 @@ export default function router(fastify, opts, done) {
   };
 
   fastify.post("/blocks/:account_id", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
-    const { account_id } = request.params;
+    const blocker_id = request.account_id;
+    const blocked_id = request.params.account_id;
 
     try {
       // Verify account exists
-      await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+      await YATT.fetch(`http://db-profiles:3000/${blocked_id}`);
 
-      const block = dbAction.handleBlock(request.account_id, account_id);
+      const { friends, requests, blocks } = dbAction.handleBlock(blocker_id, blocked_id);
+    
+      // Send notifications through websocket(s)
+      console.error(friends, requests, blocks);
+      if(friends.changes !== 0) {
+        await fastify.clients.deleteFriendship(blocker_id, blocked_id);
+      }
+      if(requests) {
+        await fastify.clients.deleteFriendRequest(requests.sender, requests.receiver, { force: requests.receiver });
+      }
+      if(blocks.changes !== 0) {
+        await fastify.clients.get(blocker_id)?.newBlock(blocked_id);
+      }
       reply.code(204);
-      // // Send notification through websocket(s)
-      // await fastify.clients.get(request.account_id)?.follow(account_id, fastify.clients);
 
     } catch (err) {
       if (err.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
@@ -46,18 +57,18 @@ export default function router(fastify, opts, done) {
   });
 
   fastify.delete("/blocks/:account_id", { schema, preHandler: fastify.verifyBearerAuth }, async function handler(request, reply) {
-    const { account_id } = request.params;
+    const blocker_id = request.account_id;
+    const blocked_id = request.params.account_id;
 
-    const unblock = dbAction.deleteBlock(request.account_id, account_id);
-    if (unblock.changes === 0) {
+    const deletion = dbAction.deleteBlock(blocker_id, blocked_id);
+    if (deletion.changes === 0) {
       throw new HttpError.NotFound();
     }
     reply.code(204).send();
-    console.log("UNBLOCK:", { sender: request.account_id, receiver: account_id });
 
     // Send notification through websocket(s)
-    // await fastify.clients.get(request.account_id)?.unfollow(account_id);
+    await fastify.clients.get(blocker_id)?.deleteBlock(blocked_id);
   });
 
   done();
-}
+};

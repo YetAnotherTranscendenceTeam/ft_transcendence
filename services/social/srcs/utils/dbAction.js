@@ -5,11 +5,11 @@ import db from "../app/database.js";
 
 export function selectRequestsSent(account_id) {
   return select_requests_from.all(account_id);
-}
+};
 
 export function selectRequestsReceived(account_id) {
   return select_requests_to.all(account_id);
-}
+};
 
 // Create a friend request from a user to another,
 // or a friendship if the receiving user has one pending
@@ -60,12 +60,12 @@ const delete_request = db.prepare(`
 // Retreive the friendship of a user
 export function selectFriendships(account_id) {
   return select_friends.all({ account_id });
-}
+};
 
 // Delete a friendship between two users
 export function removeFriend(from, to) {
   return delete_friendship.run(Math.min(from, to), Math.max(from, to));
-}
+};
 
 const select_friends = db.prepare(`
   SELECT user2 AS account_id FROM friendships WHERE user1 = @account_id
@@ -90,19 +90,20 @@ const delete_friendship = db.prepare(`
  */
 
 export const handleBlock = db.transaction((blocker, blocked) => {
-  if (is_friendship.get(Math.min(blocker, blocked), Math.max(blocker, blocked))) {
-    throw new HttpError.Forbidden().setCode("FRIENDSHIP");
-  }
-  return insert_block.run(blocker, blocked);
+  return {
+    friends: delete_friendship.run(blocker, blocked),
+    requests: delete_request.get({ sender: blocker, receiver: blocked }),
+    blocks: insert_block.run(blocker, blocked),
+  };
 });
 
 export function selectBlocks(account_id) {
   return get_blocked.all(account_id);
-}
+};
 
 export function isBlocked(blocker_id, blocked_id) {
-  return is_blocked.get(blocker_id, blocked_id)
-}
+  return is_blocked.get(blocker_id, blocked_id);
+};
 
 export function insertBlock(blocker_id, blocked_id) {
   return insert_block.run(blocker_id, blocked_id);
@@ -114,11 +115,11 @@ export function deleteBlock(blocker_id, blocked_id) {
 
 const get_blocked = db.prepare(`
   SELECT blocked AS account_id FROM blocks WHERE blocker = ?
-`)
+`);
 
 const is_blocked = db.prepare(`
   SELECT 1 FROM blocks WHERE blocker = ? AND blocked = ? 
-`)
+`);
 
 const insert_block = db.prepare(`
   INSERT INTO blocks (blocker, blocked) VALUES (?, ?)  
