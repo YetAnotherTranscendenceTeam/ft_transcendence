@@ -7,10 +7,6 @@ const data_schema = {
 	type: "object",
 	required: ["tick", "movement"],
 	properties: {
-		tick: {
-			type: "number",
-			minimum: 0,
-		},
 		movement: {
 			type: "number",
 			enum: [PlayerMovement.DOWN, PlayerMovement.UP, PlayerMovement.NONE],
@@ -23,6 +19,6 @@ gameEvents.register("movement", {
 	schema: data_schema,
 	handler: (socket, payload, game, player) => {
 		player.movement = payload.movement;
-		console.log("movement", payload.tick, payload.movement);
+		console.log("movement", payload.movement);
 }})
 

@@ -41,7 +41,7 @@ export default class Ball extends PH2D.Body {
 		}
 	}
 
-	public sync(ball: IBall, dt: number) {
+	public sync(ball: IBall) {
 		this._speed = ball.speed;
 		this.position = new Vec2(ball.position[0], ball.position[1]);
 		this.velocity = new Vec2(ball.velocity[0], ball.velocity[1]);

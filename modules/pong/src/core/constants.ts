@@ -35,7 +35,7 @@ export const paddleSize: Vec2 = new Vec2(0.2, 1.5);
 // ball
 export const ballRadius = 0.2;
 
-export const defaultBallSpeed = 3;
+export const defaultBallSpeed = 5;
 export const maxBallSpeed = 10;
 export const ballMaxAngle = Math.PI / 3; // 60 degrees
 export const paddleSpeed = 3;

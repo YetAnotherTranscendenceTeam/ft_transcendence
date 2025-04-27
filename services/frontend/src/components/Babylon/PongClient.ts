@@ -92,6 +92,9 @@ export default class PongClient extends PONG.Pong {
 			else if (msg.event === "sync") {
 				this._tick = msg.data.tick;
 			}
+			else if (msg.event === "state") {
+				this._state = new PONG.PongState(msg.data.state.name, msg.data.state);
+			}
 		}
 		this._websocket.onopen = (ev) => {
 			console.log(ev);
@@ -339,7 +342,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private updateOnline() {
-		let dt: number = this._engine.getDeltaTime() / 1000;
+		let dt: number = this._engine.getDeltaTime() / 2000;
 		// let dt: number = 1.0;
 		// if (this._state.tick(dt, this)) {
 		// 	return;
@@ -356,17 +359,19 @@ export default class PongClient extends PONG.Pong {
 		// this.callbacks.timeUpdateCallback(Math.floor(this._time));
 
 		this.playerUpdateOnline();
-		dt = this.physicsUpdate(dt);
-		this._serverSteps.forEach((step: IServerStep) => {
-			this.serverStep(step, dt);
-		});
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.update(dt);
-		});
-		this._serverSteps = [];
-		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-			object.update(dt);
-		});
+		if (!this._state.isFrozen()) {
+			dt = this.physicsUpdate(dt);
+			this._serverSteps.forEach((step: IServerStep) => {
+				this.serverStep(step);
+			});
+			this._serverSteps = [];
+			this._ballInstances.forEach((ball: ClientBall) => {
+				ball.update(dt);
+			});
+			this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
+				object.update(dt);
+			});
+		}
 		// if (this.scoreUpdate()) {
 		// 	console.log("score: " + this._score[0] + "-" + this._score[1]);
 		// 	this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
@@ -382,12 +387,12 @@ export default class PongClient extends PONG.Pong {
 		// console.log("instances", this._ballInstances);
 	}
 
-	private serverStep(data: IServerStep, dt: number) {
+	private serverStep(data: IServerStep) {
 		console.log("server step", data);
 		if (Math.abs(this._tick - data.tick) > 5) {
 			console.log("tick mismatch", this.tick, data.tick);
 			this._tick = data.tick;
-			this.ballSync(data.balls, dt);
+			this.ballSync(data.balls);
 		}
 	}
 
@@ -442,7 +447,7 @@ export default class PongClient extends PONG.Pong {
 		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
 		// 	if (this._babylonScene.debugLayer.isVisible()) {
 		// 		this._babylonScene.debugLayer.hide();
-		// 	} else {
+		// 	} else {500
 		// 		this._babylonScene.debugLayer.show();
 		// 	}
 		// }

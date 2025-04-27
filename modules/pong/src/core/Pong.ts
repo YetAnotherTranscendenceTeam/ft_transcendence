@@ -260,18 +260,15 @@ export class Pong {
 		this._balls[0].setDirection(ballVelocity);
 	}
 
-	protected ballSync(balls: Array<IBall>, dt: number) {
-		console.log("sync balls", balls);
+	protected ballSync(balls: Array<IBall>) {
 		if (balls.length < 1) {
 			return;
 		}
-		console.log("sync length", balls.length);
 		for (let i = 0; i < this._balls.length; i++) {
 			if (i >= balls.length) {
 				break;
 			}
-			console.log("sync", i, balls[i]);
-			this._balls[i].sync(balls[i], dt);
+			this._balls[i].sync(balls[i]);
 		}
 		for (let i = this._balls.length; i < balls.length; i++) {
 			this._balls.push(new Ball());
