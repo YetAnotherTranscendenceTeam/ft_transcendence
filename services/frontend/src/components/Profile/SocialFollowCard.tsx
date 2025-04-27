@@ -8,6 +8,7 @@ import { useLobby } from "../../contexts/useLobby";
 import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
 import { useNavigate } from "babact-router-dom";
+import Dropdown from "../../ui/Dropdown";
 
 export default function SocialFollowCard({
 		follow,
@@ -118,6 +119,34 @@ export default function SocialFollowCard({
 				</Button>
 			</div>
 		}
+		<Dropdown
+			openButton={<i className="fa-solid fa-ellipsis-vertical"></i>}
+			openButtonClassName='icon'
+			className='social-follow-card-dropdown'
+		>
+			<div
+				className='social-follow-card-dropdown-content flex flex-col gap-2 w-max'
+			>
+				<Button
+					className='danger'
+				>
+					<i className="fa-solid fa-user-minus"></i> Remove
+				</Button>
+				<Button
+					className='info'
+					onClick={() => {
+						navigate(`/profiles/${follow.account_id}`);
+					}}
+				>
+					<i className="fa-solid fa-user"></i> Profile
+				</Button>
+				<Button
+					className="danger"
+				>
+					<i className="fa-solid fa-ban"></i> Block
+				</Button>
+			</div>
+		</Dropdown>
 	</div>
 
 }

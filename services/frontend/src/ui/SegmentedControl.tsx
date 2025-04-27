@@ -4,6 +4,7 @@ export type Segment = {
 	label: string;
 	value: string;
 	disabled?: boolean;
+	icon?: string;
 }
 
 export default function SegmentedControl({
@@ -39,7 +40,7 @@ export default function SegmentedControl({
 				key={button.value}
 				className={`segmented-control-button ${selected === button.value ? 'selected' : ''} ${button.disabled ? 'disabled' : ''}`}
 			>
-				{button.label}
+				{button.icon ?? null}{button.label}
 			</div>
 		})}
 	</div>

@@ -7,6 +7,10 @@ import { Follow, StatusType } from "../../hooks/useSocials";
 import SocialUserCard from "./SocialUserCard";
 import { useAuth } from "../../contexts/useAuth";
 import SocialFollowCard from "./SocialFollowCard";
+import SegmentedControl from "../../ui/SegmentedControl";
+import Accordion from "../../ui/Accordion";
+import Label from "../../ui/Label";
+import SocialRequestCard from "./SocialRequestCard";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
 
@@ -36,18 +40,18 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	return <div className={`social-manager ${className}`} {...props}>
 		<div className='social-manager-tabbar flex flex-row'>
 			<Button className={`ghost ${selected === 'follow' ? 'selected' : ''}`} onClick={() => setSelected('follow')}>
-				<i className="fa-solid fa-user-group"></i> Follow
+				<i className="fa-solid fa-user-group"></i> Friends
 				<p>
 					{follows.filter(f => f.status.type !== StatusType.OFFLINE).length ?? '0'}/{follows.length}
 				</p>
 			</Button>
-			<Button className={`ghost ${selected === 'add' ? 'selected' : ''}`} onClick={() => setSelected('add')}>
-				<i className="fa-solid fa-user-plus"></i> Add
+			<Button className={`ghost ${selected === 'search' ? 'selected' : ''}`} onClick={() => setSelected('search')}>
+				<i className="fa-solid fa-magnifying-glass"></i> Search
 			</Button>
 		</div>
 		<div className='social-manager-content flex flex-row gap-4'>
-		<div className={`social-manager-tab scrollbar flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
-				{
+			<div className={`social-manager-tab scrollbar flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
+				{/* {
 					follows.length ?
 					sortFollows(follows).map((follow, i) =>
 						<SocialFollowCard
@@ -56,14 +60,57 @@ export default function SocialManager({ className = '', children, ...props }: { 
 						/>
 					):
 					<div className='flex flex-col w-full items-center justify-center h-full gap-4'>
-						No follows yet
+						No friend yet
 						<Button className="primary" onClick={() => setSelected('add')}>
 							Add one now <i className="fa-solid fa-plus"></i>
 						</Button>
 					</div>
-				}
+				} */}
+
+				<Accordion
+					openButton={<><i className="fa-solid fa-clock"></i> Pending <Label>3</Label></>}
+				>
+					{/* <div className='social-manager-empty flex flex-col gap-2'>
+						No pending friend request
+					</div> */}
+					{follows && follows.length > 0 && <div
+						className='social-manager-user-list flex flex-col gap-1'
+					>
+						<h2>Received request</h2>
+						<SocialRequestCard user={follows[0].profile}/>
+						<SocialRequestCard user={follows[0].profile}/>
+						<h2>Send request</h2>
+						<SocialRequestCard user={follows[0].profile}/>
+						<SocialRequestCard user={follows[0].profile}/>
+					</div>}
+				</Accordion>
+
+				<Accordion
+					openButton={<><i className="fa-solid fa-user-group"></i> Friends</>}
+				>
+					{/* <div className='social-manager-empty flex flex-col gap-2'>
+						No friend yet
+					</div> */}
+					<div
+						className='social-manager-user-list flex flex-col gap-1'
+					>
+						{follows?.length && sortFollows(follows).map((follow, i) =>
+							<SocialFollowCard
+								key={follow.account_id}
+								follow={follow}
+							/>
+						)}
+					</div>
+				</Accordion>
+				<Accordion
+					openButton={<><i className="fa-solid fa-ban"></i> Blocked</>}
+				>
+					<div className='social-manager-empty flex flex-col gap-2'>
+						No blocked user
+					</div>
+				</Accordion>
 			</div>
-			<div className={`social-manager-tab social-manager-add flex flex-col gap-2 ${selected === 'add' ? 'open' : ''}`}>
+			<div className={`social-manager-tab social-manager-add flex flex-col gap-2 ${selected === 'search' ? 'open' : ''}`}>
 				<Form formFields={['username']}>
 					<Input
 						field='username'
