@@ -18,7 +18,7 @@ export class SocialDummy {
 
   async expectEvent(event, data) {
     return this.ws.expectJson(message => {
-      console.error(message);
+      // console.error(message);
       expect(message.event).toEqual(event)
       if (data) {
         expect(message.data).toEqual(data);

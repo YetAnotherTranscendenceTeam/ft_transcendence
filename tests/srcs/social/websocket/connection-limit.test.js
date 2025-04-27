@@ -13,10 +13,9 @@ describe('Social websocket', () => {
       const ws = await request(socialWS)
         .ws(`/notify?access_token=${users[0].jwt}`)
         .expectJson((message) => {
-          console.error(message);
           expect(message.event).toBe("welcome");
           expect(message.data.friends).toEqual([]);
-          expect(message.data.pending).toEqual([]);
+          expect(message.data.pending).toEqual({ sent: [], received: [] });
           expect(message.data.blocked).toEqual([]);
           expect(message.data.self).toEqual({ type: "online" });
         });

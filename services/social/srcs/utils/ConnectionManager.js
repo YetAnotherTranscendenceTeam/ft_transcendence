@@ -44,8 +44,6 @@ export class ConnectionManager {
     };
   };
 
-  // #getFollowers = db.prepare(`SELECT account_id FROM follows WHERE following = ?`);
-
   broadcastStatus(client, status = client.status(), self = true) {
     // Prepare broadcast payload
     const payload = {
@@ -54,11 +52,10 @@ export class ConnectionManager {
     }
     console.log("BROADCASTING:", { account_id: client.account_id, payload: JSON.stringify(payload) });
 
-    // Get accounts to broadcast to
-    const targets = [];
-    // this.#getFollowers.all(client.account_id).map(follower => follower.account_id);
-    // Add own account
+    // Get notification target(s)
+    const targets = dbAction.selectFriendships(client.account_id).map(f => f.account_id);
     if (self) {
+      // Add own account
       targets.push(client.account_id);
     };
 
