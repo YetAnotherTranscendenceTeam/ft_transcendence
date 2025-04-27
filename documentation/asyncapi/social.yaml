@@ -32,7 +32,11 @@ channels:
       receive_new_friend_request:
         $ref: '#/components/messages/receive_new_friend_request'
       receive_delete_friend_request:
-        $ref: '#/components/messages/receive_delete_friend_request'    
+        $ref: '#/components/messages/receive_delete_friend_request'
+      receive_new_friendship:
+        $ref: '#/components/messages/receive_new_friendship'
+      receive_delete_friendship:
+        $ref: '#/components/messages/receive_delete_friendship'
       receive_lobby_invite:
         $ref: '#/components/messages/receive_lobby_invite'
       receive_lobby_request:
@@ -62,6 +66,8 @@ operations:
       - $ref: '#/channels/social/messages/receive_status'
       - $ref: '#/channels/social/messages/receive_new_friend_request'
       - $ref: '#/channels/social/messages/receive_delete_friend_request'
+      - $ref: '#/channels/social/messages/receive_new_friendship'
+      - $ref: '#/channels/social/messages/receive_delete_friendship'
       - $ref: '#/channels/social/messages/receive_lobby_invite'
       - $ref: '#/channels/social/messages/receive_lobby_request'
       - $ref: '#/channels/social/messages/error'
@@ -92,7 +98,7 @@ components:
           data:
             type: object
             properties:
-              follows:
+              friends:
                 type: array
                 items:
                   type: object
@@ -103,11 +109,65 @@ components:
                       $ref: '#/components/schemas/profile'
                     status:
                       $ref: '#/components/schemas/status'
+                  required:
+                    - account_id
+                    - profile
+                    - status
+                  additionalProperties: false
+              pending:
+                type: object
+                properties:
+                  sent:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        account_id:
+                          $ref: '#/components/schemas/account_id'
+                        profile:
+                          $ref: '#/components/schemas/profile'
+                      required:
+                        - account_id
+                        - profile
+                        - status
+                      additionalProperties: false
+                  received:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        account_id:
+                          $ref: '#/components/schemas/account_id'
+                        profile:
+                          $ref: '#/components/schemas/profile'
+                      required:
+                        - account_id
+                        - profile
+                        - status
+                      additionalProperties: false
+                required:
+                  - sent
+                  - received
+                additionalProperties: false
+              blocked:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_id:
+                      $ref: '#/components/schemas/account_id'
+                    profile:
+                      $ref: '#/components/schemas/profile'
+                  required:
+                    - account_id
+                    - profile
+                  additionalProperties: false
               self:
                $ref: '#/components/schemas/status'
         required:
           - event
           - data
+        additionalProperties: false
     
     receive_status:
       description: Message sent by the server when the status of a friend changes
@@ -186,6 +246,58 @@ components:
         required:
           - event
           - data
+    
+    receive_new_friendship:
+      description: Message sent by the server when a mutual friendship is created
+      payload:
+        type: object
+        properties:
+          event:
+            description: The type of the event
+            type: string
+            enum:
+              - receive_new_friendship
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+              profile:
+                $ref: '#/components/schemas/profile'
+              status:
+                $ref: '#/components/schemas/status'
+            required:
+              - account_id
+              - profile
+              - status
+            additionalProperties: false
+        required:
+          - type
+          - data
+        additionalProperties: false
+
+    receive_delete_friendship:
+      description: Message sent by the server when a mutual friendship is destroyed
+      payload:
+        type: object
+        properties:
+          event:
+            description: The type of the event
+            type: string
+            enum:
+              - receive_delete_friendship
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: '#/components/schemas/account_id'
+            required:
+              - account_id
+            additionalProperties: false
+        required:
+          - type
+          - data
+        additionalProperties: false
 
     receive_lobby_invite:
       description: Message sent by the server when another user invite the client to join a lobby
@@ -254,7 +366,6 @@ components:
           - code
           - message
         
-
     ping:
       description: Send this message to the server to prevent the user from going inactive
       payload:
@@ -378,6 +489,7 @@ components:
           description: Custom information about the user activity
       required:
         - type
+      additionalProperties: false
 
     profile:
       description: A user profile

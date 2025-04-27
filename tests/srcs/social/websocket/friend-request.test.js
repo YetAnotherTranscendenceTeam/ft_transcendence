@@ -1,3 +1,4 @@
+import { online } from "../../../../services/social/srcs/utils/activityStatuses";
 import { createUsers, users } from "../../../dummy/dummy-account";
 import { SocialDummy } from "../../../dummy/social-dummy";
 
@@ -21,7 +22,7 @@ describe('Friend requests', () => {
     await user2.disconect();
   })
 
-  it("send friend request", async () => {
+  it("1 send friend request to 2", async () => {
     let response = await user1.sendFriendRequest(user2);
     expect(response.statusCode).toBe(204);
 
@@ -29,7 +30,7 @@ describe('Friend requests', () => {
     await user2.expectEvent("receive_new_friend_request", { ...user1.me(), sender: user1.id });
   });
 
-  it("sender cancel it", async () => {
+  it("1 cancel it", async () => {
     let response = await user1.cancelFriendRequest(user2);
     expect(response.statusCode).toBe(204);
 
@@ -37,7 +38,7 @@ describe('Friend requests', () => {
     await user2.expectEvent("receive_delete_friend_request", { account_id: user1.id, sender: user1.id });
   });
 
-  it("resend friend request", async () => {
+  it("1 resend friend request to 2", async () => {
     let response = await user1.sendFriendRequest(user2);
     expect(response.statusCode).toBe(204);
 
@@ -45,11 +46,35 @@ describe('Friend requests', () => {
     await user2.expectEvent("receive_new_friend_request", { ...user1.me(), sender: user1.id });
   });
 
-  it("receiver cancel it", async () => {
+  it("2 refuses it", async () => {
     let response = await user2.cancelFriendRequest(user1);
     expect(response.statusCode).toBe(204);
 
     await user1.expectEvent("receive_delete_friend_request", { account_id: user2.id, sender: user1.id });
     await user2.expectEvent("receive_delete_friend_request", { account_id: user1.id, sender: user1.id });
+  });
+
+  it("1 send friend request to 2", async () => {
+    let response = await user1.sendFriendRequest(user2);
+    expect(response.statusCode).toBe(204);
+
+    await user1.expectEvent("receive_new_friend_request", { ...user2.me(), sender: user1.id });
+    await user2.expectEvent("receive_new_friend_request", { ...user1.me(), sender: user1.id });
+  });
+
+  it("2 send friend request to 1 - friendship created", async () => {
+    let response = await user2.sendFriendRequest(user1);
+    expect(response.statusCode).toBe(204);
+
+    await user1.expectEvent("receive_new_friend", { ...user2.me({ status: online }) });
+    await user2.expectEvent("receive_new_friend", { ...user1.me({ status: online }) });
+  });
+
+  it("2 remove friendship", async () => {
+    let response = await user2.removeFriend(user1);
+    expect(response.statusCode).toBe(204);
+
+    await user1.expectEvent("receive_delete_friend", { account_id: user2.id });
+    await user2.expectEvent("receive_delete_friend", { account_id: user1.id });
   });
 });

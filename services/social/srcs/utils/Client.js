@@ -24,25 +24,25 @@ export class Client {
     this.account_id = account_id;
     this.allClients = clients;
     console.log("NEW CLIENT:", { account_id: this.account_id, sockets: this.sockets.size });
-  }
+  };
 
   addSocket(socket) {
     this.sockets.add(socket);
     this.resetInactivity();
     console.log("CLIENT SOCKET+:", { account_id: this.account_id, sockets: this.sockets.size });
-  }
+  };
 
   deleteSocket(socket) {
     this.sockets.delete(socket);
     console.log("CLIENT SOCKET-:", { account_id: this.account_id, sockets: this.sockets.size });
-  }
+  };
 
   send(payload, target) {
     const data = JSON.stringify(payload);
     this.sockets.forEach(socket => {
       socket.send(data);
     });
-  }
+  };
 
   async welcome(clients, socket) {
     // Retreive all friends / pending requests / blocked
@@ -50,7 +50,7 @@ export class Client {
     const pending = {
       sent: dbAction.selectRequestsSent(this.account_id).map(r => r.account_id),
       received: dbAction.selectRequestsReceived(this.account_id).map(r => r.account_id),
-    }
+    };
     const blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
 
     // Fetch all related profiles
@@ -80,6 +80,118 @@ export class Client {
     const data = JSON.stringify(payload);
     socket.send(data);
   };
+
+  goInactive() {
+    this.isInactive = true;
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
+    };
+    this.allClients.broadcastStatus(this);
+  };
+
+  resetInactivity() {
+    // Cancel previous inactivity timeout
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout)
+    }
+
+    // Start new inactivity timeout
+    this.inactivityTimeout = setTimeout(() => {
+      this.goInactive();
+    }, inactivity_delay);
+
+    if (this.isInactive) {
+      this.isInactive = false;
+      this.allClients.broadcastStatus(this);
+      return true
+    };
+    return false
+  };
+
+  goOffline() {
+    if (this.inactivityTimeout) {
+      clearTimeout(this.inactivityTimeout);
+    };
+    this.allClients.broadcastStatus(this, offline);
+  };
+
+  setStatus(status) {
+    const { type, data } = status;
+
+    if (type === "online") {
+      this.customStatus = null;
+    } else {
+      this.customStatus = { type, data };
+    };
+    if (!this.resetInactivity()) {
+      this.allClients.broadcastStatus(this);
+    };
+  };
+
+  status() {
+    if (this.isInactive) {
+      return inactive;
+    } else if (this.customStatus) {
+      return this.customStatus
+    } else {
+      return online;
+    };
+  };
+
+  async sendLobbyInvite(invite) {
+    if (invite.account_id === this.account_id) {
+      throw new WsError.UserUnavailable({ account_id: this.account_id });
+    };
+
+    const target = this.allClients.get(invite.account_id);
+    if (!target) {
+      throw new WsError.UserUnavailable({ account_id: invite.account_id });
+    };
+
+    try {
+      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
+    } catch (err) {
+      console.error(err);
+      throw new WsError.BadGateway();
+    };
+
+    target.send({
+      event: "receive_lobby_invite", data: {
+        username: this.username,
+        gamemode: invite.gamemode,
+        join_secret: invite.join_secret
+      }
+    });
+  };
+
+  async sendLobbyJoinRequest(request) {
+    if (request.account_id === this.account_id) {
+      throw new WsError.UserUnavailable({ account_id: this.account_id });
+    };
+
+    const target = this.allClients.get(request.account_id);
+    if (!target) {
+      throw new WsError.UserUnavailable({ account_id: request.account_id });
+    };
+
+    try {
+      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
+    } catch (err) {
+      console.error(err);
+      throw new WsError.BadGateway();
+    };
+
+    target.send({
+      event: "receive_lobby_request", data: {
+        account_id: this.account_id,
+        username: this.username,
+      }
+    });
+  };
+
+  /* ------------------------------------------------- *
+ *  Friends - Pending requests - Block notifications *
+ * ------------------------------------------------- */
 
   async newFriendRequestSent(receiver, profile) {
     const payload = {
@@ -114,127 +226,24 @@ export class Client {
     this.send(payload);
   };
 
-  async newFriend(account_id, clients) {
+  async newFriendship(friend_id, friend_profile) {
     const payload = {
       event: "receive_new_friend",
-      data: await userInfos(account_id, clients),
+      data: await userInfos(
+        friend_id,
+        this.allClients,
+        { profile: friend_profile, include_status: true }
+      ),
     }
     this.send(payload);
-  }
+  };
 
-  async deleteFriend(account_id, clients) {
+  async deleteFriendship(friend_id) {
     const payload = {
       event: "receive_delete_friend",
-      data: await userInfos(account_id, clients),
+      data: { account_id: friend_id },
     }
     this.send(payload);
-  }
+  };
 
-  goInactive() {
-    this.isInactive = true;
-    if (this.inactivityTimeout) {
-      clearTimeout(this.inactivityTimeout);
-    }
-    this.allClients.broadcastStatus(this);
-  }
-
-  resetInactivity() {
-    // Cancel previous inactivity timeout
-    if (this.inactivityTimeout) {
-      clearTimeout(this.inactivityTimeout)
-    }
-
-    // Start new inactivity timeout
-    this.inactivityTimeout = setTimeout(() => {
-      this.goInactive();
-    }, inactivity_delay);
-
-    if (this.isInactive) {
-      this.isInactive = false;
-      this.allClients.broadcastStatus(this);
-      return true
-    }
-    return false
-  }
-
-  goOffline() {
-    if (this.inactivityTimeout) {
-      clearTimeout(this.inactivityTimeout);
-    }
-    this.allClients.broadcastStatus(this, offline);
-  }
-
-  setStatus(status) {
-    const { type, data } = status;
-
-    if (type === "online") {
-      this.customStatus = null;
-    } else {
-      this.customStatus = { type, data };
-    }
-    if (!this.resetInactivity()) {
-      this.allClients.broadcastStatus(this);
-    }
-  }
-
-  status() {
-    if (this.isInactive) {
-      return inactive;
-    } else if (this.customStatus) {
-      return this.customStatus
-    } else {
-      return online;
-    }
-  }
-
-  async sendLobbyInvite(invite) {
-    if (invite.account_id === this.account_id) {
-      throw new WsError.UserUnavailable({ account_id: this.account_id });
-    }
-
-    const target = this.allClients.get(invite.account_id);
-    if (!target) {
-      throw new WsError.UserUnavailable({ account_id: invite.account_id });
-    }
-
-    try {
-      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
-    } catch (err) {
-      console.error(err);
-      throw new WsError.BadGateway();
-    }
-
-    target.send({
-      event: "receive_lobby_invite", data: {
-        username: this.username,
-        gamemode: invite.gamemode,
-        join_secret: invite.join_secret
-      }
-    });
-  }
-
-  async sendLobbyJoinRequest(request) {
-    if (request.account_id === this.account_id) {
-      throw new WsError.UserUnavailable({ account_id: this.account_id });
-    }
-
-    const target = this.allClients.get(request.account_id);
-    if (!target) {
-      throw new WsError.UserUnavailable({ account_id: request.account_id });
-    }
-
-    try {
-      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
-    } catch (err) {
-      console.error(err);
-      throw new WsError.BadGateway();
-    }
-
-    target.send({
-      event: "receive_lobby_request", data: {
-        account_id: this.account_id,
-        username: this.username,
-      }
-    });
-  }
-}
+}; // class Client

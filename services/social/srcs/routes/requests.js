@@ -28,11 +28,8 @@ export default function router(fastify, opts, done) {
       const friendship = dbAction.handleFriendRequest(sender, receiver);
       // Send notification through websocket(s)
       if (friendship) {
-        console.log("NEW FRIENDSHIP:", [sender, receiver]);
-        await fastify.clients.get(sender)?.newFriendship(receiver, fastify.clients, { profile });
-        await fastify.clients.get(receiver)?.newFriendship(sender, fastify.clients);
+        await fastify.clients.newFriendship(sender, receiver, profile);
       } else {
-        console.log("FRIEND REQUEST:", { sender, receiver });
         await fastify.clients.newFriendRequest(sender, receiver, profile);
       }
     } catch (err) {
@@ -60,7 +57,6 @@ export default function router(fastify, opts, done) {
     };
 
     // Send notification through websocket(s)
-    console.log(deletion);
     await fastify.clients.deleteFriendRequest(deletion.sender, deletion.receiver);
 
     reply.code(204);

@@ -18,9 +18,9 @@ export async function userInfos(account_id, clients, options = {}) {
   const user = { account_id };
 
   // Attach user profile
-  if (options.profiles) {
+  if (options["profiles"]) {
     user.profile = options.profiles.get(account_id);
-  } else if (options.profile) {
+  } else if (options["profile"]) {
     user.profile = options.profile;
   } else {
     try {

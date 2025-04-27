@@ -27,10 +27,9 @@ export default function router(fastify, opts, done) {
       throw new HttpError.NotFound();
     }
     reply.code(204).send();
-    console.log("UNFRIEND:", { sender: request.account_id, receiver: account_id });
 
-    // Send notification through websocket(s)
-    // await fastify.clients.get(request.account_id)?.unfollow(account_id);
+    // Send notifications through websocket(s)
+    await fastify.clients.deleteFriendship(request.account_id, account_id);
   });
 
   done();

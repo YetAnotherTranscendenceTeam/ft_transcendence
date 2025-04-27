@@ -38,8 +38,14 @@ export class SocialDummy {
       .set('Authorization', `Bearer ${this.user.jwt}`)
   };
 
+  async removeFriend(dummy) {
+    return await request(apiURL)
+      .delete(`/social/friends/${dummy.user.account_id}`)
+      .set('Authorization', `Bearer ${this.user.jwt}`)
+  }
+
   me(options = {}) {
-    if (options.id_only) {
+    if (options.id_only === true) {
       return { account_id: this.account_id };
     }
     const me = {

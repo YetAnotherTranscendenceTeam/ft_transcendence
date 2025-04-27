@@ -81,18 +81,35 @@ export class ConnectionManager {
   };
 
   async newFriendRequest(sender, receiver, receiver_profile) {
-    await this.get(sender)?.newFriendRequestSent(receiver, receiver_profile );
+    await this.get(sender)?.newFriendRequestSent(receiver, receiver_profile);
     if (!dbAction.isBlocked(receiver, sender)) {
       await this.get(receiver)?.newFriendRequestReceived(sender);
     };
+    console.log("NEW FRIEND REQUEST:", { sender, receiver });
   };
 
   async deleteFriendRequest(sender, receiver) {
-    console.log("SDFSDFSDFSDFSDF", sender, receiver)
     await this.get(sender)?.deleteFriendRequest(sender, receiver);
     if (!dbAction.isBlocked(receiver, sender)) {
       await this.get(receiver)?.deleteFriendRequest(sender, receiver);
     };
+    console.log("DELETE FRIEND REQUEST:", { sender, receiver });
+  };
+
+  async newFriendship(user1, user2, user2_profile) {
+    await Promise.all([
+      this.get(user1)?.newFriendship(user2, user2_profile),
+      this.get(user2)?.newFriendship(user1)
+    ]);
+    console.log("NEW FRIENDSHIP:", [user1, user2]);
+  };
+
+  async deleteFriendship(user1, user2) {
+    await Promise.all([
+      this.get(user1)?.deleteFriendship(user2),
+      this.get(user2)?.deleteFriendship(user1)
+    ]);
+    console.log("DELETE FRIENDSHIP:", [user1, user2]);
   };
 
 }; // class ConnectionManager
