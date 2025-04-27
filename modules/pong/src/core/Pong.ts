@@ -194,7 +194,9 @@ export class Pong {
 	public roundStart() {
 		this.launchBall();
 		for (const paddle of this._paddles.values()) {
-			paddle.position[1] = 0;
+			paddle.position.y = 0;
+			paddle.previousPosition.y = 0;
+			paddle.velocity = new Vec2(0, 0);
 		}
 	}
 
@@ -251,6 +253,8 @@ export class Pong {
 	private launchBall() {
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
+		this._balls[0].previousPosition[0] = 0;
+		this._balls[0].previousPosition[1] = 0;
 		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
 		const angle: number = Math.random() * 20 * Math.PI / 180; // random angle between -20 and 20 degrees
 		const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
@@ -291,6 +295,10 @@ export class Pong {
 
 	public get players(): IPongPlayer[] {
 		return this._players;
+	}
+
+	public get paddles(): Map<number, PH2D.Body> {
+		return this._paddles;
 	}
 }
 

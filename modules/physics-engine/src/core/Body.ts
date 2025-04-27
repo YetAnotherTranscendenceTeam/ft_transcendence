@@ -175,6 +175,10 @@ export class Body extends EventTarget {
 		return this._position;
 	}
 
+	public get previousPosition(): Vec2 {
+		return this._previousPosition;
+	}
+
 	public get velocity(): Vec2 {
 		return this._velocity;
 	}
@@ -187,6 +191,7 @@ export class Body extends EventTarget {
 	public set position(position: Vec2) {
 		this._position = position;
 	}
+
 
 	public set velocity(velocity: Vec2) {
 		this._velocity = velocity;

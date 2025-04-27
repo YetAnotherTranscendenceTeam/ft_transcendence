@@ -3,12 +3,12 @@ import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
-import { GameMode, GameModeType, IPlayer } from 'yatt-lobbies'
+import { GameMode, GameModeType, IGameMode, IPlayer } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep } from "./types";
+import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep, PaddleSync } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
 import { useAuth } from "../../contexts/useAuth";
@@ -18,7 +18,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
-	private _websocket: WebSocket;
+	private _websocket?: WebSocket;
 	private _engine: Engine;
 	private _keyboard: Map<string, KeyState>;
 	private _babylonScene: Scene;
@@ -35,8 +35,9 @@ export default class PongClient extends PONG.Pong {
 	private _paddleInstance: Map<number, ClientPaddle>;
 
 	private _time: number;
+	private _interpolation: number;
 
-	private _paddleID: PONG.PaddleID;
+	private _player: PONG.IPongPlayer;
 
 	// public scoreUpdateCallback: (score: ScoredEvent) => void;
 	public callbacks: {
@@ -53,6 +54,7 @@ export default class PongClient extends PONG.Pong {
 		super();
 		this.callbacks = callbacks;
 		this._time = 0;
+		this._interpolation = 0;
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
 		this._meshMap = new Map<PONG.MapID, Array<AObject>>();
@@ -79,31 +81,10 @@ export default class PongClient extends PONG.Pong {
 		
 		this._serverSteps = [];
 		this._engine.runRenderLoop(this.loop);
+
+		this._state = PONG.PongState.RESERVED.clone();
 		
-		this._websocket = new WebSocket(`${config.WS_URL}/pong/join?match_id=0&access_token=${localStorage.getItem("access_token")}`);
-		
-		this._websocket.onmessage = (ev) => { // step, state, sync
-			const msg = JSON.parse(ev.data);
-			console.log(msg);
-			if (msg.event === "step") {
-				// this.counter = msg.data.counter;
-				this._serverSteps.push(msg.data as IServerStep);
-			}
-			else if (msg.event === "sync") {
-				this._tick = msg.data.tick;
-			}
-			else if (msg.event === "state") {
-				this._state = new PONG.PongState(msg.data.state.name, msg.data.state);
-			}
-		}
-		this._websocket.onopen = (ev) => {
-			console.log(ev);
-		}
-		this._websocket.onclose = (ev) => {
-			console.log(ev);
-		}
-		
-		this.setGameScene(GameScene.ONLINE);
+		//this.setGameScene(GameScene.ONLINE);
 	}
 
 	public setGameScene(scene: GameScene) {
@@ -128,8 +109,10 @@ export default class PongClient extends PONG.Pong {
 			this.lobbyScene();
 		} else if (this._gameScene === GameScene.LOCAL) {
 			this.localScene();
-		} else if (this._gameScene === GameScene.ONLINE) {
-			this.onlineScene(1, new GameMode("test", { type: GameModeType.UNRANKED, team_size: 1, team_count: 2, match_parameters: { obstacles: false, powerups: false, time_limit: 0, ball_speed: 0, point_to_win: 0 } }), [{ account_id: 1}, { account_id: 2}]);
+		}
+		if (this._gameScene !== GameScene.ONLINE && this._websocket) {
+			this._websocket.close();
+			this._websocket = null;
 		}
 	}
 
@@ -140,9 +123,43 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
+	public connect(match_id: number) {
+		this._websocket = new WebSocket(`${config.WS_URL}/pong/join?match_id=${match_id}&access_token=${localStorage.getItem("access_token")}`);
+		
+		this._websocket.onmessage = (ev) => { // step, state, sync
+			const msg = JSON.parse(ev.data);
+			console.log(msg);
+			if (msg.event === "step") {
+				// this.counter = msg.data.counter;
+				this._serverSteps.push(msg.data as IServerStep);
+			}
+			else if (msg.event === "sync") {
+				this._tick = msg.data.tick;
+				this.onlineScene(msg.data.match.match_id as number, 
+					new GameMode(msg.data.match.gamemode as IGameMode),
+					msg.data.match.players as IPlayer[],
+					PONG.PongState[msg.data.match.state.name].clone() as PONG.PongState,
+				);
+				this.bindPaddles();
+				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
+			}
+			else if (msg.event === "state") {
+				if (this._state.endCallback)
+					this._state.endCallback(this);
+				this._state = PONG.PongState[msg.data.state.name].clone();
+			}
+		}
+		this._websocket.onopen = (ev) => {
+			console.log(ev);
+		}
+		this._websocket.onclose = (ev) => {
+			console.log(ev);
+		}
+	}
+
 	public nextRound() {
-		// this._state = PONG.PongState.PLAYING.clone();
-		// this.roundStart();
+		this._state = PONG.PongState.PLAYING.clone();
+		this.roundStart();
 	}
 
 	public pauseGame() {
@@ -155,21 +172,6 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
 	}
 	
-	private loop = () => {
-		// if (this._websocket) {
-			this.updateOnline();
-		// } else {
-			// this.updateLocal();
-		// }
-		// this.update();
-		this._babylonScene.render();
-		// console.log(this.);
-	}
-
-	private resize = () => {
-		this._engine.resize();
-	}
-
 	private sceneSetup() {
 		// scene.clearColor = Color4.FromColor3(Color3.Black());
 		// scene.createDefaultEnvironment();
@@ -178,12 +180,12 @@ export default class PongClient extends PONG.Pong {
 		camera.lowerRadiusLimit = 1.5;
 		camera.upperRadiusLimit = 30;
 		camera.wheelPrecision = 50;
-
+		
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
-
+		
 		PONG.Pong._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];
-
+			
 			if (map.wallBottom) {
 				const wallBottom: ClientWall = new ClientWall(this._babylonScene, ("wallBottom" + map.mapId.toString()), map.wallBottom);
 				wallBottom.disable();
@@ -231,11 +233,11 @@ export default class PongClient extends PONG.Pong {
 					mapMesh.push(wall);
 				});
 			}
-
+			
 			this._meshMap.set(mapId, mapMesh);
 		});
 	}
-
+	
 	protected switchMap(mapId: PONG.MapID) {
 		super.switchMap(mapId);
 		const objects: PH2D.Body[] = this._currentMap.getObjects();
@@ -243,25 +245,25 @@ export default class PongClient extends PONG.Pong {
 			object.enable();
 			object.updateBodyReference(objects[index]);
 		});
-
+		
 	}
-
+	
 	private menuScene() {
 		this.menuSetup();
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.305882353, 0.384313725, 0.521568627));
-
+		
 		this.loadBalls();
 		this.bindPaddles();
 	}
-
+	
 	private lobbyScene() {
 		this.lobbySetup();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Green());
-	
+		
 		this.loadBalls();
 		this.bindPaddles();
 	}
-
+	
 	private localScene() {
 		this.localSetup();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
@@ -269,26 +271,26 @@ export default class PongClient extends PONG.Pong {
 		this.loadBalls();
 		this.bindPaddles();
 	}
-
+	
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
-
-		const { me } = useAuth();
+		
+		// const { me } = useAuth();
 		//const myPlayer = players.find((player: IPongPlayer) => player.account_id === me?.account_id);
-
+		
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
-	
+		
 		this.loadBalls();
-		this.bindPaddles();
+		// this.bindPaddles();
 	}
-
+	
 	private loadBalls() {
 		this._balls.forEach((ball: PH2D.Body) => {
 			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
 			this._ballInstances.push(ballInstance);
 		});
 	}
-
+	
 	private bindPaddles() {
 		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
 			const paddleInstance: ClientPaddle | undefined = this._meshMap.get(this._currentMap.mapId)?.find((object: AObject) => {
@@ -302,6 +304,21 @@ export default class PongClient extends PONG.Pong {
 				this._paddleInstance.set(playerId, paddleInstance);
 			}
 		});
+	}
+
+	private loop = () => {
+		if (this._websocket) {
+			this.updateOnline();
+		} else {
+			this.updateLocal();
+		}
+		// this.update();
+		this._babylonScene.render();
+		// console.log(this.);
+	}
+
+	private resize = () => {
+		this._engine.resize();
 	}
 
 	private updateLocal() {
@@ -342,7 +359,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private updateOnline() {
-		let dt: number = this._engine.getDeltaTime() / 2000;
+		let dt: number = this._engine.getDeltaTime() / 1000;
 		// let dt: number = 1.0;
 		// if (this._state.tick(dt, this)) {
 		// 	return;
@@ -358,18 +375,18 @@ export default class PongClient extends PONG.Pong {
 		// this._time += dt;
 		// this.callbacks.timeUpdateCallback(Math.floor(this._time));
 
-		this.playerUpdateOnline();
 		if (!this._state.isFrozen()) {
-			dt = this.physicsUpdate(dt);
+			this.playerUpdateOnline();
+			this._interpolation = this.physicsUpdate(dt);
 			this._serverSteps.forEach((step: IServerStep) => {
 				this.serverStep(step);
 			});
 			this._serverSteps = [];
 			this._ballInstances.forEach((ball: ClientBall) => {
-				ball.update(dt);
+				ball.update(this._interpolation);
 			});
 			this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-				object.update(dt);
+				object.update(this._interpolation);
 			});
 		}
 		// if (this.scoreUpdate()) {
@@ -383,8 +400,6 @@ export default class PongClient extends PONG.Pong {
 		// 		this._state = PONG.PongState.FREEZE.clone();
 		// 	}
 		// }
-		// console.log("balls", this._balls);
-		// console.log("instances", this._ballInstances);
 	}
 
 	private serverStep(data: IServerStep) {
@@ -392,7 +407,16 @@ export default class PongClient extends PONG.Pong {
 		if (Math.abs(this._tick - data.tick) > 5) {
 			console.log("tick mismatch", this.tick, data.tick);
 			this._tick = data.tick;
-			this.ballSync(data.balls);
+		}
+		this.ballSync(data.balls);
+		this.paddleSync(data.paddles);
+	}
+
+	private paddleSync(paddles: PaddleSync) {
+		for (let paddle of Object.values(paddles)) {
+			console.log("paddle sync", paddle);
+			console.log("thispaddles", this._paddles);
+			this._paddles.get(paddle.id).position.y = paddle.y;
 		}
 	}
 
@@ -427,8 +451,10 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private playerUpdateOnline() {
-		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._paddleID);
+
+		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.paddleId);
 		if (paddle) {
+			console.log("player", this._player)
 			let moveDirection: number = 0;
 			let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
 			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
@@ -439,6 +465,17 @@ export default class PongClient extends PONG.Pong {
 				moveDirection -= 1;
 			}
 			paddle.move(moveDirection);
+			if (moveDirection !== this._player.movement) {
+				console.log("send move", moveDirection);
+				this._websocket.send(JSON.stringify({
+					event: "movement",
+					data: {
+						tick: this._tick,
+						movement: moveDirection,
+					}
+				}))
+			}
+			this._player.movement = moveDirection;
 		}
 	}
 

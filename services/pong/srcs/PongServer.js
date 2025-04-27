@@ -1,4 +1,4 @@
-import { Pong, PongState } from "pong";
+import { K, Pong, PongState } from "pong";
 
 PongState.RESERVED.tickCallback = function (dt, pong) {
 	if (pong.players.some(player => !player.socket)) {
@@ -21,6 +21,7 @@ export class PongServer extends Pong {
 				this.collisions.push(event.detail);
 			});
 		}
+
 	}
 
 	destroy() {
@@ -76,6 +77,9 @@ export class PongServer extends Pong {
 	}
 
 	setState(state) {
+		if (this._state.endCallback) {
+			this._state.endCallback(this);
+		}
 		this._state = state;
 		this.broadcast({
 			event: "state",
@@ -90,10 +94,6 @@ export class PongServer extends Pong {
 			return;
 		}
 		if (this._state.getNext()) {
-			console.log("State changed", this._state.getNext());
-			if (this._state.endCallback) {
-				this._state.endCallback(this);
-			}
 			this.setState(this._state.getNext().clone());
 			if (this._state.tick(dt, this)) {
 				this._lastUpdate = Date.now();
@@ -102,6 +102,14 @@ export class PongServer extends Pong {
 		}
 		this._time += dt;
 		dt = this.physicsUpdate(dt);
+		if (this.scoreUpdate()) {
+			if (this._winner !== undefined) {
+				this.setState(PongState.ENDED.clone());
+			}
+			else
+				this.setState(PongState.FREEZE.clone());
+		}
+		console.log("paddles", this.getPaddlePositions())
 		this.broadcast({
 			event: "step",
 			data: {
@@ -111,13 +119,6 @@ export class PongServer extends Pong {
 				tick: this.tick,
 			}
 		});
-		if (this.scoreUpdate()) {
-			if (this._winner !== undefined) {
-				this.setState(PongState.ENDED.clone());
-			}
-			else
-				this.setState(PongState.FREEZE.clone());
-		}
 		this.collisions.length = 0;
 		this._lastUpdate = Date.now();
 	}

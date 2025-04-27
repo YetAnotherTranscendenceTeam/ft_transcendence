@@ -1,5 +1,5 @@
 import { EventManager } from "yatt-ws";
-import { PlayerMovement } from "pong"
+import { K, PlayerMovement, Pong } from "pong"
 
 export const gameEvents = new EventManager();
 
@@ -7,6 +7,10 @@ const data_schema = {
 	type: "object",
 	required: ["tick", "movement"],
 	properties: {
+		tick: {
+			type: "number",
+			minimum: 0,
+		},
 		movement: {
 			type: "number",
 			enum: [PlayerMovement.DOWN, PlayerMovement.UP, PlayerMovement.NONE],
@@ -18,7 +22,8 @@ const data_schema = {
 gameEvents.register("movement", {
 	schema: data_schema,
 	handler: (socket, payload, game, player) => {
-		player.movement = payload.movement;
-		console.log("movement", payload.movement);
-}})
+		game.paddles.get(player.paddleId).velocity.y = payload.data.movement * K.paddleSpeed;
+		player.movement = payload.data.movement;
+	}
+})
 

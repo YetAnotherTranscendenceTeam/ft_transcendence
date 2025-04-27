@@ -29,7 +29,7 @@ export default function router(fastify, opts, done) {
       player.socket = socket;
       socket.send(JSON.stringify({
         event: "sync",
-        data: {match}
+        data: {match, player}
       }));
       socket.on("message", (message) => {
         try {

@@ -13,36 +13,39 @@ export class IPongState {
 }
 
 export class PongState implements IPongState {
-	static PLAYING = new PongState("playing", {
+	static PLAYING = new PongState("PLAYING", {
 		frozen_until: 0,
-	});
-	static FREEZE = new PongState("freeze", {
-		frozen_until: 4,
-		next: PongState.PLAYING,
 		endCallback: (game: Pong) => {
 			game.roundStart();
 		}
 	});
+	static FREEZE = new PongState("FREEZE", {
+		frozen_until: 4,
+		next: () => PongState.PLAYING
+	});
 	// waiting for game
-	static RESERVED = new PongState("reserved", {
+	static RESERVED = new PongState("RESERVED", {
 		frozen_until: -1,
-		next: PongState.FREEZE
+		next: () => PongState.FREEZE,
+		endCallback: (game: Pong) => {
+			game.roundStart();
+		}
 	});
 	// local only!
-	static PAUSED = new PongState("paused", {
+	static PAUSED = new PongState("PAUSED", {
 		frozen_until: -1,
 	});
-	static ENDED = new PongState("ended", {
+	static ENDED = new PongState("ENDED", {
 		frozen_until: -1,
 	});
 
 	public readonly name: string;
-	public readonly next?: PongState = null;
+	public readonly next?: () => PongState = null;
 	public frozen_until: number;
 	public endCallback?: ((game: Pong) => void) = null;
 	public tickCallback?: ((dt: number, game: Pong) => boolean) = null;
 
-	constructor(name: string, { frozen_until, next, endCallback, tickCallback }: { frozen_until: number, next?: PongState, endCallback?: (game: Pong) => void, tickCallback?: (dt: number, game: Pong) => boolean }) {
+	constructor(name: string, { frozen_until, next, endCallback, tickCallback }: { frozen_until: number, next?: () => PongState, endCallback?: (game: Pong) => void, tickCallback?: (dt: number, game: Pong) => boolean }) {
 		this.name = name;
 		this.frozen_until = frozen_until;
 		this.next = next;
@@ -69,7 +72,9 @@ export class PongState implements IPongState {
 	}
 
 	public getNext(): PongState | null {
-		return this.next;
+		if (!this.next)
+			return null;
+		return this.next();
 	}
 
 	public isFrozen(): boolean {

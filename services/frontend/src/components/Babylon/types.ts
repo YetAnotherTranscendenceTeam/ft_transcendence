@@ -25,10 +25,11 @@ export interface ScoredEvent {
 	score: Array<number>;
 	side: number;
 }
+export type PaddleSync = {[key: number]: {id: number, y: number}};
 
 export interface IServerStep {
 	collision: Array<Object>;
 	balls: Array<IBall>;
-	paddles: Array<Object>;
+	paddles: PaddleSync;
 	tick: number;
 }
