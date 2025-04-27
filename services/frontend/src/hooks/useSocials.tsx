@@ -239,7 +239,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 	};
 
 	const status = async (status: FollowStatus) => {
-		ws.send({event: 'update_status', data: status});
+		ws.send({event: 'send_status', data: status});
 	};
 
 	const disconnect = () => {
