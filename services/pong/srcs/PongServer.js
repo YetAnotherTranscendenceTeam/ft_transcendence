@@ -109,11 +109,10 @@ export class PongServer extends Pong {
 			else
 				this.setState(PongState.FREEZE.clone());
 		}
-		console.log("paddles", this.getPaddlePositions())
 		this.broadcast({
 			event: "step",
 			data: {
-				collisions: this.collisions,
+				collisions: this.collisions.length,
 				balls: this._balls,
 				paddles: this.getPaddlePositions(),
 				tick: this.tick,

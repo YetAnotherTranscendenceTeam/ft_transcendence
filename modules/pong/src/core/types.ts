@@ -20,7 +20,7 @@ export class PongState implements IPongState {
 		}
 	});
 	static FREEZE = new PongState("FREEZE", {
-		frozen_until: 4,
+		frozen_until: 3,
 		next: () => PongState.PLAYING
 	});
 	// waiting for game

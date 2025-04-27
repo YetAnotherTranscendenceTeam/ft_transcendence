@@ -16,13 +16,14 @@ export default class Ball extends PH2D.Body {
 
 	public toJSON(): IBall {
 		return {
-			position: [trunc(this.position[0], 3), trunc(this.position[1], 3)],
-			// velocity: [this.velocity[0], this.velocity[1]],
-			velocity: [trunc(this.velocity[0], 3), trunc(this.velocity[1], 3)],
-			// angularVelocity: this.angularVelocity,
-			angularVelocity: trunc(this.angularVelocity, 3),
-			// orientation: this.orientation,
-			orientation: trunc(this.orientation, 3),
+			position: [this.position[0], this.position[1]],
+			//position: [trunc(this.position[0], 3), trunc(this.position[1], 3)],
+			velocity: [this.velocity[0], this.velocity[1]],
+			//velocity: [trunc(this.velocity[0], 3), trunc(this.velocity[1], 3)],
+			angularVelocity: this.angularVelocity,
+			//angularVelocity: trunc(this.angularVelocity, 3),
+			orientation: this.orientation,
+			//orientation: trunc(this.orientation, 3),
 			speed: this._speed
 		};
 	}

@@ -1,4 +1,4 @@
-import { IBall } from "pong";
+import { IBall, PlayerMovement } from "pong";
 
 export enum KeyState {
 	IDLE = 0,
@@ -25,11 +25,12 @@ export interface ScoredEvent {
 	score: Array<number>;
 	side: number;
 }
-export type PaddleSync = {[key: number]: {id: number, y: number}};
+export type PaddleSync = {id: number, y: number, movement: PlayerMovement};
+export type PaddleSyncs = {[key: number]: PaddleSync};
 
 export interface IServerStep {
-	collision: Array<Object>;
+	collisions: number;
 	balls: Array<IBall>;
-	paddles: PaddleSync;
+	paddles: PaddleSyncs;
 	tick: number;
 }

@@ -8,7 +8,7 @@ import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/o
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep, PaddleSync } from "./types";
+import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep, PaddleSync, PaddleSyncs } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
 import { useAuth } from "../../contexts/useAuth";
@@ -131,10 +131,13 @@ export default class PongClient extends PONG.Pong {
 			console.log(msg);
 			if (msg.event === "step") {
 				// this.counter = msg.data.counter;
+				if (this._state.isFrozen()) 
+					this.serverStep(msg.data as IServerStep, true);
 				this._serverSteps.push(msg.data as IServerStep);
 			}
 			else if (msg.event === "sync") {
 				this._tick = msg.data.tick;
+				this.setGameScene(GameScene.ONLINE);
 				this.onlineScene(msg.data.match.match_id as number, 
 					new GameMode(msg.data.match.gamemode as IGameMode),
 					msg.data.match.players as IPlayer[],
@@ -307,10 +310,12 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private loop = () => {
-		if (this._websocket) {
-			this.updateOnline();
-		} else {
-			this.updateLocal();
+		if (this._gameScene) {
+			if (this._websocket) {
+				this.updateOnline();
+			} else {
+				this.updateLocal();
+			}
 		}
 		// this.update();
 		this._babylonScene.render();
@@ -379,16 +384,16 @@ export default class PongClient extends PONG.Pong {
 			this.playerUpdateOnline();
 			this._interpolation = this.physicsUpdate(dt);
 			this._serverSteps.forEach((step: IServerStep) => {
-				this.serverStep(step);
+				this.serverStep(step, step.collisions > 0);
 			});
 			this._serverSteps = [];
-			this._ballInstances.forEach((ball: ClientBall) => {
-				ball.update(this._interpolation);
-			});
-			this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-				object.update(this._interpolation);
-			});
 		}
+		this._ballInstances.forEach((ball: ClientBall) => {
+			ball.update(this._interpolation);
+		});
+		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
+			object.update(this._interpolation);
+		});
 		// if (this.scoreUpdate()) {
 		// 	console.log("score: " + this._score[0] + "-" + this._score[1]);
 		// 	this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
@@ -402,21 +407,23 @@ export default class PongClient extends PONG.Pong {
 		// }
 	}
 
-	private serverStep(data: IServerStep) {
+	private serverStep(data: IServerStep, forced: boolean = false) {
 		console.log("server step", data);
-		if (Math.abs(this._tick - data.tick) > 5) {
+		const shouldSyncPositions = Math.abs(this._tick - data.tick) > 3 || forced;
+		if (shouldSyncPositions) {
 			console.log("tick mismatch", this.tick, data.tick);
 			this._tick = data.tick;
+			this.ballSync(data.balls);
 		}
-		this.ballSync(data.balls);
 		this.paddleSync(data.paddles);
 	}
 
-	private paddleSync(paddles: PaddleSync) {
-		for (let paddle of Object.values(paddles)) {
-			console.log("paddle sync", paddle);
-			console.log("thispaddles", this._paddles);
-			this._paddles.get(paddle.id).position.y = paddle.y;
+	private paddleSync(paddles: PaddleSyncs) {
+		for (let paddlesync of Object.values(paddles)) {
+			console.log("paddle sync", paddlesync);
+			console.log("thispaddles", this._paddleInstance);
+			const paddle = this._paddleInstance.get(paddlesync.id);
+			paddle.sync(paddlesync);
 		}
 	}
 
