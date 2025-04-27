@@ -49,7 +49,6 @@ export class Friend implements IFriend {
 		const response = await this.ft_fetch(`${config.API_URL}/social/friends/${this.account_id}`, {
 			method: 'DELETE',
 		}, {
-			success_message: `${this.profile.username} removed from friends`,
 			error_messages: {
 				404: 'Friend not found',
 			}
@@ -165,6 +164,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 
 	const { ft_fetch } = useFetch();
 	const [socials, setSocials] = Babact.useState<ISocials>(null);
+	const { createToast, removeToast } = useToast();
 
 	const inivites = Babact.useRef([]);
 
@@ -209,7 +209,6 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 	};
 
 	const onNewFriendRequest = ({ account_id, profile, sender }: {account_id: number, profile: IUser, sender: number}) => {
-		const { createToast, removeToast } = useToast();
 		if (getMe()?.account_id === sender) {
 			setSocials(s => ({
 				...s,
@@ -230,7 +229,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 					className="close-button ghost icon"
 					onClick={() => {
 						inivites.current = inivites.current.filter(i => i !== profile.username);
-						removeToast(id);
+						if (removeToast)
+							removeToast(id);
 					}}
 				>
 					<i className="fa-solid fa-xmark"></i>
@@ -243,7 +243,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 							const request = new Request({account_id, profile}, ft_fetch);
 							inivites.current = inivites.current.filter(i => i !== profile.username);
 							request.accept();
-							removeToast(id);
+							if (removeToast)
+								removeToast(id);
 						}}
 					>
 						<i className="fa-solid fa-user-check"></i> Accept
@@ -254,7 +255,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 							const request = new Request({account_id, profile}, ft_fetch);
 							inivites.current = inivites.current.filter(i => i !== profile.username);
 							request.cancel();
-							removeToast(id);
+							if (removeToast)
+								removeToast(id);
 						}}
 					>
 						<i className="fa-solid fa-xmark"></i> Decline
@@ -262,7 +264,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 				</div>
 			</div>;
 
-			createToast(message, ToastType.SUCCESS, 0);
+			if (createToast)
+				createToast(message, ToastType.SUCCESS, 0);
 			setSocials(s => ({
 				...s,
 				pending: {
@@ -295,8 +298,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 	}
 
 	const onNewFriend = ({account_id, profile, status}: {account_id: number, profile: IUser, status: FollowStatus}) => {
-		const { createToast } = useToast();
-		createToast(`You are now friends with ${profile.username}`, ToastType.SUCCESS);
+		if (createToast)
+			createToast(`You are now friends with ${profile.username}`, ToastType.SUCCESS);
 		setSocials(s => ({
 			...s,
 			friends: [...s.friends, new Friend({account_id, profile, status}, ws, ft_fetch)],
@@ -315,7 +318,6 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 	};
 
 	const onLobbyInvite = ({ join_secret, username, gamemode}: {join_secret: string, username: string, gamemode: IGameMode}) => {
-		const { createToast, removeToast } = useToast();
 		const { join } = useLobby();
 
 		if (inivites.current.includes(username))
@@ -324,12 +326,14 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 
 		const handleAccept = (id: number) => {
 			join(join_secret);
-			removeToast(id);
+			if (removeToast)
+				removeToast(id);
 			inivites.current = inivites.current.filter(i => i !== username);
 		};
 
 		const handleDecline = (id: number) => {
-			removeToast(id);
+			if (removeToast)
+				removeToast(id);
 			inivites.current = inivites.current.filter(i => i !== username);
 		};
 
@@ -351,8 +355,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 				</Button>
 			</div>
 		</div>;
-
-		createToast(message, ToastType.INFO, 0);
+		if (createToast)
+			createToast(message, ToastType.INFO, 0);
 	};
 
 	const onLobbyRequest = ({
@@ -368,8 +372,6 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 			return;
 		inivites.current.push(username);
 
-		const { createToast, removeToast } = useToast();
-
 		const handleAccept = (id: number) => {
 			const follow = new Friend({
 				account_id,
@@ -382,14 +384,17 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 					type: StatusType.OFFLINE,
 				}
 			}, ws);
-			createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
+			if (createToast)
+				createToast(`You invited ${follow.profile.username} to your lobby`, ToastType.SUCCESS);
 			follow.invite(lobby.mode, lobby.join_secret);
-			removeToast(id);
+			if (removeToast)
+				removeToast(id);
 			inivites.current = inivites.current.filter(i => i !== username);
 		};
 
 		const handleDecline = (id: number) => {
-			removeToast(id);
+			if (removeToast)
+				removeToast(id);
 			inivites.current = inivites.current.filter(i => i !== username);
 		};
 
@@ -411,7 +416,8 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 			</div>
 		</div>
 
-		createToast(message, ToastType.INFO, 0);
+		if (createToast)
+			createToast(message, ToastType.INFO, 0);
 	};
 
 	const onConnect = () => {
