@@ -16,8 +16,8 @@ describe('Friend requests', () => {
   });
 
   afterAll(async () => {
-    await user1.disconect();
-    await user2.disconect();
+    await user1.disconnect();
+    await user2.disconnect();
   })
 
   it("1 send friend request to 2", async () => {

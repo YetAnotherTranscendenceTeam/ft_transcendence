@@ -13,7 +13,7 @@ export class SocialDummy {
     return this.ws;
   }
 
-  disconect() {
+  disconnect() {
     this.ws.send(JSON.stringify({ event: "goodbye" })).expectClosed();
   }
 

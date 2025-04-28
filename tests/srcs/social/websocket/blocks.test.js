@@ -16,8 +16,8 @@ describe('Block tests', () => {
   });
 
   afterAll(async () => {
-    await user1.disconect();
-    await user2.disconect();
+    await user1.disconnect();
+    await user2.disconnect();
   })
 
   it("1 send friend request to 2", async () => {
@@ -59,9 +59,9 @@ describe('Block tests', () => {
   });
 
   it("all socials should be empty", async () => {
-    user1.disconect();
+    user1.disconnect();
     user1.connect(emptyWelcome);
-    user2.disconect();
+    user2.disconnect();
     user2.connect(emptyWelcome);
   });
 
@@ -104,9 +104,9 @@ describe('Block tests', () => {
     let response = await user2.unblock(user1);
     expect(response.statusCode).toBe(204);
 
-    user1.disconect();
+    user1.disconnect();
     user1.connect(emptyWelcome);
-    user2.disconect();
+    user2.disconnect();
     user2.connect(emptyWelcome);
   });
 
@@ -126,9 +126,9 @@ describe('Block tests', () => {
     let response = await user1.unblock(user2);
     expect(response.statusCode).toBe(204);
 
-    user1.disconect();
+    user1.disconnect();
     user1.connect(emptyWelcome);
-    user2.disconect();
+    user2.disconnect();
     user2.connect(emptyWelcome);
   });
 

@@ -1,3 +1,5 @@
+"use strict";
+
 import { properties } from "yatt-utils";
 import { EventManager } from "yatt-ws";
 

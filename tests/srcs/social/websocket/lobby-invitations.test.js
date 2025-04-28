@@ -191,14 +191,13 @@ describe('Lobby invitations', () => {
         },
       });
 
-      console.log(dummy.user.jwt);
       await dummy.expectEvent("error", {
         code: "USER_UNAVAILABLE",
         details: { account_id: users[2].account_id },
         message: "The requested user is currently offline or not accessible"
       });
 
-      dummy.disconect();
+      dummy.disconnect();
     });
   });
 });
