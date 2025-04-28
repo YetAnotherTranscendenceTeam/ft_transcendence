@@ -11,6 +11,7 @@ import { Vec2 } from "gl-matrix";
 import { KeyState, GameScene, KeyName, ScoredEvent } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
+import Keyboard from "./Keyboard";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -18,7 +19,7 @@ export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket: WebSocket;
 	private _engine: Engine;
-	private _keyboard: Map<string, KeyState>;
+	private _keyboard: Keyboard;
 	private _babylonScene: Scene;
 	private _gameScene: GameScene;
 
@@ -52,10 +53,7 @@ export default class PongClient extends PONG.Pong {
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
 		this._meshMap = new Map<PONG.MapID, Array<AObject>>();
-		this._keyboard = new Map<string, KeyState>();
-		Object.keys(KeyName).map(key => KeyName[key]).forEach((name: string) => {
-			this._keyboard.set(name, KeyState.IDLE);
-		});
+		this._keyboard = new Keyboard();
 
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
@@ -67,28 +65,6 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.autoClear = true;
 		// this._babylonScene.autoClearDepthAndStencil = false;
 
-
-		// // Ball Mesh // TODO: not implemented yet
-		// this._ballMesh = MeshBuilder.CreateSphere(
-		// 	"ball",
-		// 	{ diameter: PONG.K.ballRadius * 2 },
-		// 	this._babylonScene
-		// );
-		// this._ballMesh.position = new Vector3(
-		// 	0,
-		// 	-1,
-		// 	0
-		// );
-		// const material = new StandardMaterial("ballMaterial", this._babylonScene);
-		// material.diffuseColor = Color3.White();
-		// material.specularColor = Color3.Black();
-		// this._ballMesh.material = material;
-		// this._ballMesh.isVisible = false;
-		// this._ballMesh.isPickable = false;
-		// this._ballMesh.checkCollisions = false;
-
-		// this._babylonScene = new GameScene(this._canvas, this._engine, this._keyboard, scoreUpdateCallback);
-		// this._babylonScene = createScene(this._engine, this._canvas);
 		this.sceneSetup();
 
 		window.addEventListener("keydown", this.handleKeyDown);
@@ -165,6 +141,7 @@ export default class PongClient extends PONG.Pong {
 	}
 	
 	private loop = () => {
+		this._keyboard.update();
 		this.update();
 		this._babylonScene.render();
 		// console.log(this.);
@@ -345,12 +322,10 @@ export default class PongClient extends PONG.Pong {
 		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
-			let keyStateProbe: KeyState = this._keyboard.get(KeyName.ArrowUp) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+			if (this._keyboard.isDown(KeyName.ArrowUp)) {
 				moveDirection += 1;
 			}
-			keyStateProbe = this._keyboard.get(KeyName.ArrowDown) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+			if (this._keyboard.isDown(KeyName.ArrowDown)) {
 				moveDirection -= 1;
 			}
 			paddle.move(moveDirection);
@@ -359,12 +334,10 @@ export default class PongClient extends PONG.Pong {
 		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
-			let keyStateProbe: KeyState = this._keyboard.get(KeyName.W) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+			if (this._keyboard.isDown(KeyName.W)) {
 				moveDirection += 1;
 			}
-			keyStateProbe = this._keyboard.get(KeyName.S) || KeyState.IDLE;
-			if (keyStateProbe === KeyState.HELD || keyStateProbe === KeyState.PRESSED) {
+			if (this._keyboard.isDown(KeyName.S)) {
 				moveDirection -= 1;
 			}
 			paddle.move(moveDirection);
@@ -380,29 +353,12 @@ export default class PongClient extends PONG.Pong {
 		// 		this._babylonScene.debugLayer.show();
 		// 	}
 		// }
-		const key = ev.key.toLowerCase();
 
-		if (this._keyboard.has(key)) {
-			const keyStateProbe = this._keyboard.get(key);
-			if (keyStateProbe === KeyState.IDLE || keyStateProbe === KeyState.RELEASED) {
-				this._keyboard.set(key, KeyState.PRESSED);
-			} else if (keyStateProbe === KeyState.PRESSED) {
-				this._keyboard.set(key, KeyState.HELD);
-			}
-		}
+		this._keyboard.keyDown(ev.key);
 	}
 
 	private handleKeyUp = (ev: KeyboardEvent) => {
-		const key = ev.key.toLowerCase();
-
-		if (this._keyboard.has(key)) {
-			const keyStateProbe = this._keyboard.get(key);
-			if (keyStateProbe === KeyState.PRESSED || keyStateProbe === KeyState.HELD) {
-				this._keyboard.set(key, KeyState.RELEASED);
-			} else if (keyStateProbe === KeyState.RELEASED) {
-				this._keyboard.set(key, KeyState.IDLE);
-			}
-		}
+		this._keyboard.keyUp(ev.key);
 	}
 
 	public destroy() {
