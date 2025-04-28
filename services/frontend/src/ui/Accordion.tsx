@@ -18,12 +18,16 @@ export default function Accordion({
 
 	const [open, setOpen] = Babact.useState(openDefault);
 
+	Babact.useEffect(() => {
+		setOpen(openDefault);
+	}, [openDefault]);
+
 	return <div className={`accordion flex flex-col ${className ?? ''}`} {...props}>
 		<div
 			className={`accordion-header flex items-center w-full gap-2 ${open ? 'open' : ''} ${openButtonClassName ?? ''}`}
 			onClick={() => setOpen(!open)}
 		>
-			<i className={`fa-solid fa-chevron-down accordion-icon`}></i>
+			<i className="fa-solid fa-chevron-right accordion-icon"></i>
 			{openButton}
 		</div>
 		<div

@@ -13,7 +13,7 @@ export default function Button({
 		className?: string,
 		disabled?: boolean,
 		loading?: boolean,
-		onClick?: Function,
+		onClick?: (e?: MouseEvent) => void,
 		[key: string]: any
 	}) {
 	

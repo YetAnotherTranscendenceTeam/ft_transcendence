@@ -1,12 +1,11 @@
 import Babact from "babact";
-import { BlockedUser, FollowStatus, Friend, Request } from "../../hooks/useSocials";
-import Avatar from "../../ui/Avatar";
+import { BlockedUser, Friend, Request } from "../../hooks/useSocials";
 import Button from "../../ui/Button";
 import { User } from "../../hooks/useUsers";
-import { useNavigate } from "babact-router-dom";
 import { useAuth } from "../../contexts/useAuth";
+import SocialCard from "./SocialCard";
 
-export default function SocialUserCard({
+export default function SocialSearchCard({
 		user,
 		...props
 	}: { 
@@ -17,37 +16,35 @@ export default function SocialUserCard({
 	const [isLoading, setIsLoading] = Babact.useState<boolean>(false);
 	const { socials } = useAuth();
 
-	const navigate = useNavigate();
-
-	const handleSendRequest = async (e) => {
+	const handleSendRequest = async (e: MouseEvent) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		await user.request();
 		setIsLoading(false);
 	}
 
-	const handleCancelRequest = async (e, request: Request) => {
+	const handleCancelRequest = async (e: MouseEvent, request: Request) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		await request.cancel();
 		setIsLoading(false);
 	}
 
-	const handleUnblock = async (e, blocked: BlockedUser) => {
+	const handleUnblock = async (e: MouseEvent, blocked: BlockedUser) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		await blocked.unblock();
 		setIsLoading(false);
 	}
 
-	const handleAcceptRequest = async (e, request: Request) => {
+	const handleAcceptRequest = async (e: MouseEvent, request: Request) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		await request.accept();
 		setIsLoading(false);
 	}
 
-	const handleRemoveFriend = async (e, friend: Friend) => {
+	const handleRemoveFriend = async (e: MouseEvent, friend: Friend) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		await friend.remove();
@@ -105,22 +102,10 @@ export default function SocialUserCard({
 	}
 
 
-	return <div
-		className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'
-		onClick={() => navigate(`/profiles/${user.account_id}`)}
+	return <SocialCard
+		user={user}
 	>
-		<div className='flex flex-row items-center gap-2'>
-			<Avatar
-				src={user.avatar}
-				name={user.username}
-			/>
-			<div className='flex flex-col gap-1'>
-				<h1>{user.username}</h1>
-			</div>
-		</div> 
-		<div className='flex flex-row items-center gap-2'>
-			{getActionButton()}
-		</div>
-	</div>
+		{getActionButton()}
+	</SocialCard>
 
 }

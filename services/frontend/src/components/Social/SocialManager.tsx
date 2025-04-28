@@ -4,16 +4,14 @@ import Input from "../../ui/Input";
 import { Form } from "../../contexts/useForm";
 import useUsers, { User } from "../../hooks/useUsers";
 import { Friend, StatusType } from "../../hooks/useSocials";
-import SocialUserCard from "./SocialUserCard";
 import { useAuth } from "../../contexts/useAuth";
-import SocialFollowCard from "./SocialFriendCard";
-import SegmentedControl from "../../ui/SegmentedControl";
+import './social.css'
+import SocialSearchCard from "./SocialSearchCard";
 import Accordion from "../../ui/Accordion";
 import Label from "../../ui/Label";
 import SocialRequestCard from "./SocialRequestCard";
-import useFetch from "../../hooks/useFetch";
-import SocialFriendCard from "./SocialFriendCard";
 import SocialBlockedCard from "./SocialBlockCard";
+import SocialFriendCard from "./SocialFriendCard";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
 
@@ -24,7 +22,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	const { me, socials } = useAuth();
 
 	const handleSearch = (e) => {
-		search(e.target.value, 20, socials.friends.map(f => f.account_id).concat(me.account_id));
+		search(e.target.value, 20, [me.account_id]);
 	};
 
 	Babact.useEffect(() => {
@@ -42,33 +40,37 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	if (!socials)
 		return null;
 	return <div className={`social-manager ${className}`} {...props}>
+
 		<div className='social-manager-tabbar flex flex-row'>
 			<Button className={`ghost ${selected === 'follow' ? 'selected' : ''}`} onClick={() => setSelected('follow')}>
 				<i className="fa-solid fa-user-group"></i> Friends
-				{/* <p>
-					{follows.filter(f => f.status.type !== StatusType.OFFLINE).length ?? '0'}/{follows.length}
-				</p> */}
 			</Button>
 			<Button className={`ghost ${selected === 'search' ? 'selected' : ''}`} onClick={() => setSelected('search')}>
 				<i className="fa-solid fa-magnifying-glass"></i> Search
 			</Button>
 		</div>
+
+
 		<div className='social-manager-content flex flex-row gap-4'>
 			<div className={`social-manager-tab scrollbar flex flex-col gap-2 ${selected === 'follow' ? 'open' : ''}`}>
 				<Accordion
 					openDefault={socials?.pending.received.length > 0}
 					openButton={<>
-						<i className="fa-solid fa-clock"></i> Pending 
-							{socials?.pending.received.length > 0 && <Label>{socials.pending.received.length}</Label>}
-						</>}
+						<i className="fa-solid fa-clock"></i>
+						Pending 
+						{socials?.pending.received.length > 0 && <Label>{socials.pending.received.length}</Label>}
+					</>}
 				>
-					{socials && socials.pending.received.length + socials.pending.sent.length === 0 && <div className='social-manager-empty flex flex-col gap-2'>
-						No pending friend request
-					</div>}
-					{socials && socials.pending.received.length + socials.pending.sent.length > 0 &&  <div
-						className='social-manager-user-list flex flex-col gap-1'
-						key='pending'
-					>
+					{socials && socials.pending.received.length + socials.pending.sent.length === 0 &&
+						<div className='social-manager-empty flex flex-col gap-2'>
+							No pending friend request
+						</div>
+					}
+					{socials && socials.pending.received.length + socials.pending.sent.length > 0 &&
+						<div
+							className='social-manager-user-list flex flex-col gap-1'
+							key='pending'
+						>
 						{
 							socials?.pending.received.length > 0 &&
 							<div
@@ -110,7 +112,13 @@ export default function SocialManager({ className = '', children, ...props }: { 
 
 				<Accordion
 					openDefault={true}
-					openButton={<><i className="fa-solid fa-user-group"></i> Friends</>}
+					openButton={<>
+						<i className="fa-solid fa-user-group"></i>
+						Friends
+						<p className='social-manager-friend-count'>
+							{socials.friends.filter(f => f.status.type !== StatusType.OFFLINE).length ?? '0'}/{socials.friends.length}
+						</p>
+					</>}
 				>
 					{ socials?.friends.length === 0 && <div className='social-manager-empty flex flex-col gap-2'>
 						No friend yet
@@ -167,7 +175,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 					{
 						users.length !== 0 &&
 						users.map((user, i) => (
-							<SocialUserCard
+							<SocialSearchCard
 								key={user.account_id}
 								user={user}
 							/>

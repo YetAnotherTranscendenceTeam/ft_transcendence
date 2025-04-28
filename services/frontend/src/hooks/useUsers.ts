@@ -30,7 +30,7 @@ export class User implements IUser {
 				409: 'Already requested',
 				404: 'User not found',
 				'MAX_FRIENDS': 'Max friends reached',
-				'IS_BLOCKED': 'You are blocked',
+				'IS_BLOCKED': 'You cannot request a blocked user',
 				'IS_FRIEND': 'Already friends',
 				'SELF_REQUEST': 'You cannot request yourself',
 			}
@@ -45,6 +45,8 @@ export class User implements IUser {
 			error_messages: {
 				404: 'User not found',
 				409: 'Already blocked',
+				'MAX_BLOCKS': 'Max blocks reached',
+				'SELF_BLOCK': 'You cannot block yourself',
 			}
 		});
 		return response;

@@ -12,7 +12,7 @@ export default function Settings({
 	}: {
 		me: any,
 		isOpen?: boolean,
-		onClose: Function
+		onClose: () => void,
 	}) {
 
 	useEscape(isOpen, onClose);

@@ -1,8 +1,7 @@
 import Babact from "babact";
-import { User } from "../../hooks/useUsers";
-import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
 import { Request } from "../../hooks/useSocials";
+import SocialCard from "./SocialCard";
 
 export default function SocialRequestCard({
 		request,
@@ -16,7 +15,7 @@ export default function SocialRequestCard({
 
 	const [isLoading, setIsLoading] = Babact.useState<boolean>(false);
 
-	const handleAccept = async (e) => {
+	const handleAccept = async (e: MouseEvent) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		const res = await request.accept();
@@ -24,7 +23,7 @@ export default function SocialRequestCard({
 			setIsLoading(false);
 	}
 	
-	const handleCancel = async (e) => {
+	const handleCancel = async (e: MouseEvent) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		const res = await request.cancel();
@@ -32,7 +31,7 @@ export default function SocialRequestCard({
 			setIsLoading(false);
 	}
 
-	const handleBlock = async (e) => {
+	const handleBlock = async (e: MouseEvent) => {
 		e.stopPropagation();
 		setIsLoading(true);
 		const res = await request.profile.block();
@@ -40,40 +39,32 @@ export default function SocialRequestCard({
 			setIsLoading(false);
 	}
 
-	return <div
-		className={`request-card flex flex-row items-center justify-between gap-2`}
-		{...props}
-	>
-		<div className='flex flex-row items-center gap-2'>
-			<Avatar
-				src={request.profile.avatar}
-				name={request.profile.username}
-			/>
-			<h1>{request.profile.username}</h1>
-		</div>
 
+	return <SocialCard
+		user={request.profile}
+	>
 		{requestType === 'recieved' && <div
 			className='flex flex-row items-center gap-2'
-		>
+			>
 			<Button
 				className='success icon'
 				onClick={(e) => handleAccept(e)}
 				loading={isLoading}
-			>
+				>
 				<i className="fa-solid fa-user-check"></i>
 			</Button>
 			<Button
 				className='danger icon'
 				onClick={(e) => handleCancel(e)}
 				loading={isLoading}
-			>
+				>
 				<i className="fa-solid fa-user-xmark"></i>
 			</Button>
 			<Button
 				className="info icon"
 				loading={isLoading}
 				onClick={(e) => handleBlock(e)}
-			>
+				>
 				<i className="fa-solid fa-ban"></i>
 			</Button>
 		</div>}
@@ -81,15 +72,15 @@ export default function SocialRequestCard({
 
 		{requestType === 'sent' && <div
 			className='flex flex-row items-center gap-2'
-		>
+			>
 			<Button
 				loading={isLoading}
-				className='danger icon'
+				className='danger'
 				onClick={(e) => handleCancel(e)}
 			>
-				<i className="fa-solid fa-user-xmark"></i>
+				Cancel <i className="fa-solid fa-user-xmark"></i>
 			</Button>
 		</div>
 		}
-	</div>
+	</SocialCard>
 }

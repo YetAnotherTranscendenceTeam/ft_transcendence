@@ -1,14 +1,13 @@
 import Babact from "babact";
 import { Friend, StatusType } from "../../hooks/useSocials";
-import Avatar from "../../ui/Avatar";
 import Button from "../../ui/Button";
-import FollowTypeText from "./FollowTypeText";
 import { Lobby } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
 import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
 import { useNavigate } from "babact-router-dom";
 import Dropdown from "../../ui/Dropdown";
+import SocialCard from "./SocialCard";
 
 export default function SocialFriendCard({
 		friend,
@@ -48,14 +47,14 @@ export default function SocialFriendCard({
 
 	const handleInvite = (e: MouseEvent) => {
 		e.stopPropagation();
-		// follow.invite(inviteLobby.mode, inviteLobby.join_secret);
+		friend.invite(inviteLobby.mode, inviteLobby.join_secret);
 		setInviteSend(true);
 		createToast(`You invited ${friend.profile.username} to your lobby`, ToastType.SUCCESS);
 	}
 
 	const handleRequest = (e: MouseEvent) => {
 		e.stopPropagation();
-		// follow.request();
+		friend.request();
 		setInviteSend(true);
 		createToast(`You requested to join ${friend.profile.username}'s lobby`, ToastType.SUCCESS);
 	}
@@ -76,25 +75,14 @@ export default function SocialFriendCard({
 			setLoading(false);
 	}
 
-	return <div
-		className='social-manager-follow-card flex flex-row items-center justify-between gap-2 w-full'
+	return <SocialCard
+		user={friend.profile}
+		type={friend.status.type}
 	>
-		<div className='flex flex-row items-center gap-2'>
-			<Avatar
-				src={friend.profile.avatar}
-				name={friend.profile.username}
-				status={ friend.status.type }
-			>
-			</Avatar>
-			<div className='flex flex-col gap-1'>
-				<h1>{friend.profile.username}</h1>
-				<FollowTypeText type={friend.status.type} />
-			</div>
-		</div>
 		{inLobby && isRequestable &&
 			<Button
-				onClick={(e) => handleRequest(e)}
-				className="follow-lobby-request"
+			onClick={(e) => handleRequest(e)}
+			className="follow-lobby-request"
 			>
 				<i className="fa-regular fa-hand"></i> Request to join
 			</Button>
@@ -123,15 +111,15 @@ export default function SocialFriendCard({
 			openButton={<i className="fa-solid fa-ellipsis-vertical"></i>}
 			openButtonClassName='icon'
 			className='social-follow-card-dropdown'
-		>
+			>
 			<div
 				className='social-follow-card-dropdown-content flex flex-col gap-2 w-max'
-			>
+				>
 				<Button
 					onClick={(e) => handleRemove(e)}
 					className='danger'
 					loading={loading}
-				>
+					>
 					<i className="fa-solid fa-user-minus"></i> Remove
 				</Button>
 				<Button
@@ -139,19 +127,18 @@ export default function SocialFriendCard({
 					onClick={() => {
 						navigate(`/profiles/${friend.account_id}`);
 					}}
-
-				>
+					
+					>
 					<i className="fa-solid fa-user"></i> Profile
 				</Button>
 				<Button
 					className="danger"
 					loading={loading}
 					onClick={(e) => handleBlock(e)}
-				>
+					>
 					<i className="fa-solid fa-ban"></i> Block
 				</Button>
 			</div>
 		</Dropdown>
-	</div>
-
+	</SocialCard>
 }

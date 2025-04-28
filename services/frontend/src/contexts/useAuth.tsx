@@ -2,7 +2,7 @@ import Babact from "babact";
 import useFetch from "../hooks/useFetch";
 import config from "../config";
 import { IUser } from "../hooks/useUsers";
-import useSocial, { Friend, FollowStatus, ISocials } from "../hooks/useSocials";
+import useSocial, { Friend, FriendStatus, ISocials } from "../hooks/useSocials";
 import { GameModeType } from "yatt-lobbies";
 
 const AuthContext = Babact.createContext<{
@@ -13,7 +13,7 @@ const AuthContext = Babact.createContext<{
 		logout: () => void,
 		refresh: () => void,
 		ping: () => void,
-		status: (status: FollowStatus) => void,
+		status: (status: FriendStatus) => void,
 		confirm2FA: (
 			body: {
 				payload_token: string,
@@ -51,7 +51,7 @@ interface ICredentials {
 
 export interface IMe extends IUser {
 	credentials: ICredentials,
-	status: FollowStatus,
+	status: FriendStatus,
 	last_tournament?: {
 		tournament_id: number,
 		gamemode: string,
@@ -111,7 +111,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			disconnect();
 	}, [me]);
 
-	const setMeStatus = (status: FollowStatus) => {
+	const setMeStatus = (status: FriendStatus) => {
 		setMe(me => ({...me, status}));
 	};
 

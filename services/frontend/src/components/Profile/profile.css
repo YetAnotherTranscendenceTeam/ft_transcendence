@@ -26,114 +26,15 @@
 	padding-top: 1rem;
 }
 
-
-
-/* Social Manager */
-
-.social-manager-tabbar {
-	font-size: small;
-	border-radius: 8px;
-	background-color: var(--bg-2);
-	overflow: hidden;
-}
-
-.social-manager-tabbar .button {
-	font-size: small;
-	border-radius: 0;
-	flex: 1;
-}
-
-.social-manager-tabbar .button.selected {
-	background-color: var(--bg-4);
-}
-
-.social-manager-content {
-	width: 100%;
-	height: 40vh;
+.profile-card-header .button {
 	position: relative;
 }
 
-.social-manager-tab {
-	overflow-y: auto;
-	height: calc(100% - 1rem);
-	overflow-x: hidden;
-	width: 100%;
-	transition: transform 0.3s ease;
-	margin: 1rem 0;
-	box-sizing: border-box;
-	transform: translateX(-100%);
+.profile-card-header .label {
 	position: absolute;
 	top: 0;
-	left: 0;
-}
-
-.social-manager-tab:last-of-type {
-	transform: translateX(100%);
-}
-
-
-.social-manager-tab.open {
-	transform: translateX(0);
-}
-
-.social-manager-follow-card {
-	padding: 8px;
-	box-sizing: border-box;
-	font-size: small;
-	border-radius: 4px;
-}
-
-.social-manager-follow-card:hover {
-	background-color: var(--bg-4);
-}
-
-.social-manager-follow-card h1 {
-	font-weight: bold;
-}
-
-.social-manager-follow-card h2 {
-	color: var(--fg-3);
-}
-
-.social-manager-follow-card .avatar .follow-remove{
-	display: none;
-	background-color: rgba(133, 0, 0, 0.603);
-	width: 100%;
-	height: 100%;
-	color: white;
-	padding: 0;
-	font-size: large;
-	border-radius: 8px;
-}
-
-.social-manager-follow-card .avatar:hover .follow-remove {
-	display: flex;
-}
-
-
-.social-manager-follow-card .button {
-	font-size: small;
-	display: flex;
-}
-
-.social-manager-add {
-	overflow: hidden;
-}
-
-.social-manager-add-list {
-	overflow: auto;
-}
-
-.social-manager-empty {
-	background-color: var(--bg-3);
-	color: var(--fg-2);
-	padding: 8px;
-}
-
-.social-manager-user-list {
-	padding: 8px;
-	box-sizing: border-box;
-	background-color: var(--bg-3);
+	right: 0;
+	transform: translate(50%, -50%);
 }
 
 /* ======== Lobby card ========= */
@@ -187,13 +88,18 @@
 	transition: 0.4s;
 }
 
+.request-card:hover {
+	background-color: var(--bg-4);
+}
+
+.request-card-user {
+	cursor: pointer;
+}
+
 .request-card .button {
 	font-weight: normal;
 }
 
-.request-card:hover {
-	background-color: var(--bg-4);
-}
 
 .request-toast {
 	position: relative;

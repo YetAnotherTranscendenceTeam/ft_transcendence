@@ -17,7 +17,7 @@ export enum StatusType {
 	INLOBBY = 'inlobby',
 }
 
-export type FollowStatus = {
+export type FriendStatus = {
 	type: StatusType,
 	data?: any,
 }
@@ -25,14 +25,14 @@ export type FollowStatus = {
 export interface IFriend {
 	account_id: number,
 	profile: IUser,
-	status: FollowStatus,
+	status: FriendStatus,
 }
 
 
 export class Friend implements IFriend {
 	account_id: number;
 	profile: User;
-	status: FollowStatus;
+	status: FriendStatus;
 	ws: WebSocketHook;
 	ft_fetch: any;
 
@@ -76,7 +76,7 @@ export class Friend implements IFriend {
 		});
 	};
 
-	setStatus(status: FollowStatus): this {
+	setStatus(status: FriendStatus): this {
 		this.status = status;
 		return this;
 	};
@@ -102,7 +102,6 @@ export class BlockedUser extends User implements IBlockedUser {
 		const response = await this.ft_fetch(`${config.API_URL}/social/blocks/${this.account_id}`, {
 			method: 'DELETE',
 		}, {
-			success_message: 'User unblocked',
 			error_messages: {
 				404: 'User not found',
 			}
@@ -153,12 +152,12 @@ export interface ISocials {
 	blocked: BlockedUser[],
 }
 
-export default function useSocial(setMeStatus: (status: FollowStatus) => void, getMe: () => IMe): {
+export default function useSocial(setMeStatus: (status: FriendStatus) => void, getMe: () => IMe): {
 		socials: ISocials,
 		connected: boolean,
 		connect: () => void
 		ping: () => void
-		status: (status: FollowStatus) => void,
+		status: (status: FriendStatus) => void,
 		disconnect: () => void
 	} {
 
@@ -174,7 +173,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 			pending,
 			blocked
 		}: {
-			self: FollowStatus,
+			self: FriendStatus,
 			friends: IFriend[],
 			pending: {
 				sent: IRequest[],
@@ -195,7 +194,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		setMeStatus(self);
 	};
 
-	const onStatusChange = ({ account_id, status }: {account_id: number, status: FollowStatus}) => {
+	const onStatusChange = ({ account_id, status }: {account_id: number, status: FriendStatus}) => {
 		if (getMe()?.account_id === account_id)
 			setMeStatus(status);
 		setSocials(s => ({
@@ -297,7 +296,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		}
 	}
 
-	const onNewFriend = ({account_id, profile, status}: {account_id: number, profile: IUser, status: FollowStatus}) => {
+	const onNewFriend = ({account_id, profile, status}: {account_id: number, profile: IUser, status: FriendStatus}) => {
 		if (createToast)
 			createToast(`You are now friends with ${profile.username}`, ToastType.SUCCESS);
 		setSocials(s => ({
@@ -317,7 +316,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		}));
 	};
 
-	const onBlockedUser = ({account_id, profile}: {account_id: number, profile: IUser}) => {
+	const onNewBlock = ({account_id, profile}: {account_id: number, profile: IUser}) => {
 		setSocials(s => ({
 			friends: s.friends.filter(f => f.account_id !== account_id),
 			pending: {
@@ -328,7 +327,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		}));
 	}
 
-	const onUnblockedUser = ({account_id}: {account_id: number}) => {
+	const onDeleteBlock = ({account_id}: {account_id: number}) => {
 		setSocials(s => ({
 			...s,
 			blocked: s.blocked.filter(b => b.account_id !== account_id),
@@ -337,7 +336,6 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 
 	const onLobbyInvite = ({ join_secret, username, gamemode}: {join_secret: string, username: string, gamemode: IGameMode}) => {
 		const { join } = useLobby();
-
 		if (inivites.current.includes(username))
 			return;
 		inivites.current.push(username);
@@ -446,12 +444,14 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		onEvent: {
 			'welcome': onWelcome,
 			'status': onStatusChange,
-			'receive_new_friend_request': onNewFriendRequest,
-			'receive_delete_friend_request': onDeleteFriendRequest,
-			'receive_new_friend': onNewFriend,
-			'receive_delete_friend': onDeleteFriend,
-			'receive_lobby_invite': onLobbyInvite,
-			'receive_lobby_request': onLobbyRequest,
+			'recv_new_friend_request': onNewFriendRequest,
+			'recv_delete_friend_request': onDeleteFriendRequest,
+			'recv_new_friend': onNewFriend,
+			'recv_delete_friend': onDeleteFriend,
+			'recv_new_block': onNewBlock,
+			'recv_delete_block': onDeleteBlock,
+			'recv_lobby_invite': onLobbyInvite,
+			'recv_lobby_request': onLobbyRequest,
 		},
 		onOpen: onConnect,
 	});
@@ -464,7 +464,7 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 		ws.send({event: 'ping'});
 	};
 
-	const status = async (status: FollowStatus) => {
+	const status = async (status: FriendStatus) => {
 		ws.send({event: 'send_status', data: status});
 	};
 
