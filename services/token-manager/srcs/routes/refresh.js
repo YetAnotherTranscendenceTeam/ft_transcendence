@@ -23,7 +23,7 @@ export default function router(fastify, opts, done) {
       const decode = fastify.jwt.refresh.verify(token);
       account_id = decode.account_id;
     } catch (err) {
-      console.error(err)
+      console.error("DEBUG refresh token refused:", token, "\n", err);
       reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
@@ -32,6 +32,7 @@ export default function router(fastify, opts, done) {
       .prepare("DELETE FROM refresh_tokens WHERE account_id = ? AND token = ?")
       .run(account_id, token);
     if (deletion.changes === 0) {
+      console.error("DEBUG refresh_token not found in database!\nDATABASE:", db.prepare("SELECT * FROM refresh_tokens WHERE account_id = ?").all(account_id));
       reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
