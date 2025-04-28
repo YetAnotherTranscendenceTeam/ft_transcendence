@@ -100,4 +100,24 @@ describe('Block tests', () => {
     await user2.expectEvent("receive_new_block", { ...user1.me() });
   });
 
+  it("reset relationships", async () => {
+    let response = await user2.unblock(user1);
+    expect(response.statusCode).toBe(204);
+
+    user1.disconect();
+    user1.connect(emptyWelcome);
+    user2.disconect();
+    user2.connect(emptyWelcome);
+  });
+
+  it("block while being friends", async () => {
+    await user1.newFriend(user2);
+
+    let response = await user1.block(user2);
+    expect(response.statusCode).toBe(204);
+
+    await user2.expectEvent("receive_delete_friend", { account_id: user1.id });
+    await user1.expectEvent("receive_delete_friend", { account_id: user2.id });
+    await user1.expectEvent("receive_new_block", { ...user2.me(), account_id: user2.id });
+  });
 });
