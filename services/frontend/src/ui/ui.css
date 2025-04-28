@@ -506,7 +506,7 @@
 	gap: 4px;
 }
 
-.image-selector label {
+.image-selector label, .camera-label {
 	font-weight: 500;
 	font-size: medium;
 }
@@ -515,7 +515,7 @@
 	width: 100px;
 }
 
-.image-selector label.disabled {
+.image-selector label.disabled, .camera-label.disabled {
 	color: var(--fg-4);
 	opacity: 0.7;
 	cursor: not-allowed;

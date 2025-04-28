@@ -66,6 +66,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 			<div className={`social-manager-tab social-manager-add flex flex-col gap-2 ${selected === 'add' ? 'open' : ''}`}>
 				<Form formFields={['username']}>
 					<Input
+						autocomplete='username'
 						field='username'
 						placeholder='Username'
 						onInput={handleSearch}
