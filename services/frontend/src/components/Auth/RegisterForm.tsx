@@ -67,6 +67,8 @@ export default function RegisterForm({
 				field="register-email"
 				help="Your email is used to log in to the game and manage your account."
 				pattern={config.EMAIL_REGEX}
+				name="email"
+				autocomplete="email"
 				/>
 			<Input
 				label="Password"
@@ -75,6 +77,7 @@ export default function RegisterForm({
 				required
 				field="register-password"
 				help='Your password is used to log in to the game and manage your account.'
+				name="password"
 				tooltip={
 					<div
 						className='settings-tooltip flex flex-col'
@@ -99,6 +102,7 @@ export default function RegisterForm({
 				field="register-confirm-password"
 				matching="register-password"
 				help="Confirm password must match the password"
+				name="confirm-password"
 				/>
 		</div>
 		{

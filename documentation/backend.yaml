@@ -726,7 +726,6 @@ paths:
                     type: string
                     enum:
                       - MAX_BLOCKS
-                      - IS_FRIEND
                       - SELF_BLOCK
                 required:
                   - code
