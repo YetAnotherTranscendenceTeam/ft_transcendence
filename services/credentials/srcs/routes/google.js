@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 import { properties, objects } from "yatt-utils";
 import db from "../app/database.js";

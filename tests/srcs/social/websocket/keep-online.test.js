@@ -1,6 +1,6 @@
 import request from "superwstest";
 import { createUsers, users } from "../../../dummy/dummy-account";
-import { inactive, offline, online } from "../../../../services/social/srcs/utils/activityStatuses";
+import { inactive, offline } from "../../../../services/social/srcs/utils/activityStatuses";
 import { apiURL, socialWS } from "../../../URLs";
 
 createUsers(2);
