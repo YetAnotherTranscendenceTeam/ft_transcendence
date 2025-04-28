@@ -27,24 +27,24 @@ channels:
       # sent from server to client
       welcome:
         $ref: "#/components/messages/welcome"
-      receive_status:
-        $ref: "#/components/messages/receive_status"
-      receive_new_friend_request:
-        $ref: "#/components/messages/receive_new_friend_request"
-      receive_delete_friend_request:
-        $ref: "#/components/messages/receive_delete_friend_request"
-      receive_new_friend:
-        $ref: "#/components/messages/receive_new_friend"
-      receive_delete_friend:
-        $ref: "#/components/messages/receive_delete_friend"
-      receive_new_block:
-        $ref: "#/components/messages/receive_new_block"
-      receive_delete_block:
-        $ref: "#/components/messages/receive_delete_block"
-      receive_lobby_invite:
-        $ref: "#/components/messages/receive_lobby_invite"
-      receive_lobby_request:
-        $ref: "#/components/messages/receive_lobby_request"
+      recv_status:
+        $ref: "#/components/messages/recv_status"
+      recv_new_friend_request:
+        $ref: "#/components/messages/recv_new_friend_request"
+      recv_delete_friend_request:
+        $ref: "#/components/messages/recv_delete_friend_request"
+      recv_new_friend:
+        $ref: "#/components/messages/recv_new_friend"
+      recv_delete_friend:
+        $ref: "#/components/messages/recv_delete_friend"
+      recv_new_block:
+        $ref: "#/components/messages/recv_new_block"
+      recv_delete_block:
+        $ref: "#/components/messages/recv_delete_block"
+      recv_lobby_invite:
+        $ref: "#/components/messages/recv_lobby_invite"
+      recv_lobby_request:
+        $ref: "#/components/messages/recv_lobby_request"
       error:
         $ref: "#/components/messages/error"
 
@@ -67,15 +67,15 @@ operations:
       $ref: "#/channels/social"
     messages:
       - $ref: "#/channels/social/messages/welcome"
-      - $ref: "#/channels/social/messages/receive_status"
-      - $ref: "#/channels/social/messages/receive_new_friend_request"
-      - $ref: "#/channels/social/messages/receive_delete_friend_request"
-      - $ref: "#/channels/social/messages/receive_new_friend"
-      - $ref: "#/channels/social/messages/receive_delete_friend"
-      - $ref: "#/channels/social/messages/receive_new_block"
-      - $ref: "#/channels/social/messages/receive_delete_block"
-      - $ref: "#/channels/social/messages/receive_lobby_invite"
-      - $ref: "#/channels/social/messages/receive_lobby_request"
+      - $ref: "#/channels/social/messages/recv_status"
+      - $ref: "#/channels/social/messages/recv_new_friend_request"
+      - $ref: "#/channels/social/messages/recv_delete_friend_request"
+      - $ref: "#/channels/social/messages/recv_new_friend"
+      - $ref: "#/channels/social/messages/recv_delete_friend"
+      - $ref: "#/channels/social/messages/recv_new_block"
+      - $ref: "#/channels/social/messages/recv_delete_block"
+      - $ref: "#/channels/social/messages/recv_lobby_invite"
+      - $ref: "#/channels/social/messages/recv_lobby_request"
       - $ref: "#/channels/social/messages/error"
 
   subscribe:
@@ -175,7 +175,7 @@ components:
           - data
         additionalProperties: false
 
-    receive_status:
+    recv_status:
       description: Message sent by the server when the status of a friend changes
       payload:
         type: object
@@ -183,7 +183,7 @@ components:
           event:
             type: string
             enum:
-              - receive_status
+              - recv_status
           data:
             type: object
             properties:
@@ -198,7 +198,7 @@ components:
           - event
           - data
 
-    receive_new_friend_request:
+    recv_new_friend_request:
       description: Message sent by the server when a pending friend request get sent
       payload:
         type: object
@@ -207,7 +207,7 @@ components:
             type: string
             description: The type of the event
             enum:
-              - receive_new_friend_request
+              - recv_new_friend_request
           data:
             type: object
             properties:
@@ -227,7 +227,7 @@ components:
           - event
           - data
 
-    receive_delete_friend_request:
+    recv_delete_friend_request:
       description: Message sent by the server when a pending friend request get canceled
       payload:
         type: object
@@ -236,7 +236,7 @@ components:
             type: string
             description: The type of the event
             enum:
-              - receive_delete_friend_request
+              - recv_delete_friend_request
           data:
             type: object
             properties:
@@ -253,7 +253,7 @@ components:
           - event
           - data
 
-    receive_new_friend:
+    recv_new_friend:
       description: Message sent by the server when a mutual friendship is created
       payload:
         type: object
@@ -262,7 +262,7 @@ components:
             description: The type of the event
             type: string
             enum:
-              - receive_new_friend
+              - recv_new_friend
           data:
             type: object
             properties:
@@ -282,7 +282,7 @@ components:
           - data
         additionalProperties: false
 
-    receive_delete_friend:
+    recv_delete_friend:
       description: Message sent by the server when a mutual friendship is destroyed
       payload:
         type: object
@@ -291,7 +291,7 @@ components:
             description: The type of the event
             type: string
             enum:
-              - receive_delete_friend
+              - recv_delete_friend
           data:
             type: object
             properties:
@@ -305,7 +305,7 @@ components:
           - data
         additionalProperties: false
 
-    receive_new_block:
+    recv_new_block:
       description: Message sent by the server when the user blocks another user
       payload:
         type: object
@@ -314,7 +314,7 @@ components:
             type: string
             description: The type of the event
             enum:
-              - receive_new_block
+              - recv_new_block
           data:
             type: object
             properties:
@@ -331,7 +331,7 @@ components:
           - data
         additionalProperties: false
 
-    receive_delete_block:
+    recv_delete_block:
       description: Message sent by the server
       payload:
         type: object
@@ -340,7 +340,7 @@ components:
             description: The type of the event
             type: string
             enum:
-              - receive_delete_block
+              - recv_delete_block
           data:
             type: object
             properties:
@@ -354,7 +354,7 @@ components:
           - data
         additionalProperties: false
 
-    receive_lobby_invite:
+    recv_lobby_invite:
       description: Message sent by the server when another user invite the client to join a lobby
       payload:
         type: object
@@ -363,7 +363,7 @@ components:
             type: string
             description: The type of the event
             enum:
-              - receive_lobby_invite
+              - recv_lobby_invite
           data:
             type: object
             properties:
@@ -377,7 +377,7 @@ components:
           - type
           - data
 
-    receive_lobby_request:
+    recv_lobby_request:
       description: Message sent by the server when another user invite the client to join a lobby
       payload:
         type: object
@@ -386,7 +386,7 @@ components:
             type: string
             description: The type of the event
             enum:
-              - receive_lobby_request
+              - recv_lobby_request
           data:
             type: object
             properties:

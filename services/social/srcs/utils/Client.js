@@ -156,7 +156,7 @@ export class Client {
     }
 
     target.send({
-      event: "receive_lobby_invite", data: {
+      event: "recv_lobby_invite", data: {
         username: this.username,
         gamemode: invite.gamemode,
         join_secret: invite.join_secret
@@ -182,7 +182,7 @@ export class Client {
     }
 
     target.send({
-      event: "receive_lobby_request", data: {
+      event: "recv_lobby_request", data: {
         account_id: this.account_id,
         username: this.username,
       },
@@ -195,7 +195,7 @@ export class Client {
 
   async newFriendRequestSent(receiver, profile) {
     const payload = {
-      event: "receive_new_friend_request",
+      event: "recv_new_friend_request",
       data: {
         ...await userInfos(receiver, this.allClients, { profile }),
         sender: this.account_id,
@@ -206,7 +206,7 @@ export class Client {
 
   async newFriendRequestReceived(sender) {
     const payload = {
-      event: "receive_new_friend_request",
+      event: "recv_new_friend_request",
       data: {
         ...await userInfos(sender, this.allClients),
         sender,
@@ -217,7 +217,7 @@ export class Client {
 
   deleteFriendRequest(sender, receiver) {
     const payload = {
-      event: "receive_delete_friend_request",
+      event: "recv_delete_friend_request",
       data: {
         account_id: sender !== this.account_id ? sender : receiver,
         sender
@@ -228,7 +228,7 @@ export class Client {
 
   async newFriendship(friend_id, friend_profile) {
     const payload = {
-      event: "receive_new_friend",
+      event: "recv_new_friend",
       data: await userInfos(
         friend_id,
         this.allClients,
@@ -240,7 +240,7 @@ export class Client {
 
   deleteFriendship(friend_id) {
     const payload = {
-      event: "receive_delete_friend",
+      event: "recv_delete_friend",
       data: { account_id: friend_id },
     };
     this.send(payload);
@@ -248,7 +248,7 @@ export class Client {
 
   async newBlock(blocked_id) {
     const payload = {
-      event: "receive_new_block",
+      event: "recv_new_block",
       data: { ...await userInfos(blocked_id, this.allClients) },
     };
     this.send(payload);
@@ -257,7 +257,7 @@ export class Client {
 
   deleteBlock(blocked_id) {
     const payload = {
-      event: "receive_delete_block",
+      event: "recv_delete_block",
       data: { account_id: blocked_id },
     };
     this.send(payload);

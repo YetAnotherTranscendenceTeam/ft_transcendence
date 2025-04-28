@@ -45,16 +45,16 @@ export class SocialDummy {
       .set('Authorization', `Bearer ${this.user.jwt}`);
 
     expect(response.statusCode).toBe(204);
-    await this.expectEvent("receive_new_friend_request", { ...dummy.me(), sender: this.id });
-    await dummy.expectEvent("receive_new_friend_request", { ...this.me(), sender: this.id });
+    await this.expectEvent("recv_new_friend_request", { ...dummy.me(), sender: this.id });
+    await dummy.expectEvent("recv_new_friend_request", { ...this.me(), sender: this.id });
 
     response = await request(apiURL)
       .post(`/social/requests/${this.id}`)
       .set('Authorization', `Bearer ${dummy.user.jwt}`);
 
     expect(response.statusCode).toBe(204);
-    await this.expectEvent("receive_new_friend", { ...dummy.me(), status: {type: expect.any(String) } });
-    await dummy.expectEvent("receive_new_friend", { ...this.me(), status: {type: expect.any(String) } });
+    await this.expectEvent("recv_new_friend", { ...dummy.me(), status: {type: expect.any(String) } });
+    await dummy.expectEvent("recv_new_friend", { ...this.me(), status: {type: expect.any(String) } });
   };
 
   async removeFriend(dummy) {

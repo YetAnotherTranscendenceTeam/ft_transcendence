@@ -47,7 +47,7 @@ export class ConnectionManager {
   broadcastStatus(client, status = client.status(), self = true) {
     // Prepare broadcast payload
     const payload = {
-      event: "receive_status",
+      event: "recv_status",
       data: { account_id: client.account_id, status }
     };
     // console.log("BROADCASTING:", { account_id: client.account_id, payload: JSON.stringify(payload) });

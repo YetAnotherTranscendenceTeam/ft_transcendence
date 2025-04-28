@@ -130,7 +130,7 @@ describe('Lobby invitations', () => {
           expect(message.data.follows.length).toEqual(0)
         }).expectJson((message) => {
           expect(message).toEqual({
-            event: "receive_lobby_request",
+            event: "recv_lobby_request",
             data: {
               username: users[1].username,
               account_id: users[1].account_id

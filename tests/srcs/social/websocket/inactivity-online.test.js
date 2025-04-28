@@ -33,7 +33,7 @@ describe('Inactivity test', () => {
         expect(message.event).toBe("welcome");
       })
       .expectJson((message) => {
-        expect(message.event).toBe("receive_status");
+        expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
           status: inactive
@@ -42,14 +42,14 @@ describe('Inactivity test', () => {
         ws1.send(JSON.stringify({ event: "ping" }));
       })
       .expectJson((message) => {
-        expect(message.event).toBe("receive_status");
+        expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
           status: online
         })
       })
       .expectJson((message) => {
-        expect(message.event).toBe("receive_status");
+        expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[0].account_id,
           status: inactive
