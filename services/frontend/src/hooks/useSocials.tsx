@@ -165,8 +165,8 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	const [socials, setSocials] = Babact.useState<ISocials>(null);
 	const { createToast, removeToast } = useToast();
 
-	const lobbyInivites = Babact.useRef([]);
-	const friendInivites = Babact.useRef([]);
+	const lobbyInvites = Babact.useRef([]);
+	const friendInvites = Babact.useRef([]);
 
 	const onWelcome = ({
 			self,
@@ -220,15 +220,15 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 		}
 		else {
 
-			if (friendInivites.current.includes(profile.username))
+			if (friendInvites.current.includes(profile.username))
 				return;
-			friendInivites.current.push(profile.username);
+			friendInvites.current.push(profile.username);
 
 			const message = (id: number) => <div className="resquest-toast flex flex-col gap-2">
 				<Button
 					className="close-button ghost icon"
 					onClick={() => {
-						friendInivites.current = friendInivites.current.filter(i => i !== profile.username);
+						friendInvites.current = friendInvites.current.filter(i => i !== profile.username);
 						if (removeToast)
 							removeToast(id);
 					}}
@@ -241,7 +241,7 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 						className="success w-full"
 						onClick={() => {
 							const request = new Request({account_id, profile}, ft_fetch);
-							friendInivites.current = friendInivites.current.filter(i => i !== profile.username);
+							friendInvites.current = friendInvites.current.filter(i => i !== profile.username);
 							request.accept();
 							if (removeToast)
 								removeToast(id);
@@ -253,7 +253,7 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 						className="danger w-full"
 						onClick={() => {
 							const request = new Request({account_id, profile}, ft_fetch);
-							friendInivites.current = friendInivites.current.filter(i => i !== profile.username);
+							friendInvites.current = friendInvites.current.filter(i => i !== profile.username);
 							request.cancel();
 							if (removeToast)
 								removeToast(id);
@@ -337,21 +337,21 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 
 	const onLobbyInvite = ({ join_secret, username, gamemode}: {join_secret: string, username: string, gamemode: IGameMode}) => {
 		const { join } = useLobby();
-		if (lobbyInivites.current.includes(username))
+		if (lobbyInvites.current.includes(username))
 			return;
-		lobbyInivites.current.push(username);
+		lobbyInvites.current.push(username);
 
 		const handleAccept = (id: number) => {
 			join(join_secret);
 			if (removeToast)
 				removeToast(id);
-			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
+			lobbyInvites.current = lobbyInvites.current.filter(i => i !== username);
 		};
 
 		const handleDecline = (id: number) => {
 			if (removeToast)
 				removeToast(id);
-			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
+			lobbyInvites.current = lobbyInvites.current.filter(i => i !== username);
 		};
 
 		const message = (id: number) => <div className="flex flex-col gap-2">
@@ -385,9 +385,9 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 		}) => {
 
 		const { lobby } = useLobby();
-		if (lobbyInivites.current.includes(username) || !lobby)
+		if (lobbyInvites.current.includes(username) || !lobby)
 			return;
-		lobbyInivites.current.push(username);
+		lobbyInvites.current.push(username);
 
 		const handleAccept = (id: number) => {
 			const follow = new Friend({
@@ -406,13 +406,13 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 			follow.invite(lobby.mode, lobby.join_secret);
 			if (removeToast)
 				removeToast(id);
-			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
+			lobbyInvites.current = lobbyInvites.current.filter(i => i !== username);
 		};
 
 		const handleDecline = (id: number) => {
 			if (removeToast)
 				removeToast(id);
-			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
+			lobbyInvites.current = lobbyInvites.current.filter(i => i !== username);
 		};
 
 		const message = (id) => <div className="flex flex-col gap-2">
