@@ -85,7 +85,7 @@ export class Friend implements IFriend {
 
 export interface IBlockedUser {
 	account_id: number,
-	profile: User,
+	profile: IUser,
 }
 
 export class BlockedUser extends User implements IBlockedUser {
@@ -316,6 +316,24 @@ export default function useSocial(setMeStatus: (status: FollowStatus) => void, g
 			friends: s.friends.filter(f => f.account_id !== account_id),
 		}));
 	};
+
+	const onBlockedUser = ({account_id, profile}: {account_id: number, profile: IUser}) => {
+		setSocials(s => ({
+			friends: s.friends.filter(f => f.account_id !== account_id),
+			pending: {
+				sent: s.pending.sent.filter(r => r.account_id !== account_id),
+				received: s.pending.received.filter(r => r.account_id !== account_id),
+			},
+			blocked: [...s.blocked, new BlockedUser({account_id, profile}, ft_fetch)],
+		}));
+	}
+
+	const onUnblockedUser = ({account_id}: {account_id: number}) => {
+		setSocials(s => ({
+			...s,
+			blocked: s.blocked.filter(b => b.account_id !== account_id),
+		}));
+	}
 
 	const onLobbyInvite = ({ join_secret, username, gamemode}: {join_secret: string, username: string, gamemode: IGameMode}) => {
 		const { join } = useLobby();
