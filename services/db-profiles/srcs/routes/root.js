@@ -186,7 +186,7 @@ export default function router(fastify, opts, done) {
         WHERE account_id = ?
         RETURNING *;
       `).get(...params, account_id);
-      console.log("PATCH:", update);
+      // console.log("PATCH:", update);
       reply.send(update);
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT_UNIQUE") new HttpError.Conflict().send(reply);

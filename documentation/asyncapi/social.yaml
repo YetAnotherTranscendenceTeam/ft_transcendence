@@ -24,58 +24,70 @@ channels:
               description: An JWT issued by the server authentication service
     address: /social/notify
     messages:
-    # sent from server to client
+      # sent from server to client
       welcome:
-        $ref: '#/components/messages/welcome'
-      status:
-        $ref: '#/components/messages/status'
-      follow:
-        $ref: '#/components/messages/follow'
-      unfollow:
-        $ref: '#/components/messages/unfollow'
-      receive_lobby_invite:
-        $ref: '#/components/messages/receive_lobby_invite'
-      receive_lobby_request:
-        $ref: '#/components/messages/receive_lobby_request'
+        $ref: "#/components/messages/welcome"
+      recv_status:
+        $ref: "#/components/messages/recv_status"
+      recv_new_friend_request:
+        $ref: "#/components/messages/recv_new_friend_request"
+      recv_delete_friend_request:
+        $ref: "#/components/messages/recv_delete_friend_request"
+      recv_new_friend:
+        $ref: "#/components/messages/recv_new_friend"
+      recv_delete_friend:
+        $ref: "#/components/messages/recv_delete_friend"
+      recv_new_block:
+        $ref: "#/components/messages/recv_new_block"
+      recv_delete_block:
+        $ref: "#/components/messages/recv_delete_block"
+      recv_lobby_invite:
+        $ref: "#/components/messages/recv_lobby_invite"
+      recv_lobby_request:
+        $ref: "#/components/messages/recv_lobby_request"
       error:
-        $ref: '#/components/messages/error'
+        $ref: "#/components/messages/error"
 
-    # sent from client to server
+      # sent from client to server
       ping:
-        $ref: '#/components/messages/ping'
-      update_status:
-        $ref: '#/components/messages/update_status'
+        $ref: "#/components/messages/ping"
+      send_status:
+        $ref: "#/components/messages/send_status"
       send_lobby_invite:
-        $ref: '#/components/messages/send_lobby_invite'
+        $ref: "#/components/messages/send_lobby_invite"
       send_lobby_request:
-        $ref: '#/components/messages/send_lobby_request'
+        $ref: "#/components/messages/send_lobby_request"
       goodbye:
-        $ref: '#/components/messages/goodbye'
-  
+        $ref: "#/components/messages/goodbye"
+
 operations:
   publish:
     action: send
     channel:
-      $ref: '#/channels/social'
+      $ref: "#/channels/social"
     messages:
-      - $ref: '#/channels/social/messages/welcome'
-      - $ref: '#/channels/social/messages/status'
-      - $ref: '#/channels/social/messages/follow'
-      - $ref: '#/channels/social/messages/unfollow'
-      - $ref: '#/channels/social/messages/receive_lobby_invite'
-      - $ref: '#/channels/social/messages/receive_lobby_request'
-      - $ref: '#/channels/social/messages/error'
+      - $ref: "#/channels/social/messages/welcome"
+      - $ref: "#/channels/social/messages/recv_status"
+      - $ref: "#/channels/social/messages/recv_new_friend_request"
+      - $ref: "#/channels/social/messages/recv_delete_friend_request"
+      - $ref: "#/channels/social/messages/recv_new_friend"
+      - $ref: "#/channels/social/messages/recv_delete_friend"
+      - $ref: "#/channels/social/messages/recv_new_block"
+      - $ref: "#/channels/social/messages/recv_delete_block"
+      - $ref: "#/channels/social/messages/recv_lobby_invite"
+      - $ref: "#/channels/social/messages/recv_lobby_request"
+      - $ref: "#/channels/social/messages/error"
 
   subscribe:
     action: receive
     channel:
-      $ref: '#/channels/social'
+      $ref: "#/channels/social"
     messages:
-      - $ref: '#/channels/social/messages/ping'
-      - $ref: '#/channels/social/messages/update_status'
-      - $ref: '#/channels/social/messages/send_lobby_invite'
-      - $ref: '#/channels/social/messages/send_lobby_request'
-      - $ref: '#/channels/social/messages/goodbye'
+      - $ref: "#/channels/social/messages/ping"
+      - $ref: "#/channels/social/messages/send_status"
+      - $ref: "#/channels/social/messages/send_lobby_invite"
+      - $ref: "#/channels/social/messages/send_lobby_request"
+      - $ref: "#/channels/social/messages/goodbye"
 
 components:
   messages:
@@ -92,39 +104,93 @@ components:
           data:
             type: object
             properties:
-              follows:
+              friends:
                 type: array
                 items:
                   type: object
                   properties:
                     account_id:
-                      $ref: '#/components/schemas/account_id'
+                      $ref: "#/components/schemas/account_id"
                     profile:
-                      $ref: '#/components/schemas/profile'
+                      $ref: "#/components/schemas/profile"
                     status:
-                      $ref: '#/components/schemas/status'
+                      $ref: "#/components/schemas/status"
+                  required:
+                    - account_id
+                    - profile
+                    - status
+                  additionalProperties: false
+              pending:
+                type: object
+                properties:
+                  sent:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        account_id:
+                          $ref: "#/components/schemas/account_id"
+                        profile:
+                          $ref: "#/components/schemas/profile"
+                      required:
+                        - account_id
+                        - profile
+                        - status
+                      additionalProperties: false
+                  received:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        account_id:
+                          $ref: "#/components/schemas/account_id"
+                        profile:
+                          $ref: "#/components/schemas/profile"
+                      required:
+                        - account_id
+                        - profile
+                        - status
+                      additionalProperties: false
+                required:
+                  - sent
+                  - received
+                additionalProperties: false
+              blocked:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    account_id:
+                      $ref: "#/components/schemas/account_id"
+                    profile:
+                      $ref: "#/components/schemas/profile"
+                  required:
+                    - account_id
+                    - profile
+                  additionalProperties: false
               self:
-               $ref: '#/components/schemas/status'
+                $ref: "#/components/schemas/status"
         required:
           - event
           - data
-    
-    status:
-      description: Message sent by the server when the status of a user you are following changes
+        additionalProperties: false
+
+    recv_status:
+      description: Message sent by the server when the status of a friend changes
       payload:
         type: object
         properties:
           event:
             type: string
             enum:
-              - status
+              - recv_status
           data:
             type: object
             properties:
               account_id:
-                $ref: '#/components/schemas/account_id'
+                $ref: "#/components/schemas/account_id"
               status:
-                $ref: '#/components/schemas/status'
+                $ref: "#/components/schemas/status"
             required:
               - account_id
               - status
@@ -132,53 +198,163 @@ components:
           - event
           - data
 
-    follow:
-      description: Message sent by the server when the client follows another user
+    recv_new_friend_request:
+      description: Message sent by the server when a pending friend request get sent
       payload:
         type: object
         properties:
           event:
             type: string
+            description: The type of the event
             enum:
-              - follow
+              - recv_new_friend_request
           data:
             type: object
             properties:
               account_id:
-                $ref: '#/components/schemas/account_id'
+                $ref: "#/components/schemas/account_id"
               profile:
-                $ref: '#/components/schemas/profile'
+                $ref: "#/components/schemas/profile"
+              sender:
+                description: The account ID of the user that initiated the friend request
+                type: number
+                example: 108244
+            required:
+              - account_id
+              - profile
+              - sender
+        required:
+          - event
+          - data
+
+    recv_delete_friend_request:
+      description: Message sent by the server when a pending friend request get canceled
+      payload:
+        type: object
+        properties:
+          event:
+            type: string
+            description: The type of the event
+            enum:
+              - recv_delete_friend_request
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: "#/components/schemas/account_id"
+              sender:
+                description: The account ID of the user that initiated the friend request
+                type: number
+                example: 108244
+            required:
+              - account_id
+              - sender
+        required:
+          - event
+          - data
+
+    recv_new_friend:
+      description: Message sent by the server when a mutual friendship is created
+      payload:
+        type: object
+        properties:
+          event:
+            description: The type of the event
+            type: string
+            enum:
+              - recv_new_friend
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: "#/components/schemas/account_id"
+              profile:
+                $ref: "#/components/schemas/profile"
               status:
-                $ref: '#/components/schemas/status'
+                $ref: "#/components/schemas/status"
             required:
               - account_id
               - profile
               - status
+            additionalProperties: false
         required:
-          - event
+          - type
           - data
-      
-    unfollow:
-      description: Message sent by the server when the client unfollows another user
+        additionalProperties: false
+
+    recv_delete_friend:
+      description: Message sent by the server when a mutual friendship is destroyed
+      payload:
+        type: object
+        properties:
+          event:
+            description: The type of the event
+            type: string
+            enum:
+              - recv_delete_friend
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: "#/components/schemas/account_id"
+            required:
+              - account_id
+            additionalProperties: false
+        required:
+          - type
+          - data
+        additionalProperties: false
+
+    recv_new_block:
+      description: Message sent by the server when the user blocks another user
       payload:
         type: object
         properties:
           event:
             type: string
+            description: The type of the event
             enum:
-              - unfollow
+              - recv_new_block
           data:
             type: object
             properties:
               account_id:
-                $ref: '#/components/schemas/account_id'
+                $ref: "#/components/schemas/account_id"
+              profile:
+                $ref: "#/components/schemas/profile"
             required:
               - account_id
+              - profile
+            additionalProperties: false
         required:
           - event
           - data
+        additionalProperties: false
 
-    receive_lobby_invite:
+    recv_delete_block:
+      description: Message sent by the server
+      payload:
+        type: object
+        properties:
+          event:
+            description: The type of the event
+            type: string
+            enum:
+              - recv_delete_block
+          data:
+            type: object
+            properties:
+              account_id:
+                $ref: "#/components/schemas/account_id"
+            required:
+              - account_id
+            additionalProperties: false
+        required:
+          - type
+          - data
+        additionalProperties: false
+
+    recv_lobby_invite:
       description: Message sent by the server when another user invite the client to join a lobby
       payload:
         type: object
@@ -187,21 +363,21 @@ components:
             type: string
             description: The type of the event
             enum:
-              - receive_lobby_invite
+              - recv_lobby_invite
           data:
             type: object
             properties:
               username:
-                $ref: '#/components/schemas/username'
+                $ref: "#/components/schemas/username"
               gamemode:
-                $ref: './lobbies.yaml#/components/schemas/gamemode'
+                $ref: "./lobbies.yaml#/components/schemas/gamemode"
               join_secret:
-                $ref: '#/components/schemas/join_secret'
+                $ref: "#/components/schemas/join_secret"
         required:
           - type
           - data
 
-    receive_lobby_request:
+    recv_lobby_request:
       description: Message sent by the server when another user invite the client to join a lobby
       payload:
         type: object
@@ -210,23 +386,23 @@ components:
             type: string
             description: The type of the event
             enum:
-              - receive_lobby_request
+              - recv_lobby_request
           data:
             type: object
             properties:
               account_id:
-                $ref: '#/components/schemas/account_id'
+                $ref: "#/components/schemas/account_id"
               username:
-                $ref: '#/components/schemas/username'
+                $ref: "#/components/schemas/username"
             required:
               - account_id
               - username
         required:
           - type
           - data
-    
+
     error:
-      description: Message send by the server when an error occurs
+      description: Message sent by the server when an error occurs
       payload:
         type: object
         properties:
@@ -244,7 +420,6 @@ components:
         required:
           - code
           - message
-        
 
     ping:
       description: Send this message to the server to prevent the user from going inactive
@@ -258,8 +433,8 @@ components:
               - ping
         required:
           - event
-    
-    update_status:
+
+    send_status:
       description: |
         Send this message to the server to update your own status.
         For any other status type that `online``, an optional data object
@@ -271,7 +446,7 @@ components:
             type: string
             description: The type of the event
             enum:
-              - update_status
+              - send_status
           data:
             description: An activity status
             type: object
@@ -284,13 +459,13 @@ components:
                   - inlobby
               data:
                 type: object
-                decription: Custom information about the user activity
+                description: Custom information about the user activity
             required:
               - type
         required:
           - event
           - data
-    
+
     send_lobby_invite:
       description: Send this message to the server to invite a player to join a lobby
       payload:
@@ -305,18 +480,18 @@ components:
             type: object
             properties:
               account_id:
-                $ref: '#/components/schemas/account_id'
+                $ref: "#/components/schemas/account_id"
               gamemode:
-                $ref: './lobbies.yaml#/components/schemas/gamemode'
+                $ref: "./lobbies.yaml#/components/schemas/gamemode"
               join_secret:
-                $ref: '#/components/schemas/join_secret'
+                $ref: "#/components/schemas/join_secret"
             required:
               - account_id
               - gamemode
         required:
           - event
           - data
-      
+
     send_lobby_request:
       description: Send this message to the server to request a lobby invitation to another player
       payload:
@@ -331,7 +506,7 @@ components:
             type: object
             properties:
               account_id:
-                $ref: '#/components/schemas/account_id'
+                $ref: "#/components/schemas/account_id"
             required:
               - account_id
         required:
@@ -366,39 +541,39 @@ components:
             - inlobby
         data:
           type: object
-          decription: Custom information about the user activity
+          description: Custom information about the user activity
       required:
         - type
+      additionalProperties: false
 
     profile:
       description: A user profile
       type: object
       properties:
         account_id:
-          $ref: '#/components/schemas/account_id'
+          $ref: "#/components/schemas/account_id"
         username:
-          $ref: '#/components/schemas/username'
+          $ref: "#/components/schemas/username"
         avatar:
-          $ref: '#/components/schemas/avatar'
-    
+          $ref: "#/components/schemas/avatar"
+
     account_id:
       description: An account unique ID
       type: number
       example: 108244
-    
+
     username:
       description: An unique username
       type: string
       example: "GonkGonk"
-    
+
     avatar:
       description: A profile picture URI
       type: string
       format: uri
       example: https://example.com/image.jpg
-    
+
     join_secret:
       description: A lobby secret ID
       type: string
       example: zBR43YSt
-

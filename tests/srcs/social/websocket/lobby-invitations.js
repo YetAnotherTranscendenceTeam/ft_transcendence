@@ -172,7 +172,7 @@ describe('Lobby invitations', () => {
           expect(message.data.follows.length).toEqual(0)
         }).expectJson((message) => {
           expect(message).toEqual({
-            event: "receive_lobby_invite",
+            event: "recv_lobby_invite",
             data: {
               username: users[1].username,
               gamemode: { example: "2v2" },
@@ -221,14 +221,14 @@ describe('Lobby invitations', () => {
   //       ])
   //     })
   //     .expectJson((message) => {
-  //       expect(message.event).toBe("status");
+  //       expect(message.event).toBe("recv_status");
   //       expect(message.data).toEqual({
   //         account_id: users[0].account_id,
   //         status: inactive
   //       });
   //     })
   //     .expectJson((message) => {
-  //       expect(message.event).toBe("status");
+  //       expect(message.event).toBe("recv_status");
   //       expect(message.data).toEqual({
   //         account_id: users[1].account_id,
   //         status: offline

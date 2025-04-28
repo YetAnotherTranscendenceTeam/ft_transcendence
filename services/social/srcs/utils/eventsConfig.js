@@ -15,7 +15,7 @@ events.register("ping", {
   },
 });
 
-events.register("update_status", {
+events.register("send_status", {
   schema: {
     type: "object",
     properties: {
