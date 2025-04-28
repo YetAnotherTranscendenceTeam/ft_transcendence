@@ -87,7 +87,9 @@ export default function ImageSelector({
 	return <div className='image-selector' {...props}>
 		{label &&
 			<div className='flex gap-2'>
-				<label>
+				<label
+					htmlFor={field}
+				>
 					{label}
 					{props.required && <span>*</span>}
 				</label>
@@ -111,7 +113,7 @@ export default function ImageSelector({
 					className={`${limitReached ? 'disabled' : ''}`}
 					key='file'
 				>
-					{ !limitReached && <input type="file" onChange={handleFileChange} accept='image/*' />}
+					{ !limitReached && <input type="file" onChange={handleFileChange} accept='image/*' id={field} />}
 					<i className="fa-solid fa-plus"></i>
 				</label>
 			</PopHover>

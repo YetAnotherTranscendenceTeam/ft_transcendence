@@ -67,7 +67,11 @@ export default function SelectModeOverlay({
 			</div>
 		</div>
 		<Form className="online-join-form flex flex-row" formFields={['lobby-code*']}>
-			<Input placeholder='Enter a code to join a lobby' field="lobby-code"/>
+			<Input
+				placeholder='Enter a code to join a lobby'
+				field="lobby-code"
+				name="lobby-code"
+			/>
 			<Submit
 				fields={['lobby-code']}
 				onSubmit={(fields, clearFields) => {

@@ -26,6 +26,7 @@ export default function ProfileForm({ me }: { me: any }) {
 	return <SettingsSection name='Profile'>
 		<Form formFields={['profile-username', 'profile-avatar']} className='gap-8'>
 			<Input
+				name='profile-username'
 				field="profile-username"
 				label='Edit your username'
 				type='text'
