@@ -15,6 +15,8 @@ import Keyboard from "./Keyboard";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+const activePointerIds = new Set();
+
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket: WebSocket;
@@ -70,6 +72,70 @@ export default class PongClient extends PONG.Pong {
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
 		window.addEventListener("resize", this.resize);
+
+		// On pointerdown, add the pointerId
+		this._canvas.addEventListener("pointerdown", ev => {
+			activePointerIds.add(ev.pointerId);
+			// (If you’re using capture for camera control)
+			this._canvas.setPointerCapture(ev.pointerId);
+		});
+		
+		// On pointerup, remove the pointerId
+		this._canvas.addEventListener("pointerup", ev => {
+			activePointerIds.delete(ev.pointerId);
+			// Mirror the spec’s intended release behavior
+			this._canvas.releasePointerCapture(ev.pointerId);
+		});
+		
+		// On pointercancel (e.g. scroll-induced), also remove
+		this._canvas.addEventListener("pointercancel", ev => {
+			activePointerIds.delete(ev.pointerId);
+			this._canvas.releasePointerCapture(ev.pointerId);
+		});
+
+		window.addEventListener("scroll", () => {
+			console.log("scroll");
+			console.log(activePointerIds);
+			activePointerIds.forEach(id => {
+				try {
+					this._canvas.releasePointerCapture(id as number);
+				} catch (e) { /* may already be released */ }
+			});
+			activePointerIds.clear();
+		});
+		  
+
+		// On pointerdown, add the pointerId
+		this._canvas.addEventListener("pointerdown", ev => {
+			activePointerIds.add(ev.pointerId);
+			// (If you’re using capture for camera control)
+			this._canvas.setPointerCapture(ev.pointerId);
+		});
+		
+		// On pointerup, remove the pointerId
+		this._canvas.addEventListener("pointerup", ev => {
+			activePointerIds.delete(ev.pointerId);
+			// Mirror the spec’s intended release behavior
+			this._canvas.releasePointerCapture(ev.pointerId);
+		});
+		
+		// On pointercancel (e.g. scroll-induced), also remove
+		this._canvas.addEventListener("pointercancel", ev => {
+			activePointerIds.delete(ev.pointerId);
+			this._canvas.releasePointerCapture(ev.pointerId);
+		});
+
+		window.addEventListener("scroll", () => {
+			console.log("scroll");
+			console.log(activePointerIds);
+			activePointerIds.forEach(id => {
+				try {
+					this._canvas.releasePointerCapture(id as number);
+				} catch (e) { /* may already be released */ }
+			});
+			activePointerIds.clear();
+		});
+		  
 		
 		this._engine.runRenderLoop(this.loop);
 
@@ -288,6 +354,12 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private update() {
+		console.log([...activePointerIds]);  // e.g. [2, 3] if two fingers are down
+		console.log("canvas the bad", this._canvas.hasPointerCapture(1));
+
+		console.log([...activePointerIds]);  // e.g. [2, 3] if two fingers are down
+		console.log("canvas the bad", this._canvas.hasPointerCapture(1));
+
 		let dt: number = this._engine.getDeltaTime() / 1000;
 		if (this._running === 0) {
 			return;
