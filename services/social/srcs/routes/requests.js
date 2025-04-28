@@ -52,15 +52,15 @@ export default function router(fastify, opts, done) {
     const target = request.params.account_id;
 
     const deletion = dbAction.cancelFriendRequest(actor, target);
-    if (!deletion === 0) {
+    if (!deletion) {
       throw new HttpError.NotFound();
-    };
+    }
 
     // Send notification through websocket(s)
-    await fastify.clients.deleteFriendRequest(deletion.sender, deletion.receiver);
+    fastify.clients.deleteFriendRequest(deletion.sender, deletion.receiver);
 
     reply.code(204);
   });
 
   done();
-}
+};

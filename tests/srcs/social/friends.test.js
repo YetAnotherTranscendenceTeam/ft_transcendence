@@ -108,6 +108,14 @@ describe("Friends router", () => {
       expect(response.statusCode).toEqual(204);
     });
 
+    it("cancel unexisting request", async () => {
+      const response = await request(apiURL)
+        .delete(`/social/requests/${user2.account_id}`)
+        .set("Authorization", `Bearer ${user1.jwt}`)
+
+      expect(response.statusCode).toEqual(404);
+    });
+
     it("2 send request to 1", async () => {
       const response = await request(apiURL)
         .post(`/social/requests/${user1.account_id}`)
@@ -213,7 +221,6 @@ describe("Friends router", () => {
 
       expect(response.statusCode).toBe(404);
     });
-
   }) // Remove friend
 
   describe("Block / Unblock", () => {
@@ -225,15 +232,6 @@ describe("Friends router", () => {
       user2 = users[7];
       await testFriendship(user1, user2);
     })
-
-    it("1 blocks 2", async () => {
-      const response = await request(apiURL)
-        .post(`/social/blocks/${user2.account_id}`)
-        .set("Authorization", `Bearer ${user1.jwt}`)
-
-      expect(response.statusCode).toBe(403);
-      expect(response.body.code).toBe("FRIENDSHIP");
-    });
 
     it("1 unfriend 2", async () => {
       const response = await request(apiURL)
@@ -269,15 +267,6 @@ describe("Friends router", () => {
       expect(response.body.code).toBe("IS_BLOCKED");
     });
 
-    it("1 request 2", async () => {
-      const response = await request(apiURL)
-        .post(`/social/requests/${user2.account_id}`)
-        .set("Authorization", `Bearer ${user1.jwt}`)
-
-      expect(response.statusCode).toBe(403);
-      expect(response.body.code).toBe("IS_BLOCKED");
-    });
-
     it("1 unblock 2", async () => {
       const response = await request(apiURL)
         .delete(`/social/blocks/${user2.account_id}`)
@@ -290,6 +279,48 @@ describe("Friends router", () => {
       const response = await request(apiURL)
         .post(`/social/requests/${user2.account_id}`)
         .set("Authorization", `Bearer ${user1.jwt}`)
+
+      expect(response.statusCode).toBe(204);
+    });
+
+    it("2 request 1", async () => {
+      const response = await request(apiURL)
+        .post(`/social/requests/${user1.account_id}`)
+        .set("Authorization", `Bearer ${user2.jwt}`)
+
+      expect(response.statusCode).toBe(204);
+    });
+
+    it("get 2 friends", async () => {
+      const response = await request(apiURL)
+        .get('/social/friends')
+        .set("Authorization", `Bearer ${user2.jwt}`);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual([{ account_id: user1.account_id }]);
+    });
+
+    it("1 blocks 2", async () => {
+      const response = await request(apiURL)
+        .post(`/social/blocks/${user2.account_id}`)
+        .set("Authorization", `Bearer ${user1.jwt}`)
+
+      expect(response.statusCode).toBe(204);
+    });
+
+    it("get 2 friends", async () => {
+      const response = await request(apiURL)
+        .get('/social/friends')
+        .set("Authorization", `Bearer ${user2.jwt}`);
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual([]);
+    });
+
+    it("2 blocks 1", async () => {
+      const response = await request(apiURL)
+        .post(`/social/blocks/${user1.account_id}`)
+        .set("Authorization", `Bearer ${user2.jwt}`)
 
       expect(response.statusCode).toBe(204);
     });
@@ -327,6 +358,7 @@ describe("Friends router", () => {
         .get('/social/friends')
         .set("Authorization", `Bearer ${sender.jwt}`);
 
+      expect(response.statusCode).toBe(200);
       expect(response.body).toEqual(
         expect.arrayContaining(
           users.slice(0, users.length - 2).map(u => {

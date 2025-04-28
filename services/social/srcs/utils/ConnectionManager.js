@@ -40,24 +40,24 @@ export class ConnectionManager {
         this.map.delete(client.account_id);
         client.goOffline();
       }, offline_delay);
-      console.log("GOING OFFLINE:", { account_id: client.account_id, in: offline_delay });
-    };
+      // console.log("GOING OFFLINE:", { account_id: client.account_id, in: offline_delay });
+    }
   };
 
   broadcastStatus(client, status = client.status(), self = true) {
     // Prepare broadcast payload
     const payload = {
-      event: "receive_status",
+      event: "recv_status",
       data: { account_id: client.account_id, status }
-    }
-    console.log("BROADCASTING:", { account_id: client.account_id, payload: JSON.stringify(payload) });
+    };
+    // console.log("BROADCASTING:", { account_id: client.account_id, payload: JSON.stringify(payload) });
 
     // Get notification target(s)
     const targets = dbAction.selectFriendships(client.account_id).map(f => f.account_id);
     if (self) {
       // Add own account
       targets.push(client.account_id);
-    };
+    }
 
     // Send payload to each target
     targets.forEach(id => {
@@ -84,15 +84,15 @@ export class ConnectionManager {
     await this.get(sender)?.newFriendRequestSent(receiver, receiver_profile);
     if (!dbAction.isBlocked(receiver, sender)) {
       await this.get(receiver)?.newFriendRequestReceived(sender);
-    };
+    }
     console.log("NEW FRIEND REQUEST:", { sender, receiver });
   };
 
-  async deleteFriendRequest(sender, receiver) {
-    await this.get(sender)?.deleteFriendRequest(sender, receiver);
-    if (!dbAction.isBlocked(receiver, sender)) {
-      await this.get(receiver)?.deleteFriendRequest(sender, receiver);
-    };
+  deleteFriendRequest(sender, receiver, options = {}) {
+    this.get(sender)?.deleteFriendRequest(sender, receiver);
+    if (options.force === receiver || !dbAction.isBlocked(receiver, sender)) {
+      this.get(receiver)?.deleteFriendRequest(sender, receiver);
+    }
     console.log("DELETE FRIEND REQUEST:", { sender, receiver });
   };
 

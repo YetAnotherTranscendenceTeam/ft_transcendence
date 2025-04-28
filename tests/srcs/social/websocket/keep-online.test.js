@@ -38,14 +38,14 @@ describe('Keep online', () => {
         expect(message.event).toBe("welcome");
       })
       .expectJson((message) => {
-        expect(message.event).toBe("receive_status");
+        expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[0].account_id,
           status: inactive
         });
       })
       .expectJson((message) => {
-        expect(message.event).toBe("receive_status");
+        expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
           status: offline

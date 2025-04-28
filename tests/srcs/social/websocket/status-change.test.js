@@ -36,7 +36,7 @@ describe('Status changes', () => {
         }, 1000)
       })
       .expectJson((message) => {
-        expect(message.event).toBe("receive_status");
+        expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
           status: statusUpdate
@@ -45,7 +45,7 @@ describe('Status changes', () => {
           ws1.send(JSON.stringify({ event: "send_status", data: online }));
         }, 1000)
       }).expectJson((message) => {
-        expect(message.event).toBe("receive_status");
+        expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[1].account_id,
           status: online

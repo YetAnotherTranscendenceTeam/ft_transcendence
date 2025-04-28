@@ -7,8 +7,9 @@ export class SocialDummy {
     this.user = user;
   }
 
-  async connect() {
+  async connect(welcome_data) {
     this.ws = request(socialWS).ws(`/notify?access_token=${this.user.jwt}`);
+    this.expectEvent("welcome", welcome_data);
     return this.ws;
   }
 
@@ -38,11 +39,41 @@ export class SocialDummy {
       .set('Authorization', `Bearer ${this.user.jwt}`)
   };
 
+  async newFriend(dummy) {
+    let response = await request(apiURL)
+      .post(`/social/requests/${dummy.user.account_id}`)
+      .set('Authorization', `Bearer ${this.user.jwt}`);
+
+    expect(response.statusCode).toBe(204);
+    await this.expectEvent("recv_new_friend_request", { ...dummy.me(), sender: this.id });
+    await dummy.expectEvent("recv_new_friend_request", { ...this.me(), sender: this.id });
+
+    response = await request(apiURL)
+      .post(`/social/requests/${this.id}`)
+      .set('Authorization', `Bearer ${dummy.user.jwt}`);
+
+    expect(response.statusCode).toBe(204);
+    await this.expectEvent("recv_new_friend", { ...dummy.me(), status: {type: expect.any(String) } });
+    await dummy.expectEvent("recv_new_friend", { ...this.me(), status: {type: expect.any(String) } });
+  };
+
   async removeFriend(dummy) {
     return await request(apiURL)
       .delete(`/social/friends/${dummy.user.account_id}`)
       .set('Authorization', `Bearer ${this.user.jwt}`)
-  }
+  };
+
+  async block(dummy) {
+    return await request(apiURL)
+      .post(`/social/blocks/${dummy.user.account_id}`)
+      .set('Authorization', `Bearer ${this.user.jwt}`)
+  };
+
+  async unblock(dummy) {
+    return await request(apiURL)
+      .delete(`/social/blocks/${dummy.user.account_id}`)
+      .set('Authorization', `Bearer ${this.user.jwt}`)
+  };
 
   me(options = {}) {
     if (options.id_only === true) {
@@ -56,11 +87,26 @@ export class SocialDummy {
         username: this.user.profile.username,
         created_at: expect.any(String),
         updated_at: expect.any(String),
-      }
+      },
     };
     if (options.status) {
       me.status = options.status
     }
     return me;
   }
-}
+
+  reset() {
+    this.close();
+    this.connect();
+  };
+};
+
+export const emptyWelcome = {
+  friends: [],
+  pending: {
+    sent: [],
+    received: [],
+  },
+  blocked: [],
+  self: { type: "online" },
+};
