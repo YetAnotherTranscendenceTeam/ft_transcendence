@@ -44,7 +44,7 @@ describe('Social websocket', () => {
               expect(message.event).toBe("welcome");
 
             }).sendJson({ event: "send_status", data: statusUpdate })
-        }, 2000)
+        }, 4000)
       })
       .expectJson((message) => {
         expect(message.event).toBe("recv_status");
