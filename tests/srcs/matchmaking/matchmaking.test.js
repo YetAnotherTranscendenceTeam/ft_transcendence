@@ -45,6 +45,7 @@ describe("direct match making", () => {
       let user_index = 0;
       const lobbies = lobby_player_count.map((player_count, index) => ({
         players: Array.from({ length: player_count }, () => ({ account_id: users[user_index++].account_id })),
+        team_names: [],
         mode: GameModes[gamemode],
         join_secret: `${gamemode}_${index}`,
       }));
@@ -87,7 +88,7 @@ describe("direct match making", () => {
         .patch(`/matches/${messagedata.match.match.match_id}`)
         .set("Authorization", `Bearer ${app.jwt.sign({})}`)
         .send({ state: 2 });
-        expect(res.statusCode).toBe(200);
+        expect(res.statusCode).toBe(201);
       }
     }
   );

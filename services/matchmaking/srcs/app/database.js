@@ -29,8 +29,6 @@ db.exec(`
     match_id INTEGER PRIMARY KEY AUTOINCREMENT,
     tournament_id INTEGER,
     gamemode TEXT NOT NULL,
-    score_0 INTEGER NOT NULL,
-    score_1 INTEGER NOT NULL,
     state INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -46,6 +44,18 @@ db.exec(`
     END;
   `);
 
+db.exec(`
+  CREATE TABLE IF NOT EXISTS match_teams (
+    match_id INTEGER NOT NULL,
+    team_index INTEGER NOT NULL,
+    name TEXT,
+    score INTEGER NOT NULL DEFAULT 0,
+    winning INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (match_id, team_index),
+    FOREIGN KEY (match_id) REFERENCES matches(match_id),
+    UNIQUE (match_id, team_index)
+  )`)
+
 // TODO: add player stats
 db.exec(`
   CREATE TABLE IF NOT EXISTS match_players (
@@ -58,6 +68,7 @@ db.exec(`
     updated_at DATETIME DEFAULT CURRENT,
     PRIMARY KEY (match_id, account_id),
     FOREIGN KEY (match_id) REFERENCES matches(match_id),
+    FOREIGN KEY (match_id, team_index) REFERENCES match_teams(match_id, team_index),
     UNIQUE (match_id, account_id),
     UNIQUE (match_id, team_index, player_index)
   )`);

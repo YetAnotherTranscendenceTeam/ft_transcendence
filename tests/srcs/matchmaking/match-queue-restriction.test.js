@@ -57,6 +57,7 @@ describe("already in a match and queue for another", () => {
       })
       .expectJson((message) => {
         expect(message.event).toBe("match");
+        console.log(message.data.match)
         expect(message.data.match.match.players.length).toBe(2);
         match_id = message.data.match.match.match_id;
       });

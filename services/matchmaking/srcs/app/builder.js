@@ -6,8 +6,9 @@ import websocket from '@fastify/websocket';
 import sse from "yatt-sse"
 import router from "./router.js";
 import YATT from "yatt-utils";
+import JwtGenerator from "yatt-jwt";
 import jwt from "@fastify/jwt";
-import { AUTHENTICATION_SECRET, MATCHMAKING_SECRET } from "./env.js";
+import { AUTHENTICATION_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env.js";
 import bearerAuth from "@fastify/bearer-auth";
 import qs from "qs";
 import db from "./database.js";
@@ -41,6 +42,11 @@ export default function build(opts = {}) {
 
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
   app.register(jwt, { secret: MATCHMAKING_SECRET, namespace: "matchmaking" });
+  app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
+  app.decorate("tokens", new JwtGenerator());
+  app.addHook('onReady', async function () {
+    this.tokens.register(app.jwt.pong, "pong");
+  });
 
   app.register(sse);
   
@@ -63,7 +69,7 @@ export default function build(opts = {}) {
     },
   });
 
-  app.decorate("tournaments", new TournamentManager());
+  app.decorate("tournaments", new TournamentManager(app));
   app.register(fastifyFormbody);
   app.register(websocket);
 
@@ -73,9 +79,9 @@ export default function build(opts = {}) {
     reply.code(204).send();
   });
 
-  app.addHook('onClose', (instance) => {
+  app.addHook('onClose', async (instance) => {
     // Cleanup instructions for a graceful shutdown
-    instance.tournaments.cancel();
+    await instance.tournaments.cancel();
     db.close();
   });
 

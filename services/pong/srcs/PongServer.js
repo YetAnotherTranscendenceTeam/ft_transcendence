@@ -9,13 +9,15 @@ PongState.RESERVED.tickCallback = function (dt, pong) {
 
 export class PongServer extends Pong {
 	collisions = [];
+	team_names = [];
 
 	constructor(match_id, gamemode, teams) {
 		super();
 		this._running = 0;
 		this._time = 0;
 		this._lastUpdate = 0;
-		this.onlineSetup(match_id, gamemode, teams.flat(), PongState.RESERVED.clone());
+		this.team_names = teams.map((team) => team.name);
+		this.onlineSetup(match_id, gamemode, teams.map((team) => team.players).flat(), PongState.RESERVED.clone());
 		for (let ball of this._balls) {
 			ball.addEventListener("collision", (event) => {
 				this.collisions.push(event.detail);

@@ -7,7 +7,7 @@ import bearerAuth from "@fastify/bearer-auth";
 import websocket from '@fastify/websocket'
 import formbody from "@fastify/formbody";
 import router from "./router.js";
-import { AUTHENTICATION_SECRET, MATCH_MANAGEMENT_SECRET } from "./env.js";
+import { AUTHENTICATION_SECRET, MATCH_MANAGEMENT_SECRET, PONG_SECRET } from "./env.js";
 import { GameManager } from "../GameManager.js";
 
 export default function build(opts = {}) {
@@ -47,6 +47,7 @@ export default function build(opts = {}) {
   app.decorate("games", new GameManager());
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
   app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
+  app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
 
   app.register(formbody);
   app.register(websocket);

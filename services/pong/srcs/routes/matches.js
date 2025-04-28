@@ -61,7 +61,7 @@ export default function router(fastify, opts, done) {
   fastify.post("/", {schema}, async (req, res) => {
     try {
       const jwt = req.headers.authorization.replace("Bearer ", "");
-      fastify.jwt.match_management.verify(jwt);
+      fastify.jwt.pong.verify(jwt);
     }
     catch(e) {
       new HttpError.Unauthorized().send(res);

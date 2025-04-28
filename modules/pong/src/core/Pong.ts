@@ -31,6 +31,7 @@ export class Pong {
 	protected _balls: Ball[] = [];
 	protected _paddles: Map<number, PH2D.Body>;
 	protected _goals: Map<number, Goal>;
+	protected _teamNames: string[] = [];
 
 	protected _score: number[];
 	protected _lastSide: MapSide;

@@ -10,5 +10,5 @@ export function finishMatch(app, match_id, winner) {
 	  score_0: winner === 0 ? 1 : 0,
 	  score_1: winner === 1 ? 1 : 0,
 	})
-	.expect(200);
+	.expect(201);
 }

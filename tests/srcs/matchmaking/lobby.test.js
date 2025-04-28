@@ -129,7 +129,7 @@ describe.each(matchmaking_tests)(
           .set("Authorization", `Bearer ${app.jwt.sign({})}`)
           .send({ state: 2 })
           .then((response) => {
-            expect(response.status).toBe(200);
+            expect(response.status).toBe(201);
         }));
       }
       await Promise.all(promises);

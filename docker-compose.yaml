@@ -368,6 +368,7 @@ services:
     environment:
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
+      - PONG_SECRET=${PONG_SECRET}
     ports:
       - 4124:3000
     networks:

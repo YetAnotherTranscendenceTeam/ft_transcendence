@@ -92,6 +92,7 @@ describe("already in a tournament and queue for another", () => {
 	  .get(`/matchmaking/tournaments/${tournament.id}`)
 	  .set("Authorization", `Bearer ${users[0].jwt}`);
 	tournament = res.body;
+	console.log(tournament.matches)
 	await finishMatch(app, tournament.matches[0].match_id, 1);
   });
 });
