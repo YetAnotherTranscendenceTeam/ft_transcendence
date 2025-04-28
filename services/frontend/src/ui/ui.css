@@ -822,22 +822,39 @@
 
 .accordion {
 	border-radius: 4px;
-	overflow: hidden;
+	min-height: fit-content;
 }
 
 .accordion-header {
 	padding: 8px;
 	box-sizing: border-box;
-	background-color: var(--bg-3);
-	transition: 0.4s;
+	background-color: var(--bg-2);
+	/* transition: 0.4s; */
+	cursor: pointer;
+	height: 32px;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+	color: var(--fg-3);
+}
+
+.accordion-header.open {
+	color: var(--fg-1);
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 }
 
 .accordion-header:hover {
-	background-color: var(--bg-2);
+	background-color: var(--bg-3);
 }
 
 .accordion-header.open {
 	background-color: var(--bg-2);
+}
+
+.accordion-header.open:hover {
+	background-color: var(--bg-3);
 }
 
 .accordion-header .accordion-icon {
@@ -845,20 +862,24 @@
 }
 
 .accordion-header.open .accordion-icon {
-	transform: rotate(-90deg);
+	transform: rotate(90deg);
 }
 
 .accordion-content {
-	/* border-top: 2px solid var(--bg-2); */
-	/* background-color: var(--bg-3); */
+	min-height: 0;
 	max-height: 0;
 	overflow: hidden;
-	transition: max-height 0.3s ease-in-out;
+}
+
+.accordion-content > * {
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
 }
 
 .accordion-content.open {
-	max-height: 400px;
-	overflow: hidden;
+	max-height: fit-content;
+	min-height: fit-content;
+	overflow: visible;
 }
 
 /* ================================== */
@@ -896,6 +917,8 @@
 	padding: 0 8px;
 	position: relative;
 	transition: 0.3s;
+	display: flex;
+	gap: 8px;
 }
 
 .segmented-control-button.disabled {
@@ -915,4 +938,49 @@
 
 .segmented-control-button.selected {
 	color: var(--fg-1);
+}
+
+/* ================================== */
+/* ============== Label ============= */
+/* ================================== */
+
+.label {
+	font-size: small;
+	color: var(--fg-2);
+	font-weight: 500;
+	background-color: var(--danger-color);
+	padding: 0 8px;
+	box-sizing: border-box;
+	height: 16px;
+	border-radius: 8px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* ================================== */
+/* ============= Dropdown =========== */
+/* ================================== */
+
+.dropdown {
+	position: relative;
+}
+
+
+.dropdown-content {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translate(-100%, -50%);
+	background-color: var(--bg-1);
+	color: var(--fg-1);
+	border-radius: 4px;
+	padding: 8px;
+	box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.2);
+	z-index: 9999;
+	display: none;
+}
+
+.dropdown-content.open {
+	display: block;
 }

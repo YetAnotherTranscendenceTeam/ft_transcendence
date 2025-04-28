@@ -2,18 +2,18 @@ import Babact from "babact";
 import useFetch from "../hooks/useFetch";
 import config from "../config";
 import { IUser } from "../hooks/useUsers";
-import useSocial, { Follow, FollowStatus } from "../hooks/useSocials";
+import useSocial, { Friend, FriendStatus, ISocials } from "../hooks/useSocials";
 import { GameModeType } from "yatt-lobbies";
 
 const AuthContext = Babact.createContext<{
 		me: IMe,
-		follows: Follow[],
+		socials: ISocials,
 		connected: boolean,
 		auth: (token: string, expire_at: number) => void,
 		logout: () => void,
 		refresh: () => void,
 		ping: () => void,
-		status: (status: FollowStatus) => void,
+		status: (status: FriendStatus) => void,
 		confirm2FA: (
 			body: {
 				payload_token: string,
@@ -51,7 +51,7 @@ interface ICredentials {
 
 export interface IMe extends IUser {
 	credentials: ICredentials,
-	status: FollowStatus,
+	status: FriendStatus,
 	last_tournament?: {
 		tournament_id: number,
 		gamemode: string,
@@ -111,7 +111,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			disconnect();
 	}, [me]);
 
-	const setMeStatus = (status: FollowStatus) => {
+	const setMeStatus = (status: FriendStatus) => {
 		setMe(me => ({...me, status}));
 	};
 
@@ -166,13 +166,13 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		setMe(me => ({...me, last_tournament: tournament}));
 	}
 
-	const { connect, follows, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
+	const { connect, socials, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
 
 	return (
 		<AuthContext.Provider
 			value={{
 				me,
-				follows,
+				socials,
 				connected,
 				auth,
 				logout,
