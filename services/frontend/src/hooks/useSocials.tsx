@@ -165,7 +165,8 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	const [socials, setSocials] = Babact.useState<ISocials>(null);
 	const { createToast, removeToast } = useToast();
 
-	const inivites = Babact.useRef([]);
+	const lobbyInivites = Babact.useRef([]);
+	const friendInivites = Babact.useRef([]);
 
 	const onWelcome = ({
 			self,
@@ -219,15 +220,15 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 		}
 		else {
 
-			if (inivites.current.includes(profile.username))
+			if (friendInivites.current.includes(profile.username))
 				return;
-			inivites.current.push(profile.username);
+			friendInivites.current.push(profile.username);
 
 			const message = (id: number) => <div className="resquest-toast flex flex-col gap-2">
 				<Button
 					className="close-button ghost icon"
 					onClick={() => {
-						inivites.current = inivites.current.filter(i => i !== profile.username);
+						friendInivites.current = friendInivites.current.filter(i => i !== profile.username);
 						if (removeToast)
 							removeToast(id);
 					}}
@@ -240,7 +241,7 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 						className="success w-full"
 						onClick={() => {
 							const request = new Request({account_id, profile}, ft_fetch);
-							inivites.current = inivites.current.filter(i => i !== profile.username);
+							friendInivites.current = friendInivites.current.filter(i => i !== profile.username);
 							request.accept();
 							if (removeToast)
 								removeToast(id);
@@ -252,7 +253,7 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 						className="danger w-full"
 						onClick={() => {
 							const request = new Request({account_id, profile}, ft_fetch);
-							inivites.current = inivites.current.filter(i => i !== profile.username);
+							friendInivites.current = friendInivites.current.filter(i => i !== profile.username);
 							request.cancel();
 							if (removeToast)
 								removeToast(id);
@@ -336,21 +337,21 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 
 	const onLobbyInvite = ({ join_secret, username, gamemode}: {join_secret: string, username: string, gamemode: IGameMode}) => {
 		const { join } = useLobby();
-		if (inivites.current.includes(username))
+		if (lobbyInivites.current.includes(username))
 			return;
-		inivites.current.push(username);
+		lobbyInivites.current.push(username);
 
 		const handleAccept = (id: number) => {
 			join(join_secret);
 			if (removeToast)
 				removeToast(id);
-			inivites.current = inivites.current.filter(i => i !== username);
+			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
 		};
 
 		const handleDecline = (id: number) => {
 			if (removeToast)
 				removeToast(id);
-			inivites.current = inivites.current.filter(i => i !== username);
+			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
 		};
 
 		const message = (id: number) => <div className="flex flex-col gap-2">
@@ -384,9 +385,9 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 		}) => {
 
 		const { lobby } = useLobby();
-		if (inivites.current.includes(username) || !lobby)
+		if (lobbyInivites.current.includes(username) || !lobby)
 			return;
-		inivites.current.push(username);
+		lobbyInivites.current.push(username);
 
 		const handleAccept = (id: number) => {
 			const follow = new Friend({
@@ -405,13 +406,13 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 			follow.invite(lobby.mode, lobby.join_secret);
 			if (removeToast)
 				removeToast(id);
-			inivites.current = inivites.current.filter(i => i !== username);
+			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
 		};
 
 		const handleDecline = (id: number) => {
 			if (removeToast)
 				removeToast(id);
-			inivites.current = inivites.current.filter(i => i !== username);
+			lobbyInivites.current = lobbyInivites.current.filter(i => i !== username);
 		};
 
 		const message = (id) => <div className="flex flex-col gap-2">
