@@ -99,6 +99,10 @@ export class SocialDummy {
     this.close();
     this.connect();
   };
+
+  send(payload) {
+    this.ws.send(JSON.stringify(payload));
+  };
 };
 
 export const emptyWelcome = {

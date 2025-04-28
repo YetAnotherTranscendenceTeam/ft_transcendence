@@ -3,6 +3,10 @@
 import { HttpError } from "yatt-utils";
 import db from "../app/database.js";
 
+/* ------------------------------------------------ *
+ *                 Friend requests                  *
+ * ------------------------------------------------ */
+
 export function selectRequestsSent(account_id) {
   return select_requests_from.all(account_id);
 };
@@ -14,7 +18,11 @@ export function selectRequestsReceived(account_id) {
 // Create a friend request from a user to another,
 // or a friendship if the receiving user has one pending
 export const handleFriendRequest = db.transaction((from, to) => {
-  if (is_friendship.get(Math.min(from, to), Math.max(from, to))) {
+  const friends = is_friendship.get(
+    Math.min(from, to),
+    Math.max(from, to)
+  );
+  if (friends) {
     throw new HttpError.Forbidden().setCode("IS_FRIEND");
   }
   if (is_blocked.get(from, to)) {
@@ -24,7 +32,10 @@ export const handleFriendRequest = db.transaction((from, to) => {
   const reverse = get_reverse_request.get(from, to);
   if (reverse) {
     delete_request.run({ sender: from, receiver: to });
-    insert_friendship.run(Math.min(from, to), Math.max(from, to));
+    insert_friendship.run(
+      Math.min(from, to),
+      Math.max(from, to)
+    );
   }
   return !!reverse;
 });
@@ -57,14 +68,28 @@ const delete_request = db.prepare(`
   RETURNING *
 `);
 
+/* ------------------------------------------------ *
+ *                   Friendships                    *
+ * ------------------------------------------------ */
+
 // Retreive the friendship of a user
 export function selectFriendships(account_id) {
   return select_friends.all({ account_id });
 };
 
+export function isFriendship(user1, user2) {
+  return is_friendship.get(
+    Math.min(user1, user2),
+    Math.max(user1, user2)
+  );
+}
+
 // Delete a friendship between two users
 export function removeFriend(from, to) {
-  return delete_friendship.run(Math.min(from, to), Math.max(from, to));
+  return delete_friendship.run(
+    Math.min(from, to),
+    Math.max(from, to)
+  );
 };
 
 const select_friends = db.prepare(`
@@ -85,9 +110,9 @@ const delete_friendship = db.prepare(`
   DELETE FROM friendships WHERE user1 = ? AND user2 = ?
 `);
 
-/*
- * BLOCKS
- */
+/* ------------------------------------------------ *
+ *                      Blocks                      *
+ * ------------------------------------------------ */
 
 export const handleBlock = db.transaction((blocker_id, blocked_id) => {
   return {
