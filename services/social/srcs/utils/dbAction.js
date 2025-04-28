@@ -89,11 +89,14 @@ const delete_friendship = db.prepare(`
  * BLOCKS
  */
 
-export const handleBlock = db.transaction((blocker, blocked) => {
+export const handleBlock = db.transaction((blocker_id, blocked_id) => {
   return {
-    friends: delete_friendship.run(blocker, blocked),
-    requests: delete_request.get({ sender: blocker, receiver: blocked }),
-    blocks: insert_block.run(blocker, blocked),
+    friends: delete_friendship.run(
+      Math.min(blocker_id, blocked_id),
+      Math.max(blocker_id, blocked_id)
+    ),
+    requests: delete_request.get({ sender: blocker_id, receiver: blocked_id }),
+    blocks: insert_block.run(blocker_id, blocked_id),
   };
 });
 
