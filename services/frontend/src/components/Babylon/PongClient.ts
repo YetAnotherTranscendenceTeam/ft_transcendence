@@ -63,9 +63,9 @@ export default class PongClient extends PONG.Pong {
 
 		this._babylonScene = new Scene(this._engine);
 		// Optimize for performance
-		// this._babylonScene.performancePriority = BABYLON.ScenePerformancePriority.Intermediate;
+		this._babylonScene.performancePriority = BABYLON.ScenePerformancePriority.Intermediate;
 		// this._babylonScene.collisionsEnabled = false;
-		this._babylonScene.autoClear = true;
+		// this._babylonScene.autoClear = true;
 		// this._babylonScene.autoClearDepthAndStencil = false;
 
 
@@ -147,7 +147,6 @@ export default class PongClient extends PONG.Pong {
 		this.start();
 		this._time = 0;
 		this._running = 1;
-		//this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
 	public nextRound() {
@@ -157,12 +156,10 @@ export default class PongClient extends PONG.Pong {
 
 	public pauseGame() {
 		this._running = 0;
-		//this._babylonScene.clearColor = Color4.FromColor3(Color3.Yellow());
 	}
 
 	public resumeGame() {
 		this._running = 1;
-		//this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
 	}
 	
 	private loop = () => {
@@ -176,8 +173,6 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private sceneSetup() {
-		// scene.clearColor = Color4.FromColor3(Color3.Black());
-		// scene.createDefaultEnvironment();
 		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 20, Vector3.Zero(), this._babylonScene);
 		camera.inputs.clear();
 		camera.inputs.addMouseWheel();
@@ -209,28 +204,11 @@ export default class PongClient extends PONG.Pong {
 				skyboxMaterial.roughness = 0.075;
 			}
 		);
-		// this._babylonScene.environmentTexture = hdrTexture;
-
-		// this._babylonScene.createDefaultSkybox(hdrTexture, true, 1000);
 
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
 		light.intensity = 0.7;
 		light.diffuse = new Color3(1, 1, 1);
 		light.specular = new Color3(1, 1, 1);
-
-		// // 1. Make a big box
-		// const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._babylonScene);
-
-		// const skyMat = new BABYLON.StandardMaterial("skyMat", this._babylonScene);
-		// skyMat.backFaceCulling = false;              // render inside faces
-		// skyMat.disableLighting = true;                // not affected by lights
-		// skyMat.diffuseColor = BABYLON.Color3.Black();  
-		// skyMat.specularColor = BABYLON.Color3.Black();
-
-		// skyMat.reflectionTexture = hdrTexture.clone();        // the same HDRCubeTexture
-		// skyMat.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-
-		// skybox.material = skyMat;
 
 
 		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
@@ -240,17 +218,14 @@ export default class PongClient extends PONG.Pong {
 		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._babylonScene);
 		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.png", this._babylonScene);
 		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.png", this._babylonScene);
-		// ballMaterial.reflectionTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
-
-		// ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
+		ballMaterial.reflectionTexture = hdrTexture;
+		ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
 		ClientBall.material = ballMaterial;
 
 		const wallMaterial = new BABYLON.PBRMaterial("wallMaterial", this._babylonScene);
 		wallMaterial.metallic = 0;
 		wallMaterial.roughness = 0.5;
 		wallMaterial.albedoColor = new Color3(0.25, 0.5, 0.62);
-		// wallMaterial.reflectionTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
-		// wallMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
 		ClientWall.material = wallMaterial;
 
 		const paddleMaterial = new BABYLON.PBRMaterial("paddleMaterial", this._babylonScene);
@@ -323,7 +298,6 @@ export default class PongClient extends PONG.Pong {
 
 	private menuScene() {
 		this.menuSetup();
-		// this._babylonScene.clearColor = Color4.FromColor3(Color3.Blue());
 
 		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
 			map.enable();
@@ -335,7 +309,6 @@ export default class PongClient extends PONG.Pong {
 
 	private lobbyScene() {
 		this.lobbySetup();
-		// this._babylonScene.clearColor = Color4.FromColor3(Color3.Green());
 
 		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
 			map.enable();
@@ -347,7 +320,6 @@ export default class PongClient extends PONG.Pong {
 
 	private localScene() {
 		this.localSetup();
-		// this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
 
 		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
 			map.enable();
@@ -359,7 +331,6 @@ export default class PongClient extends PONG.Pong {
 
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
-		// this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
 
 		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
 			map.enable();
@@ -412,7 +383,6 @@ export default class PongClient extends PONG.Pong {
 			this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
 			this._running = 0;
 			if (this._winner !== undefined) {
-				// this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
 				this.callbacks.endGameCallback();
 			}
 		}
