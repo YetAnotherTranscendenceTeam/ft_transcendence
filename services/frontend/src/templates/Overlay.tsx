@@ -33,19 +33,21 @@ export default function Overlay({
 
 	return <div className={`overlay flex ${hidden ? 'hidden' : ''}`} key='overlay'>
 			<Settings
+				key='settings'
 				me={me}
 				isOpen={selected === 'settings'}
 				onClose={() => setSelected(null)}
 			/>
-			<SelectModeOverlay
+			{me && <SelectModeOverlay
+				key='select-mode'
 				isOpen={selected === 'online'}
 				onClose={() => setSelected(null)}
-			/>
-			<div className='template-content'>
+			/>}
+			<div className='template-content' key='content'>
 				{children}
 			</div>
 			{ modal &&
-				<div className='template-modal'>
+				<div className='template-modal' key='modal'>
 					{modal}
 				</div>
 			}

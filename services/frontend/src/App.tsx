@@ -34,12 +34,12 @@ export default function App() {
 		<LobbyProvider>
 			<div style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; pointer-events: none;">
 				<Routes>
-					<Route path="/fortytwo" element={<FortytwoView/>} />
-					<Route path='/lobby/:code' element={<LobbyView/>} />
-					<Route path='/profiles/:id' element={<ProfileView/>} />
-					<Route path='/local' element={<LocalView/>} />
-					<Route path='/tournaments/:id' element={<TournamentView/>} />
-					<Route path="/*" element={<Home />} />
+					<Route path="/fortytwo" element={<FortytwoView/>} key='fortytwo' />
+					<Route path='/lobby/:code' element={<LobbyView/>} key='lobby' />
+					<Route path='/profiles/:id' element={<ProfileView/>} key='profiles'/>
+					<Route path='/local' element={<LocalView/>} key='local'/>
+					<Route path='/tournaments/:id' element={<TournamentView/>} key='tournaments'/>
+					<Route path="/*" element={<Home />} key='home'/>
 				</Routes>
 			</div>
 		</LobbyProvider>

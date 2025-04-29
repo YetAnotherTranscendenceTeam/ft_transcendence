@@ -22,3 +22,11 @@
 	align-items: stretch;
 	justify-content: center;
 }
+
+.profile-view {
+	width: 100vw;
+	box-sizing: border-box;
+	padding-right: var(--aside-width);
+	height: calc(100vh - var(--header-height));
+	background-color: color-mix(in srgb, var(--bg-2), transparent 20%)
+}

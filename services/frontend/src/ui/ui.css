@@ -210,6 +210,7 @@
 
 .avatar.xs {
 	width: 24px;
+	border-radius: 4px;
 }
 
 .avatar.xs img {
@@ -218,6 +219,7 @@
 
 .avatar.sm {
 	width: 32px;
+	border-radius: 6px;
 }
 
 .avatar.sm img {
@@ -226,6 +228,7 @@
 
 .avatar.md {
 	width: 48px;
+	border-radius: 8px;
 }
 
 .avatar.md img {
@@ -234,10 +237,29 @@
 
 .avatar.lg {
 	width: 64px;
+	border-radius: 12px;
 }
 
 .avatar.lg img {
 	border-radius: 12px;
+}
+
+.avatar.xl {
+	width: 80px;
+	border-radius: 16px;
+}
+
+.avatar.xl img {
+	border-radius: 16px;
+}
+
+.avatar.xxl {
+	width: 96px;
+	border-radius: 20px;
+}
+
+.avatar.xxl img {
+	border-radius: 20px;
 }
 
 .avatar img {

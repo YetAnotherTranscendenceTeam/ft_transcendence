@@ -110,3 +110,17 @@
 	top: 8px;
 	right: 8px;
 }
+
+
+/* Profile Header */
+
+.profile-header {
+	padding: 32px;
+	box-sizing: border-box;
+}
+
+.profile-header h1 {
+	font-size: 2rem;
+	font-weight: bold;
+	color: var(--fg-1);
+}
