@@ -75,22 +75,5 @@ export default function SelectModeOverlay({
 				{tournament && <ModeButton gamemode={tournament} onSelect={onSelect} />}
 			</div>
 		</div>
-		<Form className="online-join-form flex flex-row" formFields={['lobby-code*']}>
-			<Input
-				placeholder='Enter a code to join a lobby'
-				field="lobby-code"
-				name="lobby-code"
-			/>
-			<Submit
-				fields={['lobby-code']}
-				onSubmit={(fields, clearFields) => {
-					join(fields['lobby-code'].value as string);
-					clearFields();
-					onClose();
-				}}
-			>
-				<i className="fa-solid fa-arrow-right-to-bracket"></i> Join
-			</Submit>
-		</Form>
 	</div>
 }
