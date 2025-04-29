@@ -3,6 +3,8 @@ import { useForm } from "../contexts/useForm";
 import useToast, { ToastType } from "../hooks/useToast";
 import WebcamModal from "./WebcamModal";
 import Spinner from "./Spinner";
+import PopHover from "./PopHover";
+import AvatarDeletionModal from "./AvatarDeletionModal";
 
 export type Image = {
 	url: string,
@@ -18,6 +20,11 @@ export default function ImageSelector({
 		onImageRemove,
 		defaultValue,
 		webcam = false,
+		limit,
+		help,
+		tooltip,
+		ignore = [],
+		ignoreMessage,
 		...props
 	}: {
 		label: string,
@@ -28,6 +35,11 @@ export default function ImageSelector({
 		onImageRemove?: (url: string) => Promise<any>,
 		defaultValue?: string,
 		webcam?: boolean,
+		limit?: number,
+		help?: string,
+		tooltip?: string,
+		ignore?: string[],
+		ignoreMessage?: string,
 		[key: string]: any
 	}) {
 
@@ -36,6 +48,7 @@ export default function ImageSelector({
 	const { updateField, updateFieldValidity, fields } = useForm();
 
 	const [webcamModalOpen, setWebcamModalOpen] = Babact.useState<boolean>(false);
+	const [deleteImage, setDeleteImage] = Babact.useState<string>(null);
 
 	const handleFileChange = (e: any) => {
 		const file = e.target.files[0];
@@ -69,24 +82,55 @@ export default function ImageSelector({
 			updateField(field, defaultValue);
 	}, []);
 
+	const limitReached = limit && images.filter(i => i.isRemovable).length >= limit;
+
 	return <div className='image-selector' {...props}>
-		<label>
-			{label}
-			{required && <span>*</span>}
-		</label>
-		<div className='image-selector-container scrollbar'>
-			<label
-				key='file'
+		{label &&
+			<div className='flex gap-2'>
+				<label
+					htmlFor={field}
+				>
+					{label}
+					{props.required && <span>*</span>}
+				</label>
+				{tooltip && <PopHover
+					content={tooltip}
+				>
+					<i className="fa-solid fa-circle-info"></i>
+				</PopHover>}
+			</div>
+		}
+		{help && <p className='input-help'>
+			{help}
+		</p>}
+		<div className='image-selector-container'>
+			<PopHover
+				content={limitReached ? <p className='image-selector-help'>
+					You can only upload {limit} images
+				</p> : null}
 			>
-				<input type="file" onChange={handleFileChange} accept='image/*' />
-				<i className="fa-solid fa-plus"></i>
-			</label>
-			{webcam && <label
-				key='webcam'
-				onClick={() => setWebcamModalOpen(true)}
+				<label
+					className={`${limitReached ? 'disabled' : ''}`}
+					key='file'
+				>
+					{ !limitReached && <input type="file" onChange={handleFileChange} accept='image/*' id={field} />}
+					<i className="fa-solid fa-plus"></i>
+				</label>
+			</PopHover>
+			{ webcam && 
+			<PopHover
+				content={limitReached ? <p className='image-selector-help'>
+					You can only upload {limit} images
+				</p> : null}
 			>
-				<i className="fa-solid fa-camera" ></i>
-			</label>}
+				<label
+					key='webcam'
+					className={`${limitReached ? 'disabled' : ''}`}
+					onClick={() => !limitReached && setWebcamModalOpen(true)}
+				>
+					<i className="fa-solid fa-camera" ></i>
+				</label>
+			</PopHover>}
 			{
 				images.map((image: Image, i: number) => (
 					<div className={`image-selector-item ${inDeletion === image.url ? 'loading' : ''}`} key={image.url}>
@@ -95,7 +139,11 @@ export default function ImageSelector({
 							className={fields[field].value === image.url ? 'selected' : ''}
 							onClick={() => handleImageClick(image.url)}
 						/>
-						{image.isRemovable && !inDeletion && <i className="fa-solid fa-trash" onClick={() => handleImageRemove(image.url)}/>}
+						{image.isRemovable && !inDeletion &&
+							<i
+								className="fa-solid fa-trash"
+								onClick={() => setDeleteImage(image.url)}
+							/>}
 						<Spinner />
 					</div>
 				))
@@ -105,6 +153,17 @@ export default function ImageSelector({
 			isOpen={webcamModalOpen}
 			onClose={() => setWebcamModalOpen(false)}
 			onCapture={onChange}
+		/>
+		<AvatarDeletionModal
+			ignore={ignore}
+			ignoreMessage={ignoreMessage}
+			isOpen={deleteImage !== null}
+			onClose={() => setDeleteImage(null)}
+			onDelete={async () => {
+				await handleImageRemove(deleteImage);
+				setDeleteImage(null);
+			}}
+			imageUrl={deleteImage}
 		/>
 	</div>
 }

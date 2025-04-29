@@ -7,7 +7,6 @@
 	width: 400px;
 	border-radius: 0;
 	opacity: 0;
-	padding: 0 32px;
 	transition: left 0.5s, opacity 0.5s;
 }
 
@@ -25,6 +24,8 @@
 	position: relative;
 	height: 100%;
 	overflow-y: auto;
+	box-sizing: border-box;
+	padding: 0 16px;
 	padding-bottom: 20vh;
 }
 
@@ -41,4 +42,17 @@
 .settings-section h2 {
 	font-size: large;
 	font-weight: bold;
+}
+
+.settings-tooltip {
+	width: 200px;
+	gap: 2px;
+}
+
+.settings-tooltip li {
+	list-style: circle;
+	padding: initial;
+	margin-left: 16px;
+	line-gap-override: 0.5rem;
+	padding: 2px 0;
 }

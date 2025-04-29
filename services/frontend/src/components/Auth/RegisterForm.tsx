@@ -63,30 +63,46 @@ export default function RegisterForm({
 			<Input
 				label="Email"
 				type="email"
-				// error="Invalid Email"
 				required
 				field="register-email"
 				help="Your email is used to log in to the game and manage your account."
 				pattern={config.EMAIL_REGEX}
+				name="email"
+				autocomplete="email"
 				/>
 			<Input
 				label="Password"
 				type="password"
 				pattern={config.PASSWORD_REGEX}
 				required
-				// error="Invalid Password"
 				field="register-password"
-				help={`Password must be 8-24 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*()_-+=[]{}|;:'",.<>/?).`}
-				/>
+				help='Your password is used to log in to the game and manage your account.'
+				name="password"
+				tooltip={
+					<div
+						className='settings-tooltip flex flex-col'
+					>
+						Password must follow these rules:
+						<ul>
+							<li>At least 8 characters</li>
+							<li>At most 24 characters</li>
+							<li>At least one uppercase letter</li>
+							<li>At least one lowercase letter</li>
+							<li>At least one number</li>
+							<li>{`At least one special character (!@#$%^&*()_-+=[]{}|;:'",.<>/?)`}</li>
+						</ul>
+					</div>
+				}
+			/>
 			<Input
 				label="Confirm Password"
 				type="password"
 				pattern={config.PASSWORD_REGEX}
 				required
-				// error="Invalid Password"
 				field="register-confirm-password"
 				matching="register-password"
 				help="Confirm password must match the password"
+				name="confirm-password"
 				/>
 		</div>
 		{

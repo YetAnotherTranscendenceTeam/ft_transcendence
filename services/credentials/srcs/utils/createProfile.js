@@ -1,3 +1,5 @@
+"use strict";
+
 import YATT from "yatt-utils";
 import db from "../app/database.js";
 

@@ -98,12 +98,12 @@ it("connect to matchmaking websocket", async () => {
 
 const tournaments = Array.from({ length: 14 }, (_, index) => ({
   player_count: index + 3,
-  gamemode: "custom_1v1",
+  gamemode: "tournament_1v1",
   team_size: 1,
 })).concat(
   Array.from({ length: 28 }, (_, index) => ({
     player_count: index + 5,
-    gamemode: "custom_2v2",
+    gamemode: "tournament_2v2",
     team_size: 2,
   }))
 );

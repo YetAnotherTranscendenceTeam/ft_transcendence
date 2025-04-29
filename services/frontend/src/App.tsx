@@ -13,6 +13,21 @@ import TournamentView from "./views/TournamentView";
 import OnlineView from "./views/OnlineView";
 
 export default function App() {
+
+	const handleReload = (e: BeforeUnloadEvent	) => {
+		const msg = 'Are you sure you want to reload?';
+		e.preventDefault();
+		e.returnValue = msg;
+		return msg;
+	}
+
+	Babact.useEffect(() => {
+		window.addEventListener('beforeunload', handleReload);
+		return () => {
+			window.removeEventListener('beforeunload', handleReload);
+		}
+	}, []);
+
 	return <Router>
 		<UiProvider>
 		<PongProvider>

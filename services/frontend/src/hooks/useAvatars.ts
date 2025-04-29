@@ -1,6 +1,7 @@
 import Babact from "babact";
 import useFetch from "./useFetch";
 import config from "../config";
+import { useAuth } from "../contexts/useAuth";
 
 interface IAvatar {
 	url: string;

@@ -693,6 +693,7 @@ components:
           enum:
             - unranked
             - ranked
+            - custom
             - tournament
     lobby_state:
       type: object

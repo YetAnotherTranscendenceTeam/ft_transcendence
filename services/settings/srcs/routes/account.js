@@ -139,11 +139,11 @@ export default function router(fastify, opts, done) {
     });
 
     // Get follows
-    const follows = await YATT.fetch("http://social:3000/follows", { headers });
-    // Delete follows
-    await Promise.all(follows.map(follow => {
-      YATT.fetch(`http://social:3000/follows/${follow.following}`, { method: "DELETE", headers })
-    }))
+    // const follows = await YATT.fetch("http://social:3000/follows", { headers });
+    // // Delete follows
+    // await Promise.all(follows.map(follow => {
+    //   YATT.fetch(`http://social:3000/follows/${follow.following}`, { method: "DELETE", headers })
+    // }))
 
     reply.clearCookie("refresh_token", { path: "/token" });
     reply.code(204).send();

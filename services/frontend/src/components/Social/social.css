@@ -1,0 +1,118 @@
+/* ============================== */
+/* ============ Card ============ */
+/* ============================== */
+
+.social-manager-user-card {
+	padding: 8px;
+	box-sizing: border-box;
+	font-size: small;
+	border-radius: 4px;
+	transition: 0.4s;
+}
+
+.social-manager-user-card:hover {
+	background-color: var(--bg-4);
+}
+
+
+.social-manager-user-card-header {
+	cursor: pointer;
+}
+
+.social-manager-user-card-header h1 {
+	font-weight: bold;
+}
+
+.social-manager-user-card-header h2 {
+	color: var(--fg-3);
+}
+
+
+.social-manager-user-card .button {
+	font-size: small;
+	display: flex;
+}
+
+
+/* ============================== */
+/* =========== Manager ========== */
+/* ============================== */
+
+.social-manager-tabbar {
+	font-size: small;
+	border-radius: 8px;
+	background-color: var(--bg-2);
+	overflow: hidden;
+}
+
+.social-manager-tabbar .button {
+	font-size: small;
+	border-radius: 0;
+	flex: 1;
+}
+
+.social-manager-tabbar .button.selected {
+	background-color: var(--bg-4);
+}
+
+.social-manager-content {
+	width: 100%;
+	height: 40vh;
+	position: relative;
+}
+
+.social-manager-tab {
+	overflow-y: auto;
+	height: calc(100% - 1rem);
+	overflow-x: hidden;
+	width: 100%;
+	transition: transform 0.3s ease;
+	margin: 1rem 0;
+	box-sizing: border-box;
+	transform: translateX(-100%);
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.social-manager-tab:last-of-type {
+	transform: translateX(100%);
+}
+
+
+.social-manager-tab.open {
+	transform: translateX(0);
+}
+
+/* ============================== */
+/* =========== Search =========== */
+/* ============================== */
+
+.social-manager-add {
+	overflow: hidden;
+}
+
+.social-manager-add-list {
+	overflow: auto;
+}
+
+/* ============================== */
+/* ========== Friends =========== */
+/* ============================== */
+
+.social-manager-empty {
+	background-color: color-mix(in srgb, var(--bg-3), transparent 65%);
+	color: var(--fg-2);
+	padding: 8px;
+}
+
+.social-manager-user-list {
+	padding: 8px;
+	box-sizing: border-box;
+	background-color: color-mix(in srgb, var(--bg-3), transparent 65%);
+}
+
+.social-manager-friend-count {
+	font-size: small;
+	color: var(--fg-3);
+}

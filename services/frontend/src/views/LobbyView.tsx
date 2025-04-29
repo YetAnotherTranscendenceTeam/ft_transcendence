@@ -6,6 +6,7 @@ import './views.css'
 import Overlay from "../templates/Overlay";
 import { usePong } from "../contexts/usePong";
 import { GameScene } from "../components/Babylon/types";
+import { useAuth } from "../contexts/useAuth";
 
 export default function LobbyView() {
 
@@ -15,12 +16,17 @@ export default function LobbyView() {
 
 	const { app } = usePong();
 
+	const { me } = useAuth();
+
 	Babact.useEffect(() => {
-		if (code && lobby === null && !localStorage.getItem('lobby')) {
-			join(code);
-		}
 		app.setGameScene(GameScene.LOBBY);
 	}, [])
+
+	Babact.useEffect(() => {
+		if (code && lobby === null && me) {
+			join(code);
+		}
+	}, [me, lobby])
 
 	Babact.useEffect(() => {
 		if (lobby && lobby.join_secret !== code) {

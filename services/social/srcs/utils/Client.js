@@ -1,8 +1,10 @@
+"use strict";
+
 import YATT from "yatt-utils";
-import db from "../app/database.js";
+import * as dbAction from "../utils/dbAction.js"
 import { inactivity_delay } from "../app/env.js";
 import { inactive, offline, online } from "./activityStatuses.js";
-import { userInfos } from "./userInfos.js";
+import { fetchProfiles, userInfos } from "./userInfos.js";
 import { WsError } from "yatt-ws";
 
 export class Client {
@@ -22,57 +24,62 @@ export class Client {
     this.account_id = account_id;
     this.allClients = clients;
     console.log("NEW CLIENT:", { account_id: this.account_id, sockets: this.sockets.size });
-  }
+  };
 
   addSocket(socket) {
     this.sockets.add(socket);
     this.resetInactivity();
     console.log("CLIENT SOCKET+:", { account_id: this.account_id, sockets: this.sockets.size });
-  }
+  };
 
   deleteSocket(socket) {
     this.sockets.delete(socket);
     console.log("CLIENT SOCKET-:", { account_id: this.account_id, sockets: this.sockets.size });
-  }
+  };
 
   send(payload) {
     const data = JSON.stringify(payload);
     this.sockets.forEach(socket => {
       socket.send(data);
     });
-  }
+  };
 
   async welcome(clients, socket) {
-    const friends = db.prepare("SELECT following FROM follows WHERE account_id = ?").all(this.account_id);
+    // Retreive all friends / pending requests / blocked
+    const friends = dbAction.selectFriendships(this.account_id).map(f => f.account_id);
+    const pending = {
+      sent: dbAction.selectRequestsSent(this.account_id).map(r => r.account_id),
+      received: dbAction.selectRequestsReceived(this.account_id).map(r => r.account_id),
+    };
+    const blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
 
+    // Fetch all related profiles
+    const profiles = await fetchProfiles([...friends, ...pending.sent, ...pending.received, ...blocked]);
+
+    // Send welcome payload
     const payload = {
       event: "welcome",
       data: {
-        follows: await Promise.all(friends.map(async element => {
-          return userInfos(element.following, clients);
-        })),
+        friends: await Promise.all(friends.map(id =>
+          userInfos(id, clients, { profiles, include_status: true })
+        )),
+        pending: {
+          sent: await Promise.all(pending.sent.map(id =>
+            userInfos(id, clients, { profiles })
+          )),
+          received: await Promise.all(pending.received.map(id =>
+            userInfos(id, clients, { profiles })
+          )),
+        },
+        blocked: await Promise.all(blocked.map(id =>
+          userInfos(id, clients, { profiles })
+        )),
         self: this.status(),
       }
     };
     const data = JSON.stringify(payload);
     socket.send(data);
-  }
-
-  async follow(account_id, clients) {
-    const payload = {
-      event: "follow",
-      data: await userInfos(account_id, clients),
-    }
-    this.send(payload);
-  }
-
-  async unfollow(account_id) {
-    const payload = {
-      event: "unfollow",
-      data: { account_id },
-    }
-    this.send(payload);
-  }
+  };
 
   goInactive() {
     this.isInactive = true;
@@ -80,7 +87,7 @@ export class Client {
       clearTimeout(this.inactivityTimeout);
     }
     this.allClients.broadcastStatus(this);
-  }
+  };
 
   resetInactivity() {
     // Cancel previous inactivity timeout
@@ -99,14 +106,14 @@ export class Client {
       return true
     }
     return false
-  }
+  };
 
   goOffline() {
     if (this.inactivityTimeout) {
       clearTimeout(this.inactivityTimeout);
     }
     this.allClients.broadcastStatus(this, offline);
-  }
+  };
 
   setStatus(status) {
     const { type, data } = status;
@@ -119,7 +126,7 @@ export class Client {
     if (!this.resetInactivity()) {
       this.allClients.broadcastStatus(this);
     }
-  }
+  };
 
   status() {
     if (this.isInactive) {
@@ -129,11 +136,90 @@ export class Client {
     } else {
       return online;
     }
-  }
+  };
+
+  /* ------------------------------------------------ *
+   * Friends - Pending requests - Block notifications *
+   * ------------------------------------------------ */
+
+  async newFriendRequestSent(receiver, profile) {
+    const payload = {
+      event: "recv_new_friend_request",
+      data: {
+        ...await userInfos(receiver, this.allClients, { profile }),
+        sender: this.account_id,
+      },
+    };
+    this.send(payload);
+  };
+
+  async newFriendRequestReceived(sender) {
+    const payload = {
+      event: "recv_new_friend_request",
+      data: {
+        ...await userInfos(sender, this.allClients),
+        sender,
+      },
+    };
+    this.send(payload);
+  };
+
+  deleteFriendRequest(sender, receiver) {
+    const payload = {
+      event: "recv_delete_friend_request",
+      data: {
+        account_id: sender !== this.account_id ? sender : receiver,
+        sender
+      },
+    };
+    this.send(payload);
+  };
+
+  async newFriendship(friend_id, friend_profile) {
+    const payload = {
+      event: "recv_new_friend",
+      data: await userInfos(
+        friend_id,
+        this.allClients,
+        { profile: friend_profile, include_status: true }
+      ),
+    }
+    this.send(payload);
+  };
+
+  deleteFriendship(friend_id) {
+    const payload = {
+      event: "recv_delete_friend",
+      data: { account_id: friend_id },
+    };
+    this.send(payload);
+  };
+
+  async newBlock(blocked_id) {
+    const payload = {
+      event: "recv_new_block",
+      data: { ...await userInfos(blocked_id, this.allClients) },
+    };
+    this.send(payload);
+    console.log("BLOCK:", { blocker_id: this.account_id, blocked_id });
+  };
+
+  deleteBlock(blocked_id) {
+    const payload = {
+      event: "recv_delete_block",
+      data: { account_id: blocked_id },
+    };
+    this.send(payload);
+    console.log("UNBLOCK:", { blocker_id: this.account_id, blocked_id });
+  };
+
+  /* ------------------------------------------------ *
+   *                Lobby invitations                 *
+   * ------------------------------------------------ */
 
   async sendLobbyInvite(invite) {
-    if (invite.account_id === this.account_id) {
-      throw new WsError.UserUnavailable({ account_id: this.account_id });
+    if (!dbAction.isFriendship(this.account_id, invite.account_id)) {
+      throw new WsError.UserUnavailable({ account_id: invite.account_id });
     }
 
     const target = this.allClients.get(invite.account_id);
@@ -149,17 +235,17 @@ export class Client {
     }
 
     target.send({
-      event: "receive_lobby_invite", data: {
+      event: "recv_lobby_invite", data: {
         username: this.username,
         gamemode: invite.gamemode,
         join_secret: invite.join_secret
       }
     });
-  }
+  };
 
   async sendLobbyJoinRequest(request) {
-    if (request.account_id === this.account_id) {
-      throw new WsError.UserUnavailable({ account_id: this.account_id });
+    if (!dbAction.isFriendship(this.account_id, request.account_id)) {
+      throw new WsError.UserUnavailable({ account_id: request.account_id });
     }
 
     const target = this.allClients.get(request.account_id);
@@ -175,10 +261,11 @@ export class Client {
     }
 
     target.send({
-      event: "receive_lobby_request", data: {
+      event: "recv_lobby_request", data: {
         account_id: this.account_id,
         username: this.username,
-      }
+      },
     });
-  }
-}
+  };
+
+}; // class Client

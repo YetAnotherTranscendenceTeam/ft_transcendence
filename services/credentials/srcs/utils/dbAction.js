@@ -1,4 +1,4 @@
-"user strict";
+"use strict";
 
 import db from "../app/database.js";
 

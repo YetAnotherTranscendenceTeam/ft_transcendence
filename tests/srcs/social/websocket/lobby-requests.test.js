@@ -1,15 +1,21 @@
 import request from "superwstest";
 import { createUsers, users } from "../../../dummy/dummy-account";
 import { apiURL, socialWS } from "../../../URLs";
+import { SocialDummy } from "../../../dummy/social-dummy";
 
-createUsers(2);
+createUsers(3);
 
 const event = "send_lobby_request";
 
 describe('Lobby invitations', () => {
-  it("follow", async () => {
+  beforeAll(async () => {
     await request(apiURL)
-      .post(`/social/follows/${users[0].account_id}`)
+      .post(`/social/requests/${users[1].account_id}`)
+      .set('Authorization', `Bearer ${users[0].jwt}`)
+      .expect(204);
+
+    await request(apiURL)
+      .post(`/social/requests/${users[0].account_id}`)
       .set('Authorization', `Bearer ${users[1].jwt}`)
       .expect(204);
   });
@@ -20,7 +26,6 @@ describe('Lobby invitations', () => {
         .ws(`/notify?access_token=${users[1].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(1)
         })
         .sendJson({ event: event })
         .expectJson((message) => {
@@ -35,7 +40,6 @@ describe('Lobby invitations', () => {
         .ws(`/notify?access_token=${users[1].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(1)
         })
         .sendJson({ event: event, data: {} })
         .expectJson((message) => {
@@ -50,7 +54,6 @@ describe('Lobby invitations', () => {
         .ws(`/notify?access_token=${users[1].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(1)
         })
         .sendJson({ event: event, data: { account_id: users[1].account_id, extra: "param" } })
         .expectJson((message) => {
@@ -67,7 +70,6 @@ describe('Lobby invitations', () => {
         .ws(`/notify?access_token=${users[1].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(1);
         })
         .sendJson({ event: event, data: { account_id: "string" } })
         .expectJson((message) => {
@@ -84,7 +86,6 @@ describe('Lobby invitations', () => {
         .ws(`/notify?access_token=${users[1].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(1)
         })
         .sendJson({ event: event, data: { account_id: users[0].account_id } })
         .expectJson((message) => {
@@ -99,7 +100,6 @@ describe('Lobby invitations', () => {
         .ws(`/notify?access_token=${users[1].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(1)
         })
         .sendJson({ event: event, data: { account_id: users[1].account_id } })
         .expectJson((message) => {
@@ -116,21 +116,24 @@ describe('Lobby invitations', () => {
         .ws(`/notify?access_token=${users[1].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(1)
         })
 
       setTimeout(() => {
-        ws1.send(JSON.stringify({ event: event, data: { account_id: users[0].account_id } }));
+        ws1.send(JSON.stringify({
+          event: event,
+          data: {
+            account_id: users[0].account_id
+          }
+        }));
       }, 3000);
 
       const ws0 = await request(socialWS)
         .ws(`/notify?access_token=${users[0].jwt}`)
         .expectJson((message) => {
           expect(message.event).toBe("welcome");
-          expect(message.data.follows.length).toEqual(0)
         }).expectJson((message) => {
           expect(message).toEqual({
-            event: "receive_lobby_request",
+            event: "recv_lobby_request",
             data: {
               username: users[1].username,
               account_id: users[1].account_id
@@ -140,7 +143,25 @@ describe('Lobby invitations', () => {
 
       ws0.send(JSON.stringify({ event: "goodbye" }));
       ws1.send(JSON.stringify({ event: "goodbye" }));
+    });
 
+    it("not a friend target", async () => {
+      const dummy = new SocialDummy(users[0]);
+      dummy.connect();
+      dummy.send({
+        event: event,
+        data: {
+          account_id: users[2].account_id
+        }
+      });
+
+      await dummy.expectEvent("error", {
+        code: "USER_UNAVAILABLE",
+        details: { account_id: users[2].account_id },
+        message: "The requested user is currently offline or not accessible"
+      });
+
+      dummy.disconnect();
     });
   });
 });

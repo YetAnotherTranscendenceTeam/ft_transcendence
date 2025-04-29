@@ -23,3 +23,7 @@
 .menu .button.active {
 	color: var(--primary-color);
 }
+
+.menu-pophover {
+	width: max-content
+}

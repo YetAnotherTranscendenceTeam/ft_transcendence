@@ -8,6 +8,7 @@ import { useLobby } from "../contexts/useLobby";
 import Menu from "../components/Menu/Menu";
 import SelectModeOverlay from "../components/Online/SelectModeOverlay";
 import './templates.css'
+import TournamentCard from "../components/Tournament/TournamentCard";
 
 export default function Overlay({
 		modal,
@@ -36,10 +37,10 @@ export default function Overlay({
 				isOpen={selected === 'settings'}
 				onClose={() => setSelected(null)}
 			/>
-			<SelectModeOverlay
+			{me && <SelectModeOverlay
 				isOpen={selected === 'online'}
 				onClose={() => setSelected(null)}
-			/>
+			/>}
 			<div className='template-content'>
 				{children}
 			</div>
@@ -56,6 +57,7 @@ export default function Overlay({
 			</header>
 			<aside className='aside flex' key='aside'>
 				<div className='aside-content flex flex-col gap-4'>
+					<TournamentCard/>
 					{lobby && <LobbyCard/>}
 					{me ? <ProfileCard me={me}/> : <AuthCard/>}
 				</div>
