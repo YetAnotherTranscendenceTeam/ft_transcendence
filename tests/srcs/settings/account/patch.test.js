@@ -442,7 +442,6 @@ describe('Settings Router', () => {
         .set("Authorization", `Bearer ${users_2fa[0].jwt}`)
         .send({ payload_token: patch_2fa.payload_token, otp_method: "app", otp: users_2fa[0].otp() });
 
-      console.error(response.body);
       expect(response.statusCode).toBe(204);
 
       const old_auth = await request(apiURL)

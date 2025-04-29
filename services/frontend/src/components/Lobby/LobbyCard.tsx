@@ -7,19 +7,29 @@ import Avatar from "../../ui/Avatar";
 import { useNavigate } from "babact-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
-
+import CopyButton from "../../ui/CopyButton";
+import Accordion from "../../ui/Accordion";
+import SegmentedControl from "../../ui/SegmentedControl";
+import LobbySettings from "./LobbySettings";
+import { GameModeType } from "yatt-lobbies";
 
 export default function LobbyCard() {
 
-	const { lobby } = useLobby();
+	const { lobby, setOnLeave } = useLobby();
 
 	const navigate = useNavigate();
 
 	const { me } = useAuth();
 
 	const onLeave = () => {
-		lobby.leave();
+		setOnLeave(() => (() => {}));
 	}
+
+	if (!me)
+		return;
+
+	const copyText = `**Join me in _YetAnotherPong_!** 🎮  \nClick the link to enter the game lobby: [Join the game](${window.location.origin}/lobby/${lobby.join_secret}?username=${me.username}&avatar=${me.avatar}&gamemode=${lobby.mode.type}%20${lobby.mode.getDisplayName()})`
+	
 
 	if (lobby)
 	return <Card className='lobby-card left gap-4'>
@@ -65,6 +75,10 @@ export default function LobbyCard() {
 			
 			})}
 		</div>
+		{
+			(lobby.mode.type === GameModeType.TOURNAMENT || lobby.mode.type === GameModeType.CUSTOM) && me && lobby.leader_account_id === me.account_id &&
+			<LobbySettings lobby={lobby} />
+		}
 		<div className='lobby-card-footer flex gap-2'>
 			{ me && lobby.leader_account_id === me.account_id &&
 				((lobby.state.type === 'queued' &&
@@ -86,8 +100,15 @@ export default function LobbyCard() {
 					</Button>
 				))
 			}
+			{lobby.getCapacity() > 1 && <CopyButton
+				className="info"
+				clipboardText={copyText}
+			>
+				<i className="fa-solid fa-link"></i>
+				Link
+			</CopyButton>}
 			<Button className="danger" onClick={onLeave}>
-				<i className="fa-solid fa-sign-out"></i>
+				<i className="fa-solid fa-person-walking-arrow-right"></i>
 				Leave
 			</Button>
 		</div>

@@ -48,7 +48,7 @@
 		overflow: hidden;
 	}
 	100% {
-		overflow: auto;
+		overflow: visible;
 	}
 }
 
@@ -105,4 +105,33 @@
 
 .mfa-confirm .pin-input {
 	width: fit-content;
+}
+
+/* Lobby invite modal */
+
+.lobby-invite-modal {
+	max-width: 368px;
+	height: 50vh;
+}
+
+.lobby-invite-modal h1 {
+	text-align: center;
+	font-size: x-large;
+	font-weight: 700;
+}
+
+.lobby-invite-modal p {
+	text-align: center;
+	font-size: medium;
+	line-height: 125%;
+}
+
+.lobby-invite-modal-content {
+	margin: auto;
+	width: 90%;
+	justify-self: center;
+}
+
+.lobby-invite-modal .button {
+	flex: 1;
 }

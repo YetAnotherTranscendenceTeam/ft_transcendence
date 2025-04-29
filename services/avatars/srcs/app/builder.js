@@ -8,6 +8,7 @@ import formbody from "@fastify/formbody";
 import router from "./router.js";
 import { HttpError } from "yatt-utils";
 import { AUTHENTICATION_SECRET, CDN_SECRET } from "./env.js";
+import db from "./database.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);

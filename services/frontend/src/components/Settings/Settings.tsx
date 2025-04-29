@@ -12,7 +12,7 @@ export default function Settings({
 	}: {
 		me: any,
 		isOpen?: boolean,
-		onClose: Function
+		onClose: () => void,
 	}) {
 
 	useEscape(isOpen, onClose);
@@ -24,7 +24,7 @@ export default function Settings({
 				<i className="fa-solid fa-times"></i>
 			</Button>
 		</div>
-		<div className='settings-content flex scrollbar flex-col gap-8 w-full'>
+		<div className='settings-content flex flex-col gap-8 w-full'>
 			{me && <ProfileForm me={me} />}
 			{me && <AccountForm onLogout={onClose} me={me} />}
 		</div>

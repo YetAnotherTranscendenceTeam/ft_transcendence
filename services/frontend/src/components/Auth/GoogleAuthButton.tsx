@@ -4,7 +4,11 @@ import config from "../../config";
 import { useAuth } from "../../contexts/useAuth";
 import TwoFAConfirmationModal from "./TwoFAConfirmationModal";
 
-export default function GoogleAuthButton() {
+export default function GoogleAuthButton({
+		width = '336',
+	}: {
+		width?: string,
+	}) {
 
 	const { ft_fetch } = useFetch();
 	const { auth, confirm2FA } = useAuth();
@@ -49,7 +53,7 @@ export default function GoogleAuthButton() {
 			data-shape="rectangular"
 			data-logo_alignment="left"
 			data-locale="en"
-			data-width="336"
+			data-width={width}
 			>
 		</div>
 		<TwoFAConfirmationModal

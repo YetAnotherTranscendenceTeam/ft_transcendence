@@ -1,6 +1,6 @@
 "use strict";
 
-import { HttpError } from "yatt-utils";
+import YATT, { HttpError } from "yatt-utils";
 import { generateTokens } from "../utils/generate.js";
 import db from "../app/database.js";
 
@@ -23,7 +23,7 @@ export default function router(fastify, opts, done) {
       const decode = fastify.jwt.refresh.verify(token);
       account_id = decode.account_id;
     } catch (err) {
-      console.error(err)
+      console.error("DEBUG refresh token refused:", token, "\n", err);
       reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
@@ -32,20 +32,21 @@ export default function router(fastify, opts, done) {
       .prepare("DELETE FROM refresh_tokens WHERE account_id = ? AND token = ?")
       .run(account_id, token);
     if (deletion.changes === 0) {
+      console.error("DEBUG refresh_token not found in database!\nDATABASE:", db.prepare("SELECT * FROM refresh_tokens WHERE account_id = ?").all(account_id));
       reply.clearCookie("refresh_token", { path: "/token" });
       return new HttpError.Forbidden().send(reply);
     }
 
     const tokens = generateTokens(fastify, account_id);
+
     // Set new refresh_token cookie
-    reply.setCookie("refresh_token", tokens.refresh_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/token",
-    });
+    YATT.setRefreshTokenCookie(reply, tokens);
+
     // Send fresh access_token
-    reply.send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
+    reply.send({
+      access_token: tokens.access_token,
+      expire_at: tokens.expire_at
+    });
     console.log("REFRESH:", { account_id });
   });
 

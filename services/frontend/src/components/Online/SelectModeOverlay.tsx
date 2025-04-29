@@ -8,11 +8,17 @@ import Submit from "../../ui/Submit";
 import useEscape from "../../hooks/useEscape";
 import Button from "../../ui/Button";
 import useGamemodes from "../../hooks/useGamemodes";
-import { GameMode } from "yatt-lobbies";
+import { GameMode, GameModeType } from "yatt-lobbies";
+import SegmentedControl from "../../ui/SegmentedControl";
+import Separator from "../../ui/Separator";
 
 export default function SelectModeOverlay({
 		isOpen,
 		onClose,
+	}: {
+		isOpen: boolean,
+		onClose: () => void,
+		[key: string]: any
 	}) {
 
 	const {create, join, lobby } = useLobby();
@@ -33,39 +39,41 @@ export default function SelectModeOverlay({
 	
 	if (!gamemodes) return <div>Loading...</div>;
 
+	const [mode, setMode] = Babact.useState<string>('1v1');
+
+	const ranked = gamemodes?.find(g => g.name === ("ranked_" + mode));
+	const unranked = gamemodes?.find(g => g.name === ("unranked_" + mode));
+	const custom = gamemodes?.find(g => g.name === ("custom_1v1"));
+	const tournament = gamemodes?.find(g => g.name === ("tournament_1v1"));
+
 	return <div
 		className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}
 		onClick={(e) => e.target === e.currentTarget && onClose()}
 	>
 		<Button onClick={onClose} className='close icon ghost'><i className="fa-solid fa-xmark"></i></Button>
-		<div className='online-select-overlay-content flex flex-col'>
-			<div className='mode-buttons flex flex-col'>
+		<div className='mode-buttons flex flex-col gap-4'>
+			<div className='flex flex-col gap-4 items-center'>
+				<SegmentedControl
+					buttons={[
+						{ label: '1v1', value: '1v1' },
+						{ label: '2v2', value: '2v2' },
+					]}
+					onChange={(v) => {
+						setMode(v);
+					}}
+					value={mode}
+					className="w-fit"
+				/>
 				<div className='flex flex-row gap-4'>
-					{
-						gamemodes.filter((mode) => mode.team_size === 1).map((mode, i) => (
-							<ModeButton gamemode={mode} onSelect={onSelect} />))
-					}
-				</div>
-				<div className='flex flex-row gap-4'>
-					{
-						gamemodes.filter((mode) => mode.team_size === 2).map((mode, i) => (
-							<ModeButton gamemode={mode} onSelect={onSelect} />))
-					}
+					{ranked && <ModeButton gamemode={ranked} onSelect={onSelect} />}
+					{unranked && <ModeButton gamemode={unranked} onSelect={onSelect} />}
 				</div>
 			</div>
+			<Separator className='w-full' />
+			<div className='flex flex-row gap-4'>
+				{custom && <ModeButton gamemode={custom} onSelect={onSelect} />}
+				{tournament && <ModeButton gamemode={tournament} onSelect={onSelect} />}
+			</div>
 		</div>
-		<Form className="online-join-form flex flex-row" formFields={['lobby-code*']}>
-			<Input placeholder='Enter a code to join a lobby' field="lobby-code"/>
-			<Submit
-				fields={['lobby-code']}
-				onSubmit={(fields, clearFields) => {
-					join(fields['lobby-code'].value as string);
-					clearFields();
-					onClose();
-				}}
-			>
-				<i className="fa-solid fa-arrow-right-to-bracket"></i> Join
-			</Submit>
-		</Form>
 	</div>
 }

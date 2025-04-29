@@ -73,7 +73,10 @@ export default function LoginForm({
 					field="login-email"
 					pattern={config.EMAIL_REGEX}
 					type="email"
-					/>
+					name="email"
+					autocomplete="email"
+
+				/>
 				<Input
 					label="Password"
 					type="password"
@@ -81,7 +84,8 @@ export default function LoginForm({
 					required
 					error="Invalid Password"
 					field="login-password"
-					/>
+					name="password"
+				/>
 			</div>
 
 			{ isOpen &&

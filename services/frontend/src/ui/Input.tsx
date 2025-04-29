@@ -49,7 +49,9 @@ export default function Input({
 	return <div className='input-container'>
 		{label &&
 			<div className='flex gap-2'>
-				<label>
+				<label
+					htmlFor={field}
+				>
 					{label}
 					{props.required && <span>*</span>}
 				</label>
@@ -61,6 +63,7 @@ export default function Input({
 			</div>
 		}
 		<input
+			id={field}
 			type={type}
 			value={fields[field].value}
 			onInput={handleChange}

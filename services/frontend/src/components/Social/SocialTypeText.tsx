@@ -1,7 +1,7 @@
 import Babact from "babact";
 import { StatusType } from "../../hooks/useSocials";
 
-export default function FollowTypeText({type} : { type: StatusType}) {
+export default function SocialTypeText({type} : { type: StatusType}) {
 
 	if (type === StatusType.INLOBBY)
 		return <h2>in a lobby</h2>;

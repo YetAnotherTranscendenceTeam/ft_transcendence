@@ -21,16 +21,19 @@ export default function Menu({
 
 	const disabledMessage = () => {
 		if (!me)
-			return 'You must be logged in';
+			return <div className='menu-pophover'>You must be logged in</div>;
 		if (lobby && lobby.leader_account_id !== me.account_id)
-			return 'You must be leader of the lobby';
+			return <div className='menu-pophover'>You must be leader of the lobby</div>;
 		if (lobby && !lobby.state?.joinable)
-			return `Cannot change mode while lobby is ${lobby.state.type}`;
+			return <div className='menu-pophover'>Cannot change mode while lobby is ${lobby.state.type}</div>;
 		return '';
 	}
 
 	return <Card className={`menu bottom flex items-center justify-center gap-2`}>
 
+			<Link to='/' className={`button ghost ${window.location.pathname === '/' && !selected ? 'active' : ''}`}>
+				<i className="fa-solid fa-house"></i><p>Home</p>
+			</Link>
 			<Button
 				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}
@@ -47,7 +50,7 @@ export default function Menu({
 				</PopHover>
 			</Button>
 
-			<Link to='/local' className='button ghost'>
+			<Link to='/local' className={`button ghost ${window.location.pathname.startsWith('/local') && !selected ? 'active' : ''}`}>
 				<i className="fa-solid fa-network-wired"></i><p>Local</p>
 			</Link>
 		</Card>

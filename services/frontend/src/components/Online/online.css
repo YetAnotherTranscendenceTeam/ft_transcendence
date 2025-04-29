@@ -43,12 +43,10 @@
 }
 
 .mode-buttons {
-	width: 100%;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
-	gap: 16px;
 }
 
 .mode-button {
@@ -61,22 +59,8 @@
 	transition: border 0.3s, transform 0.3s;
 	cursor: pointer;
 	background-color: color-mix(in srgb, var(--bg-1), transparent 20%);
+	overflow: hidden;
 }
-
-/* .mode-button.ranked {
-	background: rgb(22,136,255);
-	background: linear-gradient(326deg, rgba(22,136,255,1) 20%, rgba(22,230,255,1) 80%);
-}
-
-.mode-button.unranked {
-	background: rgb(245,22,255);
-	background: linear-gradient(326deg, rgba(245,22,255,1) 20%, rgba(178,22,255,1) 80%);
-}
-
-.mode-button.tournament {
-	background: rgb(22,255,127);
-	background: linear-gradient(326deg, rgba(22,255,127,1) 20%, rgba(171,255,22,1) 80%);
-} */
 
 .mode-button.disabled {
 	pointer-events: none;
@@ -90,18 +74,45 @@
 
 
 .mode-button h1 {
-	font-size: 75px;
+	font-size: xx-large;
 	color: var(--fg-1);
 	font-weight: 900;
+	text-transform: uppercase;
+	display: flex;
+	align-items: center;
+	gap: 4px
+}
+
+.mode-button h1 i {
+	font-size: x-large;
+}
+
+.mode-button.custom h1 i {
+	color: #6fff72;
+}
+
+.mode-button.ranked h1 i {
+	color: rgb(75, 162, 255);
+}
+
+.mode-button.unranked h1 i {
+	color: rgb(247, 94, 255);
+}
+
+.mode-button.tournament h1 i {
+	color: #ffb24e;
+}
+
+.mode-button h2 {
+	font-size: x-large;
+	color: var(--fg-1);
+	text-transform: capitalize;
 }
 
 .mode-button p {
+	width: 100%;
+	color: var(--fg-3);
 	font-size: medium;
-	color: var(--bg-4);
-	position: absolute;
-	bottom: 16px;
-	left: 16px;
-	text-transform: capitalize;
 }
 
 .online-join-form {
@@ -111,4 +122,13 @@
 	transform: translateX(-50%);
 	padding: 8px;
 	font-size: medium;
+}
+
+.mode-buttons .segmented-control {
+	font-size: x-large;
+	font-weight: 900;
+}
+
+.mode-buttons .segmented-control-button {
+	padding: 0 16px;
 }

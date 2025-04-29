@@ -1,3 +1,5 @@
+"use strict";
+
 import { properties } from "yatt-utils";
 import { EventManager } from "yatt-ws";
 
@@ -15,7 +17,7 @@ events.register("ping", {
   },
 });
 
-events.register("update_status", {
+events.register("send_status", {
   schema: {
     type: "object",
     properties: {

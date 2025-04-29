@@ -42,13 +42,11 @@
 }
 
 .button.primary:hover {
-	background-color: var(--primary-color);
-	filter: saturate(2);
+	background-color: var(--primary-color-active);
 }
 
 .button.primary.disabled, .button.primary.disabled:hover{
 	background-color: var(--primary-color-40);
-	filter: saturate(1);
 }
 
 .button.ghost {
@@ -71,13 +69,11 @@
 }
 
 .button.danger:hover {
-	background-color: var(--danger-color);
-	filter: saturate(2);
+	background-color: var(--danger-color-active);
 }
 
 .button.danger.disabled, .button.danger.disabled:hover{
 	background-color: var(--danger-color-40);
-	filter: saturate(1);
 }
 
 .button.success {
@@ -86,13 +82,11 @@
 }
 
 .button.success:hover {
-	background-color: var(--success-color);
-	background-color: rgb(0, 194, 0);
+	background-color: var(--success-color-active);
 }
 
 .button.success.disabled, .button.success.disabled:hover{
 	background-color: var(--success-color-40);
-	filter: saturate(1);
 }
 
 .button.info {
@@ -101,13 +95,11 @@
 }
 
 .button.info:hover {
-	background-color: var(--info-color);
-	filter: saturate(2);
+	background-color: var(--info-color-active);
 }
 
 .button.info.disabled, .button.info.disabled:hover{
 	background-color: var(--info-color-40);
-	filter: saturate(1);
 }
 
 /* ================================== */
@@ -506,9 +498,19 @@
 	gap: 4px;
 }
 
-.image-selector label {
+.image-selector label, .camera-label {
 	font-weight: 500;
 	font-size: medium;
+}
+
+.image-selector-help {
+	width: 100px;
+}
+
+.image-selector label.disabled, .camera-label.disabled {
+	color: var(--fg-4);
+	opacity: 0.7;
+	cursor: not-allowed;
 }
 
 .image-selector label span {
@@ -522,8 +524,6 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
 	grid-gap: 8px;
-	max-height: 30vh;
-	overflow-y: auto;
 	padding: 2px;
 	box-sizing: border-box;
 }
@@ -805,4 +805,174 @@
 
 .pin-input input:focus {
 	border: 1px solid var(--fg-3);
+}
+
+
+/* ================================== */
+/* =========== Accordion ============ */
+/* ================================== */
+
+.accordion {
+	border-radius: 4px;
+	min-height: fit-content;
+}
+
+.accordion-header {
+	padding: 8px;
+	box-sizing: border-box;
+	background-color: var(--bg-2);
+	/* transition: 0.4s; */
+	cursor: pointer;
+	height: 32px;
+	border-top-left-radius: 8px;
+	border-top-right-radius: 8px;
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+	color: var(--fg-3);
+}
+
+.accordion-header.open {
+	color: var(--fg-1);
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.accordion-header:hover {
+	background-color: var(--bg-3);
+}
+
+.accordion-header.open {
+	background-color: var(--bg-2);
+}
+
+.accordion-header.open:hover {
+	background-color: var(--bg-3);
+}
+
+.accordion-header .accordion-icon {
+	transition: transform 0.3s ease-in-out;
+}
+
+.accordion-header.open .accordion-icon {
+	transform: rotate(90deg);
+}
+
+.accordion-content {
+	min-height: 0;
+	max-height: 0;
+	overflow: hidden;
+}
+
+.accordion-content > * {
+	border-bottom-right-radius: 8px;
+	border-bottom-left-radius: 8px;
+}
+
+.accordion-content.open {
+	max-height: fit-content;
+	min-height: fit-content;
+	overflow: visible;
+}
+
+/* ================================== */
+/* ======== Segmented control ======= */
+/* ================================== */
+
+.segmented-control {
+	display: flex;
+	position: relative;
+	color: var(--fg-3);
+	padding: 8px 0;
+	font-size: medium;
+	background-color: var(--bg-3);
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.segmented-control::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: var(--segment-translate);
+	width: var(--width);
+	height: 100%;
+	background-color: var(--bg-1);
+	box-shadow: 0px 0px 16px 2px rgba(0, 0, 0, 0.452);
+	border-radius: 4px;
+	z-index: 0;
+	transition: left 0.3s ease-in-out;
+}
+
+.segmented-control-button {
+	flex: 1;
+	z-index: 1;
+	padding: 0 8px;
+	position: relative;
+	transition: 0.3s;
+	display: flex;
+	gap: 8px;
+}
+
+.segmented-control-button.disabled {
+	color: var(--fg-4);
+	cursor: not-allowed;
+}
+
+.segmented-control-button:not(:last-child)::after {
+	position: absolute;
+	top: 0%;
+	height: 100%;
+	width: 2px;
+	content: "";
+	right: -1px;
+	background-color: var(--fg-3);
+}
+
+.segmented-control-button.selected {
+	color: var(--fg-1);
+}
+
+/* ================================== */
+/* ============== Label ============= */
+/* ================================== */
+
+.label {
+	font-size: small;
+	color: var(--fg-2);
+	font-weight: 500;
+	background-color: var(--danger-color);
+	padding: 0 8px;
+	box-sizing: border-box;
+	height: 16px;
+	border-radius: 8px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+/* ================================== */
+/* ============= Dropdown =========== */
+/* ================================== */
+
+.dropdown {
+	position: relative;
+}
+
+
+.dropdown-content {
+	position: absolute;
+	top: 50%;
+	left: 0;
+	transform: translate(-100%, -50%);
+	background-color: var(--bg-1);
+	color: var(--fg-1);
+	border-radius: 4px;
+	padding: 8px;
+	box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.2);
+	z-index: 9999;
+	display: none;
+}
+
+.dropdown-content.open {
+	display: block;
 }
