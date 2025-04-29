@@ -44,13 +44,8 @@ export default function routes(fastify, opts, done) {
           throw err2;
         }
       }
-      // Redirect back to frontend
-      reply.setCookie("refresh_token", tokens.refresh_token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "strict",
-        path: "/token",
-      });
+      YATT.setRefreshTokenCookie(reply, tokens);
+      // Redirect back to frontend with access_token as query
       reply.redirect(`${FRONTEND_URL}/fortytwo?statusCode=200&token=${tokens.access_token}&expire_at=${tokens.expire_at}`);
     } catch (err) {
       if (err instanceof HttpError) {

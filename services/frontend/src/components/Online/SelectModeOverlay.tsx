@@ -15,6 +15,10 @@ import Separator from "../../ui/Separator";
 export default function SelectModeOverlay({
 		isOpen,
 		onClose,
+	}: {
+		isOpen: boolean,
+		onClose: () => void,
+		[key: string]: any
 	}) {
 
 	const {create, join, lobby } = useLobby();
@@ -37,6 +41,11 @@ export default function SelectModeOverlay({
 
 	const [mode, setMode] = Babact.useState<string>('1v1');
 
+	const ranked = gamemodes?.find(g => g.name === ("ranked_" + mode));
+	const unranked = gamemodes?.find(g => g.name === ("unranked_" + mode));
+	const custom = gamemodes?.find(g => g.name === ("custom_1v1"));
+	const tournament = gamemodes?.find(g => g.name === ("tournament_1v1"));
+
 	return <div
 		className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}
 		onClick={(e) => e.target === e.currentTarget && onClose()}
@@ -56,32 +65,15 @@ export default function SelectModeOverlay({
 					className="w-fit"
 				/>
 				<div className='flex flex-row gap-4'>
-					<ModeButton gamemode={gamemodes.find(g => g.name === ("ranked_" + mode))} onSelect={onSelect} />
-					<ModeButton gamemode={gamemodes.find(g => g.name === ("unranked_" + mode))} onSelect={onSelect} />
+					{ranked && <ModeButton gamemode={ranked} onSelect={onSelect} />}
+					{unranked && <ModeButton gamemode={unranked} onSelect={onSelect} />}
 				</div>
 			</div>
 			<Separator className='w-full' />
 			<div className='flex flex-row gap-4'>
-				<ModeButton gamemode={gamemodes.find(g => g.name === "custom_1v1")} onSelect={onSelect} />
-				<ModeButton gamemode={gamemodes.find(g => g.name === "tournament_1v1")} onSelect={onSelect} />
+				{custom && <ModeButton gamemode={custom} onSelect={onSelect} />}
+				{tournament && <ModeButton gamemode={tournament} onSelect={onSelect} />}
 			</div>
 		</div>
-		<Form className="online-join-form flex flex-row" formFields={['lobby-code*']}>
-			<Input
-				placeholder='Enter a code to join a lobby'
-				field="lobby-code"
-				name="lobby-code"
-			/>
-			<Submit
-				fields={['lobby-code']}
-				onSubmit={(fields, clearFields) => {
-					join(fields['lobby-code'].value as string);
-					clearFields();
-					onClose();
-				}}
-			>
-				<i className="fa-solid fa-arrow-right-to-bracket"></i> Join
-			</Submit>
-		</Form>
 	</div>
 }

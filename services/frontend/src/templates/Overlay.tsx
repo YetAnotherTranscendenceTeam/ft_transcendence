@@ -37,10 +37,10 @@ export default function Overlay({
 				isOpen={selected === 'settings'}
 				onClose={() => setSelected(null)}
 			/>
-			<SelectModeOverlay
+			{me && <SelectModeOverlay
 				isOpen={selected === 'online'}
 				onClose={() => setSelected(null)}
-			/>
+			/>}
 			<div className='template-content'>
 				{children}
 			</div>
