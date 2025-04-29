@@ -1,7 +1,7 @@
 import { createLobby, joinLobby } from "../../dummy/lobbies-player";
 import { createUsers, users } from "../../dummy/dummy-account";
 import { matchmaking_tests } from "./matches-tests";
-import { MATCHMAKING_SECRET } from "./env";
+import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import request from "superwstest";
 
@@ -10,6 +10,7 @@ import jwt from "@fastify/jwt";
 
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
+app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
 
 beforeAll(async () => {
   await app.ready();
@@ -126,10 +127,10 @@ describe.each(matchmaking_tests)(
       for (let match of matches.values()) {
         promises.push(request(matchmakingURL)
           .patch(`/matches/${match.match.match_id}`)
-          .set("Authorization", `Bearer ${app.jwt.sign({})}`)
+          .set("Authorization", `Bearer ${app.jwt.match_management.sign({})}`)
           .send({ state: 2 })
           .then((response) => {
-            expect(response.status).toBe(201);
+            expect(response.status).toBe(200);
         }));
       }
       await Promise.all(promises);

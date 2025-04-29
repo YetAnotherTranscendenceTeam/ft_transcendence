@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { MATCHMAKING_SECRET } from "./env";
+import { MATCHMAKING_SECRET, MATCH_MANAGEMENT_SECRET } from "./env";
 import { matchmaking_tests } from "./matches-tests";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { createUsers, users } from "../../dummy/dummy-account";
@@ -10,6 +10,7 @@ import { finishMatch } from "./finishmatch";
 
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
+app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
 
 beforeAll(async () => {
   await app.ready();
@@ -57,7 +58,6 @@ describe("already in a match and queue for another", () => {
       })
       .expectJson((message) => {
         expect(message.event).toBe("match");
-        console.log(message.data.match)
         expect(message.data.match.match.players.length).toBe(2);
         match_id = message.data.match.match.match_id;
       });

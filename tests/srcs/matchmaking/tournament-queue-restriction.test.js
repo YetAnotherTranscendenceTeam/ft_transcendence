@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { MATCHMAKING_SECRET } from "./env";
+import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { createUsers, users } from "../../dummy/dummy-account";
 import { finishMatch } from "./finishmatch";
@@ -11,6 +11,7 @@ import jwt from "@fastify/jwt";
 
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
+app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
 
 beforeAll(async () => {
   await app.ready();
@@ -92,7 +93,6 @@ describe("already in a tournament and queue for another", () => {
 	  .get(`/matchmaking/tournaments/${tournament.id}`)
 	  .set("Authorization", `Bearer ${users[0].jwt}`);
 	tournament = res.body;
-	console.log(tournament.matches)
 	await finishMatch(app, tournament.matches[0].match_id, 1);
   });
 });

@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { MATCHMAKING_SECRET } from "./env";
+import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET } from "./env";
 import { matchmaking_tests } from "./matches-tests";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { createUsers, users } from "../../dummy/dummy-account";
@@ -9,6 +9,7 @@ import jwt from "@fastify/jwt";
 
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
+app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
 
 beforeAll(async () => {
   await app.ready();
@@ -58,9 +59,6 @@ describe("direct match making", () => {
             data: { lobby },
           })
           .expectJson((message) => {
-            if (message.event != "confirm_queue") {
-              console.log("not confirm_queue", message);
-            }
             expect(message.event).toBe("confirm_queue");
             player_count += lobby.players.length;
             expect(message.data.queue_stats.players).toBe(player_count);
@@ -86,9 +84,9 @@ describe("direct match making", () => {
         });
         const res = await request(matchmakingURL)
         .patch(`/matches/${messagedata.match.match.match_id}`)
-        .set("Authorization", `Bearer ${app.jwt.sign({})}`)
+        .set("Authorization", `Bearer ${app.jwt.match_management.sign({})}`)
         .send({ state: 2 });
-        expect(res.statusCode).toBe(201);
+        expect(res.statusCode).toBe(200);
       }
     }
   );
