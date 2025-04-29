@@ -6,7 +6,7 @@ export default function Timer({
 		...props
 	}: {
 		timer: number,
-		onTimeout: () => void,
+		onTimeout?: () => void,
 		[key: string]: any
 	}) {
 
@@ -21,7 +21,7 @@ export default function Timer({
 	}, []);
 
 	Babact.useEffect(() => {
-		if (time < 0) {
+		if (time <= 0 && onTimeout) {
 			onTimeout();
 		}
 	}, [time]);

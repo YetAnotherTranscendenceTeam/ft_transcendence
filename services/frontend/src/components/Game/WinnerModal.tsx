@@ -41,7 +41,7 @@ export default function WinnerModal({
 					onPlayAgain();
 				}}
 			/>
-			:<Button
+			: <Button
 				className="primary"
 				onClick={() => {
 					setPlayAgainTimeout(true);

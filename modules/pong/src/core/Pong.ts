@@ -11,7 +11,7 @@ import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState, PlayerMoveme
 import * as maps from "../maps/index.js";
 
 export type IPongPlayer = IPlayer & {
-	paddleId: number;
+	paddleId: PaddleID;
 	movement: PlayerMovement;
 }
 

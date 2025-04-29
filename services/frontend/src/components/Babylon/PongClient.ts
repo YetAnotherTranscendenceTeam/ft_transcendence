@@ -125,7 +125,6 @@ export default class PongClient extends PONG.Pong {
 		
 		this._websocket.onmessage = (ev) => { // step, state, sync
 			const msg = JSON.parse(ev.data);
-			console.log(msg);
 			if (msg.event === "step") {
 				// this.counter = msg.data.counter;
 				if (this._state.isFrozen()) 
@@ -133,17 +132,25 @@ export default class PongClient extends PONG.Pong {
 				this._serverSteps.push(msg.data as IServerStep);
 			}
 			else if (msg.event === "sync") {
+				console.log("sync", msg.data);
 				this._tick = msg.data.tick;
 				this.setGameScene(GameScene.ONLINE);
 				this.onlineScene(msg.data.match.match_id as number, 
 					new GameMode(msg.data.match.gamemode as IGameMode),
 					msg.data.match.players as IPlayer[],
-					PONG.PongState[msg.data.match.state.name].clone() as PONG.PongState,
+					PONG.PongState[msg.data.match.state.name].clone(),
 				);
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
+				this.callbacks.scoreUpdateCallback({ score: msg.data.match.score, side: msg.data.match.state.side });
 			}
 			else if (msg.event === "state") {
 				const state = PONG.PongState[msg.data.state.name].clone();
+				if (state.name === "FREEZE" || state.name === "ENDED") {
+					this.callbacks.scoreUpdateCallback({ score: msg.data.state.score, side: msg.data.state.side });
+				}
+				if (state.name === "ENDED") {
+					this.callbacks.endGameCallback();
+				}
 				if (this._state.endCallback)
 					this._state.endCallback(this, state);
 				this._state = state;
@@ -275,7 +282,7 @@ export default class PongClient extends PONG.Pong {
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
 		
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.FromInts(0, 255, 255)); // debug
 		
 		this.loadBalls();
 		this.bindPaddles();
@@ -417,8 +424,6 @@ export default class PongClient extends PONG.Pong {
 
 	private paddleSync(paddles: PaddleSyncs) {
 		for (let paddlesync of Object.values(paddles)) {
-			console.log("paddle sync", paddlesync);
-			console.log("thispaddles", this._paddleInstance);
 			const paddle = this._paddleInstance.get(paddlesync.id);
 			paddle.sync(paddlesync);
 		}
@@ -502,5 +507,9 @@ export default class PongClient extends PONG.Pong {
 		window.removeEventListener("resize", this.resize);
 		this._websocket.close();
 		this._websocket = undefined as unknown as WebSocket;
+	}
+
+	get player() {
+		return this._player;
 	}
 }

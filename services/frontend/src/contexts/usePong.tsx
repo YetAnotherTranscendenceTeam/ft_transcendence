@@ -2,6 +2,7 @@ import Babact from "babact";
 import PongClient from "../components/Babylon/PongClient";
 import Babylon from "../components/Babylon/Babylon";
 import { ScoredEvent } from "../components/Babylon/types";
+import { PaddleID } from "pong";
 
 const PongContext = Babact.createContext<{
 		app: PongClient,
@@ -13,6 +14,7 @@ const PongContext = Babact.createContext<{
 		setGameStatus: (status: GameStatus) => void,
 		resetGame: () => void,
 		gameTime: number,
+		playerSide: "left" | "right",
 	}>();
 
 export enum GameStatus {
@@ -85,6 +87,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 		appRef.current?.startGame();
 	}
 
+	const playerSide = appRef.current?.player?.paddleId < 2 ? "left" : "right";
 	return (
 		<PongContext.Provider
 			value={{
@@ -97,6 +100,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 				setGameStatus,
 				resetGame,
 				gameTime,
+				playerSide,
 			}}
 		>
 			<Babylon key="babylon" app={appRef.current}/>

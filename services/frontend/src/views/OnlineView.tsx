@@ -8,22 +8,21 @@ import NextRoundModal from "../components/Game/NextRoundModal";
 import useEscape from "../hooks/useEscape";
 import GamePausedModal from "../components/Game/GamePausedModal";
 import WinnerModal from "../components/Game/WinnerModal";
-import { useParams } from "babact-router-dom";
+import { useNavigate, useParams } from "babact-router-dom";
+import OnlineStartModal from "../components/Game/OnlineStartModal";
 
 export default function OnlineView() {
 
-	const { app, scores, setPaused, gameStatus, gameTime, setGameStatus, startGame, resetGame } = usePong();
+	const { app, scores, setPaused, gameStatus, gameTime, setGameStatus, startGame, resetGame, playerSide } = usePong();
 	const [hidden, setHidden] = Babact.useState<boolean>(false);
 	const { id } = useParams();
+	const navigate = useNavigate();
 
 	Babact.useEffect(() => {
 		app.connect(id);
 		resetGame();
 	}, []);
 
-	const handleStart = () => {
-		startGame();
-	}
 
 	Babact.useEffect(() => {
 		if ((scores[0] > 0 || scores[1] > 0) && gameStatus !== GameStatus.ENDED) {
@@ -32,51 +31,40 @@ export default function OnlineView() {
 		}
 	}, [scores]);
 
-	const handlePause = () => {
-		setPaused(true);
-		setHidden(false);
-	}
-
-	const handleResume = () => {
-		setPaused(false);
-	}
-
-	useEscape(gameStatus === GameStatus.PLAYING, () => handlePause())
-
 	const getModal = () => {
+		if (gameStatus === GameStatus.WAITING || (
+			gameStatus === GameStatus.FREEZE && (scores[0] === 0 && scores[1] === 0)
+		)) {
+			console.log("gameStatus", {gameStatus});
+			return <OnlineStartModal playerSide={playerSide} frozen={gameStatus === GameStatus.WAITING} onTimeout={() => {
+				setGameStatus(GameStatus.PLAYING);
+			}}/>
+		}
 		if (gameStatus === GameStatus.FREEZE)
 			return <NextRoundModal
-				onNextRound={() => {
-					setGameStatus(GameStatus.PLAYING);
-					app.nextRound();
-				}}
-			/>
-		if (gameStatus === GameStatus.WAITING)
-			return <LocalStartModal
-				onClick={() => setHidden(true)}
-				onStart={() => handleStart()}
-			/>
-		if (gameStatus === GameStatus.PAUSED)
-			return <GamePausedModal
-				onClick={() => setHidden(true)}
-				onResume={() => handleResume()}
-			/>
+			onNextRound={() => {
+				setGameStatus(GameStatus.PLAYING);
+			}}
+		/>
 		if (gameStatus === GameStatus.ENDED)
 			return <WinnerModal
-				onClick={() => setHidden(true)}
-				onPlayAgain={() => {
-					handleStart();
+				onClick={() => {
+					navigate("/")
 				}}
-			/>
+				onPlayAgain={() => {
+				}}
+				/>
 		return null;
 	}
 
-	const displayScores = hidden || gameStatus === GameStatus.PAUSED;
+	const displayScores = hidden || gameStatus === GameStatus.FREEZE;
 
 	Babact.useEffect(() => {
 		if (gameStatus === GameStatus.ENDED) {
 			setHidden(false);
 		}
+		else
+			setHidden(true);
 	}, [gameStatus])
 
 	return <Overlay

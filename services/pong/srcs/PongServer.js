@@ -126,6 +126,11 @@ export class PongServer extends Pong {
 			this._state.endCallback(this, state);
 		}
 		this._state = state;
+		console.log("State changed to", this._state);
+		if (this._state.name === "ENDED" || this._state.name === "FREEZE") {
+			this._state.score = this._score;
+			this._state.side = this._lastSide;
+		}
 		this.broadcast({
 			event: "state",
 			data: {state: this._state}
@@ -148,11 +153,11 @@ export class PongServer extends Pong {
 		this._time += dt;
 		dt = this.physicsUpdate(dt);
 		if (this.scoreUpdate()) {
+			let newstate = PongState.FREEZE;
 			if (this._winner !== undefined) {
-				this.setState(PongState.ENDED.clone());
+				newstate = PongState.ENDED;
 			}
-			else
-				this.setState(PongState.FREEZE.clone());
+			this.setState(newstate.clone());
 		}
 		this.broadcast({
 			event: "step",
