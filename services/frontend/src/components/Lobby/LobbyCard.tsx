@@ -25,6 +25,12 @@ export default function LobbyCard() {
 		setOnLeave(() => (() => {}));
 	}
 
+	if (!me)
+		return;
+
+	const copyText = `**Join me in _YetAnotherPong_!** 🎮  \nClick the link to enter the game lobby: [Join the game](${window.location.origin}/lobby/${lobby.join_secret}?username=${me.username}&avatar=${me.avatar}&gamemode=${lobby.mode.type}%20${lobby.mode.getDisplayName()})`
+	
+
 	if (lobby)
 	return <Card className='lobby-card left gap-4'>
 		<div className='lobby-card-header flex items-center justify-between w-full gap-4'>
@@ -94,13 +100,13 @@ export default function LobbyCard() {
 					</Button>
 				))
 			}
-			<CopyButton
+			{lobby.getCapacity() > 1 && <CopyButton
 				className="info"
-				clipboardText={lobby.join_secret}
+				clipboardText={copyText}
 			>
-				<i className="fa-solid fa-copy"></i>
-				Code
-			</CopyButton>
+				<i className="fa-solid fa-link"></i>
+				Link
+			</CopyButton>}
 			<Button className="danger" onClick={onLeave}>
 				<i className="fa-solid fa-person-walking-arrow-right"></i>
 				Leave
