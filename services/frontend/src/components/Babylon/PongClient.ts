@@ -4,7 +4,7 @@ import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import { GameMode, GameModeType, IGameMode, IPlayer } from 'yatt-lobbies'
-import { ClientBall, ClientPaddle, ClientWall, ClientTrigger } from "./Objects/objects";
+import { ClientBall, ClientPaddle, ClientWall, ClientGoal } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
@@ -140,7 +140,6 @@ export default class PongClient extends PONG.Pong {
 					msg.data.match.players as IPlayer[],
 					PONG.PongState[msg.data.match.state.name].clone() as PONG.PongState,
 				);
-				this.bindPaddles();
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 			}
 			else if (msg.event === "state") {
@@ -198,12 +197,12 @@ export default class PongClient extends PONG.Pong {
 				mapMesh.push(wallTop);
 			}
 			if (map.goalLeft && isDevelopment) {
-				const goalLeft: ClientTrigger = new ClientTrigger(this._babylonScene, ("goalLeft" + map.mapId.toString()), map.goalLeft);
+				const goalLeft: ClientGoal = new ClientGoal(this._babylonScene, ("goalLeft" + map.mapId.toString()), map.goalLeft);
 				goalLeft.disable();
 				mapMesh.push(goalLeft);
 			}
 			if (map.goalRight && isDevelopment) {
-				const goalRight: ClientTrigger = new ClientTrigger(this._babylonScene, ("goalRight" + map.mapId.toString()), map.goalRight);
+				const goalRight: ClientGoal = new ClientGoal(this._babylonScene, ("goalRight" + map.mapId.toString()), map.goalRight);
 				goalRight.disable();
 				mapMesh.push(goalRight);
 			}
@@ -276,13 +275,10 @@ export default class PongClient extends PONG.Pong {
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, state);
 		
-		// const { me } = useAuth();
-		//const myPlayer = players.find((player: IPongPlayer) => player.account_id === me?.account_id);
-		
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
 		
 		this.loadBalls();
-		// this.bindPaddles();
+		this.bindPaddles();
 	}
 	
 	private loadBalls() {
@@ -310,7 +306,7 @@ export default class PongClient extends PONG.Pong {
 	private loop = () => {
 		this._keyboard.update();
 		if (this._gameScene) {
-			if (this._websocket) {
+			if (this._gameScene === GameScene.ONLINE) {
 				this.updateOnline();
 			} else {
 				this.updateLocal();
@@ -365,6 +361,7 @@ export default class PongClient extends PONG.Pong {
 
 	private updateOnline() {
 		let dt: number = this._engine.getDeltaTime() / 1000;
+
 		// let dt: number = 1.0;
 		// if (this._state.tick(dt, this)) {
 		// 	return;
