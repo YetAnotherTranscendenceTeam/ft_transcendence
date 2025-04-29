@@ -185,42 +185,28 @@ export default class PongClient extends PONG.Pong {
 		// camera.inputs.attached.pointers.buttons = [0, 1];
 		camera.attachControl(this._canvas, true);
 		camera.lowerRadiusLimit = 1.5;
-		camera.upperRadiusLimit = 30;
+		camera.upperRadiusLimit = 300;
 		camera.wheelPrecision = 50;
 
-		const hdrTexture = new BABYLON.HDRCubeTexture(
-			"/assets/images/disco_b_1K_hdri_sphere.hdr",  // path to your .hdr
-			this._babylonScene,                         // the Babylon scene
-			512,                           // desired resolution (must be a power-of-2)
-			false,                         // no mipmaps? (set to true if you want them)
+		const hdrTexture = new BABYLON.CubeTexture(
+			"/assets/images/disco_4k.env",
+			this._babylonScene,
+			null,
 			false,
-			false,
-			true,
+			null,
 			() => {
-				console.log('Texture', hdrTexture._prefiltered);
-				// Convert to .env
-				BABYLON.EnvironmentTextureTools.CreateEnvTextureAsync(hdrTexture).then((buffer) => {
-					const blob = new Blob([buffer], { type: "octet/stream" });
-					console.log('.env size', Math.round(blob.size / 1024), 'kb');
-					// Load texture
-					const url = window.URL.createObjectURL(blob);
-					const hdrTexture = new BABYLON.CubeTexture(url, this._babylonScene, undefined, undefined, undefined, undefined, undefined, undefined, undefined, '.env');
-					// applyHDR(hdrTexture);
-					// const applyHDR = (hdrTexture) => {
-					    // Use as scene environment
-					    this._babylonScene.environmentTexture = hdrTexture;
-					    // Display in the background for visual reference
-					    const skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 50.0 }, this._babylonScene);
-					    const skyboxMaterial = new BABYLON.StandardMaterial('skyBox', this._babylonScene);
-					    skyboxMaterial.backFaceCulling = false;
-					    skyboxMaterial.disableLighting = true;
-					    skybox.material = skyboxMaterial;
-					    skybox.infiniteDistance = true;
-					    skyboxMaterial.disableLighting = true;
-					    skyboxMaterial.reflectionTexture = hdrTexture.clone();
-					    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-					// }
-				})
+				this._babylonScene.environmentTexture = hdrTexture;
+				// Display in the background for visual reference
+				const skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 500.0 }, this._babylonScene);
+				const skyboxMaterial = new BABYLON.PBRMaterial('skyBox', this._babylonScene);
+				skyboxMaterial.backFaceCulling = false;
+				skyboxMaterial.disableLighting = true;
+				skybox.material = skyboxMaterial;
+				skybox.infiniteDistance = true;
+				skyboxMaterial.disableLighting = true;
+				skyboxMaterial.reflectionTexture = hdrTexture.clone();
+				skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+				skyboxMaterial.roughness = 0.075;
 			}
 		);
 		// this._babylonScene.environmentTexture = hdrTexture;
