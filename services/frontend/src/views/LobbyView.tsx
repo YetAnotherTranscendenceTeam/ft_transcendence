@@ -26,7 +26,7 @@ export default function LobbyView() {
 		if (code && lobby === null && me) {
 			join(code);
 		}
-	}, [me])
+	}, [me, lobby])
 
 	Babact.useEffect(() => {
 		if (lobby && lobby.join_secret !== code) {

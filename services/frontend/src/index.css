@@ -1,10 +1,14 @@
 :root {
 	--primary-color: #ff7b00;
-	--secondary-color: #6c757d;
+	--primary-color-active: #ff9531;
 	--success-color: #51dd72;
+	--success-color-active: #3fbd5a;
 	--info-color: #72b8f1;
+	--info-color-active: #4f9ae1;
 	--warning-color: #ffc107;
+	--warning-color-active: #e0a800;
 	--danger-color: #dc3545;
+	--danger-color-active: #d10015;
 	--fg-1: #f8f9fa;
 	--fg-2: #dcdee0;
 	--fg-3: #c7cbcf;

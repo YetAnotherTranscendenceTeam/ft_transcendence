@@ -19,6 +19,7 @@ export default function Modal({
 		className?: string,
 		closeOnBackgroundClick?: boolean,
 		closeOnEscape?: boolean,
+		closeButton?: boolean,
 		overlay?: boolean,
 		[key: string]: any
 	}) {
