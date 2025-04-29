@@ -14,6 +14,7 @@ import profilesProperties from "./schemas/properties/profiles.js";
 import responseBodyProperties from "./schemas/properties/reponse-body.js";
 import sqlProperties from "./schemas/properties/sql.js";
 import setUpSwagger from "./swagger/setup.js";
+import { setRefreshTokenCookie } from "./http/cookies.js";
 
 const YATT = {
     fetch,
@@ -24,7 +25,8 @@ const YATT = {
     },
     patchBodyToSql,
     filterToSql,
-    orderToSql
+    orderToSql,
+    setRefreshTokenCookie,
 };
 
 export default YATT;

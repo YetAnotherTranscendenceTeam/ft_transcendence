@@ -96,12 +96,7 @@ export default function passwordRoutes(fastify, opts, done) {
     });
 
     // Set refresh_token cookie
-    reply.setCookie("refresh_token", tokens.refresh_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/token",
-    });
+    YATT.setRefreshTokenCookie(reply, tokens);
 
     // Send access_token
     reply.send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
