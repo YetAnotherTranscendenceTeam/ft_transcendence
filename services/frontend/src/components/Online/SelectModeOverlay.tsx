@@ -41,10 +41,10 @@ export default function SelectModeOverlay({
 
 	const [mode, setMode] = Babact.useState<string>('1v1');
 
-	const ranked = gamemodes.find(g => g.name === ("ranked_" + mode));
-	const unranked = gamemodes.find(g => g.name === ("unranked_" + mode));
-	const custom = gamemodes.find(g => g.name === ("custom_1v1"));
-	const tournament = gamemodes.find(g => g.name === ("tournament_1v1"));
+	const ranked = gamemodes?.find(g => g.name === ("ranked_" + mode));
+	const unranked = gamemodes?.find(g => g.name === ("unranked_" + mode));
+	const custom = gamemodes?.find(g => g.name === ("custom_1v1"));
+	const tournament = gamemodes?.find(g => g.name === ("tournament_1v1"));
 
 	return <div
 		className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}
