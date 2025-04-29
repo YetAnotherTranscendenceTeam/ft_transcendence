@@ -45,16 +45,14 @@ function performUnitOfWork(fiber: IFiber): Fiber {
 	return null;
 }
 
-function workLoop(deadline: IdleDeadline) {
-	let shouldYield = false;
-	while (BabactState.nextUnitOfWork && !shouldYield) {
+function workLoop() {
+	while (BabactState.nextUnitOfWork) {
 		BabactState.nextUnitOfWork = performUnitOfWork(BabactState.nextUnitOfWork);
-		shouldYield = deadline.timeRemaining() < 1;
 	}
 	if (!BabactState.nextUnitOfWork && BabactState.wipRoot) {
 		commitRoot()
 	}
-	window.requestIdleCallback(workLoop);
+	window.requestAnimationFrame(workLoop);
 }
 
-window.requestIdleCallback(workLoop);
+window.requestAnimationFrame(workLoop);

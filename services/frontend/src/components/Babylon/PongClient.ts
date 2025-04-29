@@ -70,7 +70,7 @@ export default class PongClient extends PONG.Pong {
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
 		window.addEventListener("resize", this.resize);
-		
+
 		this._engine.runRenderLoop(this.loop);
 
 		this._websocket = new WebSocket("ws://localhost:4124");
