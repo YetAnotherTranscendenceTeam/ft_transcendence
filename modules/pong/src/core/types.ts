@@ -16,8 +16,7 @@ export class PongState implements IPongState {
 	static PLAYING = new PongState("PLAYING", {
 		frozen_until: 0,
 		endCallback: (game: Pong, nextState: PongState) => {
-			if (nextState.name === "FREEZE")
-				game.roundStart();
+			game.roundStart();
 		}
 	});
 	static FREEZE = new PongState("FREEZE", {

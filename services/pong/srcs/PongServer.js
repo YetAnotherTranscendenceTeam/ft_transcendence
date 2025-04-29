@@ -66,6 +66,7 @@ export class PongServer extends Pong {
 
 	roundStart() {
 		super.roundStart();
+		const back_state = this._winner ? 2 : 1;
 		YATT.fetch(`http://matchmaking:3000/matches/${this._matchId}`, {
 			method: "PATCH",
 			headers: {
@@ -75,11 +76,14 @@ export class PongServer extends Pong {
 			body: JSON.stringify({
 				score_0: this._score[0],
 				score_1: this._score[1],
-				state: this._winner ? 2 : 1
+				state: back_state
 			}),
 		}).catch((err) => {
 			console.error("Error updating match:", err);
+		}).then((res) => {
 		});
+		if (back_state == 2)
+			this.destroy();
 	}
 
 	getPaddlePositions() {
@@ -146,7 +150,6 @@ export class PongServer extends Pong {
 		if (this.scoreUpdate()) {
 			if (this._winner !== undefined) {
 				this.setState(PongState.ENDED.clone());
-				this.destroy();
 			}
 			else
 				this.setState(PongState.FREEZE.clone());

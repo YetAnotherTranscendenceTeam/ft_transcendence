@@ -245,10 +245,8 @@ export class Pong {
 			}
 		});
 		if (this._score[0] >= K.defaultPointsToWin) {
-			this._state = PongState.ENDED.clone();
 			this._winner = MapSide.LEFT;
 		} else if (this._score[1] >= K.defaultPointsToWin) {
-			this._state = PongState.ENDED.clone();
 			this._winner = MapSide.RIGHT;
 		}
 		return scored;
