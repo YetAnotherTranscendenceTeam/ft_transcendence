@@ -195,9 +195,35 @@ export default class PongClient extends PONG.Pong {
 			false,                         // no mipmaps? (set to true if you want them)
 			false,
 			false,
-			true
+			true,
+			() => {
+				console.log('Texture', hdrTexture._prefiltered);
+				// Convert to .env
+				BABYLON.EnvironmentTextureTools.CreateEnvTextureAsync(hdrTexture).then((buffer) => {
+					const blob = new Blob([buffer], { type: "octet/stream" });
+					console.log('.env size', Math.round(blob.size / 1024), 'kb');
+					// Load texture
+					const url = window.URL.createObjectURL(blob);
+					const hdrTexture = new BABYLON.CubeTexture(url, this._babylonScene, undefined, undefined, undefined, undefined, undefined, undefined, undefined, '.env');
+					// applyHDR(hdrTexture);
+					// const applyHDR = (hdrTexture) => {
+					    // Use as scene environment
+					    this._babylonScene.environmentTexture = hdrTexture;
+					    // Display in the background for visual reference
+					    const skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 50.0 }, this._babylonScene);
+					    const skyboxMaterial = new BABYLON.StandardMaterial('skyBox', this._babylonScene);
+					    skyboxMaterial.backFaceCulling = false;
+					    skyboxMaterial.disableLighting = true;
+					    skybox.material = skyboxMaterial;
+					    skybox.infiniteDistance = true;
+					    skyboxMaterial.disableLighting = true;
+					    skyboxMaterial.reflectionTexture = hdrTexture.clone();
+					    skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+					// }
+				})
+			}
 		);
-		this._babylonScene.environmentTexture = hdrTexture;
+		// this._babylonScene.environmentTexture = hdrTexture;
 
 		// this._babylonScene.createDefaultSkybox(hdrTexture, true, 1000);
 
@@ -206,19 +232,19 @@ export default class PongClient extends PONG.Pong {
 		light.diffuse = new Color3(1, 1, 1);
 		light.specular = new Color3(1, 1, 1);
 
-		// 1. Make a big box
-		const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._babylonScene);
+		// // 1. Make a big box
+		// const skybox = BABYLON.MeshBuilder.CreateBox("skyBox", { size: 1000 }, this._babylonScene);
 
-		const skyMat = new BABYLON.StandardMaterial("skyMat", this._babylonScene);
-		skyMat.backFaceCulling = false;              // render inside faces
-		skyMat.disableLighting = true;                // not affected by lights
-		skyMat.diffuseColor = BABYLON.Color3.Black();  
-		skyMat.specularColor = BABYLON.Color3.Black();
+		// const skyMat = new BABYLON.StandardMaterial("skyMat", this._babylonScene);
+		// skyMat.backFaceCulling = false;              // render inside faces
+		// skyMat.disableLighting = true;                // not affected by lights
+		// skyMat.diffuseColor = BABYLON.Color3.Black();  
+		// skyMat.specularColor = BABYLON.Color3.Black();
 
-		skyMat.reflectionTexture = hdrTexture.clone();        // the same HDRCubeTexture
-		skyMat.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+		// skyMat.reflectionTexture = hdrTexture.clone();        // the same HDRCubeTexture
+		// skyMat.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
 
-		skybox.material = skyMat;
+		// skybox.material = skyMat;
 
 
 		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
