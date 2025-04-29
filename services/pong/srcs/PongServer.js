@@ -66,7 +66,7 @@ export class PongServer extends Pong {
 
 	roundStart() {
 		super.roundStart();
-		const back_state = this._winner ? 2 : 1;
+		const back_state = this._winner !== undefined ? 2 : 1;
 		YATT.fetch(`http://matchmaking:3000/matches/${this._matchId}`, {
 			method: "PATCH",
 			headers: {
