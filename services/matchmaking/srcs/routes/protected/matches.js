@@ -68,7 +68,7 @@ export default function router(fastify, opts, done) {
       },
     },
     async function handler(request, reply) {
-      let updated;
+      let updated = {};
       if (request.body.state !== undefined) {
         updated = update_match_state.get(request.body.state, request.params.match_id);
       }
@@ -87,7 +87,7 @@ export default function router(fastify, opts, done) {
         const winning_team = score_0 > score_1 ? 0 : 1;
         update_rating.all({winning_team}, request.params.match_id, updated.gamemode);
       }
-      reply.status(201).send();
+      reply.status(200).send(updated);
     }
   );
   // TODO: handle stats (move this into the origin /:match_id request)

@@ -5,10 +5,9 @@ import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket';
 import sse from "yatt-sse"
 import router from "./router.js";
-import YATT from "yatt-utils";
 import JwtGenerator from "yatt-jwt";
 import jwt from "@fastify/jwt";
-import { AUTHENTICATION_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env.js";
+import { AUTHENTICATION_SECRET, MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env.js";
 import bearerAuth from "@fastify/bearer-auth";
 import qs from "qs";
 import db from "./database.js";
@@ -19,20 +18,6 @@ import { TournamentManager } from "../TournamentManager.js";
 export default function build(opts = {}) {
   const app = Fastify({...opts, querystringParser: (str) => qs.parse(str)});
 
-  if (process.env.ENV !== "production") {
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Matching",
-        description: "Service for matching game lobbies",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4044", description: "Development network" },
-        { url: "http://matchmaking:3000", description: "Containers network" },
-      ],
-    });
-  }
-
   app.register(cors, {
     origin: new RegExp(process.env.CORS_ORIGIN) || true,
     methods: ["GET", "POST", "PATCH", "DELETE"],
@@ -42,6 +27,7 @@ export default function build(opts = {}) {
 
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
   app.register(jwt, { secret: MATCHMAKING_SECRET, namespace: "matchmaking" });
+  app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
   app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
   app.decorate("tokens", new JwtGenerator());
   app.addHook('onReady', async function () {

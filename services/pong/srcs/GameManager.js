@@ -11,13 +11,8 @@ export class GameManager {
 
   timeout;
 
-  constructor() {
-    this.pongs.set(0, new PongServer(0, new GameMode("unranked_2v2", {
-      type: GameModeType.UNRANKED,
-      team_size: 2,
-      team_count: 2,
-      match_parameters: {}
-    }), [[{account_id: 1}, {account_id: 2}], [{account_id: 3}, {account_id: 4}]]));
+  constructor(fastify) {
+    this.fastify = fastify;
     setInterval(() => {
       this.pongs.forEach((pong, match_id) => {
         pong.update();
@@ -37,12 +32,22 @@ export class GameManager {
     if (this.pongs.has(match_id)) {
       throw new Error(`Match ${match_id} already exists`);
     }
-    const pong = new PongServer(match_id, gamemode, teams);
+    const pong = new PongServer(match_id, gamemode, teams, this);
     this.pongs.set(match_id, pong);
     return pong;
   }
 
+  unregisterGame(match_id) {
+    this.pongs.delete(match_id);
+  }
+
   getGame(match_id) {
     return this.pongs.get(match_id);
+  }
+
+  async cancel() {
+    for (const [match_id, pong] of this.pongs) {
+      await pong.cancel();
+    }
   }
 }

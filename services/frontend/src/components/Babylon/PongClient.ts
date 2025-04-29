@@ -147,9 +147,10 @@ export default class PongClient extends PONG.Pong {
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 			}
 			else if (msg.event === "state") {
+				const state = PONG.PongState[msg.data.state.name].clone();
 				if (this._state.endCallback)
-					this._state.endCallback(this);
-				this._state = PONG.PongState[msg.data.state.name].clone();
+					this._state.endCallback(this, state);
+				this._state = state;
 			}
 		}
 		this._websocket.onopen = (ev) => {
@@ -333,10 +334,11 @@ export default class PongClient extends PONG.Pong {
 		}
 
 		if (this._state.getNext()) {
+			const next = this._state.getNext().clone();
 			if (this._state.endCallback) {
-				this._state.endCallback(this);
+				this._state.endCallback(this, next);
 			}
-			this._state = this._state.getNext().clone();
+			this._state = next;
 		}
 
 		this._time += dt;

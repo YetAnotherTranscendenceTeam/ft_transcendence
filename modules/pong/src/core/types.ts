@@ -15,8 +15,9 @@ export class IPongState {
 export class PongState implements IPongState {
 	static PLAYING = new PongState("PLAYING", {
 		frozen_until: 0,
-		endCallback: (game: Pong) => {
-			game.roundStart();
+		endCallback: (game: Pong, nextState: PongState) => {
+			if (nextState.name === "FREEZE")
+				game.roundStart();
 		}
 	});
 	static FREEZE = new PongState("FREEZE", {
@@ -42,10 +43,10 @@ export class PongState implements IPongState {
 	public readonly name: string;
 	public readonly next?: () => PongState = null;
 	public frozen_until: number;
-	public endCallback?: ((game: Pong) => void) = null;
+	public endCallback?: ((game: Pong, nextState: PongState) => void) = null;
 	public tickCallback?: ((dt: number, game: Pong) => boolean) = null;
 
-	constructor(name: string, { frozen_until, next, endCallback, tickCallback }: { frozen_until: number, next?: () => PongState, endCallback?: (game: Pong) => void, tickCallback?: (dt: number, game: Pong) => boolean }) {
+	constructor(name: string, { frozen_until, next, endCallback, tickCallback }: { frozen_until: number, next?: () => PongState, endCallback?: (game: Pong, nextState: PongState) => void, tickCallback?: (dt: number, game: Pong) => boolean }) {
 		this.name = name;
 		this.frozen_until = frozen_until;
 		this.next = next;

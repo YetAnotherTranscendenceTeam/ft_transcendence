@@ -366,6 +366,7 @@ services:
       - ./services/pong/srcs:/services/pong/srcs
       - ./modules/:/modules:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
       - PONG_SECRET=${PONG_SECRET}

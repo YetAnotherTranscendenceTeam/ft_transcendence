@@ -1,4 +1,5 @@
 import { K, Pong, PongState } from "pong";
+import YATT from "yatt-utils";
 
 PongState.RESERVED.tickCallback = function (dt, pong) {
 	if (pong.players.some(player => !player.socket)) {
@@ -11,9 +12,10 @@ export class PongServer extends Pong {
 	collisions = [];
 	team_names = [];
 
-	constructor(match_id, gamemode, teams) {
+	constructor(match_id, gamemode, teams, manager) {
 		super();
 		this._running = 0;
+		this.manager = manager;
 		this._time = 0;
 		this._lastUpdate = 0;
 		this.team_names = teams.map((team) => team.name);
@@ -27,7 +29,7 @@ export class PongServer extends Pong {
 	}
 
 	destroy() {
-		
+		this.manager.unregisterGame(this._matchId);
 	}
 
 	toJSON() {
@@ -41,6 +43,43 @@ export class PongServer extends Pong {
 			balls: this._balls,
 			tick: this.tick,
 		};
+	}
+
+	async cancel() {
+		this.destroy();
+		await YATT.fetch(`http://matchmaking:3000/matches/${this._matchId}`, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${this.manager.fastify.tokens.get("match_management")}`,
+			},
+			body: JSON.stringify({
+				state: 3,
+				score_0: this._score[0],
+				score_1: this._score[1],
+			}),
+		}).catch((err) => {
+			console.error("Error updating match:", err);
+		});
+		console.log("Cancelled match", this._matchId);
+	}
+
+	roundStart() {
+		super.roundStart();
+		YATT.fetch(`http://matchmaking:3000/matches/${this._matchId}`, {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": `Bearer ${this.manager.fastify.tokens.get("match_management")}`,
+			},
+			body: JSON.stringify({
+				score_0: this._score[0],
+				score_1: this._score[1],
+				state: this._winner ? 2 : 1
+			}),
+		}).catch((err) => {
+			console.error("Error updating match:", err);
+		});
 	}
 
 	getPaddlePositions() {
@@ -80,7 +119,7 @@ export class PongServer extends Pong {
 
 	setState(state) {
 		if (this._state.endCallback) {
-			this._state.endCallback(this);
+			this._state.endCallback(this, state);
 		}
 		this._state = state;
 		this.broadcast({
@@ -107,6 +146,7 @@ export class PongServer extends Pong {
 		if (this.scoreUpdate()) {
 			if (this._winner !== undefined) {
 				this.setState(PongState.ENDED.clone());
+				this.destroy();
 			}
 			else
 				this.setState(PongState.FREEZE.clone());
