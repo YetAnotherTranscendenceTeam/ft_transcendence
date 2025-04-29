@@ -1,6 +1,6 @@
 "use strict";
 
-import { HttpError } from "yatt-utils";
+import YATT, { HttpError } from "yatt-utils";
 import { generateTokens } from "../utils/generate.js";
 import db from "../app/database.js";
 
@@ -38,15 +38,15 @@ export default function router(fastify, opts, done) {
     }
 
     const tokens = generateTokens(fastify, account_id);
+
     // Set new refresh_token cookie
-    reply.setCookie("refresh_token", tokens.refresh_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/token",
-    });
+    YATT.setRefreshTokenCookie(reply, tokens);
+
     // Send fresh access_token
-    reply.send({ access_token: tokens.access_token, expire_at: tokens.expire_at });
+    reply.send({
+      access_token: tokens.access_token,
+      expire_at: tokens.expire_at
+    });
     console.log("REFRESH:", { account_id });
   });
 
