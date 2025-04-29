@@ -41,10 +41,10 @@ export default function SelectModeOverlay({
 
 	const [mode, setMode] = Babact.useState<string>('1v1');
 
-	const ranked = gamemodes.find(g => g.name === ("ranked_" + mode));
-	const unranked = gamemodes.find(g => g.name === ("unranked_" + mode));
-	const custom = gamemodes.find(g => g.name === ("custom_1v1"));
-	const tournament = gamemodes.find(g => g.name === ("tournament_1v1"));
+	const ranked = gamemodes?.find(g => g.name === ("ranked_" + mode));
+	const unranked = gamemodes?.find(g => g.name === ("unranked_" + mode));
+	const custom = gamemodes?.find(g => g.name === ("custom_1v1"));
+	const tournament = gamemodes?.find(g => g.name === ("tournament_1v1"));
 
 	return <div
 		className={`online-select-overlay flex flex-col items-center justify-center ${isOpen ? 'open' : ''}`}
@@ -75,22 +75,5 @@ export default function SelectModeOverlay({
 				{tournament && <ModeButton gamemode={tournament} onSelect={onSelect} />}
 			</div>
 		</div>
-		<Form className="online-join-form flex flex-row" formFields={['lobby-code*']}>
-			<Input
-				placeholder='Enter a code to join a lobby'
-				field="lobby-code"
-				name="lobby-code"
-			/>
-			<Submit
-				fields={['lobby-code']}
-				onSubmit={(fields, clearFields) => {
-					join(fields['lobby-code'].value as string);
-					clearFields();
-					onClose();
-				}}
-			>
-				<i className="fa-solid fa-arrow-right-to-bracket"></i> Join
-			</Submit>
-		</Form>
 	</div>
 }

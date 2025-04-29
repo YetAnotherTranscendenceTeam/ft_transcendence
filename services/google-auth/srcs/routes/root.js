@@ -61,12 +61,7 @@ export default function routes(fastify, opts, done) {
         throw err;
       }
     }
-    reply.setCookie("refresh_token", tokens.refresh_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      path: "/token",
-    });
+    YATT.setRefreshTokenCookie(reply, tokens);
     reply.send({
       access_token: tokens.access_token,
       expire_at: tokens.expire_at,

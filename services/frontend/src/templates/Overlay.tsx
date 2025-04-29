@@ -43,7 +43,7 @@ export default function Overlay({
 				isOpen={selected === 'online'}
 				onClose={() => setSelected(null)}
 			/>}
-			<div className='template-content' key='content'>
+			<div className='template-content'>
 				{children}
 			</div>
 			{ modal &&

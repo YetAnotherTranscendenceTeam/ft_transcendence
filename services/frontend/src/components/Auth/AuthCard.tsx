@@ -5,10 +5,14 @@ import Button from "../../ui/Button";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import useEscape from "../../hooks/useEscape";
+import LobbyInviteModal from "./LobbyInviteModal";
 
 export default function AuthCard() {
 
 	const [selected, setSelected] = Babact.useState<string>(null);
+
+	const lobbyModalInvite = window.location.pathname.startsWith('/lobby');
+	const [isOpen, setIsOpen] = Babact.useState<boolean>(lobbyModalInvite);
 
 	useEscape(selected, () => setSelected(null));
 
@@ -37,5 +41,13 @@ export default function AuthCard() {
 				</Button>
 				
 			</div>}
+
+			<LobbyInviteModal
+				isOpen={selected === null && isOpen}
+				onChoice={(choice: string) => {
+					setIsOpen(false);
+					setSelected(choice);
+				}}
+			/>
 	</Card>
 }

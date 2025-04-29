@@ -42,13 +42,11 @@
 }
 
 .button.primary:hover {
-	background-color: var(--primary-color);
-	filter: saturate(2);
+	background-color: var(--primary-color-active);
 }
 
 .button.primary.disabled, .button.primary.disabled:hover{
 	background-color: var(--primary-color-40);
-	filter: saturate(1);
 }
 
 .button.ghost {
@@ -71,13 +69,11 @@
 }
 
 .button.danger:hover {
-	background-color: var(--danger-color);
-	filter: saturate(2);
+	background-color: var(--danger-color-active);
 }
 
 .button.danger.disabled, .button.danger.disabled:hover{
 	background-color: var(--danger-color-40);
-	filter: saturate(1);
 }
 
 .button.success {
@@ -86,13 +82,11 @@
 }
 
 .button.success:hover {
-	background-color: var(--success-color);
-	background-color: rgb(0, 194, 0);
+	background-color: var(--success-color-active);
 }
 
 .button.success.disabled, .button.success.disabled:hover{
 	background-color: var(--success-color-40);
-	filter: saturate(1);
 }
 
 .button.info {
@@ -101,13 +95,11 @@
 }
 
 .button.info:hover {
-	background-color: var(--info-color);
-	filter: saturate(2);
+	background-color: var(--info-color-active);
 }
 
 .button.info.disabled, .button.info.disabled:hover{
 	background-color: var(--info-color-40);
-	filter: saturate(1);
 }
 
 /* ================================== */
