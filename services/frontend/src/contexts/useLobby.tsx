@@ -118,8 +118,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				createToast('Tournament created', ToastType.INFO);	
 				navigate(`/tournaments/${state.match.tournament.id}`);
 			}
-			else {
+			else if (state.match.type === 'match') {
 				createToast('Match found', ToastType.INFO);	
+				navigate(`/matches/${state.match.match.match_id}`);
 			}
 		}
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setState(state)));

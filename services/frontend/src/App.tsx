@@ -24,7 +24,7 @@ export default function App() {
 					<Route path='/lobby/:code' element={<LobbyView/>} />
 					<Route path='/profiles/:id' element={<ProfileView/>} />
 					<Route path='/local' element={<LocalView/>} />
-					<Route path='/games/:id' element={<OnlineView/>} />
+					<Route path='/matches/:id' element={<OnlineView/>} />
 					<Route path='/tournaments/:id' element={<TournamentView/>} />
 					<Route path="/*" element={<Home />} />
 				</Routes>
