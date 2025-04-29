@@ -281,7 +281,7 @@ export class Pong {
 			this._physicsScene.addBody(this._balls[i]);
 			this._balls[i].addEventListener("collision", ballCollision.bind(this));
 		}
-		for (let i = balls.length; i < this._balls.length; i++) {
+		for (let i = this._balls.length - 1; i >= balls.length; i--) {
 			this._physicsScene.removeBody(this._balls[i]);
 			this._balls.splice(i, 1);
 		}
