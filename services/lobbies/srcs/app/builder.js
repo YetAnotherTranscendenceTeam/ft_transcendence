@@ -6,7 +6,7 @@ import websocket from '@fastify/websocket'
 import router from "./router.js";
 import sse from "yatt-sse";
 import jwt from "@fastify/jwt";
-import { AUTHENTICATION_SECRET, MATCHMAKING_SECRET } from "./env.js";
+import { ACTIVITY_SSE_SECRET, AUTHENTICATION_SECRET, MATCHMAKING_SECRET } from "./env.js";
 import { fetchGameModes, GameModes } from "../GameModes.js";
 import MatchmakingConnection from "../MatchmakingConnection.js";
 import cors from "@fastify/cors";
@@ -26,6 +26,7 @@ export default function build(opts = {}) {
 
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
   app.register(jwt, { secret: MATCHMAKING_SECRET, namespace: "matchmaking" });
+  app.register(jwt, { secret: ACTIVITY_SSE_SECRET, namespace: "activity_sse" })
   app.register(fastifyFormbody);
   app.register(websocket);
   app.register(sse);

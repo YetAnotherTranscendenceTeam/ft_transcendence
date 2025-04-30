@@ -7,7 +7,16 @@ const eventName = "[LobbiesEventSource]";
 
 export function lobbiesEventSource(fastify) {
   const url = "http://lobbies:3000/notify";
-  const lobbiesEvents = new EventSource(url);
+  const lobbiesEvents = new EventSource(url, {
+    fetch: (input, init) =>
+      fetch(input, {
+        ...init,
+        headers: {
+          ...init.headers,
+          Authorization: `Bearer ${fastify.jwt.activity_sse.sign({})}`,
+        },
+      }),
+  });
 
   lobbiesEvents.onopen = () => {
     console.log(`${eventName}: Connected to ${url}`);
