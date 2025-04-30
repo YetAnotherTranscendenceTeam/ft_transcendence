@@ -23,6 +23,7 @@ export default class PongClient extends PONG.Pong {
 	private _babylonScene: Scene;
 	private _gameScene: GameScene;
 
+	private _skybox: Mesh;
 	private _camera: ArcRotateCamera;
 	private _light: HemisphericLight;
 
@@ -168,12 +169,12 @@ export default class PongClient extends PONG.Pong {
 			() => {
 				this._babylonScene.environmentTexture = hdrTexture;
 				// Display in the background for visual reference
-				const skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 500.0 }, this._babylonScene);
+				this._skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 500.0 }, this._babylonScene);
 				const skyboxMaterial = new BABYLON.PBRMaterial('skyBox', this._babylonScene);
 				skyboxMaterial.backFaceCulling = false;
 				skyboxMaterial.disableLighting = true;
-				skybox.material = skyboxMaterial;
-				skybox.infiniteDistance = true;
+				this._skybox.material = skyboxMaterial;
+				this._skybox.infiniteDistance = true;
 				skyboxMaterial.disableLighting = true;
 				skyboxMaterial.reflectionTexture = hdrTexture.clone();
 				skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
@@ -196,26 +197,26 @@ export default class PongClient extends PONG.Pong {
 		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.png", this._babylonScene);
 		ballMaterial.reflectionTexture = hdrTexture;
 		ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
-		ClientBall.material = ballMaterial;
+		ClientBall.template = ballMaterial;
 
 		const wallMaterial = new BABYLON.PBRMaterial("wallMaterial", this._babylonScene);
 		wallMaterial.metallic = 0;
 		wallMaterial.roughness = 0.5;
 		wallMaterial.albedoColor = new Color3(0.25, 0.5, 0.62);
-		ClientWall.material = wallMaterial;
+		ClientWall.template = wallMaterial;
 
 		const paddleMaterial = new BABYLON.PBRMaterial("paddleMaterial", this._babylonScene);
 		paddleMaterial.metallic = 0;
 		paddleMaterial.roughness = 0.5;
 		paddleMaterial.albedoColor = Color3.White();
-		ClientPaddle.material = paddleMaterial;
+		ClientPaddle.template = paddleMaterial;
 
 		const goalMaterial = new BABYLON.PBRMaterial("goalMaterial", this._babylonScene);
 		goalMaterial.metallic = 0;
 		goalMaterial.roughness = 0.5;
 		goalMaterial.albedoColor = Color3.Red();
 		goalMaterial.alpha = 0.5;
-		ClientGoal.material = goalMaterial;
+		ClientGoal.template = goalMaterial;
 
 		this._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];
@@ -270,6 +271,20 @@ export default class PongClient extends PONG.Pong {
 
 			this._meshMap.set(mapId, mapMesh);
 		});
+
+		// for each map, add every object to every other object probe
+		this._meshMap.forEach((map: Array<AObject>) => {
+			map.forEach((object: AObject) => {
+				map.forEach((otherObject: AObject) => {
+					if (object !== otherObject) {
+						console.log("adding to probe: " + object.mesh.name + " -> " + otherObject.mesh.name);
+						object.addToProbe(otherObject);
+					}
+				});
+				// add skybox to probe
+				object.addToProbe(this._skybox);
+			});
+		});
 	}
 
 	private menuScene() {
@@ -320,7 +335,24 @@ export default class PongClient extends PONG.Pong {
 		this._balls.forEach((ball: PH2D.Body) => {
 			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
 			this._ballInstances.push(ballInstance);
+			// add ball to all objects probe and objects to ball probe
+			this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
+				map.addToProbe(ballInstance);
+				ballInstance.addToProbe(map);
+			}
+			);
 		});
+		// add ball to all balls probe
+		this._ballInstances.forEach((ball: ClientBall) => {
+			this._ballInstances.forEach((otherBall: ClientBall) => {
+				if (ball !== otherBall) {
+					ball.addToProbe(otherBall);
+				}
+			});
+			// add skybox to probe
+			ball.addToProbe(this._skybox);
+		}
+		);
 	}
 
 	private bindPaddles() {
@@ -392,19 +424,6 @@ export default class PongClient extends PONG.Pong {
 			}
 			paddle.move(moveDirection);
 		}
-	}
-
-	private createMaterials() {
-		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
-		ballMaterial.metallic = 1;
-		ballMaterial.roughness = 1;
-		ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_albedo.tif", this._babylonScene);
-		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.tif", this._babylonScene);
-		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.tif", this._babylonScene);
-		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.tif", this._babylonScene);
-		ballMaterial.reflectanceTexture = new BABYLON.CubeTexture("/assets/images/skybox/skybox", this._babylonScene);
-		// ballMaterial.albedoColor = new Color3(1, 1, 1);
-		ClientBall.material = ballMaterial;
 	}
 
 	private handleKeyDown = (ev: KeyboardEvent) => {

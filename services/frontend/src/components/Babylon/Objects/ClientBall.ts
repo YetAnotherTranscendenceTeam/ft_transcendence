@@ -17,10 +17,11 @@ export default class ClientBall extends AObject {
 		);
 		this._mesh.position = new BABYLON.Vector3(
 			this._physicsBody.position.x,
-			0.05,
+			PONG.K.ballRadius,
 			this._physicsBody.position.y
 		);
-		this._mesh.material = ClientBall.material;
+		this._material = ClientBall.template.clone("ballMaterial");
+		this._mesh.material = this._material;
 	}
 
 	public update(dt: number): void {

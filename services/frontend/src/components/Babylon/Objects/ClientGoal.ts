@@ -24,7 +24,8 @@ export default class ClientGoal extends AObject {
 			0.05,
 			this._physicsBody.position.y
 		);
-		this._mesh.material = ClientGoal.material;
+		this._material = ClientGoal.template.clone("goalMaterial");
+		this._mesh.material = this._material;
 	}
 
 	public update(dt: number): void {

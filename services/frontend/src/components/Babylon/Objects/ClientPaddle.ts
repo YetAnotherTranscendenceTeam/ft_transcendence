@@ -20,7 +20,8 @@ export default class ClientPaddle extends AObject {
 			0.05,
 			this._physicsBody.position.y
 		);
-		this._mesh.material = ClientPaddle.material;
+		this._material = ClientPaddle.template.clone("paddleMaterial");
+		this._mesh.material = this._material;
 	}
 
 	public update(dt: number): void {

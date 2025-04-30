@@ -23,7 +23,8 @@ export default class ClientWall extends AObject {
 			0.25,
 			this._physicsBody.position.y
 		);
-		this._mesh.material = ClientWall.material;
+		this._material = ClientWall.template.clone("wallMaterial");
+		this._mesh.material = this._material;
 	}
 
 	public update(dt: number): void {
