@@ -6,8 +6,9 @@
     "@fastify/websocket": "^11.0.2",
     "fastify": "^5.2.1",
     "yatt-lobbies": "file:../../modules/yatt-lobbies",
-    "yatt-ws": "file:../../modules/yatt-ws",
-    "yatt-utils": "file:../../modules/yatt-utils"
+    "yatt-sse": "file:../../modules/yatt-sse",
+    "yatt-utils": "file:../../modules/yatt-utils",
+    "yatt-ws": "file:../../modules/yatt-ws"
   },
   "type": "module",
   "scripts": {

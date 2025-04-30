@@ -16,6 +16,7 @@ services:
       - ssl-key
     depends_on:
       - avatars
+      - social
 
   frontend:
     build:
@@ -309,6 +310,9 @@ services:
       - social
       - db-profiles
       - settings
+    depends_on:
+      lobbies:
+        condition: service_healthy
 
   cdn-nginx:
     build:

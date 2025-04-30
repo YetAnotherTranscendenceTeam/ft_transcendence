@@ -29,8 +29,6 @@ describe('Social websocket', () => {
       ws1.send(JSON.stringify({ event: "goodbye" }));
     }, 2000);
 
-    const statusUpdate = { type: "ingame", data: { something: "astring" } };
-
     let ws2;
     const ws0 = await request(socialWS)
       .ws(`/notify?access_token=${users[0].jwt}`)
@@ -43,16 +41,10 @@ describe('Social websocket', () => {
             .expectJson((message) => {
               expect(message.event).toBe("welcome");
 
-            }).sendJson({ event: "send_status", data: statusUpdate })
+            });
         }, 4000)
       })
       .expectJson((message) => {
-        expect(message.event).toBe("recv_status");
-        expect(message.data).toEqual({
-          account_id: users[1].account_id,
-          status: statusUpdate
-        });
-      }).expectJson((message) => {
         expect(message.event).toBe("recv_status");
         expect(message.data).toEqual({
           account_id: users[0].account_id,

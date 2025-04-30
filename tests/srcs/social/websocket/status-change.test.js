@@ -1,11 +1,13 @@
 import request from "superwstest";
 import { createUsers, users } from "../../../dummy/dummy-account";
-import { online } from "../../../../services/social/srcs/utils/activityStatuses";
 import { apiURL, socialWS } from "../../../URLs";
+import { createLobby } from "../../../dummy/lobbies-player";
 
 createUsers(2);
 
 describe('Status changes', () => {
+  let lobby;
+
   beforeAll(async () => {
     await request(apiURL)
       .post(`/social/requests/${users[1].account_id}`)
@@ -24,15 +26,26 @@ describe('Status changes', () => {
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
       })
- 
-    const statusUpdate = { type: "ingame", data: { something: "astring" }};
+
+    const statusUpdate = {
+      type: "inlobby",
+      data: {
+        player_count: 1,
+        gamemode: {
+          name: "unranked_2v2",
+          team_count: 2,
+          team_size: 2,
+          type: "unranked",
+        },
+      }
+    };
 
     const ws0 = await request(socialWS)
       .ws(`/notify?access_token=${users[0].jwt}`)
       .expectJson((message) => {
         expect(message.event).toBe("welcome");
-        setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "send_status", data: statusUpdate }));
+        setTimeout(async () => {
+          lobby = await createLobby(users[1]);
         }, 1000)
       })
       .expectJson((message) => {
@@ -41,17 +54,9 @@ describe('Status changes', () => {
           account_id: users[1].account_id,
           status: statusUpdate
         });
-        setTimeout(() => {
-          ws1.send(JSON.stringify({ event: "send_status", data: online }));
-        }, 1000)
-      }).expectJson((message) => {
-        expect(message.event).toBe("recv_status");
-        expect(message.data).toEqual({
-          account_id: users[1].account_id,
-          status: online
-        });
       })
-      ws1.send(JSON.stringify({ event: "goodbye" }));
-      ws0.send(JSON.stringify({ event: "goodbye" }));
+    ws1.send(JSON.stringify({ event: "goodbye" }));
+    ws0.send(JSON.stringify({ event: "goodbye" }));
+    lobby.close();
   });
 });

@@ -4,7 +4,7 @@ import Fastify from "fastify";
 import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket'
 import router from "./router.js";
-import YATT, { HttpError } from "yatt-utils";
+import sse from "yatt-sse";
 import jwt from "@fastify/jwt";
 import { AUTHENTICATION_SECRET, MATCHMAKING_SECRET } from "./env.js";
 import { fetchGameModes, GameModes } from "../GameModes.js";
@@ -28,6 +28,7 @@ export default function build(opts = {}) {
   app.register(jwt, { secret: MATCHMAKING_SECRET, namespace: "matchmaking" });
   app.register(fastifyFormbody);
   app.register(websocket);
+  app.register(sse);
 
   app.register(router);
 
