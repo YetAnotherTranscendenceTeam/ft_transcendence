@@ -112,7 +112,7 @@ export class Lobby extends LobbyBase {
     if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
-    activityEvents.leave(this);
+    activityEvents.leave(this, player.account_id);
   }
 
   // swaps the positions of 2 players
@@ -160,6 +160,7 @@ export class Lobby extends LobbyBase {
   setState(state) {
     this.state = state;
     this.broadbast(new LobbyStateMessage(state));
+    activityEvents.update(this);
   }
 
   isFull() {

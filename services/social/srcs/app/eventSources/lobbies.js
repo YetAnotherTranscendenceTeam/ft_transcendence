@@ -2,6 +2,7 @@
 
 import { EventSource } from 'eventsource';
 import { online } from '../../utils/activityStatuses.js';
+import { LobbyStateType } from 'yatt-lobbies';
 
 const eventName = "[LobbiesEventSource]";
 
@@ -33,8 +34,7 @@ export function lobbiesEventSource(fastify) {
   // Event received on lobby update 
   lobbiesEvents.addEventListener('update', (event) => {
     const { players, gamemode, state } = JSON.parse(event.data);
-
-    console.log("UPDATE:", players, gamemode);
+    console.log("UPDATE:", { players, gamemode, state });
 
     const status = {
       type: "inlobby",
@@ -51,7 +51,7 @@ export function lobbiesEventSource(fastify) {
 
   // Event received when a user leaves a lobby
   lobbiesEvents.addEventListener('leave', (event) => {
-    console.log(event.data);
+    console.log("LEAVE:", event.data);
     fastify.clients.get(Number.parseInt(event.data))?.setStatus(online);
   });
 };

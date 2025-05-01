@@ -102,6 +102,19 @@
 	background-color: var(--info-color-40);
 }
 
+.button.lobby {
+	background-color: var(--inlobby-color);
+	color: var(--fg-1);
+}
+
+.button.lobby:hover {
+	background-color: var(--inlobby-color-active);
+}
+
+.button.lobby.disabled, .button.lobby.disabled:hover{
+	background-color: var(--inlobby-color-40);
+}
+
 /* ================================== */
 /* ============= Card =============== */
 /* ================================== */
@@ -247,16 +260,6 @@
 	text-transform: uppercase;
 }
 
-.avatar span {
-	z-index: 2;
-	position: absolute;
-	aspect-ratio: 1/1;
-	border-radius: 50%;
-	width: 25%;
-	bottom: 0;
-	right: 0;
-	transform: translate(30%, 30%);
-}
 
 .avatar-children {
 	position: absolute;
@@ -265,6 +268,38 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.avatar-status {
+	z-index: 2;
+	position: absolute;
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+	width: 25%;
+	bottom: 0;
+	right: 0;
+	transform: translate(30%, 30%);
+	background-color: var(--offline-color);
+}
+
+.avatar-status.online {
+	background-color: var(--online-color);
+}
+
+.avatar-status.offline {
+	background-color: var(--offline-color);
+}
+
+.avatar-status.inlobby {
+	background-color: var(--inlobby-color);
+}
+
+.avatar-status.inactive {
+	background-color: var(--inactive-color);
+}
+
+.avatar-status.inqueue {
+	background-color: var(--inlobby-color-active);
 }
 
 /* ================================== */

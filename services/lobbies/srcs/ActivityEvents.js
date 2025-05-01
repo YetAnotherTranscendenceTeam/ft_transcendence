@@ -18,6 +18,7 @@ class ActivityEvents {
       data: JSON.stringify({
         players: lobby.players.map(p => p.account_id),
         gamemode: lobby.mode,
+        state: lobby.state,
       }),
     };
     this.broadcast(payload);
