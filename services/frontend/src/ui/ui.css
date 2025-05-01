@@ -904,11 +904,12 @@
 	display: flex;
 	position: relative;
 	color: var(--fg-3);
-	padding: 8px 0;
+	/* padding: 8px 0; */
 	font-size: medium;
-	background-color: var(--bg-3);
+	background-color: var(--bg-1);
 	border-radius: 4px;
 	cursor: pointer;
+	width: max-content;
 }
 
 .segmented-control::before {
@@ -918,7 +919,7 @@
 	left: var(--segment-translate);
 	width: var(--width);
 	height: 100%;
-	background-color: var(--bg-1);
+	background-color: var(--bg-3);
 	box-shadow: 0px 0px 16px 2px rgba(0, 0, 0, 0.452);
 	border-radius: 4px;
 	z-index: 0;
@@ -928,11 +929,15 @@
 .segmented-control-button {
 	flex: 1;
 	z-index: 1;
-	padding: 0 8px;
+	padding: 8px;
 	position: relative;
 	transition: 0.3s;
 	display: flex;
 	gap: 8px;
+	justify-content: center;
+	align-items: center;
+	width: var(--width);
+	overflow: hidden;
 }
 
 .segmented-control-button.disabled {
@@ -942,8 +947,8 @@
 
 .segmented-control-button:not(:last-child)::after {
 	position: absolute;
-	top: 0%;
-	height: 100%;
+	top: 20%;
+	height: 60%;
 	width: 2px;
 	content: "";
 	right: -1px;
@@ -997,4 +1002,21 @@
 
 .dropdown-content.open {
 	display: block;
+}
+
+/* ================================== */
+/* ============ Pagination ========== */
+/* ================================== */
+
+
+.pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+}
+
+.pagination span {
+	color: var(--fg-2);
+	font-size: small;
 }

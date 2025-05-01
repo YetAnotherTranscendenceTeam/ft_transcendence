@@ -20,8 +20,11 @@ export default function ProfileHeader({
 				src={user.avatar}
 				size="xxl"
 			/>
-			<h1>{user.username}</h1>
+			<div className='flex flex-col items-start gap-2'>
+				<h1>{user.username}</h1>
+				{me?.account_id !== user.account_id && <ProfileSocialButtons user={user} />}
+
+			</div>
 		</div>
-		{me.account_id !== user.account_id && <ProfileSocialButtons user={user} />}
 	</div>
 }

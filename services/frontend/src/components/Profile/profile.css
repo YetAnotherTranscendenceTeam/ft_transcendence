@@ -115,12 +115,106 @@
 /* Profile Header */
 
 .profile-header {
-	padding: 32px;
 	box-sizing: border-box;
+	grid-column: 1 / 7;
+  	grid-row: 1;
 }
 
 .profile-header h1 {
 	font-size: 2rem;
 	font-weight: bold;
+	color: var(--fg-1);
+}
+
+/* Profile filter */
+
+.profile-filter {
+	color: var(--fg-1);
+	box-sizing: border-box;
+	grid-column: 1 / 7;
+  	grid-row: 2;
+}
+
+.profile-filter .segmented-control {
+	margin: 0;
+	min-width: 50%;
+}
+
+/* Profile game list */
+
+.profile-game-list {
+	background-color: var(--bg-1);
+	border-radius: 8px;
+	box-sizing: border-box;
+	flex: 4;
+	color: var(--fg-1);
+	padding: 16px;
+	grid-column: 1 / 5;
+  	grid-row: 3 / 11;
+}
+
+.profile-game-list-header {
+
+}
+
+.profile-game-list-body {
+	padding-bottom: 32px;
+}
+
+.profile-game-list-footer {
+	
+}
+
+.profile-game-list-item h1 {
+	font-size: xx-large;
+	font-weight: bolder;
+}
+
+.profile-game-list-item h2 {
+	font-weight: 700;
+	font-size: large;
+}
+
+.profile-game-list-item h3 {
+	font-size: small;
+	color: var(--fg-3);
+}
+
+/* profile game list item */
+
+.profile-game-list-item {
+	box-sizing: border-box;
+	padding: 8px;
+	border-radius: 4px;
+	background-color: var(--bg-4);
+	cursor: pointer;
+}
+
+.profile-game-list-item.win {
+	background-color: var(--success-color-80);
+}
+
+.profile-game-list-item.win:hover {
+	background-color: var(--success-color-40);
+}
+
+.profile-game-list-item.lose {
+	background-color: var(--danger-color-80);
+}
+
+.profile-game-list-item.lose:hover {
+	background-color: var(--danger-color-40);
+}
+
+
+/* Profile pie chart */
+
+.profile-pie-chart {
+	background-color: var(--bg-1);
+	border-radius: 8px;
+	box-sizing: border-box;
+	grid-column: span 2;
+	grid-row: span 4;
+	padding: 16px;
 	color: var(--fg-1);
 }

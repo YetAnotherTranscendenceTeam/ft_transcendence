@@ -17,6 +17,7 @@
     "@types/qrcode": "^1.5.5",
     "babact": "file:../../modules/babact",
     "babact-router-dom": "file:../../modules/babact-router-dom",
+    "chart.js": "^4.4.9",
     "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^7.1.2",
     "gl-matrix": "^4.0.0-beta.2",
