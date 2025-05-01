@@ -30,7 +30,7 @@ describe('Status changes', () => {
     const statusUpdate = {
       type: "inlobby",
       data: {
-        player_count: 1,
+        player_ids: [users[1].account_id],
         gamemode: {
           name: "unranked_2v2",
           team_count: 2,

@@ -39,7 +39,7 @@ export function lobbiesEventSource(fastify) {
     const status = {
       type: "inlobby",
       data: {
-        player_count: players.length,
+        player_ids: players,
         gamemode,
         state,
       },
