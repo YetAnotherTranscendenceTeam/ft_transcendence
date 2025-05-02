@@ -1,6 +1,7 @@
 import Babact from "babact";
 import Pagination from "../../ui/Pagination";
 import ProfileGameListItem from "./ProfileGameListItem";
+import ProfileFilter from "./ProfileFilter";
 
 export default function ProfileGameList({}: {}) {
 
@@ -35,7 +36,7 @@ export default function ProfileGameList({}: {}) {
 				setPage={(page) => {
 					console.log(page);
 				}}
-			/>
+				/>
 		</div>
 	</table>
 }

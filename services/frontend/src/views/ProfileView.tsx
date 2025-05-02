@@ -9,6 +9,7 @@ import SegmentedControl from "../ui/SegmentedControl";
 import ProfileFilter from "../components/Profile/ProfileFilter";
 import ProfileGameList from "../components/Profile/ProfileGameList";
 import ProfilePieChart from "../components/Profile/ProfilePieChart";
+import ProfileLineChart from "../components/Profile/ProfileLineChart";
 
 export default function ProfileView() {
 
@@ -28,7 +29,7 @@ export default function ProfileView() {
 			<ProfileFilter />
 			<ProfileGameList/>
 			<ProfilePieChart/>
-			{/* <ProfilePieChart/> */}
+			<ProfileLineChart/>
 		</div>
 	</Overlay>
 

@@ -33,6 +33,6 @@
 	background-color: color-mix(in srgb, var(--bg-2), transparent 20%);
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
-	grid-template-rows: repeat(10, 1fr);
+	grid-template-rows: repeat(17, 1fr);
 	gap: 8px;
 }

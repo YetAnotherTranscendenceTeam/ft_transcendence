@@ -6,10 +6,9 @@ export default function ProfileFilter() {
 	return <div
 		className='profile-filter flex items-center justify-end w-full gap-4'
 	>
-		<p>Gamemode filter</p>
 		<SegmentedControl
 			buttons={[
-				{ label: 'All', value: 'all' },
+				{ label: 'All modes', value: 'all' },
 				{ label: 'Ranked', value: 'ranked' },
 				{ label: 'Unranked', value: 'unranked' },
 				{ label: 'Custom', value: 'custom' },

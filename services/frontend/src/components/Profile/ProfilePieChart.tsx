@@ -6,21 +6,26 @@ export default function ProfilePieChart() {
 
 	const data = {
 		labels: [
-		  'Wins',
-		  'Losses',
+		  'Unranked',
+		  'Ranked',
+		  'Tournament',
+		  'Custom',
 		],
 		datasets: [{
-		  data: [300, 50],
+		  data: [300, 50, 65, 89],
 		  backgroundColor: [
-			'rgb(63, 160, 39)',
-			'rgb(255, 77, 77)',
+			'rgb(247, 94, 255)',
+			'rgb(127, 98, 255)',
+			'rgb(50, 255, 115)',
+			'rgb(255, 115, 50)',
 		  ],
 		}]
 	};
 
 	Babact.useEffect(() => {
 
-		const canvas = document.getElementById('win-lose-chart') as HTMLCanvasElement;
+		const canvas = document.getElementById('gamemode-chart') as HTMLCanvasElement;
+		const { width, height } = canvas.getBoundingClientRect();
 		const chart = new Chart(
 			canvas,
 			{
@@ -32,12 +37,13 @@ export default function ProfilePieChart() {
 							display: false
 						},
 						tooltip: {
-							enabled: false
+							enabled: true,
 						}
 					}
 				}
 			}
 		);
+		chart.resize(width, height);
 
 		return () => {
 			chart.destroy();
@@ -45,10 +51,10 @@ export default function ProfilePieChart() {
 
 	}, [])
 
-	return <div className='profile-pie-chart flex flex-col items-center w-full h-full gap-2'>
-		<h2 className='w-full'>Wins/Looses</h2>
-		<center>
-			<canvas id="win-lose-chart"></canvas>
-		</center>
+	return <div className='profile-chart flex flex-col items-center w-full h-full gap-2'>
+		<h2 className='w-full'>Gamemodes</h2>
+		<div className='profile-chart-container flex justify-center items-center flex-1'>
+			<canvas className='w-full h-full' id="gamemode-chart"></canvas>
+		</div>
 	</div>
 }
