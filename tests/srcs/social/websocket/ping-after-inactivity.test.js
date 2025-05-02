@@ -37,6 +37,10 @@ describe('Status changes', () => {
           team_size: 2,
           type: "unranked",
         },
+        state: {
+          joinable: expect.any(Boolean),
+          type: expect.any(String),
+        },
       }
     };
 
