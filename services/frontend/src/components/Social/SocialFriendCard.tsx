@@ -1,7 +1,7 @@
 import Babact from "babact";
 import { Friend, StatusType } from "../../hooks/useSocials";
 import Button from "../../ui/Button";
-import { Lobby } from "yatt-lobbies";
+import { GameMode, LobbyStateType } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
 import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
@@ -19,7 +19,7 @@ export default function SocialFriendCard({
 
 	const { createToast } = useToast();
 
-	const inLobby = friend.status.type === StatusType.INLOBBY && friend.status.data && new Lobby(friend.status.data);
+	const isInLobby = (friend.status.type === StatusType.INLOBBY) && friend.status.data && new GameMode(friend.status.data.gamemode);
 	
 	const { lobby } = useLobby();
 
@@ -27,35 +27,26 @@ export default function SocialFriendCard({
 
 	const navigate = useNavigate();
 
-	const [inviteSend, setInviteSend] = Babact.useState<boolean>(false);
 	const [loading, setLoading] = Babact.useState<boolean>(false);
 
-	const inviteLobby = (friend.status.type === StatusType.ONLINE || friend.status.type === StatusType.INACTIVE)
-		&& !inviteSend
+	const isInvitable = (friend.status.type === StatusType.ONLINE || friend.status.type === StatusType.INACTIVE)
 		&& !lobby?.players.find(p => p.account_id === friend.account_id)
-		&& lobby?.getCapacity() > lobby?.players.length
-		&& lobby;
+		&& lobby?.getCapacity() > lobby?.players.length;
 
-	const isRequestable = inLobby
-		&& inLobby.players.length < inLobby.getCapacity()
-		&& !inLobby.players.find(p => p.account_id === me.account_id)
-		&& !inviteSend;
-
-	Babact.useEffect(() => {
-		setInviteSend(false);
-	}, [lobby]);
+	const isRequestable = isInLobby
+		&& friend.status.data.player_ids.length < isInLobby.getLobbyCapacity()
+		&& !friend.status.data.player_ids.find(account_id => account_id === me.account_id)
+		&& friend.status.data.state.joinable === true
 
 	const handleInvite = (e: MouseEvent) => {
 		e.stopPropagation();
-		friend.invite(inviteLobby.mode, inviteLobby.join_secret);
-		setInviteSend(true);
+		friend.invite(lobby.mode, lobby.join_secret);
 		createToast(`You invited ${friend.profile.username} to your lobby`, ToastType.SUCCESS);
 	}
 
 	const handleRequest = (e: MouseEvent) => {
 		e.stopPropagation();
 		friend.request();
-		setInviteSend(true);
 		createToast(`You requested to join ${friend.profile.username}'s lobby`, ToastType.SUCCESS);
 	}
 
@@ -78,34 +69,33 @@ export default function SocialFriendCard({
 	return <SocialCard
 		user={friend.profile}
 		type={friend.status.type}
+		className='social-friend-card justify-end'
 	>
-		{inLobby && isRequestable &&
-			<Button
-			onClick={(e) => handleRequest(e)}
-			className="follow-lobby-request"
-			>
-				<i className="fa-regular fa-hand"></i> Request to join
-			</Button>
-		}
 
-		{ inLobby &&
-			<div className={`follow-lobby-status flex gap-4 justify-between ${isRequestable ? 'requestable' : ''}`}>
+		{ isInLobby &&
+			<div className={`social-friend-card-status flex justify-between ${isRequestable ? 'requestable' : ''}`}>
 				<div className='flex flex-col gap-1'>
-					<h1>{inLobby.mode.getDisplayName()}</h1>
-					<h2>{inLobby.mode.type}</h2>
+					<h1>{isInLobby.getDisplayName()}</h1>
+					<h2>{isInLobby.type}</h2>
 				</div>
 				<p>
-					{inLobby.players.length}/{inLobby.getCapacity()}
+					{friend.status.data.player_ids.length}/{isInLobby.getLobbyCapacity()}
 				</p>
+				{isRequestable &&
+					<Button
+					onClick={(e) => handleRequest(e)}
+					className="social-friend-card-button"
+					>
+						<i className="fa-regular fa-hand"></i> Request to join
+					</Button>
+				}
 			</div>
 		}
 
-		{inviteLobby &&
-			<div className='flex flex-row items-center gap-2'>
-				<Button className='info' onClick={(e) => handleInvite(e)}>
-					<i className="fa-regular fa-paper-plane"></i> Invite to lobby
-				</Button>
-			</div>
+		{isInvitable &&
+			<Button className='info' onClick={(e) => handleInvite(e)}>
+				<i className="fa-regular fa-paper-plane"></i> Invite to lobby
+			</Button>
 		}
 		<Dropdown
 			openButton={<i className="fa-solid fa-ellipsis-vertical"></i>}
@@ -116,13 +106,6 @@ export default function SocialFriendCard({
 				className='social-follow-card-dropdown-content flex flex-col gap-2 w-max'
 				>
 				<Button
-					onClick={(e) => handleRemove(e)}
-					className='danger'
-					loading={loading}
-					>
-					<i className="fa-solid fa-user-minus"></i> Remove
-				</Button>
-				<Button
 					className='info'
 					onClick={() => {
 						navigate(`/profiles/${friend.account_id}`);
@@ -130,6 +113,13 @@ export default function SocialFriendCard({
 					
 					>
 					<i className="fa-solid fa-user"></i> Profile
+				</Button>
+				<Button
+					onClick={(e) => handleRemove(e)}
+					className='danger'
+					loading={loading}
+					>
+					<i className="fa-solid fa-user-minus"></i> Remove
 				</Button>
 				<Button
 					className="danger"

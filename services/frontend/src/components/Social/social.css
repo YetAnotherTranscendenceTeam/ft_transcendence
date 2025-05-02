@@ -30,9 +30,61 @@
 
 .social-manager-user-card .button {
 	font-size: small;
-	display: flex;
 }
 
+
+/* ============================== */
+/* ===== Social Friend Card ===== */
+/* ============================== */
+
+.social-friend-card {
+	flex: 1;
+}
+
+.social-friend-card-status {
+	background: var(--bg-1);
+	padding: 8px;
+	border-radius: 4px;
+	/* border-left: var(--inlobby-color) 2px solid; */
+	flex: 1;
+	box-sizing: border-box;
+	position: relative;
+	overflow: hidden;
+}
+
+.social-friend-card-status::after{
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 2px;
+	height: 100%;
+	background: var(--inlobby-color-active);
+}
+
+.social-friend-card-button {
+	position: absolute;
+	/* background: var(--inlobby-color); */
+	background: var(--inlobby-color-active);
+	padding: 8px;
+	flex: 1;
+	box-sizing: border-box;
+	transform: translateX(-100%);
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	border-radius: 0;
+	transition: transform 0.3s ease;
+}
+
+.social-friend-card-status:hover .social-friend-card-button {
+	transform: translateX(0);
+}
+
+.social-friend-card-button:hover {
+	background: var(--inlobby-color-active);
+}
 
 /* ============================== */
 /* =========== Manager ========== */

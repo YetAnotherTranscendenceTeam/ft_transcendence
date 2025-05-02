@@ -4,6 +4,12 @@ if (!AUTHENTICATION_SECRET) {
   process.exit(1);
 }
 
+export const ACTIVITY_SSE_SECRET = process.env.ACTIVITY_SSE_SECRET;
+if (!ACTIVITY_SSE_SECRET) {
+  console.error("Missing environment variable: ACTIVITY_SSE_SECRET");
+  process.exit(1);
+}
+
 export const offline_delay = process.env.SOCIAL_OFFLINE_DELAY || 30 * 1000 // Defaults to 30sec
 
 export const inactivity_delay = process.env.SOCIAL_INACTIVITY_DELAY || 2 * 60 * 1000 // Defaults to 2min

@@ -22,6 +22,8 @@ export default function App() {
 	}
 
 	Babact.useEffect(() => {
+		if (process.env.NODE_ENV !== 'production')
+			return;
 		window.addEventListener('beforeunload', handleReload);
 		return () => {
 			window.removeEventListener('beforeunload', handleReload);
