@@ -11,3 +11,4 @@ export const tokenManagerURL = "http://127.0.0.1:4002";
 export const twofaURL = "http://127.0.0.1:4052";
 export const lobbiesURL = "http://127.0.0.1:4043"
 export const lobbiesSSE= `${lobbiesURL}/notify`;
+export const avatarsURL = "http://127.0.0.1:4113";
