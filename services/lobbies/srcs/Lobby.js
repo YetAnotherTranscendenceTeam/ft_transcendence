@@ -11,6 +11,7 @@ import {
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
 import { LobbyStateType, Lobby as LobbyBase, GameModeType} from "yatt-lobbies";
+import { activityEvents } from "./ActivityEvents.js";
 
 export const LobbyState = {
   waiting: () => ({ type: LobbyStateType.WAITING, joinable: true }),
@@ -100,6 +101,7 @@ export class Lobby extends LobbyBase {
     this.broadbast(new LobbyJoinMessage(player));
     super.addPlayer(player);
     player.syncLobby();
+    activityEvents.update(this);
   }
 
   removePlayer(player) {
@@ -110,6 +112,7 @@ export class Lobby extends LobbyBase {
     if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
+    activityEvents.leave(this, player.account_id);
   }
 
   // swaps the positions of 2 players
@@ -151,11 +154,13 @@ export class Lobby extends LobbyBase {
     super.setMode(mode);
     this.team_names.length = lobby_capacity / mode.team_size;
     this.broadbast(new LobbyModeMessage(mode));
+    activityEvents.update(this);
   }
 
   setState(state) {
     this.state = state;
     this.broadbast(new LobbyStateMessage(state));
+    activityEvents.update(this);
   }
 
   isFull() {

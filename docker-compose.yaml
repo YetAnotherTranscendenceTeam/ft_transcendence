@@ -16,6 +16,7 @@ services:
       - ssl-key
     depends_on:
       - avatars
+      - social
 
   frontend:
     build:
@@ -183,6 +184,7 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
+      - ACTIVITY_SSE_SECRET=${ACTIVITY_SSE_SECRET}
     ports:
       - "127.0.0.1:4043:3000"
     networks:
@@ -301,6 +303,7 @@ services:
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - ACTIVITY_SSE_SECRET=${ACTIVITY_SSE_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
     ports:
@@ -309,6 +312,9 @@ services:
       - social
       - db-profiles
       - settings
+    depends_on:
+      lobbies:
+        condition: service_healthy
 
   cdn-nginx:
     build:
