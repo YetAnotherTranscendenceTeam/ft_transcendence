@@ -16,6 +16,22 @@ import Keyboard from "./Keyboard";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+const TICK_PER_SECOND = Math.floor(1 / PONG.K.DT);
+
+export interface IPongOverlay {
+	scores: number[],
+	teams: {
+		players: PONG.IPongPlayer[],
+		name: string,
+	}[],
+	localPlayer: PONG.IPongPlayer,
+	time: number,
+	countDown: number,
+	lastWinner: number,
+	gameStatus: PONG.PongState,
+	local: boolean
+}
+
 export default class PongClient extends PONG.Pong {
 	private readonly _canvas: HTMLCanvasElement;
 	private _websocket?: WebSocket;
@@ -41,15 +57,12 @@ export default class PongClient extends PONG.Pong {
 
 	// public scoreUpdateCallback: (score: ScoredEvent) => void;
 	public callbacks: {
-		scoreUpdateCallback: (score: ScoredEvent) => void;
-		timeUpdateCallback: (time: number) => void;
-		endGameCallback: () => void;
+
+		updateOverlay: (params: IPongOverlay) => void,
 	};
 
 	public constructor(callbacks: {
-		scoreUpdateCallback: (score: ScoredEvent) => void,
-		timeUpdateCallback: (time: number) => void,
-		endGameCallback: () => void
+		updateOverlay: (params: IPongOverlay) => void,
 	}) {
 		super();
 		this.callbacks = callbacks;
@@ -84,6 +97,28 @@ export default class PongClient extends PONG.Pong {
 		//this.setGameScene(GameScene.ONLINE);
 	}
 
+	private updateOverlay() {
+		this.callbacks.updateOverlay(this.generateOverlay());
+	}
+
+	private generateOverlay(): IPongOverlay {
+		return {
+			local: this._gameScene !== GameScene.ONLINE,
+			scores: this._score,
+			teams: this._teamNames.map((team: string, team_index: number) => {
+				return {
+					name: team,
+					players: this._players.filter((player: PONG.IPongPlayer, player_index: number) => player_index % this._gameMode.team_size === team_index),
+				}
+			}),
+			localPlayer: this._player,
+			time: this._tick * PONG.K.DT,
+			countDown: this._state.frozen_until,
+			lastWinner: this._lastSide,
+			gameStatus: this._state,
+		}
+	}
+
 	public setGameScene(scene: GameScene) {
 		if (this._gameScene === scene) {
 			return;
@@ -93,7 +128,7 @@ export default class PongClient extends PONG.Pong {
 		});
 		this._ballInstances = [];
 		this._paddleInstance = new Map<number, ClientPaddle>();
-		// disabble active map
+		// disable active map
 		if (this._currentMap) {
 			this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
 				map.disable();
@@ -114,7 +149,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	public startGame() {
-		this._state = PONG.PongState.PLAYING.clone();
+		this._state = PONG.PongState.FREEZE.clone();
 		this.start();
 		this._time = 0;
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
@@ -141,19 +176,24 @@ export default class PongClient extends PONG.Pong {
 					PONG.PongState[msg.data.match.state.name].clone(),
 				);
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
-				this.callbacks.scoreUpdateCallback({ score: msg.data.match.score, side: msg.data.match.state.side });
+				this.updateOverlay();
 			}
 			else if (msg.event === "state") {
 				const state = PONG.PongState[msg.data.state.name].clone();
-				if (state.name === "FREEZE" || state.name === "ENDED") {
-					this.callbacks.scoreUpdateCallback({ score: msg.data.state.score, side: msg.data.state.side });
-				}
-				if (state.name === "ENDED") {
-					this.callbacks.endGameCallback();
-				}
-				if (this._state.endCallback)
-					this._state.endCallback(this, state);
+				const oldState = this._state;
 				this._state = state;
+				Object.assign(this._state, msg.data.state);
+				if (msg.data.state.score && msg.data.state.score.length > 0) {
+					this._score = msg.data.state.score;
+					this._lastSide = msg.data.state.lastSide;
+				}
+				if (this._state.name !== oldState.name
+					|| (this._state.frozen_until !== oldState.frozen_until
+						&& Math.floor(this._state.frozen_until) !== Math.floor(oldState.frozen_until)
+					)
+				) {
+					this.updateOverlay();
+				}
 			}
 		}
 		this._websocket.onopen = (ev) => {
@@ -165,17 +205,17 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	public nextRound() {
-		this._state = PONG.PongState.PLAYING.clone();
-		this.roundStart();
+		this.setState(PONG.PongState.FREEZE.clone());
 	}
 
 	public pauseGame() {
 		this._state = PONG.PongState.PAUSED.clone();
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Yellow());
+		this.updateOverlay();
 	}
 
 	public resumeGame() {
-		this._state = PONG.PongState.PLAYING.clone();
+		this.setState(PONG.PongState.FREEZE.clone());
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
 	}
 
@@ -277,6 +317,7 @@ export default class PongClient extends PONG.Pong {
 		
 		this.loadBalls();
 		this.bindPaddles();
+		this.updateOverlay();
 	}
 	
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
@@ -321,30 +362,40 @@ export default class PongClient extends PONG.Pong {
 		}
 		// this.update();
 		this._babylonScene.render();
-		// console.log(this.);
 	}
 
 	private resize = () => {
 		this._engine.resize();
 	}
 
+	setState(state: PONG.PongState) {
+		if (this._state.endCallback) {
+			this._state.endCallback(this, state);
+		}
+		this._state = state;
+		if (!this._state.isFrozen())
+			this.updateOverlay();
+	}
+
 	private updateLocal() {
 		let dt: number = this._engine.getDeltaTime() / 1000;
+		const oldFreeze = this._state.frozen_until;
 		if (this._state.tick(dt, this)) {
+			if (this._state.frozen_until != -1 && Math.floor(this._state.frozen_until) !== Math.floor(oldFreeze))
+				this.updateOverlay();
 			return;
 		}
 
 		if (this._state.getNext()) {
 			const next = this._state.getNext().clone();
-			if (this._state.endCallback) {
-				this._state.endCallback(this, next);
+			this.setState(next);
+			if (this._state.tick(0, this)) {
+				return;
 			}
-			this._state = next;
 		}
 
 		this._time += dt;
-		this.callbacks.timeUpdateCallback(Math.floor(this._time));
-
+		const oldTick = this._tick;
 		this.playerUpdateLocal();
 		dt = this.physicsUpdate(dt);
 		this._ballInstances.forEach((ball: ClientBall) => {
@@ -355,14 +406,16 @@ export default class PongClient extends PONG.Pong {
 		});
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._score[0] + "-" + this._score[1]);
-			this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
 			if (this._winner !== undefined) {
 				this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
-				this.callbacks.endGameCallback();
-				this._state = PONG.PongState.ENDED.clone();
+				this.setState(PONG.PongState.ENDED.clone());
 			} else {
-				this._state = PONG.PongState.FREEZE.clone();
+				this.setState(PONG.PongState.FREEZE.clone());
 			}
+			return ;
+		}
+		if (this._tick % TICK_PER_SECOND === 0 && this._tick !== oldTick) {
+			this.updateOverlay();
 		}
 	}
 
@@ -385,12 +438,16 @@ export default class PongClient extends PONG.Pong {
 		// this.callbacks.timeUpdateCallback(Math.floor(this._time));
 
 		if (!this._state.isFrozen()) {
+			const oldTick = this._tick;
 			this.playerUpdateOnline();
 			this._interpolation = this.physicsUpdate(dt);
 			this._serverSteps.forEach((step: IServerStep) => {
 				this.serverStep(step, step.collisions > 0);
 			});
 			this._serverSteps = [];
+			if (this._tick % TICK_PER_SECOND === 0 && this._tick !== oldTick) {
+				this.updateOverlay();
+			}
 		}
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(this._interpolation);
@@ -459,7 +516,6 @@ export default class PongClient extends PONG.Pong {
 
 		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.paddleId);
 		if (paddle) {
-			console.log("player", this._player)
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {
 				moveDirection += 1;

@@ -35,6 +35,7 @@ export class PongServer extends Pong {
 	toJSON() {
 		return {
 			players: this._players,
+			team_names: this.team_names,
 			match_id: this._matchId,
 			gamemode: this._gameMode,
 			state: this._state,
@@ -141,11 +142,15 @@ export class PongServer extends Pong {
 		let dt = (Date.now() - this._lastUpdate) / 1000;
 		if (this._state.tick(dt, this)) {
 			this._lastUpdate = Date.now();
+			this.broadcast({
+				event: "state",
+				data: {state: this._state}
+			});
 			return;
 		}
 		if (this._state.getNext()) {
 			this.setState(this._state.getNext().clone());
-			if (this._state.tick(dt, this)) {
+			if (this._state.tick(0, this)) {
 				this._lastUpdate = Date.now();
 				return;
 			}

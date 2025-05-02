@@ -8,7 +8,7 @@ import { Body } from "physics-engine"
 import { Pong } from "./Pong.js";
 
 export class IPongState {
-	name: string;
+	name: "PLAYING" | "FREEZE" | "RESERVED" | "PAUSED" | "ENDED";
 	frozen_until: number;
 }
 
@@ -39,13 +39,13 @@ export class PongState implements IPongState {
 		frozen_until: -1,
 	});
 
-	public readonly name: string;
+	public readonly name: "PLAYING" | "FREEZE" | "RESERVED" | "PAUSED" | "ENDED";
 	public readonly next?: () => PongState = null;
 	public frozen_until: number;
 	public endCallback?: ((game: Pong, nextState: PongState) => void) = null;
 	public tickCallback?: ((dt: number, game: Pong) => boolean) = null;
 
-	constructor(name: string, { frozen_until, next, endCallback, tickCallback }: { frozen_until: number, next?: () => PongState, endCallback?: (game: Pong, nextState: PongState) => void, tickCallback?: (dt: number, game: Pong) => boolean }) {
+	constructor(name: "PLAYING" | "FREEZE" | "RESERVED" | "PAUSED" | "ENDED", { frozen_until, next, endCallback, tickCallback }: { frozen_until: number, next?: () => PongState, endCallback?: (game: Pong, nextState: PongState) => void, tickCallback?: (dt: number, game: Pong) => boolean }) {
 		this.name = name;
 		this.frozen_until = frozen_until;
 		this.next = next;

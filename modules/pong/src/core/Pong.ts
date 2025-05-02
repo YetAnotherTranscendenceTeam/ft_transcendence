@@ -57,46 +57,43 @@ export class Pong {
 	}
 
 	protected switchMap(mapId: MapID) {
-		if (!this._currentMap || this._currentMap.mapId !== mapId) {
-
-			this._currentMap = Pong._map?.get(mapId).clone();
-			if (!this._currentMap) {
-				throw new Error("Map not found");
-			}
-			this._physicsScene.clear();
-			this._paddles.clear();
-			this._goals.clear();
-			this._balls = [];
-			this._physicsScene.addBody(this._currentMap.wallTop);
-			this._physicsScene.addBody(this._currentMap.wallBottom);
-			if (this._currentMap.goalLeft) {
-				this._physicsScene.addBody(this._currentMap.goalLeft);
-				this._goals.set(MapSide.LEFT, this._currentMap.goalLeft);
-			}
-			if (this._currentMap.goalRight) {
-				this._physicsScene.addBody(this._currentMap.goalRight);
-				this._goals.set(MapSide.RIGHT, this._currentMap.goalRight);
-			}
-			if (this._currentMap.paddleLeftBack) {
-				this._physicsScene.addBody(this._currentMap.paddleLeftBack);
-				this._paddles.set(PaddleID.LEFT_BACK, this._currentMap.paddleLeftBack);
-			}
-			if (this._currentMap.paddleRightBack) {
-				this._physicsScene.addBody(this._currentMap.paddleRightBack);
-				this._paddles.set(PaddleID.RIGHT_BACK, this._currentMap.paddleRightBack);
-			}
-			if (this._currentMap.paddleLeftFront) {
-				this._physicsScene.addBody(this._currentMap.paddleLeftFront);
-				this._paddles.set(PaddleID.LEFT_FRONT, this._currentMap.paddleLeftFront);
-			}
-			if (this._currentMap.paddleRightFront) {
-				this._physicsScene.addBody(this._currentMap.paddleRightFront);
-				this._paddles.set(PaddleID.RIGHT_FRONT, this._currentMap.paddleRightFront);
-			}
-			this._currentMap.obstacles.forEach((obstacle: Wall) => {
-				this._physicsScene.addBody(obstacle);
-			});
+		this._currentMap = Pong._map?.get(mapId).clone();
+		if (!this._currentMap) {
+			throw new Error("Map not found");
 		}
+		this._physicsScene.clear();
+		this._paddles.clear();
+		this._goals.clear();
+		this._balls = [];
+		this._physicsScene.addBody(this._currentMap.wallTop);
+		this._physicsScene.addBody(this._currentMap.wallBottom);
+		if (this._currentMap.goalLeft) {
+			this._physicsScene.addBody(this._currentMap.goalLeft);
+			this._goals.set(MapSide.LEFT, this._currentMap.goalLeft);
+		}
+		if (this._currentMap.goalRight) {
+			this._physicsScene.addBody(this._currentMap.goalRight);
+			this._goals.set(MapSide.RIGHT, this._currentMap.goalRight);
+		}
+		if (this._currentMap.paddleLeftBack) {
+			this._physicsScene.addBody(this._currentMap.paddleLeftBack);
+			this._paddles.set(PaddleID.LEFT_BACK, this._currentMap.paddleLeftBack);
+		}
+		if (this._currentMap.paddleRightBack) {
+			this._physicsScene.addBody(this._currentMap.paddleRightBack);
+			this._paddles.set(PaddleID.RIGHT_BACK, this._currentMap.paddleRightBack);
+		}
+		if (this._currentMap.paddleLeftFront) {
+			this._physicsScene.addBody(this._currentMap.paddleLeftFront);
+			this._paddles.set(PaddleID.LEFT_FRONT, this._currentMap.paddleLeftFront);
+		}
+		if (this._currentMap.paddleRightFront) {
+			this._physicsScene.addBody(this._currentMap.paddleRightFront);
+			this._paddles.set(PaddleID.RIGHT_FRONT, this._currentMap.paddleRightFront);
+		}
+		this._currentMap.obstacles.forEach((obstacle: Wall) => {
+			this._physicsScene.addBody(obstacle);
+		});
 	}
 
 	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED.clone()) {

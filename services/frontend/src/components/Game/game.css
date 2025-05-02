@@ -111,3 +111,22 @@
 .game-paused-modal .timer h2 {
 	font-size: 150px;
 }
+
+/* Gameoverlay */
+
+.game-overlay {
+	font-size: 5vh;
+	color: var(--fg-1);
+}
+
+.game-overlay-content {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+}
+
+.game-overlay-content.background {
+	background-color: color-mix(in srgb, var(--bg-1), transparent 50%);
+}
