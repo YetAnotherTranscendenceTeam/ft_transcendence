@@ -498,6 +498,10 @@ paths:
                       - email
                       - auth_method
                       - otp_methods
+                  last_match:
+                    $ref: "#/components/schemas/light_match"
+                  last_tournament:
+                    $ref: "#/components/schemas/light_tournament"
                 required:
                   - account_id
                   - username
