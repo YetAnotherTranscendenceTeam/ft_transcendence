@@ -12,5 +12,8 @@
     "yatt-utils": "file:../../modules/yatt-utils",
     "yatt-ws": "file:../../modules/yatt-ws"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

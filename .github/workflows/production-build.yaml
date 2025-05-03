@@ -63,7 +63,11 @@ jobs:
         run: mv .env.template .env
 
       - name: Up
-        run: docker compose -f docker-compose.ibertran.yaml up -d --wait || docker compose -f docker-compose.ibertran.yaml logs
+        run: docker compose -f docker-compose.ibertran.yaml up -d --wait
+
+      - name: Print containers logs
+        if: always()
+        run: docker compose -f docker-compose.ibertran.yaml logs
 
       - name: Down
         if: always()
