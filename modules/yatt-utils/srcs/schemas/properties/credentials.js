@@ -24,7 +24,7 @@ const credentialsProperties = {
     minLength: 8,
     maxLength: 24,
     description: "The account password, must be between 8 and 24 characters",
-    pattern: process.env.PASSWORD_REGEX || `^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{}|;:'",.<>/?]).{8,24}$`
+    pattern: process.env.PASSWORD_REGEX || `^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_\\-+=\\[\\]{}|;:'",.<>/?]).{8,24}$`
   },
 
   hash: {
