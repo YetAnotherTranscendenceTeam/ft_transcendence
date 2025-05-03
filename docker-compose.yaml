@@ -11,12 +11,12 @@ services:
       - avatars
       - settings
       - social
-    secrets:
-      - ssl-crt
-      - ssl-key
     depends_on:
       - avatars
       - social
+    secrets:
+      - ssl-crt
+      - ssl-key
 
   frontend:
     build:

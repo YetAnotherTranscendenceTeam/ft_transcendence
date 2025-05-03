@@ -1,0 +1,21 @@
+services:
+  nginx:
+    ports: !override
+      - "8080:8080"
+      - "7979:7979"
+    secrets:
+      - ssl-crt
+      - ssl-key
+
+  cdn-nginx:
+    ports: !override
+      - "8181:8181"
+    secrets:
+      - ssl-crt
+      - ssl-key
+  
+secrets:
+  ssl-crt: 
+    file: ./secrets/localhost.crt
+  ssl-key: 
+    file: ./secrets/localhost.key
