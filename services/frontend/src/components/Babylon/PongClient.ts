@@ -259,7 +259,7 @@ export default class PongClient extends PONG.Pong {
 		PONG.Pong._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];
 			let counter: number = 0;
-			
+
 			const objects: PH2D.Body[] = map.getObjects();
 			objects.forEach((object: PH2D.Body) => {
 				let clientObject: AObject | undefined;
@@ -276,15 +276,6 @@ export default class PongClient extends PONG.Pong {
 				}
 				counter++;
 			});
-
-			if (map.obstacles) {
-				map.obstacles.forEach((obstacle: PONG.Wall) => {
-					const wall: ClientWall = new ClientWall(this._babylonScene, ("obstacle" + map.mapId.toString() + counter.toPrecision(2)), obstacle);
-					wall.disable();
-					mapMesh.push(wall);
-					counter++;
-				});
-			}
 			
 			this._meshMap.set(mapId, mapMesh);
 		});
