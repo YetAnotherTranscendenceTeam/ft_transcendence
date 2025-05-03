@@ -350,19 +350,6 @@ services:
       - CDN_SECRET=${CDN_SECRET}
     networks:
      - cdn-api
-  
-  documentation:
-    build:
-      context: services/documentation/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./documentation/:/documentation/:ro
-      - ./services/documentation/srcs:/services/documentation/srcs
-      - ./modules/:/modules:ro
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-    ports:
-      - 42000:3000
 
   pong:
     build:
@@ -380,6 +367,17 @@ services:
       - 4124:3000
     networks:
       - frontend
+
+  documentation:
+    build:
+      context: documentation/service
+    volumes:
+      - ./documentation/:/documentation/:ro
+      - ./documentation/service/srcs:/services/documentation/srcs
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    ports:
+      - 42000:3000
 
 networks:
   frontend:

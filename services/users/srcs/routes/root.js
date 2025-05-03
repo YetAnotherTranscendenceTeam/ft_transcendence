@@ -1,7 +1,6 @@
 "use strict";
 
-import { HttpError, objects, properties } from "yatt-utils";
-import getInfos from "../utils/getInfos.js";
+import { properties } from "yatt-utils";
 import YATT from "../../../../modules/yatt-utils/srcs/index.js";
 
 export default function router(fastify, opts, done) {
@@ -54,22 +53,9 @@ export default function router(fastify, opts, done) {
   fastify.get("/:account_id", { schema }, async function handler(request, reply) {
     const { account_id } = request.params;
 
-    try {
-      const user = await getInfos(account_id);
-      reply.send(user);
-      console.log("SENT:", user)
-    } catch (err) {
-      if (err instanceof HttpError) {
-        if (err.statusCode === 404) {
-          reply.code(404).send(objects.accountNotFound);
-        } else {
-          err.send(reply);
-        }
-      } else {
-        console.error(err);
-        throw err;
-      }
-    }
+    const profile = await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+
+    reply.send(profile);
   });
 
   done();

@@ -53,6 +53,22 @@ components:
       type: string
       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NedW50X2lkIjo5NiwiaWF0IjoxNzQwNYc1NzM5LCJleHAiOjE3NDA1NzY2Mzl9.7ZuX-M9EIdByqk0X2bjU0-YjgFyVZYzSI520YZbw9N8"
 
+    auth_method:
+      description: The authentication method associated with an account
+      type: string
+      enum:
+        - password_auth
+        - fortytwo_auth
+        - google_auth
+
+    otp_methods:
+      description: The one time password methods activated for an account
+      type: array
+      items:
+        type: string
+        enum:
+          - app
+
     otp_method:
       description: A two factor authentication method
       type: string
@@ -453,8 +469,53 @@ paths:
       tags:
         - Users
       responses:
-        204:
+        200:
           description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id:
+                    $ref: "#/components/schemas/account_id"
+                  username:
+                    $ref: "#/components/schemas/username"
+                  avatar:
+                    $ref: "#/components/schemas/avatar"
+                  credentials:
+                    type: object
+                    properties:
+                      account_id:
+                        $ref: "#/components/schemas/account_id"
+                      email:
+                        $ref: "#/components/schemas/email"
+                      auth_method:
+                        $ref: "#/components/schemas/auth_method"
+                      otp_methods:
+                        $ref: "#/components/schemas/otp_methods"
+                    required:
+                      - account_id
+                      - email
+                      - auth_method
+                      - otp_methods
+                  last_match:
+                    $ref: "#/components/schemas/light_match"
+                  last_tournament:
+                    $ref: "#/components/schemas/light_tournament"
+                  matchmaking_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/matchmaking_user"
+                required:
+                  - account_id
+                  - username
+                  - avatar
+                  - credentials
+
+        401:
+          description: Unauthorized
+        502:
+          description: Bad gateway
       security:
         - BearerAuth: []
 
