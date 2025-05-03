@@ -6,8 +6,7 @@ import * as PONG from "pong";
 import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 
-// const isDevelopment = process.env.NODE_ENV !== "production";
-const isDevelopment = false;
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 export default class ClientGoal extends AObject {
 
