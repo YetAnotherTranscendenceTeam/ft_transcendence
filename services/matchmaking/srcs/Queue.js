@@ -51,13 +51,13 @@ export class Queue {
     this.lobbies.splice(index, 1);
   }
 
-  matchmake() {
+  async matchmake() {
     if (this.lobbies.length === 0) return;
     console.log(`Matchmaking for ${this.gamemode.name}`);
     for (let i = 0; i < this.lobbies.length; i++) {
       const teams = [];
       if (this.lobbies[i].players.length > this.gamemode.team_size) {
-        this.matchLobbies([this.lobbies[i]]);
+        await this.matchLobbies([[this.lobbies[i]]]);
         i--;
         continue;
       }
@@ -66,9 +66,8 @@ export class Queue {
         if (!team) continue;
         teams.push(team);
       }
-      const teams_flat = teams.flat();
       if (teams.length === this.gamemode.team_count) {
-        this.matchLobbies(teams_flat);
+        await this.matchLobbies(teams);
         i--;
       }
     }
@@ -114,20 +113,22 @@ export class Queue {
 
   /**
    * 
-   * @param {Lobby[]} lobbies 
+   * @param {Lobby[][]} teams 
    */
-  matchLobbies(lobbies) {
+  async matchLobbies(teams) {
     console.log(`Matched lobbies`);
+    const lobbies = teams.flat();
     lobbies.forEach((lobby) => {
       this.unqueue(lobby, false);
       console.log(` - ${lobby.join_secret}`);
     });
     // handle tournaments
     if (this.gamemode.team_count > 2) {
-      const lobby = lobbies[0];
+      const lobby = teams[0][0];
       if (lobby.getTeamCount() > 2) {
         const teams = lobby.getTeams();
         const tournament = new Tournament(teams, this.gamemode, this.fastify.tournaments);
+        await tournament.insert();
         this.fastify.tournaments.registerTournament(tournament);
         this.lobbyConnection.send({
           event: "match",
@@ -139,8 +140,9 @@ export class Queue {
         return;
       }
     }
-    const match = new Match(lobbies.map(lobby => lobby.players).flat(), this.gamemode);
+    const match = new Match(teams, this.gamemode, null, this.fastify);
     match.insert();
+    await match.reserve();
     this.lobbyConnection.send({
         event: "match",
         data: {

@@ -1,4 +1,5 @@
 import db from "./app/database.js";
+import { GameModes } from "./GameModes.js";
 import { Match, MatchState } from "./Match.js";
 
 const TournamentMatchState = {
@@ -105,10 +106,10 @@ class TournamentMatch {
     return this.team_ids.every((team_id) => team_id !== null);
   }
 
-  setState(state) {
+  async setState(state) {
     if (this.state === state) return;
     if (state === TournamentMatchState.PLAYING) {
-      this.createInternalMatch();
+      await this.createInternalMatch();
     }
     this.state = state;
     this.tournament.broadcast("match_update", {
@@ -117,23 +118,25 @@ class TournamentMatch {
     this.updateDB();
   }
 
-  createInternalMatch() {
+  async createInternalMatch() {
     this.internal_match = new Match(
       [
-        ...this.tournament.teams[this.team_ids[0]].players,
-        ...this.tournament.teams[this.team_ids[1]].players,
+        this.tournament.teams[this.team_ids[0]],
+        this.tournament.teams[this.team_ids[1]],
       ],
       this.tournament.gamemode,
       this.tournament.id,
+      this.tournament.manager.fastify
     );
     this.internal_match.insert();
+    await this.internal_match.reserve();
     this.tournament.manager.registerTournamentMatch(this);
     return this.internal_match;
   }
 
-  updateMatch({ state, score_0, score_1 }) {
-    this.internal_match.score_0 = score_0;
-    this.internal_match.score_1 = score_1;
+  async updateMatch({ state, score_0, score_1 }) {
+    this.internal_match.teams[0].score = score_0;
+    this.internal_match.teams[1].score = score_1;
     this.internal_match.state = state;
     const states = {
       [MatchState.RESERVED]: TournamentMatchState.PLAYING,
@@ -150,13 +153,13 @@ class TournamentMatch {
     if (newState == TournamentMatchState.DONE && oldState != newState) {
         this.updateDB();
       this.tournament.manager.unregisterTournamentMatch(this);
-      const winner_team = this.internal_match.score_0 > this.internal_match.score_1 ? 0 : 1;
+      const winner_team = this.internal_match.teams[0].score > this.internal_match.teams[1].score ? 0 : 1;
       if (!this.nextMatch) {
         this.tournament.finish();
         return;
       }
       this.nextMatch.team_ids[this.nextMatchTeamIndex] = this.team_ids[winner_team];
-      if (this.nextMatch.shouldStart()) this.nextMatch.setState(TournamentMatchState.PLAYING);
+      if (this.nextMatch.shouldStart()) await this.nextMatch.setState(TournamentMatchState.PLAYING);
       else {
         this.nextMatch.updateDB();
         this.tournament.broadcast("match_update", {
@@ -174,7 +177,7 @@ class TournamentMatch {
       stage: this.stage,
       index: this.index,
       team_ids: this.team_ids,
-      scores: [this.internal_match?.score_0 ?? null, this.internal_match?.score_1 ?? null],
+      scores: [this.internal_match?.teams[0].score ?? null, this.internal_match?.teams[1].score ?? null],
       match_id: this.internal_match?.match_id ?? null,
     };
   }
@@ -196,11 +199,10 @@ export class Tournament {
     );
     this.gamemode = gamemode;
     this.manager = manager;
-    this.insert();
   }
 
-  insert() {
-    db.transaction(() => {
+  async insert() {
+    await db.transaction(async () => {
       let obj = db
         .prepare(
           `
@@ -222,11 +224,11 @@ export class Tournament {
           player.insert();
         }
       }
-      this.createMatches();
+      await this.createMatches();
     })();
   }
 
-  createMatches() {
+  async createMatches() {
     const stageCount = Math.ceil(Math.log2(this.teams.length));
     let stageMatchCount = 1;
     const stages = [];
@@ -271,14 +273,14 @@ export class Tournament {
       }
       teamIndex++;
     }
-    this.matches = this.matches.filter((match) => match);
+    this.matches = this.matches.filter((match) => !!match);
     this.matches.forEach((m, i) => {
       m.index = i;
       m.insert();
     });
-    toStart.forEach((match) => {
-      match.setState(TournamentMatchState.PLAYING);
-    });
+    for (let match of toStart) {
+      await match.setState(TournamentMatchState.PLAYING);
+    };
   }
 
   toJSON() {
@@ -337,12 +339,3 @@ export class Tournament {
     }
   }
 }
-// basic tournament test (TODO: remove)
-// const teams = Array.from({ length: 9 }, (_, i) => ({
-//   players: [{ rating: i }]
-// }));
-// function test() {
-//   const tournament = new Tournament(teams, {});
-//   console.log({tournament, teams: teams.length});
-// }
-// test();

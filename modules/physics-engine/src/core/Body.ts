@@ -6,25 +6,25 @@ import { Vec2, Vec2Like } from "gl-matrix";
 export class Body extends EventTarget {
 	private static _idCounter: number = 0;
 
-	private _id: number;
+	protected _id: number;
 	
-	private _type: PhysicsType;
-	private _shape: Shape;
+	protected _type: PhysicsType;
+	protected _shape: Shape;
 	
-	private _material: Material;
-	private _massData: MassData;
+	protected _material: Material;
+	protected _massData: MassData;
 	
-	private _force: Vec2;
+	protected _force: Vec2;
 	
-	private _angularVelocity: number;
-	private _torque: number;
-	private _orientation: number;
+	protected _angularVelocity: number;
+	protected _torque: number;
+	protected _orientation: number;
 	
-	private _position: Vec2;
-	private _velocity: Vec2;
+	protected _position: Vec2;
+	protected _velocity: Vec2;
 	
-	private _previousPosition: Vec2;
-	private _previousOrientation: number;
+	protected _previousPosition: Vec2;
+	protected _previousOrientation: number;
 
 	public filter: number;
 	
@@ -114,7 +114,7 @@ export class Body extends EventTarget {
 		}
 		this._position.add(Vec2.scale(Vec2.create(), this._velocity, dt));
 		this._orientation += this._angularVelocity * dt;
-		this._setOrientation(this._orientation);
+		this.setOrientation(this._orientation);
 		this.integrateForces(dt, gravity);
 	}
 
@@ -175,11 +175,15 @@ export class Body extends EventTarget {
 		return this._position;
 	}
 
+	public get previousPosition(): Vec2 {
+		return this._previousPosition;
+	}
+
 	public get velocity(): Vec2 {
 		return this._velocity;
 	}
 
-	private _setOrientation(radians: number): void {
+	public setOrientation(radians: number): void {
 		this._orientation = radians;
 		this._shape.setOrientation(radians);
 	}
@@ -188,7 +192,12 @@ export class Body extends EventTarget {
 		this._position = position;
 	}
 
+
 	public set velocity(velocity: Vec2) {
 		this._velocity = velocity;
+	}
+
+	public set angularVelocity(angularVelocity: number) {
+		this._angularVelocity = angularVelocity;
 	}
 }

@@ -35,4 +35,8 @@ export default abstract class AObject {
 	public dispose() {
 		this._mesh?.dispose();
 	}
+
+	public updateBodyReference(physicsBody: PH2D.Body) {
+		this._physicsBody = physicsBody;
+	}
 };

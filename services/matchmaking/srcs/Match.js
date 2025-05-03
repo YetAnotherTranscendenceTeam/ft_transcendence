@@ -1,6 +1,9 @@
 import { GameModeType } from "yatt-lobbies";
 import { GameModes, GameMode } from "./GameModes.js";
+import YATT from "yatt-utils";
 import db from "./app/database.js";
+import { MatchTeam } from "./MatchTeam.js";
+import { Lobby } from "./Lobby.js";
 
 export const MatchState = {
   RESERVED: 0,
@@ -14,61 +17,106 @@ export class Match {
     return new Match(qresult);
   }
 
-  constructor(players, gamemode, tournament_id = null) {
-    if (Array.isArray(players) && gamemode instanceof GameMode) {
-      this.tournament_id = tournament_id;
-      this.players = players.map((player, index) => ({
-        ...player,
-        team_index: Math.floor(index / gamemode.team_size),
-        player_index: index % gamemode.team_size,
-      }));
-      this.gamemode = gamemode;
-      // gamemode name is saved in case the gamemode doesn't exist anymore
-      this.gamemode_name = gamemode.name;
-      this.state = MatchState.RESERVED;
-      this.score_0 = 0;
-      this.score_1 = 0;
-    } else if (typeof players === "object" && gamemode === undefined) {
-      const match = players;
-      this.match_id = match.match_id;
-      this.tournament_id = match.tournament_id;
-      this.gamemode = GameModes[match.gamemode];
-      this.gamemode_name = match.gamemode;
-      this.players = match.players;
-      this.state = match.state;
-      this.score_0 = match.score_0;
-      this.score_1 = match.score_1;
-      this.created_at = match.created_at;
-      this.updated_at = match.updated_at;
-    } else throw new Error("Invalid arguments");
-    if (this.gamemode.type !== GameModeType.RANKED)
-      return ;
-    for (let player of this.players) {
-      player.win_probability = this.players.filter((p) => p.team_index !== player.team_index).reduce(
-        (acc, p) => acc + ((player.rating - p.rating) * 0.009) + 1,
-        0
-      ) / this.gamemode.team_size;
-      player.win_probability = Math.min(2, Math.max(0, player.win_probability));
+  players = [];
+
+  /**
+   * @type {MatchTeam}
+   */
+  teams = [];
+
+  /**
+   * @type {GameMode}
+   */
+  gamemode = null;
+
+  /**
+   * @type {string}
+   */
+  gamemode_name;
+
+  /**
+   * @type {number?}
+   */
+  tournament_id;
+
+  /**
+   * @type {number}
+   */
+  state = MatchState.RESERVED;
+
+  fastify;
+
+  /**
+   * 
+   * @param {Lobby[][]} teams 
+   * @param {GameMode} gamemode 
+   * @param {number} tournament_id? 
+   */
+  constructor(teams, gamemode, tournament_id = null, fastify = null) {
+    this.fastify = fastify;
+    this.players = [];
+    if (teams.length === 1) {
+      this.teams = teams[0][0].getTeams().map((team, team_index) => {
+        this.players.push(...team.players);
+        return new MatchTeam(this.match_id, team_index, team.players, team.name);
+      });
     }
+    else {
+      this.teams = teams.map((team, team_index) => {
+        if (Array.isArray(team)) {
+          let name = null;
+          let player_index = 0;
+          const players = team.map((lobby) => {
+            const lobby_team = lobby.getTeams()[0];
+            this.players.push(...lobby_team.players);
+            this.fastify = lobby.queue.fastify;
+            if (lobby_team.name) name = lobby_team.name;
+
+            return lobby_team.players;
+          });
+          return new MatchTeam(this.match_id, team_index, players.flat(), name);
+        }
+        else {
+          this.players.push(...team.players);
+          return new MatchTeam(this.match_id, team_index, team.players, team.name);
+        }
+      });
+    }
+    this.gamemode = gamemode;
+    for (let team of this.teams) {
+      for (let i = 0; i < team.players.length; i++) {
+        const player = team.players[i];
+        player.team_index = team.team_index;
+        player.player_index = i;
+      }
+    }
+    if (this.gamemode.type === GameModeType.RANKED) {
+      for (let player of this.players) {
+        player.win_probability = this.players.filter((p) => p.team_index !== player.team_index).reduce(
+          (acc, p) => acc + ((player.rating - p.rating) * 0.009) + 1,
+          0
+        ) / this.gamemode.team_size;
+        player.win_probability = Math.min(2, Math.max(0, player.win_probability));
+      }
+    }
+    this.tournament_id = tournament_id;
+    // gamemode name is saved in case the gamemode doesn't exist anymore
+    this.gamemode_name = gamemode.name;
+    this.state = MatchState.RESERVED;
   }
 
   insert() {
     const insert = db
     .prepare(
       `
-      INSERT INTO matches (gamemode, score_0, score_1, state, tournament_id) VALUES (?, ?, ?, ?, ?)
+      INSERT INTO matches (gamemode, state, tournament_id) VALUES (?, ?, ?)
       RETURNING *
       `
-    ).get(this.gamemode_name, this.score_0, this.score_1, this.state, this.tournament_id);
+    ).get(this.gamemode_name, this.state, this.tournament_id);
     this.match_id = insert.match_id;
-    const player_insert = db.prepare(
-      `
-      INSERT INTO match_players (match_id, account_id, team_index, player_index, win_probability)
-      VALUES (?, ?, ?, ?, ?)
-      `
-    );
-    for (const player of this.players) {
-      player_insert.run(this.match_id, player.account_id, player.team_index, player.player_index, player.win_probability);
+    for (const team of this.teams) {
+      team.match_id = this.match_id;
+      team.insert();
     }
     this.created_at = insert.created_at;
     this.updated_at = insert.updated_at;
@@ -81,5 +129,24 @@ export class Match {
       `
     ).run(MatchState.CANCELLED, this.match_id);
     this.state = MatchState.CANCELLED;
+  }
+
+  async reserve() {
+    const res = await YATT.fetch(`http://pong:3000/matches`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${this.fastify.tokens.get("pong")}`,
+      },
+      body: JSON.stringify({
+        match_id: this.match_id,
+        gamemode: this.gamemode,
+        teams: this.teams.map((team) => ({
+          players: team.players,
+          name: team.name,
+        })),
+      })
+    });
+    console.log("Reserved match for matchid", this.match_id);
   }
 }

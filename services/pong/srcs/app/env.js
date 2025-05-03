@@ -9,3 +9,9 @@ if (!MATCH_MANAGEMENT_SECRET) {
   console.error("Missing environment variable: MATCH_MANAGEMENT_SECRET");
   process.exit(1);
 }
+
+export const PONG_SECRET = process.env.PONG_SECRET;
+if (!PONG_SECRET) {
+  console.error("Missing environment variable: PONG_SECRET");
+  process.exit(1);
+}

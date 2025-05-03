@@ -2,6 +2,25 @@ import YATT, { HttpError } from "yatt-utils";
 import db from "../app/database.js";
 import { GameModes } from "../GameModes.js";
 
+const get_match_teams = db
+.prepare(
+  `
+    SELECT
+      score,
+      team_index,
+      matches.match_id
+    FROM
+      matches
+    JOIN
+      match_teams
+    ON
+      match_teams.match_id = matches.match_id
+    WHERE
+      matches.tournament_id = ?
+    ORDER BY
+      match_teams.team_index ASC
+  `);
+
 export default function router(fastify, opts, done) {
   fastify.get(
     "/:id/notify",
@@ -63,17 +82,9 @@ export default function router(fastify, opts, done) {
         .prepare(
           `
             SELECT
-              tournament_matches.*,
-              matches.score_0,
-              matches.score_1
+              tournament_matches.*
             FROM
               tournament_matches
-            LEFT JOIN
-              matches
-            ON
-                tournament_matches.match_id IS NOT NULL
-              AND
-                tournament_matches.match_id = matches.match_id
             WHERE
               tournament_matches.tournament_id = ?
             ORDER BY
@@ -81,13 +92,21 @@ export default function router(fastify, opts, done) {
           `
         )
         .all(request.params.id);
+      const match_teams = get_match_teams.all(request.params.id);
       tournament.matches = tournament.matches
       .map((match) => ({
         state: match.state,
         stage: match.stage,
         index: match.match_index,
         team_ids: [match.team_0_index, match.team_1_index],
-        scores: [match.score_0, match.score_1],
+        scores: [
+          match_teams.find((team) =>
+            team.team_index === 0 && team.match_id === match.match_id
+          )?.score,
+          match_teams.find((team) =>
+            team.team_index === 1 && team.match_id === match.match_id
+          )?.score
+        ],
         match_id: match.match_id,
       }));
       let players = db
