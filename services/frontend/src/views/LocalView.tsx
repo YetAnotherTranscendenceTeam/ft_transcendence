@@ -63,9 +63,12 @@ export default function LocalView() {
 	// 	}
 	// }, [overlay])
 
+	if (!overlay)
+		return;
+
 	return <Overlay
-		// hidden={hidden}
 		// modal={getModal()}
+		hidden={overlay.gameStatus.name === PongState.PLAYING.name || overlay.gameStatus.name === PongState.FREEZE.name}
 	>
 		<GameOverlay
 			onStart={handleStart}
