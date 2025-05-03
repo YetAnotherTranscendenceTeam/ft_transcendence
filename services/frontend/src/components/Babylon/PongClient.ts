@@ -14,8 +14,6 @@ import AObject from "./Objects/AObject";
 import config from "../../config";
 import Keyboard from "./Keyboard";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
-
 const TICK_PER_SECOND = Math.floor(1 / PONG.K.DT);
 
 export interface IPongOverlay {
@@ -250,12 +248,12 @@ export default class PongClient extends PONG.Pong {
 				wallTop.disable();
 				mapMesh.push(wallTop);
 			}
-			if (map.goalLeft && isDevelopment) {
+			if (map.goalLeft) {
 				const goalLeft: ClientGoal = new ClientGoal(this._babylonScene, ("goalLeft" + map.mapId.toString()), map.goalLeft);
 				goalLeft.disable();
 				mapMesh.push(goalLeft);
 			}
-			if (map.goalRight && isDevelopment) {
+			if (map.goalRight) {
 				const goalRight: ClientGoal = new ClientGoal(this._babylonScene, ("goalRight" + map.mapId.toString()), map.goalRight);
 				goalRight.disable();
 				mapMesh.push(goalRight);

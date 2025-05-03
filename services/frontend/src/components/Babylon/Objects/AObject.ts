@@ -15,12 +15,12 @@ export default abstract class AObject {
 	public update(dt: number): void {}
 
 	public disable(): void {
-		this._mesh.setEnabled(false);
+		this._mesh?.setEnabled(false);
 		this._isEnabled = false;
 	}
 
 	public enable(): void {
-		this._mesh.setEnabled(true);
+		this._mesh?.setEnabled(true);
 		this._isEnabled = true;
 	}
 
