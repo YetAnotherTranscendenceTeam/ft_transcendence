@@ -23,7 +23,7 @@ export default function router(fastify, opts, done) {
 
       let player = match.getPlayer(account_id);
       if (!player) {
-        WsCloseError.Inaccessible.close(socket);
+        WsCloseError.Forbidden.close(socket);
         return;
       }
       player.socket = socket;

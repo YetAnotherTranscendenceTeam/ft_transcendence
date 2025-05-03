@@ -127,8 +127,10 @@ export class Body extends EventTarget {
 		this.dispatchEvent(new CustomEvent("collision", { detail: { emitter: this, other, manifold } }));
 	}
 
-	public interpolatePosition(alpha: number): Vec2Like {
-		return Vec2.lerp(Vec2.create(), this._previousPosition, this._position, alpha);
+	public interpolatePosition(alpha: number): Vec2 {
+		const out = Vec2.create();
+		Vec2.lerp(out, this._previousPosition, this._position, alpha);
+		return out;
 	}
 
 	public interpolateOrientation(alpha: number): number {
@@ -192,6 +194,9 @@ export class Body extends EventTarget {
 		this._position = position;
 	}
 
+	public set previousPosition(previousPosition: Vec2) {
+		this._previousPosition = previousPosition;
+	}
 
 	public set velocity(velocity: Vec2) {
 		this._velocity = velocity;

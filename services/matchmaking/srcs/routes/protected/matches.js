@@ -72,6 +72,9 @@ export default function router(fastify, opts, done) {
       if (request.body.state !== undefined) {
         updated = update_match_state.get(request.body.state, request.params.match_id);
       }
+      if (!updated) {
+        throw new HttpError.NotFound("Match not found");
+      }
       const { score_0, score_1} = request.body;
       if (score_0) {
         update_team_score.run(score_0, request.params.match_id, 0);

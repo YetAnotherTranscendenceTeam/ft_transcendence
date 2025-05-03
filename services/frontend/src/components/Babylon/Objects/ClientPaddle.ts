@@ -32,7 +32,6 @@ export default class ClientPaddle extends AObject {
 		const paddlePos = this._physicsBody.interpolatePosition(dt) as Vec2;
 		this._mesh.position.x = paddlePos.x;
 		this._mesh.position.z = paddlePos.y;
-		//this._physicsBody.velocity = new Vec2(0, 0);
 	}
 
 	public move(dir: number): void {
