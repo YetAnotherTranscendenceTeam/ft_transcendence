@@ -364,7 +364,7 @@ services:
       - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
       - PONG_SECRET=${PONG_SECRET}
     ports:
-      - 4124:3000
+      - 127.0.0.1:4124:3000
     networks:
       - frontend
 
