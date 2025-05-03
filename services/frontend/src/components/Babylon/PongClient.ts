@@ -106,9 +106,12 @@ export default class PongClient extends PONG.Pong {
 			local: this._gameScene !== GameScene.ONLINE,
 			scores: this._score,
 			teams: this._teamNames.map((team: string, team_index: number) => {
+				let players = this._players.filter((player: PONG.IPongPlayer, player_index: number) => Math.floor(player_index / this._gameMode.team_size) === team_index);
+				if (team_index === 1)
+					players.reverse();
 				return {
 					name: team,
-					players: this._players.filter((player: PONG.IPongPlayer, player_index: number) => player_index % this._gameMode.team_size === team_index),
+					players
 				}
 			}),
 			localPlayer: this._player,
@@ -175,6 +178,10 @@ export default class PongClient extends PONG.Pong {
 					msg.data.match.players as IPlayer[],
 					PONG.PongState[msg.data.match.state.name].clone(),
 				);
+				this._teamNames = msg.data.match.team_names as string[];
+				this._score = msg.data.match.score as number[];
+				this._tick = msg.data.match.tick as number;
+				this.ballSync(msg.data.match.balls as PONG.IBall[]);
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				this.updateOverlay();
 			}
@@ -469,7 +476,6 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private serverStep(data: IServerStep, forced: boolean = false) {
-		console.log("server step", data);
 		const shouldSyncPositions = Math.abs(this._tick - data.tick) > 3 || forced;
 		if (shouldSyncPositions) {
 			console.log("tick mismatch", this.tick, data.tick);
