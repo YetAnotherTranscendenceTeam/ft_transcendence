@@ -6,13 +6,15 @@ import * as PONG from "pong";
 import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
+// const isDevelopment = process.env.NODE_ENV !== "production";
+const isDevelopment = false;
 
 export default class ClientGoal extends AObject {
 
 	public constructor(scene: Scene, name: string, physicsBody: PONG.Goal) {
 		super(scene, physicsBody);
 		if (!isDevelopment) {
+			this._isEnabled = false;
 			return;
 		}
 		this._mesh = MeshBuilder.CreateBox(
@@ -44,8 +46,10 @@ export default class ClientGoal extends AObject {
 	}
 
 	public enable(): void {
+		if (!isDevelopment) {
+			return;
+		}
 		super.enable();
-		this._isEnabled = false;
 	}
 
 	public dispose() {
