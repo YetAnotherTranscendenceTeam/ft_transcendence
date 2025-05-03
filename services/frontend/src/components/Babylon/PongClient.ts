@@ -313,12 +313,13 @@ export default class PongClient extends PONG.Pong {
 		});
 	}
 
-	protected cleanUp(): void {
+	public cleanUp(): void {
 		super.cleanUp();
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.dispose();
 		});
 		this._ballInstances = [];
+		this.updateOverlay();
 	}
 	
 	protected switchMap(mapId: PONG.MapID) {
@@ -384,6 +385,7 @@ export default class PongClient extends PONG.Pong {
 			) as ClientPaddle;
 			if (paddleInstance) {
 				this._paddleInstance.set(playerId, paddleInstance);
+				paddleInstance.update(1);
 			}
 		});
 	}

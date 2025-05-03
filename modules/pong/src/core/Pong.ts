@@ -97,7 +97,7 @@ export class Pong {
 		});
 	}
 
-	protected cleanUp() {
+	public cleanUp() {
 		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];

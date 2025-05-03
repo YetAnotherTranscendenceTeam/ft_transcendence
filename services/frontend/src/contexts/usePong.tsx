@@ -9,7 +9,7 @@ const PongContext = Babact.createContext<{
 		app: PongClient,
 		overlay: PongOverlay,
 		togglePause: (paused: boolean) => void,
-		startGame: () => void,
+		startGame: () => void
 	}>();
 
 export type PongOverlay = IPongOverlay & {
@@ -28,7 +28,6 @@ export const PongProvider = ({ children } : {children?: any}) => {
         appRef.current = new PongClient(
 			{
 				updateOverlay: (params: IPongOverlay) =>  {
-					console.log("updateOverlay", params);
 					setOverlay({
 						...params,
 						teams: params.teams.map((team) => new Team(team)),

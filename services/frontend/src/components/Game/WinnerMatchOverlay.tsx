@@ -16,24 +16,22 @@ export default function WinnerMatchOverlay({
 	const { lobby, create } = useLobby();
 
 	Babact.useEffect(() => {
-		if (overlay?.gameStatus.name === 'ENDED') {
-			const confetti = new JSConfetti();
-			confetti.addConfetti({
-				confettiNumber: 400,
-				confettiRadius: 4,
-			});
-		}
-	}, [overlay])
+		const confetti = new JSConfetti();
+		confetti.addConfetti({
+			confettiNumber: 400,
+			confettiRadius: 4,
+		});
+	}, [])
 
 
 	const handlePlayAgain = () => {
 		if (overlay.local && onRestart) {
 			onRestart();
 		}
-		if (lobby && lobby.state.joinable) {
+		else if (lobby && lobby.state.joinable) {
 			lobby.queueStart();
 		}
-		else {
+		else if (!overlay.local) {
 			create(overlay.gamemode.name);
 		}
 	}
@@ -42,7 +40,7 @@ export default function WinnerMatchOverlay({
 		return null;
 	const winner = overlay.scores[0] > overlay.scores[1] ? 0 : 1;
 
-	return <div className='winner-match-overlay flex flex-col'>
+	return <div className='winner-match-overlay flex flex-col gap-4 justify-center items-center'>
 		{overlay.local && <h2>
 			<i className="fa-solid fa-trophy"></i>
 			{winner === 0 ? 'Left Player wins!' : 'Right Player wins!'}
@@ -52,6 +50,7 @@ export default function WinnerMatchOverlay({
 			{overlay.teams[winner].getDisplayName()} wins!
 		</h2>}
 		<Button
+			className="primary"
 			onClick={handlePlayAgain}
 		>
 			<i className="fa-solid fa-arrow-rotate-left"></i>

@@ -1,6 +1,5 @@
 import Babact from "babact";
 import { usePong } from "../../contexts/usePong";
-import Avatar from "../../ui/Avatar";
 
 export default function WinnerRoundOverlay({}: {}) {
 
@@ -14,9 +13,7 @@ export default function WinnerRoundOverlay({}: {}) {
 			<p>{overlay.lastWinner === 0 ? 'Left player' : 'Right player'} has won the last round! </p>
 		}
 		{overlay.lastWinner !== null && !overlay.local &&
-			<p>
-				{overlay.teams[overlay.lastWinner].getDisplayName()} has won the last round!
-			</p>
+			<p>{overlay.teams[overlay.lastWinner].getDisplayName()} has won the last round! </p>
 		}
 		<p>Get ready for the next round!</p>
 	</div>
