@@ -160,7 +160,7 @@ export default function LobbyTeamsList() {
 				key={'team'+i} className='lobby-team'
 				style={`--team-color: var(--team-${i % 2 + 1}-color);`}
 			>
-				<Editable
+				{lobby.mode.team_size === 2 && <Editable
 					key={'editable'}
 					defaultValue={team.getDisplayName()}
 					disabled={!team.players.find(p => p.account_id === me.account_id)}
@@ -168,7 +168,7 @@ export default function LobbyTeamsList() {
 					onEdit={(value) => {
 						lobby.changeTeamName(value);
 					}}
-				/>
+				/>}
 				{team.players.map((player: IPlayer, i) => (
 					<LobbyPlayerCard
 						isLeader={player.account_id === lobby.leader_account_id}

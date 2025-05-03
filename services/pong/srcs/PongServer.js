@@ -38,6 +38,7 @@ export class PongServer extends Pong {
 			team_names: this.team_names,
 			match_id: this._matchId,
 			gamemode: this._gameMode,
+			lastSide: this._lastSide,
 			state: this._state,
 			score: this._score,
 			paddles: this.getPaddlePositions(),
@@ -122,12 +123,22 @@ export class PongServer extends Pong {
 		super.start();
 	}
 
+	scheduleClose() {
+		setTimeout(() => {
+			for (let player of this._players) {
+				if (player.socket) {
+					player.socket.close(1000, "ENDED");
+					player.socket = null;
+				}
+			}
+		}, 30000);
+	}
+
 	setState(state) {
 		if (this._state.endCallback) {
 			this._state.endCallback(this, state);
 		}
 		this._state = state;
-		console.log("State changed to", this._state);
 		if (this._state.name === "ENDED" || this._state.name === "FREEZE") {
 			this._state.score = this._score;
 			this._state.side = this._lastSide;
@@ -161,6 +172,7 @@ export class PongServer extends Pong {
 			let newstate = PongState.FREEZE;
 			if (this._winner !== undefined) {
 				newstate = PongState.ENDED;
+				this.scheduleClose();
 			}
 			this.setState(newstate.clone());
 		}

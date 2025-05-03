@@ -1,27 +1,47 @@
 import Babact from "babact";
 import PongClient, { IPongOverlay } from "../components/Babylon/PongClient";
 import Babylon from "../components/Babylon/Babylon";
+import { Team } from "../hooks/useTournament";
+import useToast, { ToastType } from "../hooks/useToast";
+import { useNavigate } from "babact-router-dom";
 
 const PongContext = Babact.createContext<{
 		app: PongClient,
-		overlay: IPongOverlay,
+		overlay: PongOverlay,
 		togglePause: (paused: boolean) => void,
-		startGame: () => void,
+		startGame: () => void
 	}>();
+
+export type PongOverlay = IPongOverlay & {
+	teams: Team[];
+}
 
 export const PongProvider = ({ children } : {children?: any}) => {
 
 	const appRef = Babact.useRef<PongClient>(null);
 	
-	const [overlay, setOverlay] = Babact.useState<IPongOverlay>(null);
+	const [overlay, setOverlay] = Babact.useState<PongOverlay>(null);
+	const { createToast } = useToast();
+	const navigate = useNavigate();
 
 	Babact.useEffect(() => {
         appRef.current = new PongClient(
 			{
 				updateOverlay: (params: IPongOverlay) =>  {
-					console.log("updateOverlay", params);
-					setOverlay(params);
+					setOverlay({
+						...params,
+						teams: params.teams.map((team) => new Team(team)),
+					});
 				},
+				onConnectionError: (error) => {
+					if (error.reason === 'UNAUTHORIZED' || error.reason === 'NOT_FOUND' || error.reason === 'FORBIDDEN') {
+						createToast('This game is not available', ToastType.DANGER);
+					}
+					else if (error.reason === 'ENDED') {
+						createToast('Match is over', ToastType.SUCCESS);
+					}
+					navigate('/');
+				}
 			}
 		);
 

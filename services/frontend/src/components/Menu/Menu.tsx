@@ -25,7 +25,7 @@ export default function Menu({
 		if (lobby && lobby.leader_account_id !== me.account_id)
 			return <div className='menu-pophover'>You must be leader of the lobby</div>;
 		if (lobby && !lobby.state?.joinable)
-			return <div className='menu-pophover'>Cannot change mode while lobby is ${lobby.state.type}</div>;
+			return <div className='menu-pophover'>Cannot change mode while lobby is {lobby.state.type}</div>;
 		return '';
 	}
 
@@ -34,12 +34,12 @@ export default function Menu({
 			<Link to='/' className={`button ghost ${window.location.pathname === '/' && !selected ? 'active' : ''}`}>
 				<i className="fa-solid fa-house"></i><p>Home</p>
 			</Link>
-			<Button
+			{me && <Button
 				className={`button ghost ${selected === 'settings' ? 'active' : ''}`}
 				onClick={() => setSelected(selected !== 'settings' ? 'settings' : null)}
 			>
 				<i className="fa-solid fa-sliders"></i><p>Settings</p>
-			</Button>
+			</Button>}
 			<Button
 				disabled={!me || (lobby && lobby.leader_account_id !== me.account_id) || lobby && !lobby.state?.joinable}
 				className={`button ghost ${selected === 'online' ? 'active' : ''}`}

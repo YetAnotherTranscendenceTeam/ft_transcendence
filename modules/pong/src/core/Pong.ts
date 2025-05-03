@@ -16,8 +16,8 @@ export type IPongPlayer = IPlayer & {
 }
 
 export class Pong {
-	private readonly _physicsScene: PH2D.Scene;
 	private _accumulator: number;
+	protected readonly _physicsScene: PH2D.Scene;
 	protected _tick: number;
 
 	protected _matchId: number;
@@ -45,6 +45,7 @@ export class Pong {
 		this._tick = 0;
 		this._accumulator = 0;
 		this._currentMap = undefined;
+		this._lastSide = null;
 		this._state = PongState.RESERVED.clone();
 	}
 
@@ -96,12 +97,19 @@ export class Pong {
 		});
 	}
 
-	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED.clone()) {
+	public cleanUp() {
 		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
-		this._lastSide = undefined;
+		this._lastSide = null;
+		this._teamNames = [];
+		this._players = [];
+		this._matchId = 0;
+		this._state = PongState.RESERVED.clone();
+	}
 
+	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED.clone()) {
+		this.cleanUp();
 		this._matchId = match_id;
 		this._gameMode = gamemode;
 		if (state instanceof PongState)
@@ -134,20 +142,14 @@ export class Pong {
 			}
 		});
 
+
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
 	}
 
 	protected localSetup() {
-		this._tick = 0;
-		this._accumulator = 0;
-		this._score = [0, 0];
-		this._lastSide = undefined;
-
-		this._matchId = 0;
-		this._gameMode = undefined;
-		this._players = [];
+		this.cleanUp();
 
 		this.switchMap(MapID.SMALL);
 
@@ -157,10 +159,7 @@ export class Pong {
 	}
 
 	protected menuSetup() {
-		this._tick = 0;
-		this._accumulator = 0;
-		this._score = [0, 0];
-		this._lastSide = undefined;
+		this.cleanUp();
 
 		this.switchMap(MapID.FAKE);
 
@@ -170,10 +169,7 @@ export class Pong {
 	}
 
 	protected lobbySetup() {
-		this._tick = 0;
-		this._accumulator = 0;
-		this._score = [0, 0];
-		this._lastSide = undefined;
+		this.cleanUp();
 
 		this.switchMap(MapID.FAKE);
 
@@ -186,7 +182,7 @@ export class Pong {
 		this._tick = 0;
 		this._accumulator = 0;
 		this._score = [0, 0];
-		this._lastSide = undefined;
+		this._lastSide = null;
 		this._winner = undefined;
 
 		this.roundStart();
@@ -263,7 +259,7 @@ export class Pong {
 		this._balls[0].setDirection(ballVelocity);
 	}
 
-	protected ballSync(balls: Array<IBall>) {
+	protected ballSync(balls: Array<IBall>, tickDiff: number, dt: number) {
 		if (balls.length < 1) {
 			return;
 		}
@@ -271,7 +267,7 @@ export class Pong {
 			if (i >= balls.length) {
 				break;
 			}
-			this._balls[i].sync(balls[i]);
+			this._balls[i].sync(balls[i], tickDiff, dt);
 		}
 		for (let i = this._balls.length; i < balls.length; i++) {
 			this._balls.push(new Ball());
@@ -298,6 +294,10 @@ export class Pong {
 
 	public get paddles(): Map<number, PH2D.Body> {
 		return this._paddles;
+	}
+
+	public set lastSide(side: MapSide) {
+		this._lastSide = side;
 	}
 }
 
