@@ -502,6 +502,10 @@ paths:
                     $ref: "#/components/schemas/light_match"
                   last_tournament:
                     $ref: "#/components/schemas/light_tournament"
+                  matchmaking_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/matchmaking_user"
                 required:
                   - account_id
                   - username
