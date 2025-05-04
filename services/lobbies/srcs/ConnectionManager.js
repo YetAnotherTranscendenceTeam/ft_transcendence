@@ -29,7 +29,7 @@ export class ConnectionManager {
 
   async getProfile(account_id) {
     try {
-      return await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+      return await YATT.fetch(`http://profiles:3000/${account_id}`);
     }
     catch(err) {
       console.error(err);
