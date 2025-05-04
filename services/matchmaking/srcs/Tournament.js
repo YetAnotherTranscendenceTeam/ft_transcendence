@@ -126,10 +126,10 @@ class TournamentMatch {
       ],
       this.tournament.gamemode,
       this.tournament.id,
-      this.tournament.manager.fastify
+      this.tournament.manager.fastify,
     );
     this.internal_match.insert();
-    await this.internal_match.reserve();
+    await this.internal_match.reserve(this.tournament.lobbyConnection, []);
     this.tournament.manager.registerTournamentMatch(this);
     return this.internal_match;
   }
@@ -189,8 +189,9 @@ export class Tournament {
   matches = [];
   subscribers = new Set();
   gamemode;
+  lobbyConnection;
 
-  constructor(teams, gamemode, manager) {
+  constructor(teams, gamemode, manager, lobbyConnection, lobbySecret) {
     teams.forEach((team, index) => {
       team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
@@ -199,6 +200,8 @@ export class Tournament {
     );
     this.gamemode = gamemode;
     this.manager = manager;
+    this.lobbyConnection = lobbyConnection;
+    this.lobbySecret = lobbySecret;
   }
 
   async insert() {
@@ -325,6 +328,14 @@ export class Tournament {
         subscriber.raw.end();
       }
     );
+    this.lobbyConnection.send({
+      event: "tournament_end",
+      data: {
+        tournament_id: this.id,
+        players: this.teams.flatMap((team) => team.players.map((player) => player.account_id)),
+        lobby_secret: this.lobbySecret,
+      },
+    })
   }
 
   getMatch(match_id) {

@@ -33,6 +33,30 @@ class ActivityEvents {
     this.update(lobby);
   };
 
+  updateMatch(match_update) {
+    const payload = {
+      event: "match_update",
+      data: JSON.stringify({
+        players: match_update.player_ids,
+        match_id: match_update.match_id,
+        scores: match_update.scores,
+        state: match_update.state,
+        gamemode: match_update.gamemode,
+      }),
+    };
+    this.broadcast(payload);
+  }
+
+  endTournament(tournament_update) {
+    const payload = {
+      event: "end_tournament",
+      data: JSON.stringify({
+        players: tournament_update.players.map(p => p.account_id)
+      }),
+    };
+    this.broadcast(payload);
+  };
+
   broadcast(payload) {
     this.subscriptions.forEach(subscription => {
       subscription.sse(payload)
