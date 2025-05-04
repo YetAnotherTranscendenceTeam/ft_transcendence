@@ -258,54 +258,24 @@ export default class PongClient extends PONG.Pong {
 		
 		PONG.Pong._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];
-			
-			if (map.wallBottom) {
-				const wallBottom: ClientWall = new ClientWall(this._babylonScene, ("wallBottom" + map.mapId.toString()), map.wallBottom);
-				wallBottom.disable();
-				mapMesh.push(wallBottom);
-			}
-			if (map.wallTop) {
-				const wallTop: ClientWall = new ClientWall(this._babylonScene, ("wallTop" + map.mapId.toString()), map.wallTop);
-				wallTop.disable();
-				mapMesh.push(wallTop);
-			}
-			if (map.goalLeft) {
-				const goalLeft: ClientGoal = new ClientGoal(this._babylonScene, ("goalLeft" + map.mapId.toString()), map.goalLeft);
-				goalLeft.disable();
-				mapMesh.push(goalLeft);
-			}
-			if (map.goalRight) {
-				const goalRight: ClientGoal = new ClientGoal(this._babylonScene, ("goalRight" + map.mapId.toString()), map.goalRight);
-				goalRight.disable();
-				mapMesh.push(goalRight);
-			}
-			if (map.paddleLeftBack) {
-				const paddleLeftBack: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleLeftBack" + map.mapId.toString()), map.paddleLeftBack);
-				paddleLeftBack.disable();
-				mapMesh.push(paddleLeftBack);
-			}
-			if (map.paddleLeftFront) {
-				const paddleLeftFront: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleLeftFront" + map.mapId.toString()), map.paddleLeftFront);
-				paddleLeftFront.disable();
-				mapMesh.push(paddleLeftFront);
-			}
-			if (map.paddleRightBack) {
-				const paddleRightBack: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleRightBack" + map.mapId.toString()), map.paddleRightBack);
-				paddleRightBack.disable();
-				mapMesh.push(paddleRightBack);
-			}
-			if (map.paddleRightFront) {
-				const paddleRightFront: ClientPaddle = new ClientPaddle(this._babylonScene, ("paddleRightFront" + map.mapId.toString()), map.paddleRightFront);
-				paddleRightFront.disable();
-				mapMesh.push(paddleRightFront);
-			}
-			if (map.obstacles) {
-				map.obstacles.forEach((obstacle: PONG.Wall) => {
-					const wall: ClientWall = new ClientWall(this._babylonScene, ("obstacle" + map.mapId.toString()), obstacle);
-					wall.disable();
-					mapMesh.push(wall);
-				});
-			}
+			let counter: number = 0;
+
+			const objects: PH2D.Body[] = map.getObjects();
+			objects.forEach((object: PH2D.Body) => {
+				let clientObject: AObject | undefined;
+				if (object instanceof PONG.Wall) {
+					clientObject = new ClientWall(this._babylonScene, ("wall" + map.mapId.toString() + counter.toPrecision(2)), object);
+				} else if (object instanceof PONG.Goal) {
+					clientObject = new ClientGoal(this._babylonScene, ("goal" + map.mapId.toString() + counter.toPrecision(2)), object);
+				} else if (object instanceof PONG.Paddle) {
+					clientObject = new ClientPaddle(this._babylonScene, ("paddle" + map.mapId.toString() + counter.toPrecision(2)), object);
+				}
+				if (clientObject !== undefined) {
+					clientObject.disable();
+					mapMesh.push(clientObject);
+				}
+				counter++;
+			});
 			
 			this._meshMap.set(mapId, mapMesh);
 		});

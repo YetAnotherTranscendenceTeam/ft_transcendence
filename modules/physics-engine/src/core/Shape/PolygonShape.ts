@@ -2,6 +2,7 @@ import { Shape, ShapeType } from "./Shape.js";
 import { MassData } from "../properties.js";
 import { Vec2, Mat2 } from "gl-matrix";
 import { EPSILON } from 'gl-matrix/common';
+import { signedArea2 } from "../utils.js";
 
 export class PolygonShape extends Shape {
 	private readonly _vertices: Array<Vec2>;
@@ -15,7 +16,7 @@ export class PolygonShape extends Shape {
 		super();
 		if (arg instanceof Array) {
 			if (arg[0] instanceof Vec2) {
-				this._vertices = arg;
+				this._vertices = arg.slice();
 			} else {
 				this._vertices = new Array<Vec2>();
 				for (let i = 0; i < arg.length; i++) {
@@ -29,6 +30,12 @@ export class PolygonShape extends Shape {
 			this._vertices.push(Vec2.fromValues(halfWidth, halfHeight));
 			this._vertices.push(Vec2.fromValues(halfWidth, -halfHeight));
 			this._vertices.push(Vec2.fromValues(-halfWidth, -halfHeight));
+		}
+		if (this._vertices.length < 3) {
+			throw new Error("Polygon must have at least 3 vertices");
+		}
+		if (signedArea2(this._vertices) > 0) {
+			this._vertices.reverse();
 		}
 		this._normals = new Array<Vec2>();
 		for (let i = 0; i < this._vertices.length; i++) {
