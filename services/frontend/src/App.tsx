@@ -10,6 +10,7 @@ import ProfileView from "./views/ProfileView";
 import { PongProvider } from "./contexts/usePong";
 import LocalView from "./views/LocalView";
 import TournamentView from "./views/TournamentView";
+import OnlineView from "./views/OnlineView";
 
 export default function App() {
 
@@ -21,6 +22,8 @@ export default function App() {
 	}
 
 	Babact.useEffect(() => {
+		if (process.env.NODE_ENV !== 'production')
+			return;
 		window.addEventListener('beforeunload', handleReload);
 		return () => {
 			window.removeEventListener('beforeunload', handleReload);
@@ -38,6 +41,7 @@ export default function App() {
 					<Route path='/lobby/:code' element={<LobbyView/>} key='lobby' />
 					<Route path='/profiles/:id' element={<ProfileView/>} key='profiles'/>
 					<Route path='/local' element={<LocalView/>} key='local'/>
+					<Route path='/matches/:id' element={<OnlineView/>} key='matches'/>
 					<Route path='/tournaments/:id' element={<TournamentView/>} key='tournaments'/>
 					<Route path="/*" element={<Home />} key='home'/>
 				</Routes>

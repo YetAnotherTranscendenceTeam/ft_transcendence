@@ -5,7 +5,7 @@ import db from "../app/database.js";
 
 export async function createProfile(account_id) {
   try {
-    await YATT.fetch("http://db-profiles:3000", {
+    await YATT.fetch("http://profiles:3000", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

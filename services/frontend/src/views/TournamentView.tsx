@@ -1,7 +1,7 @@
 import Babact from "babact";
 import Overlay from "../templates/Overlay";
 import Tree from "../components/Tournament/Tree";
-import { useParams } from "babact-router-dom";
+import { useNavigate, useParams } from "babact-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import useToast, { ToastType } from "../hooks/useToast";
 import JoinMatchButton from "../components/Tournament/JoinMatchButton";
@@ -19,6 +19,8 @@ export default function TournamentView() {
 	const timeoutRef = Babact.useRef<Date>(null);
 	const { me } = useAuth();
 	const { createToast } = useToast();
+
+	const navigate = useNavigate();
 
 	Babact.useEffect(() => {
 		if (currentMatch) {
@@ -51,8 +53,7 @@ export default function TournamentView() {
 				timeout={timeoutRef.current}
 				onTimeout={() => {
 					timeoutRef.current = null;
-					// navigate(`/matches/${currentMatch.match_id}`);
-					createToast(`Joinning match against ${currentMatch.getOpponentTeamName(me.account_id)}!`, ToastType.SUCCESS, 5000);
+					navigate(`/matches/${currentMatch.match_id}`);
 				}}
 			/>}
 			{matches && matches.length > 0 && <Tree matches={matches} />}

@@ -154,7 +154,7 @@ export default function routes(fastify, opts, done) {
   }
 
   async function updateProfile(account_id, body) {
-    await YATT.fetch(`http://db-profiles:3000/${account_id}`, {
+    await YATT.fetch(`http://profiles:3000/${account_id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

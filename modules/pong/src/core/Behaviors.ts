@@ -7,7 +7,7 @@ import Goal from "./Goal.js";
 
 export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) {
 	const { emitter, other, manifold } = event.detail;
-	console.log("collision " + emitter.id + "-" + other.id);
+	// console.log("collision " + emitter.id + "-" + other.id);
 	// console.log(emitter);
 	// console.log(other);
 
@@ -32,22 +32,22 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			Vec2.add(ballEmitter.velocity, ballEmitter.velocity, paddleVelocity);
 			Vec2.normalize(ballEmitter.velocity, ballEmitter.velocity);
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
-			console.log("in velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
-			console.log("in mag: " + ballEmitter.velocity.magnitude);
+			// console.log("in velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
+			// console.log("in mag: " + ballEmitter.velocity.magnitude);
 		} else {
 			// set the ball's velocity to the paddle's velocity
 			ballEmitter.velocity = Vec2.clone(paddleVelocity);
 			Vec2.normalize(ballEmitter.velocity, ballEmitter.velocity);
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
-			console.log("out velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
-			console.log("out mag: " + ballEmitter.velocity.magnitude);
+			// console.log("out velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
+			// console.log("out mag: " + ballEmitter.velocity.magnitude);
 		}
 		// ballEmitter.correctSpeed();
 		ballEmitter.faster();
 
 
 		// ballEmitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);
-		console.log("ball velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
+		// console.log("ball velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
 		console.log("ball mag: " + ballEmitter.velocity.magnitude);
 	}
 
@@ -65,10 +65,10 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 	if (other instanceof Goal) {
 		const goal: Goal = other as Goal;
 		goal.incrementContact();
-		if (goal.position.x < 0) { // left goal
-			console.log("goal left");
-		} else { // right goal
-			console.log("goal right");
-		}
+		// if (goal.position.x < 0) { // left goal
+		// 	console.log("goal left");
+		// } else { // right goal
+		// 	console.log("goal right");
+		// }
 	}
 }

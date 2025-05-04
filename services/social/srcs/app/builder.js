@@ -8,9 +8,10 @@ import formbody from "@fastify/formbody";
 import websocket from '@fastify/websocket'
 import router from "./router.js";
 import { HttpError } from "yatt-utils";
-import { AUTHENTICATION_SECRET } from "./env.js";
+import { ACTIVITY_SSE_SECRET, AUTHENTICATION_SECRET } from "./env.js";
 import { ConnectionManager } from "../utils/ConnectionManager.js";
 import db from "./database.js";
+import { lobbiesEventSource } from "./eventSources/lobbies.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -42,9 +43,12 @@ export default function build(opts = {}) {
   });
 
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
+  app.register(jwt, { secret: ACTIVITY_SSE_SECRET, namespace: "activity_sse"});
   app.register(formbody);
   app.register(websocket);
 
+  app.register(lobbiesEventSource);
+  
   app.register(router);
 
   // Create and attach the websocket manager

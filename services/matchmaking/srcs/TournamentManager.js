@@ -1,10 +1,14 @@
+import { GameModes } from "./GameModes.js";
 import { MatchState } from "./Match.js";
+import { Tournament } from "./Tournament.js";
 
 export class TournamentManager {
   tournaments = new Map();
   matches = new Map();
 
-  constructor() {}
+  constructor(fastify) {
+    this.fastify = fastify;
+  }
 
   getTournamentMatch(match_id) {
     return this.matches.get(match_id);
@@ -30,10 +34,10 @@ export class TournamentManager {
     this.tournaments.delete(tournament.id);
   }
 
-  cancel() {
+  async cancel() {
     for (const match of this.matches.values()) {
       match.internal_match?.cancel();
-      match.updateMatch({ state: MatchState.CANCELLED });
+      await match.updateMatch({ state: MatchState.CANCELLED });
       console.log(`Match ${match.internal_match?.match_id} cancelled`);
     }
     for (const tournament of this.tournaments.values()) {

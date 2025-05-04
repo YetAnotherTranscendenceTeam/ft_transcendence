@@ -3,9 +3,7 @@ import useWebSocket, { WebSocketHook } from "../hooks/useWebSocket";
 import config from "../config";
 import useToast, { ToastType } from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
-
 import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
-import { StatusType } from "../hooks/useSocials";
 import { useAuth } from "./useAuth";
 import { Team } from "../hooks/useTournament";
 import ConfirmLobbyLeaveModal from "../components/Lobby/ConfirmLobbyLeaveModal";
@@ -121,8 +119,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 				createToast('Tournament created', ToastType.INFO);	
 				navigate(`/tournaments/${state.match.tournament.id}`);
 			}
-			else {
+			else if (state.match.type === 'match') {
 				createToast('Match found', ToastType.INFO);	
+				navigate(`/matches/${state.match.match.match_id}`);
 			}
 		}
 		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setState(state)));
@@ -242,20 +241,6 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		else
 			handleJoin();
 	};
-
-	const { status, connected } = useAuth();
-
-	Babact.useEffect(() => {
-		if (lobby && connected)
-			status({
-				type: StatusType.INLOBBY,
-				data: {...lobby, join_secret: null}
-			});
-		else if (!lobby && connected)
-			status({
-				type: StatusType.ONLINE,
-			});
-	}, [lobby]);
 
 	return (
 		<LobbyContext.Provider

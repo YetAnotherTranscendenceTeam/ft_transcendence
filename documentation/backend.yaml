@@ -53,6 +53,22 @@ components:
       type: string
       example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NedW50X2lkIjo5NiwiaWF0IjoxNzQwNYc1NzM5LCJleHAiOjE3NDA1NzY2Mzl9.7ZuX-M9EIdByqk0X2bjU0-YjgFyVZYzSI520YZbw9N8"
 
+    auth_method:
+      description: The authentication method associated with an account
+      type: string
+      enum:
+        - password_auth
+        - fortytwo_auth
+        - google_auth
+
+    otp_methods:
+      description: The one time password methods activated for an account
+      type: array
+      items:
+        type: string
+        enum:
+          - app
+
     otp_method:
       description: A two factor authentication method
       type: string
@@ -128,6 +144,77 @@ components:
 
     matchmaking_user:
       $ref: "./asyncapi/matchmaking.yaml#/components/schemas/matchmaking_user"
+
+    db_match:
+      type: object
+      required:
+        - match_id
+        - gamemode
+        - state
+        - created_at
+        - updated_at
+        - teams
+        - players
+      
+      properties:
+        match_id:
+          type: integer
+          example: 12345
+        gamemode:
+          $ref: "#/components/schemas/gamemode_name"
+        state:
+          $ref: "#/components/schemas/match_state"
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+        teams:
+          type: array
+          items:
+            type: object
+            properties:
+              team_id:
+                type: integer
+                example: 1
+              score:
+                type: integer
+                example: 0
+              name:
+                type: string
+                example: "Team A"
+              winning:
+                type: number
+                example: 1
+        players:
+          type: array
+          items:
+            type: object
+            properties:
+              account_id:
+                $ref: "#/components/schemas/account_id"
+              player_index:
+                type: integer
+                example: 0
+              team_index:
+                type: integer
+                example: 1
+              win_probability:
+                type: number
+                format: float
+                example: 0.75
+              begin_rating:
+                type: number
+                format: number
+                example: 1500
+              end_rating:
+                type: number
+                format: number
+                example: 1515
+
 
     order:
       type: string
@@ -453,8 +540,53 @@ paths:
       tags:
         - Users
       responses:
-        204:
+        200:
           description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id:
+                    $ref: "#/components/schemas/account_id"
+                  username:
+                    $ref: "#/components/schemas/username"
+                  avatar:
+                    $ref: "#/components/schemas/avatar"
+                  credentials:
+                    type: object
+                    properties:
+                      account_id:
+                        $ref: "#/components/schemas/account_id"
+                      email:
+                        $ref: "#/components/schemas/email"
+                      auth_method:
+                        $ref: "#/components/schemas/auth_method"
+                      otp_methods:
+                        $ref: "#/components/schemas/otp_methods"
+                    required:
+                      - account_id
+                      - email
+                      - auth_method
+                      - otp_methods
+                  last_match:
+                    $ref: "#/components/schemas/light_match"
+                  last_tournament:
+                    $ref: "#/components/schemas/light_tournament"
+                  matchmaking_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/matchmaking_user"
+                required:
+                  - account_id
+                  - username
+                  - avatar
+                  - credentials
+
+        401:
+          description: Unauthorized
+        502:
+          description: Bad gateway
       security:
         - BearerAuth: []
 
@@ -1001,7 +1133,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/match"
+                $ref: "#/components/schemas/db_match"
         404:
           description: Match not found
     patch:
@@ -1118,6 +1250,25 @@ paths:
           description: Filters results to include matches with specific gamemode names
 
         - in: query
+          name: filter[winning]
+          schema:
+            type: array
+            items:
+              type: integer
+              enum: 
+                - 0
+                - 1
+          description: Filters results to include won or lost matches
+        
+        - in: query
+          name: filter[player_index]
+          schema:
+            type: array
+            items:
+              type: integer
+          description: Filters results to include matches where the user was in a specific player index (position inside match)
+
+        - in: query
           name: order[match_id]
           schema:
             $ref: "#/components/schemas/order"
@@ -1162,7 +1313,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/light_match"
+                  $ref: "#/components/schemas/match"
 
   /lobbies/join:
     get:

@@ -1,55 +1,46 @@
 import Babact from "babact";
-import PongClient from "../components/Babylon/PongClient";
+import PongClient, { IPongOverlay } from "../components/Babylon/PongClient";
 import Babylon from "../components/Babylon/Babylon";
-import { ScoredEvent } from "../components/Babylon/types";
+import { Team } from "../hooks/useTournament";
+import useToast, { ToastType } from "../hooks/useToast";
+import { useNavigate } from "babact-router-dom";
 
 const PongContext = Babact.createContext<{
 		app: PongClient,
-		scores: number[],
-		lastWinner: number,
-		gameStatus: GameStatus,
-		setPaused: (paused: boolean) => void,
-		startGame: () => void,
-		setGameStatus: (status: GameStatus) => void,
-		resetGame: () => void,
-		gameTime: number,
+		overlay: PongOverlay,
+		togglePause: (paused: boolean) => void,
+		startGame: () => void
 	}>();
 
-export enum GameStatus {
-	WAITING,
-	PLAYING,
-	FREEZE,
-	PAUSED,
-	ENDED,
+export type PongOverlay = IPongOverlay & {
+	teams: Team[];
 }
 
 export const PongProvider = ({ children } : {children?: any}) => {
 
 	const appRef = Babact.useRef<PongClient>(null);
-	const [scores, setScores] = Babact.useState([0, 0]);
-	const [lastWinner, setLastWinner] = Babact.useState<number>(null);
-	const [gameStatus, setGameStatus] = Babact.useState<GameStatus>(GameStatus.WAITING);
-	const [gameTime, setGameTime] = Babact.useState<number>(0);
-
-	const handleScoreUpdate = (event: ScoredEvent) => {
-		setScores(event.score);
-		setLastWinner(event.side);
-	}
+	
+	const [overlay, setOverlay] = Babact.useState<PongOverlay>(null);
+	const { createToast } = useToast();
+	const navigate = useNavigate();
 
 	Babact.useEffect(() => {
         appRef.current = new PongClient(
 			{
-				scoreUpdateCallback : (score) =>  {
-					handleScoreUpdate(score);
+				updateOverlay: (params: IPongOverlay) =>  {
+					setOverlay({
+						...params,
+						teams: params.teams.map((team) => new Team(team)),
+					});
 				},
-				timeUpdateCallback: (time) =>  {
-					if (gameTime !== time) {
-						setGameTime(time);
+				onConnectionError: (error) => {
+					if (error.reason === 'UNAUTHORIZED' || error.reason === 'NOT_FOUND' || error.reason === 'FORBIDDEN') {
+						createToast('This game is not available', ToastType.DANGER);
 					}
-				},
-				endGameCallback: () => {
-					setGameStatus(GameStatus.ENDED);
-					console.log("Game ended");
+					else if (error.reason === 'ENDED') {
+						createToast('Match is over', ToastType.SUCCESS);
+					}
+					navigate('/');
 				}
 			}
 		);
@@ -59,29 +50,18 @@ export const PongProvider = ({ children } : {children?: any}) => {
         }
     }, []);
 
-	const setPaused = (paused: boolean) => {
+	// LOCAL RELATED!
+	const togglePause = (paused: boolean) => {
 		if (paused) {
 			appRef.current?.pauseGame();
-			setGameStatus(GameStatus.PAUSED);
 		}
 		else {
 			appRef.current?.resumeGame();
-			setGameStatus(GameStatus.PLAYING);
 		}
 	}
 
-	const resetGame = () => {
-		setScores([0, 0]);
-		setLastWinner(null);
-		setGameTime(0);
-		setGameStatus(GameStatus.WAITING);
-	}
-
+	// LOCAL RELATED!
 	const startGame = () => {
-		setScores([0, 0]);
-		setLastWinner(null);
-		setGameTime(0);
-		setGameStatus(GameStatus.PLAYING);
 		appRef.current?.startGame();
 	}
 
@@ -89,14 +69,9 @@ export const PongProvider = ({ children } : {children?: any}) => {
 		<PongContext.Provider
 			value={{
 				app: appRef.current,
-				scores,
-				lastWinner,
-				gameStatus,
-				setPaused,
+				overlay,
+				togglePause,
 				startGame,
-				setGameStatus,
-				resetGame,
-				gameTime,
 			}}
 		>
 			<Babylon key="babylon" app={appRef.current}/>

@@ -15,12 +15,12 @@ export default abstract class AObject {
 	public update(dt: number): void {}
 
 	public disable(): void {
-		this._mesh.setEnabled(false);
+		this._mesh?.setEnabled(false);
 		this._isEnabled = false;
 	}
 
 	public enable(): void {
-		this._mesh.setEnabled(true);
+		this._mesh?.setEnabled(true);
 		this._isEnabled = true;
 	}
 
@@ -34,5 +34,9 @@ export default abstract class AObject {
 
 	public dispose() {
 		this._mesh?.dispose();
+	}
+
+	public updateBodyReference(physicsBody: PH2D.Body) {
+		this._physicsBody = physicsBody;
 	}
 };

@@ -42,7 +42,10 @@ export default function Avatar({
 			e.target.style.display = 'none';
 			setError(true);
 		}}/>
-		{status && <span style={`background-color: var(--${status}-color);`} />}
+		{status && <span
+			className={`avatar-status ${status}`}
+			// style={`background-color: var(--${status}-color);`}
+		/>}
 		{children && <div  className='avatar-children'>{children}</div>}
 	</div>
 }

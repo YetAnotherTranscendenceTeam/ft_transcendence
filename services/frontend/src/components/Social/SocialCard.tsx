@@ -9,20 +9,22 @@ export default function SocialCard({
 		user,
 		children,
 		type,
+		className = '',
 		...props
 	}: { 
 		user: User,
 		children?: any,
 		type?: StatusType,
+		className?: string,
 		[key: string]: any
 	}) {
 
 	const navigate = useNavigate();
 
 	return <div
-		className='social-manager-user-card flex flex-row items-center justify-between gap-2 w-full'
+		className={`social-manager-user-card flex flex-row items-center justify-between gap-2 w-full`}
 	>
-		<div className='social-manager-user-card-header flex flex-row items-center gap-2'
+		<div className={`social-manager-user-card-header flex flex-row items-center gap-2`}
 			onClick={() => navigate(`/profiles/${user.account_id}`)}
 		>
 			<Avatar
@@ -35,7 +37,7 @@ export default function SocialCard({
 				{type && <SocialTypeText type={type} />}
 			</div>
 		</div> 
-		<div className='flex flex-row items-center gap-2'>
+		<div className={`flex flex-row items-center gap-2 ${className}`}>
 			{children}
 		</div>
 	</div>

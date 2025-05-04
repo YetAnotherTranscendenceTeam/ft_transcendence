@@ -11,11 +11,12 @@ services:
       - avatars
       - settings
       - social
+    depends_on:
+      - avatars
+      - social
     secrets:
       - ssl-crt
       - ssl-key
-    depends_on:
-      - avatars
 
   frontend:
     build:
@@ -47,7 +48,7 @@ services:
       - "127.0.0.1:7002:3000"
     networks:
       - credentials
-      - db-profiles
+      - profiles
 
   token-manager:
     build:
@@ -129,7 +130,7 @@ services:
       - credentials
       - frontend
       - tokens
-      - db-profiles
+      - profiles
       - avatars
 
   google-auth:
@@ -151,7 +152,7 @@ services:
       - credentials
       - frontend
       - tokens
-      - db-profiles
+      - profiles
       - avatars
 
   2fa:
@@ -183,11 +184,12 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
+      - ACTIVITY_SSE_SECRET=${ACTIVITY_SSE_SECRET}
     ports:
       - "127.0.0.1:4043:3000"
     networks:
       - frontend
-      - db-profiles
+      - profiles
     depends_on:
       - matchmaking
 
@@ -203,21 +205,21 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
+      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
       - PONG_SECRET=${PONG_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
-      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
     ports:
       - "127.0.0.1:4044:3000"
     networks:
       - frontend
-      - db-profiles
+      - profiles
 
-  db-profiles:
+  profiles:
     build:
-      context: services/db-profiles/
+      context: services/profiles/
       dockerfile: Dockerfile.dev
     volumes:
-      - ./services/db-profiles/srcs:/services/db-profiles/srcs
+      - ./services/profiles/srcs:/services/profiles/srcs
       - ./modules/:/modules:ro
       - sqlite:/database
     environment:
@@ -226,7 +228,7 @@ services:
     ports:
       - 127.0.0.1:7001:3000
     networks:
-      - db-profiles
+      - profiles
 
   users:
     build:
@@ -242,7 +244,7 @@ services:
       - 127.0.0.1:4003:3000
     networks:
      - frontend
-     - db-profiles
+     - profiles
 
   settings:
     build:
@@ -263,7 +265,7 @@ services:
     networks:
       - settings
       - avatars
-      - db-profiles
+      - profiles
       - credentials
       - tokens
 
@@ -301,14 +303,18 @@ services:
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - ACTIVITY_SSE_SECRET=${ACTIVITY_SSE_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
     ports:
       - 127.0.0.1:4123:3000
     networks:
       - social
-      - db-profiles
+      - profiles
       - settings
+    depends_on:
+      lobbies:
+        condition: service_healthy
 
   cdn-nginx:
     build:
@@ -344,19 +350,6 @@ services:
       - CDN_SECRET=${CDN_SECRET}
     networks:
      - cdn-api
-  
-  documentation:
-    build:
-      context: services/documentation/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./documentation/:/documentation/:ro
-      - ./services/documentation/srcs:/services/documentation/srcs
-      - ./modules/:/modules:ro
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-    ports:
-      - 42000:3000
 
   pong:
     build:
@@ -366,18 +359,32 @@ services:
       - ./services/pong/srcs:/services/pong/srcs
       - ./modules/:/modules:ro
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
+      - PONG_SECRET=${PONG_SECRET}
     ports:
-      - 4124:3000
-    # networks:
+      - 127.0.0.1:4124:3000
+    networks:
+      - frontend
+
+  documentation:
+    build:
+      context: documentation/service
+    volumes:
+      - ./documentation/:/documentation/:ro
+      - ./documentation/service/srcs:/services/documentation/srcs
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    ports:
+      - 42000:3000
 
 networks:
   frontend:
     driver: bridge
   credentials:
     driver: bridge
-  db-profiles:
+  profiles:
     driver: bridge
   tokens:
     driver: bridge

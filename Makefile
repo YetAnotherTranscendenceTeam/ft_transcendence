@@ -27,6 +27,11 @@ override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
 dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS) $(SSL_CERTIFICATE)
 
+evaluation:
+	./env-generator.sh evaluation
+	(cd modules && docker compose build)
+	docker compose -f docker-compose.prod.yaml -f docker-compose.eval.yaml up -d --build --wait
+
 $(MODULES_DEPS) $(SERVICES_DEPS):
 	(cd $(@D) && npm i)
 

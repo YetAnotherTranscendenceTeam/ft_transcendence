@@ -22,27 +22,32 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
       - name: Build image
         run: docker compose build
         working-directory: ./modules/
 
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.IBERTRAN_DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
       - name: Tag image
-        run: docker tag yatt-modules:latest "ibertran/transcendence.yatt-modules:${TAG}"
+        run: docker tag yatt-modules:latest "${{ vars.IBERTRAN_DOCKER_HUB_USERNAME }}/transcendence.yatt-modules:${TAG}"
 
       - name: Push image
-        run: docker push "ibertran/transcendence.yatt-modules:${TAG}"
+        run: docker push "${{ vars.IBERTRAN_DOCKER_HUB_USERNAME }}/transcendence.yatt-modules:${TAG}"
 
   ibertran-dot-dev:
     needs: yatt-modules
     runs-on: ubuntu-22.04
     env:
-      BASE_IMAGE: ibertran/transcendence.yatt-modules:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+      IMAGE_PREFIX: ${{ vars.IBERTRAN_DOCKER_HUB_USERNAME }}
+      BASE_IMAGE: ${{ vars.IBERTRAN_DOCKER_HUB_USERNAME }}/transcendence.yatt-modules:${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref_name }}
+      NGINX_CONF_FILE: ${{ vars.IBERTRAN_NGINX_CONF_FILE }}
+      BACKEND_URL: ${{ vars.IBERTRAN_BACKEND_URL }}
+      WS_URL: ${{ vars.IBERTRAN_WS_URL }}
+      GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,22 +58,26 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKER_HUB_USERNAME }}
+          username: ${{ vars.IBERTRAN_DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build images
-        run: docker compose -f docker-compose.ibertran.yaml build
+        run: docker compose -f docker-compose.prod.yaml build
 
       - name: Setup .env
         run: mv .env.template .env
 
       - name: Up
-        run: docker compose -f docker-compose.ibertran.yaml up -d --wait || docker compose -f docker-compose.ibertran.yaml logs
+        run: docker compose -f docker-compose.prod.yaml up -d --wait
+
+      - name: Print containers logs
+        if: always()
+        run: docker compose -f docker-compose.prod.yaml logs
 
       - name: Down
         if: always()
-        run: docker compose -f docker-compose.ibertran.yaml down
+        run: docker compose -f docker-compose.prod.yaml down
 
       - name: Push images
         if: github.ref_name == 'production'
-        run: docker compose -f docker-compose.ibertran.yaml push
+        run: docker compose -f docker-compose.prod.yaml push

@@ -1,10 +1,21 @@
-FROM node:23.7-alpine3.20
+ARG BASE_IMAGE=yatt-modules:latest
 
-WORKDIR /services/pong/
+FROM $BASE_IMAGE
+
+WORKDIR /services/password-auth/
 COPY . .
 
-RUN npm install
+RUN npm install --omit=dev
 
-ENTRYPOINT [ "node",  "srcs/index.js" ]
+ENTRYPOINT [ "npm", "start" ]
 
 EXPOSE 3000
+
+HEALTHCHECK \
+  --interval=30s \
+  --timeout=5s \
+  --retries=3 \
+  --start-period=1s \
+  --start-interval=5s \
+  CMD curl http://localhost:3000/ || exit 1
+  

@@ -39,8 +39,10 @@ export class Team implements ITeam {
 	getDisplayName() {
 		if (this.name)
 			return this.name;
-		if (this.players.length > 0)
+		if (this.players.length > 1)
 			return this.players[0].profile.username + "'s team";
+		if (this.players.length === 1)
+			return this.players[0].profile.username;
 		return 'Unknown';
 	}
 

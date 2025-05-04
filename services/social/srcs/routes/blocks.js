@@ -25,7 +25,7 @@ export default function router(fastify, opts, done) {
 
     try {
       // Verify account exists
-      await YATT.fetch(`http://db-profiles:3000/${blocked_id}`);
+      await YATT.fetch(`http://profiles:3000/${blocked_id}`);
 
       const { friends, requests, blocks } = dbAction.handleBlock(blocker_id, blocked_id);
     

@@ -22,7 +22,7 @@ export default function router(fastify, opts, done) {
 
     try {
       // Verify account exists
-      const profile = await YATT.fetch(`http://db-profiles:3000/${receiver}`);
+      const profile = await YATT.fetch(`http://profiles:3000/${receiver}`);
 
       // 
       const friendship = dbAction.handleFriendRequest(sender, receiver);

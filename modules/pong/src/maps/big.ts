@@ -32,16 +32,31 @@ export const paddleRightFrontPosition: Vec2 = new Vec2(playGround.width / 2 - K.
 export const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(wallSize[0] / 2, wallSize[1] / 2);
 export const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(goalSize[0] / 2, goalSize[1] / 2);
 
-export const map: IPongMap = {
-	mapId: MapID.BIG,
-	wallTop: new Wall(wallShape, wallTopPosition, wallSize),
-	wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
-	goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),
-	goalRight: new Goal(goalShape, goalRightPosition, goalSize),
-	paddleLeftBack: new Paddle(paddleLeftBackPosition, Vec2.create(), K.paddleSpeed),
-	paddleLeftFront: new Paddle(paddleLeftFrontPosition, Vec2.create(), K.paddleSpeed),
-	paddleRightBack: new Paddle(paddleRightBackPosition, Vec2.create(), K.paddleSpeed),
-	paddleRightFront: new Paddle(paddleRightFrontPosition, Vec2.create(), K.paddleSpeed),
-	obstacles: []
+export function createMap(): IPongMap {
+	return {
+		mapId: MapID.BIG,
+		wallTop: new Wall(wallShape, wallTopPosition, wallSize),
+		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
+		goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),
+		goalRight: new Goal(goalShape, goalRightPosition, goalSize),
+		paddleLeftBack: new Paddle(paddleLeftBackPosition, Vec2.create(), K.paddleSpeed),
+		paddleLeftFront: new Paddle(paddleLeftFrontPosition, Vec2.create(), K.paddleSpeed),
+		paddleRightBack: new Paddle(paddleRightBackPosition, Vec2.create(), K.paddleSpeed),
+		paddleRightFront: new Paddle(paddleRightFrontPosition, Vec2.create(), K.paddleSpeed),
+		obstacles: [],
+		getObjects(): PH2D.Body[] {
+			return [
+				this.wallTop,
+				this.wallBottom,
+				this.goalLeft,
+				this.goalRight,
+				this.paddleLeftBack,
+				this.paddleLeftFront,
+				this.paddleRightBack,
+				this.paddleRightFront,
+			].concat(this.obstacles);
+		},
+		clone: createMap
+	}
 }
 

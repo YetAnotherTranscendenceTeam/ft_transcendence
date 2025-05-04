@@ -63,6 +63,7 @@ secret_keys=( \
     "PONG_SECRET"
     "MATCH_MANAGEMENT_SECRET" \
     "TWO_FA_SECRET" \
+    "ACTIVITY_SSE_SECRET" \
 )  
 
 echo "[SECRETS]"
@@ -117,5 +118,12 @@ else
 fi
 
 generate MATCHMAKING_SCHEDULER_DELAY "100"
+
+if [[ "$1" = "evaluation" ]]; then
+    printf "\n[PRODUCTION CONFIG] \n"
+    generate IMAGE_PREFIX "eval"
+    generate BASE_IMAGE "yatt-modules:latest"
+    generate NGINX_CONF_FILE "default.conf"
+fi
 
 mv $TMP_FILE $ENV_FILE
