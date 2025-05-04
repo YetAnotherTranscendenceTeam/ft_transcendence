@@ -27,8 +27,8 @@ export default function useFetch() {
 		const expired_at = localStorage.getItem('expire_at');
 		if (!expired_at)
 			return;
-		const expired_at_date = new Date(expired_at);
-		if (expired_at_date > new Date())
+		const expired_at_date = new Date(expired_at).getTime();
+		if (expired_at_date > Date.now() + 1000 * 60 * 5)
 			return;
 		const response = await ft_fetch(`${config.API_URL}/token/refresh`, {
 			method: 'POST',

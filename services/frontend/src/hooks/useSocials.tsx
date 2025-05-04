@@ -442,7 +442,7 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	};
 
 	const onConnect = () => {
-		status({type: StatusType.ONLINE});
+		console.log('Connected to Social WebSocket');
 	};
 
 	const ws = useWebSocket({
