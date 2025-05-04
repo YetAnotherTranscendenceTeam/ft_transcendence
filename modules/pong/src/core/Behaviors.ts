@@ -4,6 +4,7 @@ import { paddleSize, ballMaxAngle } from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
+import { IPongPlayer, PlayerID } from "./types.js";
 
 export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) {
 	const { emitter, other, manifold } = event.detail;
@@ -32,43 +33,25 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			Vec2.add(ballEmitter.velocity, ballEmitter.velocity, paddleVelocity);
 			Vec2.normalize(ballEmitter.velocity, ballEmitter.velocity);
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
-			// console.log("in velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
-			// console.log("in mag: " + ballEmitter.velocity.magnitude);
 		} else {
 			// set the ball's velocity to the paddle's velocity
 			ballEmitter.velocity = Vec2.clone(paddleVelocity);
 			Vec2.normalize(ballEmitter.velocity, ballEmitter.velocity);
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
-			// console.log("out velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
-			// console.log("out mag: " + ballEmitter.velocity.magnitude);
 		}
 		// ballEmitter.correctSpeed();
 		ballEmitter.faster();
 
-
-		// ballEmitter.position[0] = other.position[0] + (other === paddleLeftBody ? 1 : -1) * (paddleHalfSize[0] + ballSize);
-		// console.log("ball velocity: " + ballEmitter.velocity[0] + ", " + ballEmitter.velocity[1]);
 		console.log("ball mag: " + ballEmitter.velocity.magnitude);
+		// find player where paddle id === other.id, _paddles is a Map<number, Paddle>
+		const playerId: PlayerID = this.getPlayerIdFromBodyId(other.id);
+		if (playerId !== undefined) {
+			this._stats.hit(playerId, ballEmitter.id, this._tick);
+		}
 	}
 
-	// if (other === goalLeftBody) { // left goal
-	// 	this._score[1]++;
-	// 	console.log("goal left");
-	// 	console.log("total score: " + this._score[0] + "-" + this._score[1]);
-	// 	this.start();
-	// } else if (other === goalRightBody) { // right goal
-	// 	this._score[0]++;
-	// 	console.log("goal right");
-	// 	console.log("total score: " + this._score[0] + "-" + this._score[1]);
-	// 	this.start();
-	// }
 	if (other instanceof Goal) {
-		const goal: Goal = other as Goal;
-		goal.incrementContact();
-		// if (goal.position.x < 0) { // left goal
-		// 	console.log("goal left");
-		// } else { // right goal
-		// 	console.log("goal right");
-		// }
+		this._stats.scoreGoal(other.side(), ballEmitter.id, this._tick);
+		other.score();
 	}
 }

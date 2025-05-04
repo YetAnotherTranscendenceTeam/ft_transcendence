@@ -413,7 +413,7 @@ export default class PongClient extends PONG.Pong {
 		});
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._stats.score[0] + "-" + this._stats.score[1]);
-			if (this._winner !== undefined) {
+			if (this._stats.winner !== undefined) {
 				this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
 				this.setState(PONG.PongState.ENDED.clone());
 				this.updateOverlay();
@@ -479,7 +479,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private playerUpdateLocal() {
-		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
+		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PlayerID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {
@@ -491,7 +491,7 @@ export default class PongClient extends PONG.Pong {
 			paddle.move(moveDirection);
 		}
 
-		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
+		paddle = this._paddleInstance.get(PONG.PlayerID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.W)) {
@@ -506,7 +506,7 @@ export default class PongClient extends PONG.Pong {
 
 	private playerUpdateOnline() {
 
-		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.paddleId);
+		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.playerId);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {

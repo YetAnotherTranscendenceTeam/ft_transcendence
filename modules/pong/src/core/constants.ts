@@ -23,6 +23,7 @@ export const defaultBallSpeed = 5;
 export const maxBallSpeed = 10;
 export const ballAcceleration = 0.5; // 0.5 m/s added avery side change
 export const ballMaxAngle = Math.PI / 3; // 60 degrees
+export const launchAngle = 20 * Math.PI / 180; // 20 degrees
 export const paddleSpeed = 4;
 export const defaultPointsToWin = 3;
 

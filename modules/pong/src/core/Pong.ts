@@ -7,7 +7,7 @@ import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import Wall from "./Wall.js";
 import { ballCollision } from "./Behaviors.js";
-import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState, PlayerMovement, IBall, IPongPlayer } from "./types.js";
+import { MapSide, IPongMap, MapID, PlayerID, PongState, IPongState, PlayerMovement, IBall, IPongPlayer } from "./types.js";
 import * as maps from "../maps/index.js";
 import Stats from "./Stats.js";
 
@@ -28,9 +28,6 @@ export class Pong {
 	protected _paddles: Map<number, PH2D.Body>;
 	protected _goals: Map<number, Goal>;
 	protected _teamNames: string[] = [];
-
-	// protected _lastSide: MapSide;
-	protected _winner: MapSide;
 
 	protected _stats: Stats;
 
@@ -75,19 +72,19 @@ export class Pong {
 		}
 		if (this._currentMap.paddleLeftBack) {
 			this._physicsScene.addBody(this._currentMap.paddleLeftBack);
-			this._paddles.set(PaddleID.LEFT_BACK, this._currentMap.paddleLeftBack);
+			this._paddles.set(PlayerID.LEFT_BACK, this._currentMap.paddleLeftBack);
 		}
 		if (this._currentMap.paddleRightBack) {
 			this._physicsScene.addBody(this._currentMap.paddleRightBack);
-			this._paddles.set(PaddleID.RIGHT_BACK, this._currentMap.paddleRightBack);
+			this._paddles.set(PlayerID.RIGHT_BACK, this._currentMap.paddleRightBack);
 		}
 		if (this._currentMap.paddleLeftFront) {
 			this._physicsScene.addBody(this._currentMap.paddleLeftFront);
-			this._paddles.set(PaddleID.LEFT_FRONT, this._currentMap.paddleLeftFront);
+			this._paddles.set(PlayerID.LEFT_FRONT, this._currentMap.paddleLeftFront);
 		}
 		if (this._currentMap.paddleRightFront) {
 			this._physicsScene.addBody(this._currentMap.paddleRightFront);
-			this._paddles.set(PaddleID.RIGHT_FRONT, this._currentMap.paddleRightFront);
+			this._paddles.set(PlayerID.RIGHT_FRONT, this._currentMap.paddleRightFront);
 		}
 		this._currentMap.obstacles.forEach((obstacle: Wall) => {
 			this._physicsScene.addBody(obstacle);
@@ -118,31 +115,32 @@ export class Pong {
 			this.switchMap(MapID.BIG);
 		else
 			this.switchMap(MapID.SMALL);
-		let paddleId: number = 0;
+		let playerId: number = 0;
 		this._players = players.map((player: IPlayer, index: number) => {
-			if (!this._paddles.has(paddleId)) {
-				paddleId++;
+			if (!this._paddles.has(playerId)) {
+				playerId++;
 			}
 			return {
 				...player,
-				paddleId: paddleId++,
+				objectId: this._paddles.get(playerId).id,
+				playerId: playerId++,
 				movement: PlayerMovement.NONE,
 				toJSON() {
 					return {
 						account_id: this.account_id,
 						profile: this.profile,
-						paddleId: this.paddleId,
+						playerId: this.playerId,
+						objectId: this.objectId,
 						movement: this.movement,
 					}
 				}
 			}
 		});
 
-
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(gamemode.team_size);
+		this._stats = new Stats(gamemode.team_size, K.defaultPointsToWin); // TO DO : points to win from gamemode
 	}
 
 	protected localSetup() {
@@ -153,7 +151,7 @@ export class Pong {
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(2);
+		this._stats = new Stats(2, K.defaultPointsToWin);
 	}
 
 	protected menuSetup() {
@@ -164,7 +162,7 @@ export class Pong {
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(0);
+		this._stats = new Stats(0, K.defaultPointsToWin);
 	}
 
 	protected lobbySetup() {
@@ -175,14 +173,14 @@ export class Pong {
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(0);
+		this._stats = new Stats(0, K.defaultPointsToWin);
 	}
 
 	protected start() {
 		this._tick = 0;
 		this._accumulator = 0;
 		this._stats.score = [0, 0];
-		this._winner = undefined;
+		// this._winner = undefined;
 
 		this.roundStart();
 	}
@@ -224,33 +222,22 @@ export class Pong {
 	protected scoreUpdate(): boolean {
 		let scored: boolean = false;
 		this._goals.forEach((goal: Goal) => {
-			if (goal.contact > 0) {
-				if (goal.position.x < 0) { // left goal
-					this._stats.score[1]++;
-					this._stats.lastSideToScore = MapSide.RIGHT;
-				} else { // right goal
-					this._stats.score[0]++;
-					this._stats.lastSideToScore = MapSide.LEFT;
-				}
-				goal.resetContact();
+			if (goal.scored) {
 				scored = true;
+				goal.resetScore();
 			}
 		});
-		if (this._stats.score[0] >= K.defaultPointsToWin) {
-			this._winner = MapSide.LEFT;
-		} else if (this._stats.score[1] >= K.defaultPointsToWin) {
-			this._winner = MapSide.RIGHT;
-		}
 		return scored;
 	}
 
 	private launchBall() {
+		// TODO: side depending on the last goal
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
 		this._balls[0].previousPosition[0] = 0;
 		this._balls[0].previousPosition[1] = 0;
 		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		const angle: number = Math.random() * 20 * Math.PI / 180; // random angle between -20 and 20 degrees
+		const angle: number = Math.random() * K.launchAngle; // random angle between -20 and 20 degrees
 		const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		const ballVelocity: Vec2 = new Vec2(x, y);
@@ -277,6 +264,15 @@ export class Pong {
 			this._physicsScene.removeBody(this._balls[i]);
 			this._balls.splice(i, 1);
 		}
+	}
+
+	public getPlayerIdFromBodyId(bodyId: number): PlayerID | undefined {
+		for (const [playerId, paddle] of this._paddles.entries()) {
+			if (paddle.id === bodyId) {
+				return playerId;
+			}
+		}
+		return undefined;
 	}
 
 	public get cumulator(): number {

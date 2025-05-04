@@ -14,7 +14,8 @@ export class IPongState {
 }
 
 export type IPongPlayer = IPlayer & {
-	paddleId: PaddleID;
+	playerId: PlayerID;
+	objectId: number;
 	movement: PlayerMovement;
 }
 
@@ -100,7 +101,7 @@ export enum MapSide {
 	RIGHT = 1
 }
 
-export enum PaddleID {
+export enum PlayerID {
 	LEFT_BACK = 0,
 	LEFT_FRONT = 1,
 	RIGHT_BACK = 2,
@@ -147,7 +148,7 @@ export interface IBall {
 }
 
 export interface IPaddle {
-	id: PaddleID;
+	id: PlayerID;
 	position: number;
 	movement: PlayerMovement;
 }

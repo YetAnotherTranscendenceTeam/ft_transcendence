@@ -1,10 +1,7 @@
-import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState, PlayerMovement, IBall, IPongPlayer } from "./types.js";
+import { MapSide, IPongMap, MapID, PlayerID, PongState, IPongState, PlayerMovement, IBall, IPongPlayer } from "./types.js";
 
 interface ITeamStats {
-	points: number;
-	shots: number;
 	hits: number;
-	misses: number;
 	goals: number;
 }
 
@@ -15,18 +12,20 @@ interface IPlayerStats {
 }
 
 interface IHit {
-	paddleId: PaddleID;
+	playerId: PlayerID;
 	ballId: number;
 	tick: number;
 }
 
 interface ILastGoal {
-	paddleId: PaddleID;
+	playerId: PlayerID;
 	ballId: number;
 	tick: number;
 }
 
 export default class Stats {
+	private _pointToWin: number;
+	private _winner: MapSide;
 	private _score: number[];
 	private _team: {
 		[side: number]: ITeamStats;
@@ -39,43 +38,33 @@ export default class Stats {
 	private _lastSideToScore: MapSide;
 	private _lastSideToHit: MapSide;
 
-	constructor(numberOfPlayers: number) {
+	constructor(teamSize: number, pointToWin: number) {
+		this._pointToWin = pointToWin;
+		this._winner = undefined;
 		this._score = [0, 0];
 		this._team = {};
 		this._team[MapSide.LEFT] = {
-			points: 0,
-			shots: 0,
 			hits: 0,
-			misses: 0,
 			goals: 0
 		};
 		this._team[MapSide.RIGHT] = {
-			points: 0,
-			shots: 0,
 			hits: 0,
-			misses: 0,
 			goals: 0
 		};
 		this._player = {};
 		this._player[0] = {
-			side: MapSide.LEFT, // left side
-			goals: 0, // points scored (wordy description: 1 point per goal scored by the player)
-			hits: 0, // hits made (wordy description: 1 hit per ball hit by the player)
+			side: MapSide.LEFT,
+			goals: 0,
+			hits: 0,
 		};
-		if (numberOfPlayers <= 1) {
-			this._player[1] = {
-				side: MapSide.RIGHT,
-				hits: 0,
-				goals: 0
-			};
-		} else {
+		this._player[2] = {
+			side: MapSide.RIGHT,
+			hits: 0,
+			goals: 0
+		};
+		if (teamSize === 2) {
 			this._player[1] = {
 				side: MapSide.LEFT,
-				hits: 0,
-				goals: 0
-			};
-			this._player[2] = {
-				side: MapSide.RIGHT,
 				hits: 0,
 				goals: 0
 			};
@@ -86,17 +75,22 @@ export default class Stats {
 			};
 		}
 		this._lastHit = {
-			paddleId: undefined,
+			playerId: undefined,
 			ballId: 0,
 			tick: 0
 		};
 		this._lastGoal = {
-			paddleId: undefined,
+			playerId: undefined,
 			ballId: 0,
 			tick: 0
 		};
 		this._lastSideToScore = undefined;
 		this._lastSideToHit = undefined;
+		
+	}
+
+	public get winner(): MapSide {
+		return this._winner;
 	}
 
 	public get score(): number[] {
@@ -137,5 +131,41 @@ export default class Stats {
 
 	public set lastSideToScore(side: MapSide) {
 		this._lastSideToScore = side;
+	}
+
+	public scoreGoal(side: MapSide, ballId: number, tick: number): void {
+		if (this.lastGoal.ballId === ballId && this.lastGoal.tick === tick) {
+			return;
+		}
+		this._score[side]++;
+		this._team[side].goals++;
+		const playerId = this._lastHit.playerId;
+		if (playerId !== undefined) {
+			this._player[playerId].goals++;
+		}
+		this._lastGoal = {
+			playerId: playerId,
+			ballId: ballId,
+			tick: tick
+		};
+		this._lastSideToScore = side;
+		if (this._score[side] >= this._pointToWin) {
+			this._winner = side;
+		}
+	}
+
+	public hit(playerId: PlayerID, ballId: number, tick: number): void {
+		if (this._lastHit.ballId === ballId && this._lastHit.tick === tick) {
+			return;
+		}
+		const side = this._player[playerId].side;
+		this._team[side].hits++;
+		this._player[playerId].hits++;
+		this._lastHit = {
+			playerId: playerId,
+			ballId: ballId,
+			tick: tick
+		};
+		this._lastSideToHit = side;
 	}
 }

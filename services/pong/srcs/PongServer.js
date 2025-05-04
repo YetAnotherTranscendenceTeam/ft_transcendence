@@ -14,7 +14,6 @@ export class PongServer extends Pong {
 
 	constructor(match_id, gamemode, teams, manager) {
 		super();
-		this._running = 0;
 		this.manager = manager;
 		this._time = 0;
 		this._lastUpdate = 0;
@@ -25,7 +24,6 @@ export class PongServer extends Pong {
 				this.collisions.push(event.detail);
 			});
 		}
-
 	}
 
 	destroy() {
@@ -68,7 +66,7 @@ export class PongServer extends Pong {
 
 	roundStart() {
 		super.roundStart();
-		const back_state = this._winner !== undefined ? 2 : 1;
+		const back_state = this._stats.winner !== undefined ? 2 : 1;
 		YATT.fetch(`http://matchmaking:3000/matches/${this._matchId}`, {
 			method: "PATCH",
 			headers: {
@@ -91,9 +89,9 @@ export class PongServer extends Pong {
 	getPaddlePositions() {
 		const paddle_positions = {};
 		for (let player of this._players) {
-			const paddle = this._paddles.get(player.paddleId);
-			paddle_positions[player.paddleId] = {
-				id: player.paddleId,
+			const paddle = this._paddles.get(player.playerId);
+			paddle_positions[player.playerId] = {
+				id: player.playerId,
 				y: paddle.position.y,
 				movement: player.movement
 			};
@@ -170,7 +168,7 @@ export class PongServer extends Pong {
 		dt = this.physicsUpdate(dt);
 		if (this.scoreUpdate()) {
 			let newstate = PongState.FREEZE;
-			if (this._winner !== undefined) {
+			if (this._stats.winner !== undefined) {
 				newstate = PongState.ENDED;
 				this.scheduleClose();
 			}
