@@ -3,8 +3,8 @@ services:
     build:
       context: services/nginx/
       args:
-        CONF_FILE: ibertran.conf
-    image: ibertran/transcendence.nginx:latest
+        CONF_FILE: ${NGINX_CONF_FILE}
+    image: ${IMAGE_PREFIX}/transcendence.nginx:latest
     ports:
       - "127.0.0.1:8080:8080"
       - "127.0.0.1:7979:7979"
@@ -24,10 +24,10 @@ services:
       context: services/frontend/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-        - BACKEND_URL=https://api-transcendence.ibertran.dev
-        - WS_URL=wss://api-transcendence.ibertran.dev
-        - GOOGLE_CLIENT_ID=9744497548-ecens5hjhfugrc0l4a3nl9bqc3qr08dh.apps.googleusercontent.com
-    image: ibertran/transcendence.frontend:latest
+        - BACKEND_URL=${BACKEND_URL}
+        - WS_URL=${WS_URL}
+        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    image: ${IMAGE_PREFIX}/transcendence.frontend:latest
     networks:
       - frontend
 
@@ -36,7 +36,7 @@ services:
       context: services/credentials/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.credentials:latest
+    image: ${IMAGE_PREFIX}/transcendence.credentials:latest
     volumes:
       - sqlite:/database
     networks:
@@ -48,7 +48,7 @@ services:
       context: services/token-manager/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.token-manager:latest
+    image: ${IMAGE_PREFIX}/transcendence.token-manager:latest
     volumes:
       - sqlite:/database
     environment:
@@ -65,7 +65,7 @@ services:
       context: services/registration/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.registration:latest
+    image: ${IMAGE_PREFIX}/transcendence.registration:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -79,7 +79,7 @@ services:
       context: services/password-auth/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.password-auth:latest
+    image: ${IMAGE_PREFIX}/transcendence.password-auth:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -96,7 +96,7 @@ services:
       context: services/fortytwo-auth/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.fortytwo-auth:latest
+    image: ${IMAGE_PREFIX}/transcendence.fortytwo-auth:latest
     environment:
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -118,7 +118,7 @@ services:
       context: services/google-auth/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.google-auth:latest
+    image: ${IMAGE_PREFIX}/transcendence.google-auth:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -137,7 +137,7 @@ services:
       context: services/2fa/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.2fa:latest
+    image: ${IMAGE_PREFIX}/transcendence.2fa:latest
     volumes:
       - sqlite:/database
     environment:
@@ -153,7 +153,7 @@ services:
       context: services/lobbies/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.lobbies:latest
+    image: ${IMAGE_PREFIX}/transcendence.lobbies:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
@@ -170,7 +170,7 @@ services:
       context: services/matchmaking/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.matchmaking:latest
+    image: ${IMAGE_PREFIX}/transcendence.matchmaking:latest
     volumes:
       - sqlite:/database
     environment:
@@ -189,7 +189,7 @@ services:
       context: services/db-profiles/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.profiles:latest
+    image: ${IMAGE_PREFIX}/transcendence.profiles:latest
     volumes:
       - sqlite:/database
     environment:
@@ -203,7 +203,7 @@ services:
       context: services/users/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.users:latest
+    image: ${IMAGE_PREFIX}/transcendence.users:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
@@ -216,7 +216,7 @@ services:
       context: services/settings/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.settings:latest
+    image: ${IMAGE_PREFIX}/transcendence.settings:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
@@ -235,7 +235,7 @@ services:
       context: services/avatars/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.avatars:latest
+    image: ${IMAGE_PREFIX}/transcendence.avatars:latest
     volumes:
       - sqlite:/database
     environment:
@@ -254,7 +254,7 @@ services:
       context: services/social/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.social:latest
+    image: ${IMAGE_PREFIX}/transcendence.social:latest
     volumes:
       - sqlite:/database
     environment:
@@ -275,8 +275,8 @@ services:
     build:
       context: services/CDN/nginx/
       args:
-        - CONF_FILE=ibertran.conf
-    image: ibertran/transcendence.cdn-nginx:latest
+        - CONF_FILE=${NGINX_CONF_FILE}
+    image: ${IMAGE_PREFIX}/transcendence.cdn-nginx:latest
     ports:
       - "127.0.0.1:8181:8181"
     volumes:
@@ -293,7 +293,7 @@ services:
       context: services/CDN/api
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.cdn-api:latest
+    image: ${IMAGE_PREFIX}/transcendence.cdn-api:latest
     volumes:
       - avatars:/app/avatars/users/
       - ./services/CDN/.avatars:/app/avatars/default/:ro
@@ -309,7 +309,7 @@ services:
       context: services/pong/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
-    image: ibertran/transcendence.pong:latest
+    image: ${IMAGE_PREFIX}/transcendence.pong:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
