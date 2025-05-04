@@ -7,13 +7,9 @@ import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import Wall from "./Wall.js";
 import { ballCollision } from "./Behaviors.js";
-import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState, PlayerMovement, IBall } from "./types.js";
+import { MapSide, IPongMap, MapID, PaddleID, PongState, IPongState, PlayerMovement, IBall, IPongPlayer } from "./types.js";
 import * as maps from "../maps/index.js";
-
-export type IPongPlayer = IPlayer & {
-	paddleId: PaddleID;
-	movement: PlayerMovement;
-}
+import Stats from "./Stats.js";
 
 export class Pong {
 	private _accumulator: number;
@@ -33,9 +29,10 @@ export class Pong {
 	protected _goals: Map<number, Goal>;
 	protected _teamNames: string[] = [];
 
-	protected _score: number[];
-	protected _lastSide: MapSide;
+	// protected _lastSide: MapSide;
 	protected _winner: MapSide;
+
+	protected _stats: Stats;
 
 	public constructor() {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, K.substeps);
@@ -45,8 +42,8 @@ export class Pong {
 		this._tick = 0;
 		this._accumulator = 0;
 		this._currentMap = undefined;
-		this._lastSide = null;
 		this._state = PongState.RESERVED.clone();
+		this._stats = undefined;
 	}
 
 	private static loadMaps(): Map<MapID, IPongMap> {
@@ -100,12 +97,11 @@ export class Pong {
 	public cleanUp() {
 		this._tick = 0;
 		this._accumulator = 0;
-		this._score = [0, 0];
-		this._lastSide = null;
 		this._teamNames = [];
 		this._players = [];
 		this._matchId = 0;
 		this._state = PongState.RESERVED.clone();
+		this._stats = undefined;
 	}
 
 	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED.clone()) {
@@ -146,6 +142,7 @@ export class Pong {
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		this._stats = new Stats(gamemode.team_size);
 	}
 
 	protected localSetup() {
@@ -153,6 +150,7 @@ export class Pong {
 
 		this.switchMap(MapID.SMALL);
 
+		this._stats = new Stats(2);
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
@@ -166,6 +164,7 @@ export class Pong {
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		this._stats = new Stats(0);
 	}
 
 	protected lobbySetup() {
@@ -176,13 +175,13 @@ export class Pong {
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		this._stats = new Stats(0);
 	}
 
 	protected start() {
 		this._tick = 0;
 		this._accumulator = 0;
-		this._score = [0, 0];
-		this._lastSide = null;
+		this._stats.score = [0, 0];
 		this._winner = undefined;
 
 		this.roundStart();
@@ -227,19 +226,19 @@ export class Pong {
 		this._goals.forEach((goal: Goal) => {
 			if (goal.contact > 0) {
 				if (goal.position.x < 0) { // left goal
-					this._score[1]++;
-					this._lastSide = MapSide.RIGHT;
+					this._stats.score[1]++;
+					this._stats.lastSideToScore = MapSide.RIGHT;
 				} else { // right goal
-					this._score[0]++;
-					this._lastSide = MapSide.LEFT;
+					this._stats.score[0]++;
+					this._stats.lastSideToScore = MapSide.LEFT;
 				}
 				goal.resetContact();
 				scored = true;
 			}
 		});
-		if (this._score[0] >= K.defaultPointsToWin) {
+		if (this._stats.score[0] >= K.defaultPointsToWin) {
 			this._winner = MapSide.LEFT;
-		} else if (this._score[1] >= K.defaultPointsToWin) {
+		} else if (this._stats.score[1] >= K.defaultPointsToWin) {
 			this._winner = MapSide.RIGHT;
 		}
 		return scored;
@@ -296,8 +295,12 @@ export class Pong {
 		return this._paddles;
 	}
 
-	public set lastSide(side: MapSide) {
-		this._lastSide = side;
+	public get lastSideToScore(): MapSide {
+		return this._stats.lastSideToScore;
+	}
+
+	public set lastSideToScore(side: MapSide) {
+		this._stats.lastSideToScore = side;
 	}
 }
 

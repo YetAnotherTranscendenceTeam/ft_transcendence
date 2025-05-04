@@ -6,10 +6,16 @@ import Wall from "./Wall.js";
 import * as K from "./constants.js";
 import { Body } from "physics-engine"
 import { Pong } from "./Pong.js";
+import { IPlayer } from 'yatt-lobbies'
 
 export class IPongState {
 	name: "PLAYING" | "FREEZE" | "RESERVED" | "PAUSED" | "ENDED";
 	frozen_until: number;
+}
+
+export type IPongPlayer = IPlayer & {
+	paddleId: PaddleID;
+	movement: PlayerMovement;
 }
 
 export class PongState implements IPongState {
@@ -23,7 +29,7 @@ export class PongState implements IPongState {
 		frozen_until: 3,
 		next: () => PongState.PLAYING,
 		endCallback: (game: Pong, nextState: PongState) => {
-			game.lastSide = null;
+			game.lastSideToScore = null;
 		}
 	});
 	// waiting for game

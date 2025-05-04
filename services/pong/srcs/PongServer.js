@@ -38,9 +38,9 @@ export class PongServer extends Pong {
 			team_names: this.team_names,
 			match_id: this._matchId,
 			gamemode: this._gameMode,
-			lastSide: this._lastSide,
+			lastSide: this._stats.lastSideToScore,
 			state: this._state,
-			score: this._score,
+			score: this._stats.score,
 			paddles: this.getPaddlePositions(),
 			balls: this._balls,
 			tick: this.tick,
@@ -57,8 +57,8 @@ export class PongServer extends Pong {
 			},
 			body: JSON.stringify({
 				state: 3,
-				score_0: this._score[0],
-				score_1: this._score[1],
+				score_0: this._stats.score[0],
+				score_1: this._stats.score[1],
 			}),
 		}).catch((err) => {
 			console.error("Error updating match:", err);
@@ -76,8 +76,8 @@ export class PongServer extends Pong {
 				"Authorization": `Bearer ${this.manager.fastify.tokens.get("match_management")}`,
 			},
 			body: JSON.stringify({
-				score_0: this._score[0],
-				score_1: this._score[1],
+				score_0: this._stats.score[0],
+				score_1: this._stats.score[1],
 				state: back_state
 			}),
 		}).catch((err) => {
@@ -140,8 +140,8 @@ export class PongServer extends Pong {
 		}
 		this._state = state;
 		if (this._state.name === "ENDED" || this._state.name === "FREEZE") {
-			this._state.score = this._score;
-			this._state.side = this._lastSide;
+			this._state.score = this._stats.score;
+			this._state.side = this._stats.lastSideToScore;
 		}
 		this.broadcast({
 			event: "state",
