@@ -11,6 +11,117 @@
 	<link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
 </head>
 <body>
-	<div id="root"></div>
+	<style>
+		#loading {
+			z-index: 1000;
+			background-color: #343a40;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		#loading h1 {
+			color: #f8f9fa;
+			font-family: 'Ubuntu', sans-serif;
+			font-size: x-large;
+			display: flex;
+			gap: 16px;
+			justify-content: center;
+			align-items: center;
+		}
+		.pong-loader {
+			height: 40px;
+			width: 6px;
+			margin: 0 20px;
+			background-color: transparent;
+			animation: paddles 0.75s ease-out infinite;
+			transform: translate3d(0, 0, 0);
+		}
+
+		.pong-loader:before {
+			content: "";
+			position: absolute;
+			margin: 0 auto;
+			left: 0;
+			right: 0;
+			top: 15px;
+			width: 10px;
+			height: 10px;
+			background-color: #ff7b00;
+			border-radius: 50%;
+			animation: ballbounce 0.6s ease-out infinite;
+		}
+
+		@keyframes paddles {
+			0% {
+				box-shadow: -25px -10px 0px #f8f9fa, 25px 10px 0px #f8f9fa;
+			}
+			50% {
+				box-shadow: -25px 8px 0px #f8f9fa, 25px -10px 0px #f8f9fa;
+			}
+			100% {
+				box-shadow: -25px -10px 0px #f8f9fa, 25px 10px 0px #f8f9fa;
+			}
+		}
+
+		@keyframes ballbounce {
+			0% {
+				transform: translateX(-20px) scale(1, 1.2);
+			}
+			25% {
+				transform: scale(1.2, 1);
+			}
+			50% {
+				transform: translateX(15px) scale(1, 1.2);
+			}
+			75% {
+				transform: scale(1.2, 1);
+			}
+			100% {
+				transform: translateX(-20px);
+			}
+		}
+		#loading.open {
+			animation: slideUp 0.5s ease-in-out forwards;
+		}
+		@keyframes slideUp {
+			0% {
+				transform: translateY(0);
+				opacity: 1;
+			}
+			90% {
+				opacity: 1;
+			}
+			100% {
+				transform: translateY(-100%);
+				opacity: 0;
+			}
+		}
+		#loading.open h1 {
+			opacity: 0;
+			transition: opacity 0.2s ease-in-out;
+		}
+	</style>
+	<div id="loading">
+		<h1>
+			<div class="pong-loader"></div> Loading...
+		</h1>
+	</div>
+	<div id="root">
+	</div>
+	<script>
+		const loading = document.getElementById('loading');
+
+		window.addEventListener('load', () => {
+			loading.classList.add('open');
+			setTimeout(() => {
+				loading.remove();
+			}, 500);
+		});
+	</script>
 </body>
 </html>
