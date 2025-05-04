@@ -19,18 +19,15 @@ override TS_MODULES = \
 	physics-engine \
 	pong \
 
-SERVICES_DEPS = $(patsubst %, services/%/node_modules, $(SERVICES))
-MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(MODULES))
-TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
+override SERVICES_DEPS = $(patsubst %, services/%/node_modules, $(SERVICES))
+override MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(MODULES))
+override TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 
 override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
 dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS) $(SSL_CERTIFICATE)
-
-evaluation:
 	./env-generator.sh evaluation
-	(cd modules && docker compose build)
-	docker compose -f docker-compose.prod.yaml -f docker-compose.eval.yaml up -d --build --wait
+	docker compose up -d --build --wait
 
 $(MODULES_DEPS) $(SERVICES_DEPS):
 	(cd $(@D) && npm i)
@@ -50,11 +47,13 @@ $(SSL_CERTIFICATE):
 		-subj "/C=FR/ST=Rhone-Alpes/L=Lyon/O=YATT/OU=IT Department/CN=www.localhost.com"
 
 test:
-ifeq ($(ENV),production)
-	$(error Tests cannot be run in production environment)
-else
+	(cd ./tests && npm i)
 	npm --prefix ./tests run test
-endif
+
+evaluation:
+	./env-generator.sh evaluation
+	(cd modules && docker compose build)
+	docker compose -f docker-compose.yaml -f docker-compose.eval.yaml up -d --build --wait
 
 clean-modules:
 	-rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
@@ -71,3 +70,8 @@ fclean:
 	$(MAKE) clean-modules
 	$(MAKE) clean-services
 	$(MAKE) clean-db
+
+re:
+	docker compose down
+	$(MAKE) fclean
+	$(MAKE) dev

@@ -1,0 +1,222 @@
+services:
+  nginx:
+    build:
+      context: services/nginx/
+      args:
+        CONF_FILE: default.conf
+    ports: !override
+      - "8080:8080"
+      - "7979:7979"
+    secrets:
+      - ssl-crt
+      - ssl-key
+
+  frontend:
+    build:
+      context: services/frontend/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/frontend/src:/services/frontend/src
+      - ./services/frontend/public:/services/frontend/public
+      - ./modules/:/modules:ro
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+      - WS_URL=${WS_URL}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - PASSWORD_REGEX=^.{8,24}$
+    ports:
+      - "127.0.0.1:4242:8080"
+
+  credentials:
+    build:
+      context: services/credentials/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/credentials/srcs:/services/credentials/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - "127.0.0.1:7002:3000"
+
+  token-manager:
+    build:
+      context: services/token-manager/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/token-manager/srcs:/services/token-manager/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - 127.0.0.1:4002:3000
+
+  registration:
+    build:
+      context: services/registration/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/registration/srcs:/services/registration/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - PASSWORD_REGEX=^.{8,24}$
+    ports:
+      - "127.0.0.1:4012:3000"
+
+  password-auth:
+    build:
+      context: services/password-auth/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/password-auth/srcs:/services/password-auth/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - PASSWORD_REGEX=^.{8,24}$
+    ports:
+      - "127.0.0.1:4022:3000"
+
+  fortytwo-auth:
+    build:
+      context: services/fortytwo-auth/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/fortytwo-auth/srcs:/services/fortytwo-auth/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - "127.0.0.1:4042:3000"
+
+  google-auth:
+    build:
+      context: services/google-auth/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/google-auth/srcs:/services/google-auth/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - "127.0.0.1:4032:3000"
+
+  2fa:
+    build:
+      context: services/2fa/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/2fa/srcs:/services/2fa/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - 127.0.0.1:4052:3000
+
+  lobbies:
+    build:
+      context: services/lobbies/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/lobbies/srcs:/services/lobbies/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - "127.0.0.1:4043:3000"
+
+  matchmaking:
+    build:
+      context: services/matchmaking/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/matchmaking/srcs:/services/matchmaking/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - "127.0.0.1:4044:3000"
+
+  profiles:
+    build:
+      context: services/profiles/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/profiles/srcs:/services/profiles/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - 127.0.0.1:7001:3000
+
+  users:
+    build:
+      context: services/users/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/users/srcs:/services/users/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - 127.0.0.1:4003:3000
+
+  settings:
+    build:
+      context: services/settings/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/settings/srcs:/services/settings/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - PASSWORD_REGEX=^.{8,24}$
+    ports:
+      - 127.0.0.1:4004:3000
+
+  avatars:
+    build:
+      context: services/avatars/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/avatars/srcs:/services/avatars/srcs
+      - ./modules/:/modules:ro
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    ports:
+      - 127.0.0.1:4113:3000
+
+  social:
+    build:
+      context: services/social/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/social/srcs:/services/social/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - 127.0.0.1:4123:3000
+
+  pong:
+    build:
+      context: services/pong/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/pong/srcs:/services/pong/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - 127.0.0.1:4124:3000
+
+  cdn-nginx:
+    build:
+      context: services/CDN/nginx/
+      args:
+        CONF_FILE: default.conf
+    ports: !override
+      - "8181:8181"
+    secrets:
+      - ssl-crt
+      - ssl-key
+
+  cdn-api:
+    build:
+      context: services/CDN/api/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/CDN/api/srcs:/services/CDN/api/srcs
+      - ./modules/:/modules:ro
+
+  documentation:
+    build:
+      context: documentation/service
+    volumes:
+      - ./documentation/:/documentation/:ro
+      - ./documentation/service/srcs:/services/documentation/srcs
+    environment:
+      - BACKEND_URL=${BACKEND_URL}
+    ports:
+      - 42000:3000
+
+secrets:
+  ssl-crt:
+    file: ./secrets/localhost.crt
+  ssl-key:
+    file: ./secrets/localhost.key

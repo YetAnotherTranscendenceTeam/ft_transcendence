@@ -113,6 +113,7 @@ printf "\n[MISC PARAMETERS] \n"
 if [ -z $1 ]; then
     generate SOCIAL_OFFLINE_DELAY "10000"
     generate SOCIAL_INACTIVITY_DELAY "15000"
+    generate IMAGE_PREFIX "dev"
 else
     true
 fi
