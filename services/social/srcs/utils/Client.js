@@ -228,7 +228,7 @@ export class Client {
     }
 
     try {
-      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
+      this.username = (await YATT.fetch(`http://profiles:3000/${this.account_id}`))?.username;
     } catch (err) {
       console.error(err);
       throw new WsError.BadGateway();
@@ -254,7 +254,7 @@ export class Client {
     }
 
     try {
-      this.username = (await YATT.fetch(`http://db-profiles:3000/${this.account_id}`))?.username;
+      this.username = (await YATT.fetch(`http://profiles:3000/${this.account_id}`))?.username;
     } catch (err) {
       console.error(err);
       throw new WsError.BadGateway();

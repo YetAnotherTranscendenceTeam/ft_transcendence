@@ -7,7 +7,7 @@ export default function router(fastify, opts, done) {
     const account_id = request.account_id;
 
     // Get base profile
-    const profile = await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+    const profile = await YATT.fetch(`http://profiles:3000/${account_id}`);
 
     // Add credentials
     profile.credentials = await YATT.fetch(`http://credentials:3000/${account_id}`);

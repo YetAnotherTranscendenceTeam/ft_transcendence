@@ -4,7 +4,7 @@ import crypto from "crypto";
 import request from "supertest";
 import Fastify from "fastify";
 import jwt from "@fastify/jwt"
-import { apiURL, avatarsURL, credentialsURL, dbprofilesURL, tokenManagerURL } from "../URLs";
+import { apiURL, avatarsURL, credentialsURL, profilesURL, tokenManagerURL } from "../URLs";
 
 export const app = Fastify();
 app.register(jwt, { secret: process.env.AUTHENTICATION_SECRET });
@@ -58,7 +58,7 @@ export function createUsers(count=10) {
         expect(response.statusCode).toBe(204);
       }
 
-      response = await request(dbprofilesURL)
+      response = await request(profilesURL)
         .delete(`/${user.account_id}`);
 
       expect(response.statusCode).toBe(204);
@@ -90,7 +90,7 @@ export function createUsers(count=10) {
         .expect("Content-Type", /json/);
       dummy.jwt = response.body.access_token;
 
-      response = await request(dbprofilesURL)
+      response = await request(profilesURL)
         .patch(`/${dummy.account_id}`)
         .send({ username: dummy.username })
         .set('Authorization', `Bearer ${dummy.jwt}`)

@@ -1,5 +1,5 @@
 import request from "supertest";
-import { dbprofilesURL } from "../URLs.js";
+import { profilesURL } from "../URLs.js";
 import { createUsers, users } from "../dummy/dummy-account.js";
 
 createUsers(1);
@@ -68,7 +68,7 @@ describe("USERNAME REGEX", () => {
   describe("pass", () => {
     for (const username of pass) {
       it(username, async () => {
-        const response = await request(dbprofilesURL)
+        const response = await request(profilesURL)
           .patch(`/${users[0].account_id}`)
           .send({ username });
 
@@ -80,7 +80,7 @@ describe("USERNAME REGEX", () => {
   describe("invalid", () => {
     for (const username of invalid) {
       it(username, async () => {
-        const response = await request(dbprofilesURL)
+        const response = await request(profilesURL)
           .patch(`/${users[0].account_id}`)
           .send({ username });
 

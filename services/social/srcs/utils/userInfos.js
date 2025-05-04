@@ -7,7 +7,7 @@ export async function fetchProfiles(accounts) {
   const map = new Map();
 
   try {
-    const profiles = await YATT.fetch(`http://db-profiles:3000/?filter[account_id]=${accounts.join(",")}`);
+    const profiles = await YATT.fetch(`http://profiles:3000/?filter[account_id]=${accounts.join(",")}`);
     profiles.forEach(profile => map.set(profile.account_id, profile));
   } catch (err) { }
 
@@ -24,7 +24,7 @@ export async function userInfos(account_id, clients, options = {}) {
     user.profile = options.profile;
   } else {
     try {
-      user.profile = await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+      user.profile = await YATT.fetch(`http://profiles:3000/${account_id}`);
     } catch (err) {
       user.profile = null;
     }

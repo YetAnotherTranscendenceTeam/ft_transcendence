@@ -2,7 +2,7 @@ FROM node:23.7-alpine3.20
 
 RUN apk --no-cache add curl
 
-WORKDIR /services/db-profiles/
+WORKDIR /services/profiles/
 COPY package*.json .
 
 RUN npm install -g nodemon

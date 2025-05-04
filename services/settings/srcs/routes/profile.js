@@ -34,7 +34,7 @@ export default function router(fastify, opts, done) {
         }
       }
       // Update the profile database
-      await YATT.fetch(`http://db-profiles:3000/${request.account_id}`, {
+      await YATT.fetch(`http://profiles:3000/${request.account_id}`, {
         method: "PATCH",
         headers: {
           "Content-type": "application/json",

@@ -1,6 +1,6 @@
 import request from "supertest";
 import crypto from "crypto";
-import { credentialsURL, dbprofilesURL, registerURL } from "../../URLs";
+import { credentialsURL, profilesURL, registerURL } from "../../URLs";
 import Fastify from "fastify";
 import jwt from "@fastify/jwt"
 
@@ -20,7 +20,7 @@ afterAll(async () => {
     await request(credentialsURL)
       .delete(`/${user.account_id}`)
       .expect(204);
-    await request(dbprofilesURL)
+    await request(profilesURL)
       .delete(`/${user.account_id}`)
       .expect(204);
   }

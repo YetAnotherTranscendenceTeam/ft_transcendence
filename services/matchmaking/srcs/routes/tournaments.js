@@ -125,7 +125,7 @@ export default function router(fastify, opts, done) {
         )
         .all(request.params.id);
       const profiles = await YATT.fetch(
-        `http://db-profiles:3000/?limit=${players.length > 10 ? players.length : 10}&filter[account_id]=${players
+        `http://profiles:3000/?limit=${players.length > 10 ? players.length : 10}&filter[account_id]=${players
           .map((player) => player.account_id)
           .join(",")}`
       );
