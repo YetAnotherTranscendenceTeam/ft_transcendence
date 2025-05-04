@@ -25,7 +25,7 @@ export default function router(fastify, opts, done) {
   fastify.get("/", { schema }, async function handler(request, reply) {
     const { limit, offset, filter = {} } = request.query;
 
-    let url = new URL("http://db-profiles:3000");
+    let url = new URL("http://profiles:3000");
     url.searchParams.append('limit', limit);
     url.searchParams.append('offset', offset);
 
@@ -53,7 +53,7 @@ export default function router(fastify, opts, done) {
   fastify.get("/:account_id", { schema }, async function handler(request, reply) {
     const { account_id } = request.params;
 
-    const profile = await YATT.fetch(`http://db-profiles:3000/${account_id}`);
+    const profile = await YATT.fetch(`http://profiles:3000/${account_id}`);
 
     reply.send(profile);
   });

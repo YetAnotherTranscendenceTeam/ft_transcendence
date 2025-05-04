@@ -3,7 +3,7 @@ import crypto from "crypto";
 
 const profilesURL = "http://127.0.0.1:7001"
 
-describe("db-profiles Router", () => {
+describe("profiles Router", () => {
   const dummyProfile = {
     account_id: parseInt(Math.random() * 10000000 + 1000000)
   };

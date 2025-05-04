@@ -41,7 +41,7 @@ services:
       - sqlite:/database
     networks:
       - credentials
-      - db-profiles
+      - profiles
 
   token-manager:
     build: 
@@ -110,7 +110,7 @@ services:
       - credentials
       - frontend
       - tokens
-      - db-profiles
+      - profiles
       - avatars
 
   google-auth:
@@ -129,7 +129,7 @@ services:
       - credentials
       - frontend
       - tokens
-      - db-profiles
+      - profiles
       - avatars
 
   2fa:
@@ -161,7 +161,7 @@ services:
       - ACTIVITY_SSE_SECRET=${ACTIVITY_SSE_SECRET}
     networks:
       - frontend
-      - db-profiles
+      - profiles
     depends_on:
       - matchmaking
 
@@ -182,11 +182,11 @@ services:
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
     networks:
       - frontend
-      - db-profiles
+      - profiles
 
-  db-profiles:
+  profiles:
     build: 
-      context: services/db-profiles/
+      context: services/profiles/
       args:
         - BASE_IMAGE=${BASE_IMAGE}
     image: ${IMAGE_PREFIX}/transcendence.profiles:latest
@@ -196,7 +196,7 @@ services:
       - CDN_SECRET=${CDN_SECRET}
       - CDN_URL=${CDN_URL}
     networks:
-      - db-profiles
+      - profiles
 
   users:
     build: 
@@ -209,7 +209,7 @@ services:
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
     networks:
      - frontend
-     - db-profiles
+     - profiles
 
   settings:
     build: 
@@ -226,7 +226,7 @@ services:
     networks:
       - settings
       - avatars
-      - db-profiles
+      - profiles
       - credentials
       - tokens
 
@@ -265,7 +265,7 @@ services:
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
     networks:
       - social
-      - db-profiles
+      - profiles
       - settings
     depends_on:
       lobbies:
@@ -323,7 +323,7 @@ networks:
     driver: bridge
   credentials:
     driver: bridge
-  db-profiles:
+  profiles:
     driver: bridge
   tokens:
     driver: bridge

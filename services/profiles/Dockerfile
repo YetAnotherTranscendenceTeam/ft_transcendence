@@ -2,7 +2,7 @@ ARG BASE_IMAGE=yatt-modules:latest
 
 FROM $BASE_IMAGE
 
-WORKDIR /services/db-profiles/
+WORKDIR /services/profiles/
 COPY . .
 
 RUN npm install --production

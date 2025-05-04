@@ -48,7 +48,7 @@ services:
       - "127.0.0.1:7002:3000"
     networks:
       - credentials
-      - db-profiles
+      - profiles
 
   token-manager:
     build:
@@ -130,7 +130,7 @@ services:
       - credentials
       - frontend
       - tokens
-      - db-profiles
+      - profiles
       - avatars
 
   google-auth:
@@ -152,7 +152,7 @@ services:
       - credentials
       - frontend
       - tokens
-      - db-profiles
+      - profiles
       - avatars
 
   2fa:
@@ -189,7 +189,7 @@ services:
       - "127.0.0.1:4043:3000"
     networks:
       - frontend
-      - db-profiles
+      - profiles
     depends_on:
       - matchmaking
 
@@ -212,14 +212,14 @@ services:
       - "127.0.0.1:4044:3000"
     networks:
       - frontend
-      - db-profiles
+      - profiles
 
-  db-profiles:
+  profiles:
     build:
-      context: services/db-profiles/
+      context: services/profiles/
       dockerfile: Dockerfile.dev
     volumes:
-      - ./services/db-profiles/srcs:/services/db-profiles/srcs
+      - ./services/profiles/srcs:/services/profiles/srcs
       - ./modules/:/modules:ro
       - sqlite:/database
     environment:
@@ -228,7 +228,7 @@ services:
     ports:
       - 127.0.0.1:7001:3000
     networks:
-      - db-profiles
+      - profiles
 
   users:
     build:
@@ -244,7 +244,7 @@ services:
       - 127.0.0.1:4003:3000
     networks:
      - frontend
-     - db-profiles
+     - profiles
 
   settings:
     build:
@@ -265,7 +265,7 @@ services:
     networks:
       - settings
       - avatars
-      - db-profiles
+      - profiles
       - credentials
       - tokens
 
@@ -310,7 +310,7 @@ services:
       - 127.0.0.1:4123:3000
     networks:
       - social
-      - db-profiles
+      - profiles
       - settings
     depends_on:
       lobbies:
@@ -384,7 +384,7 @@ networks:
     driver: bridge
   credentials:
     driver: bridge
-  db-profiles:
+  profiles:
     driver: bridge
   tokens:
     driver: bridge
