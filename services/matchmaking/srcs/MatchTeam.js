@@ -10,8 +10,8 @@ export class MatchTeam {
 
   static insert_match_players = db.prepare(
     `
-		INSERT INTO match_players (match_id, account_id, team_index, player_index, win_probability)
-		VALUES (@match_id, @account_id, @team_index, @player_index, @win_probability)
+		INSERT INTO match_players (match_id, account_id, team_index, player_index, win_probability, begin_rating)
+		VALUES (@match_id, @account_id, @team_index, @player_index, @win_probability, @begin_rating)
 		`
   );
 
@@ -24,6 +24,7 @@ export class MatchTeam {
         team_index: team.team_index,
         player_index: player.player_index,
         win_probability: player.win_probability,
+        begin_rating: player.matchmaking_user?.rating
       });
     }
   });
