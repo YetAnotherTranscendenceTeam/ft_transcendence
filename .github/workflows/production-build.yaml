@@ -62,22 +62,22 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build images
-        run: docker compose -f docker-compose.prod.yaml build
+        run: docker compose -f docker-compose.yaml build
 
       - name: Setup .env
         run: mv .env.template .env
 
       - name: Up
-        run: docker compose -f docker-compose.prod.yaml up -d --wait
+        run: docker compose -f docker-compose.yaml up -d --wait
 
       - name: Print containers logs
         if: always()
-        run: docker compose -f docker-compose.prod.yaml logs
+        run: docker compose -f docker-compose.yaml logs
 
       - name: Down
         if: always()
-        run: docker compose -f docker-compose.prod.yaml down
+        run: docker compose -f docker-compose.yaml down
 
       - name: Push images
         if: github.ref_name == 'production'
-        run: docker compose -f docker-compose.prod.yaml push
+        run: docker compose -f docker-compose.yaml push

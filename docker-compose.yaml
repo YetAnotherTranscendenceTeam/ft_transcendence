@@ -3,7 +3,7 @@ services:
     build:
       context: services/nginx/
       args:
-        CONF_FILE: ${NGINX_CONF_FILE}
+        - CONF_FILE=${NGINX_CONF_FILE}
     image: ${IMAGE_PREFIX}/transcendence.nginx:latest
     ports:
       - "127.0.0.1:8080:8080"
@@ -309,25 +309,6 @@ networks:
     driver: bridge
   cdn:
     driver: bridge
-
-  # frontend:
-  #   driver: bridge
-  # credentials:
-  #   driver: bridge
-  # profiles:
-  #   driver: bridge
-  # tokens:
-  #   driver: bridge
-  # settings:
-  #   driver: bridge
-  # avatars:
-  #   driver: bridge
-  # social:
-  #   driver: bridge
-  # cdn-api:
-  #   driver: bridge
-  # swagger:
-  #   driver: bridge
     
 volumes:
   avatars:

@@ -164,6 +164,8 @@ services:
       - NODE_TLS_REJECT_UNAUTHORIZED=0
     ports:
       - 127.0.0.1:4113:3000
+    networks:
+      - cdn-test
 
   social:
     build:
@@ -192,6 +194,8 @@ services:
         CONF_FILE: default.conf
     ports: !override
       - "8181:8181"
+    networks:
+      - cdn-test
     secrets:
       - ssl-crt
       - ssl-key
@@ -214,6 +218,10 @@ services:
       - BACKEND_URL=${BACKEND_URL}
     ports:
       - 42000:3000
+
+networks:
+  cdn-test:
+    driver: bridge
 
 secrets:
   ssl-crt:
