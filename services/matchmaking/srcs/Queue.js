@@ -53,7 +53,6 @@ export class Queue {
 
   async matchmake() {
     if (this.lobbies.length === 0) return;
-    console.log(`Matchmaking for ${this.gamemode.name}`);
     for (let i = 0; i < this.lobbies.length; i++) {
       const teams = [];
       if (this.lobbies[i].players.length > this.gamemode.team_size) {
