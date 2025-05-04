@@ -150,10 +150,10 @@ export class Pong {
 
 		this.switchMap(MapID.SMALL);
 
-		this._stats = new Stats(2);
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		this._stats = new Stats(2);
 	}
 
 	protected menuSetup() {
