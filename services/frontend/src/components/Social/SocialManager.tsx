@@ -28,10 +28,10 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	Babact.useEffect(() => {
 		if (me)
 			search('', 20, [me.account_id]);
-	}, [me]);
+	}, [me?.account_id]);
 
-	const sortFollows = (follows: Friend[]) => {
-		return follows.sort((a, b) => {
+	const sortFriends = (friends: Friend[]) => {
+		return friends.sort((a, b) => {
 			const order = [StatusType.INLOBBY, StatusType.INGAME, StatusType.ONLINE, StatusType.INACTIVE, StatusType.OFFLINE];
 			return order.indexOf(a.status.type) - order.indexOf(b.status.type);
 		});
@@ -130,7 +130,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 							className='social-manager-user-list flex flex-col gap-1'
 						>
 							{
-								socials?.friends.map((request, i) =>
+								sortFriends(socials?.friends).map((request, i) =>
 									<SocialFriendCard
 										key={request.account_id}
 										friend={request}
