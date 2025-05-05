@@ -8,7 +8,7 @@ import GameOverlay from "../components/Game/GameOverlay";
 
 export default function LocalView() {
 
-	const { app, overlay, togglePause, startGame } = usePong();
+	const { app, overlay, togglePause, startGame, restartGame } = usePong();
 
 	Babact.useEffect(() => {
 		app.setGameScene(GameScene.LOCAL);
@@ -16,6 +16,10 @@ export default function LocalView() {
 
 	const handleStart = () => {
 		startGame();
+	}
+
+	const handleRestart = () => {
+		restartGame();
 	}
 
 	const handlePause = () => {
@@ -38,6 +42,7 @@ export default function LocalView() {
 		<GameOverlay
 			onStart={handleStart}
 			onResume={handleResume}
+			onRestart={handleRestart}
 		/>
 	</Overlay>
 }

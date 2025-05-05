@@ -116,12 +116,12 @@ export default class PongClient extends PONG.Pong {
 		return {
 			gamemode: this._gameMode,
 			local: this._gameScene !== GameScene.ONLINE,
-			scores: this._score,
+			scores: this._stats ? this._stats.score : [0, 0],
 			teams: teams,
 			localPlayer: this._player,
 			time: this._tick * PONG.K.DT,
 			countDown: this._state.frozen_until,
-			lastWinner: this._state.name === "FREEZE" ? this._lastSide : null,
+			lastWinner: (this._state.name === "FREEZE" && this._stats && this._stats.lastSideToScore) ? this._stats.lastSideToScore : null,
 			gameStatus: this._state,
 		}
 	}
@@ -163,6 +163,14 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
+	public restartGame() {
+		this._state = PONG.PongState.FREEZE.clone();
+		this._stats = new PONG.Stats(0, PONG.K.defaultPointsToWin);
+		this.start();
+		this._time = 0;
+		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
+	}
+
 	public connect(match_id: number) {
 		if (this._websocket) {
 			this._websocket.onclose = undefined;
@@ -195,9 +203,9 @@ export default class PongClient extends PONG.Pong {
 					PONG.PongState[msg.data.match.state.name].clone(),
 				);
 				this._teamNames = msg.data.match.team_names as string[];
-				this._score = msg.data.match.score as number[];
+				this._stats.score = msg.data.match.score as number[];
 				this._tick = msg.data.match.tick as number;
-				this._lastSide = msg.data.match.lastSide as number;
+				this._stats.lastSideToScore = msg.data.match.lastSide as number;
 				this.ballSync(msg.data.match.balls as PONG.IBall[], 0, 0);
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				this.updateOverlay();
@@ -208,8 +216,8 @@ export default class PongClient extends PONG.Pong {
 				this._state = state;
 				Object.assign(this._state, msg.data.state);
 				if (msg.data.state.score && msg.data.state.score.length > 0) {
-					this._score = msg.data.state.score;
-					this._lastSide = msg.data.state.side;
+					this._stats.score = msg.data.state.score;
+					this._stats.lastSideToScore = msg.data.state.side;
 				}
 				this._ballSteps = [];
 				for (let i = 0; i < this._balls.length; i++) {
@@ -412,8 +420,8 @@ export default class PongClient extends PONG.Pong {
 			object.update(dt);
 		});
 		if (this.scoreUpdate()) {
-			console.log("score: " + this._score[0] + "-" + this._score[1]);
-			if (this._winner !== undefined) {
+			console.log("score: " + this._stats.score[0] + "-" + this._stats.score[1]);
+			if (this._stats.winner !== undefined) {
 				this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
 				this.setState(PONG.PongState.ENDED.clone());
 				this.updateOverlay();
@@ -464,17 +472,6 @@ export default class PongClient extends PONG.Pong {
 		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
 			object.update(this._interpolation);
 		});
-		// if (this.scoreUpdate()) {
-		// 	console.log("score: " + this._score[0] + "-" + this._score[1]);
-		// 	this.callbacks.scoreUpdateCallback({ score: this._score, side: this._lastSide });
-		// 	if (this._winner !== undefined) {
-		// 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
-		// 		this.callbacks.endGameCallback();
-		// 		this._state = PONG.PongState.ENDED.clone();
-		// 	} else {
-		// 		this._state = PONG.PongState.FREEZE.clone();
-		// 	}
-		// }
 	}
 
 	private serverStep(data: IServerStep, dt: number, forced: boolean = false) {
@@ -490,7 +487,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private playerUpdateLocal() {
-		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PaddleID.RIGHT_BACK);
+		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PlayerID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {
@@ -502,7 +499,7 @@ export default class PongClient extends PONG.Pong {
 			paddle.move(moveDirection);
 		}
 
-		paddle = this._paddleInstance.get(PONG.PaddleID.LEFT_BACK);
+		paddle = this._paddleInstance.get(PONG.PlayerID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.W)) {
@@ -517,7 +514,7 @@ export default class PongClient extends PONG.Pong {
 
 	private playerUpdateOnline() {
 
-		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.paddleId);
+		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.playerId);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {

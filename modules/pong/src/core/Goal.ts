@@ -1,9 +1,10 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { bounceMaterial } from "./constants.js";
+import { MapSide } from "./types.js";
 
 export default class Goal extends PH2D.Body {
-	private _contact: number;
+	private _scored: boolean;
 	private _width: number;
 	private _height: number;
 
@@ -15,7 +16,7 @@ export default class Goal extends PH2D.Body {
 	 */
 	public constructor(shape: PH2D.Shape, position: Vec2, size: Vec2) {
 		super(PH2D.PhysicsType.TRIGGER, shape, bounceMaterial, position, Vec2.create());
-		this._contact = 0;
+		this._scored = false;
 		this._width = size[0];
 		this._height = size[1];
 	}
@@ -36,14 +37,23 @@ export default class Goal extends PH2D.Body {
 		return this._height;
 	}
 
-	public get contact(): number {
-		return this._contact;
-	}
-	public incrementContact() {
-		this._contact++;
+	public get scored(): boolean {
+		return this._scored;
 	}
 
-	public resetContact() {
-		this._contact = 0;
+	public side(): MapSide {
+		if (this.position[0] < 0) {
+			return MapSide.LEFT;
+		} else {
+			return MapSide.RIGHT;
+		}
+	}
+
+	public score(): void {
+		this._scored = true;
+	}
+
+	public resetScore(): void {
+		this._scored = false;
 	}
 }

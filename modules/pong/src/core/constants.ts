@@ -11,22 +11,6 @@ export const bounceMaterial = {
 	dynamicFriction: 0
 };
 
-// 1v1
-export const mapData1v1 = {
-	playGround: {
-		widht: 16,
-		height: 10,
-	}
-};
-
-// 2v2
-export const mapData2v2 = {
-	playGround: {
-		widht: 20,
-		height: 13,
-	}
-};
-
 export const wallThickness = 0.3;
 
 // paddles
@@ -37,9 +21,11 @@ export const ballRadius = 0.2;
 
 export const defaultBallSpeed = 5;
 export const maxBallSpeed = 10;
+export const ballAcceleration = 0.5; // 0.5 m/s added avery side change
 export const ballMaxAngle = Math.PI / 3; // 60 degrees
+export const launchAngle = 20 * Math.PI / 180; // 20 degrees
 export const paddleSpeed = 4;
-export const defaultPointsToWin = 3;
+export const defaultPointsToWin = 5;
 
 export const ballShape: PH2D.CircleShape = new PH2D.CircleShape(ballRadius);
 export const paddleShape: PH2D.PolygonShape = new PH2D.PolygonShape(paddleSize[0] / 2, paddleSize[1] / 2);
