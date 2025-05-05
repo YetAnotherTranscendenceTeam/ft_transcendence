@@ -97,6 +97,13 @@ describe("already in a tournament and queue for another", () => {
 		expect(message.data.scores[0]).toBe(0);
 		expect(message.data.tournament_id).toBe(tournament.id);
 	});
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("tournament_update");
+		expect(message.data.tournament_id).toBe(tournament.id);
+		expect(message.data.stage).toBe(0);
+		expect(message.data.team_count).toBe(3);
+		expect(message.data.players.length).toBe(6);
+	});
 	const res = await request(apiURL)
 	  .get(`/matchmaking/tournaments/${tournament.id}`)
 	  .set("Authorization", `Bearer ${users[0].jwt}`);
@@ -109,6 +116,13 @@ describe("already in a tournament and queue for another", () => {
 		expect(message.data.scores[1]).toBe(1);
 		expect(message.data.scores[0]).toBe(0);
 		expect(message.data.tournament_id).toBe(tournament.id);
+	});
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("tournament_update");
+		expect(message.data.tournament_id).toBe(tournament.id);
+		expect(message.data.stage).toBeUndefined();
+		expect(message.data.team_count).toBe(3);
+		expect(message.data.players.length).toBe(6);
 	});
   });
 });

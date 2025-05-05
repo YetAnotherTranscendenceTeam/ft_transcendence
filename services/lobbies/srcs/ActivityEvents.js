@@ -41,25 +41,30 @@ class ActivityEvents {
     this.update(lobby);
   };
 
-  updateMatch(match_update) {
+  updateMatch({ match_id, players, tournament_id, gamemode, scores }) {
     const payload = {
       event: "match_update",
       data: JSON.stringify({
-        players: match_update.players,
-        match_id: match_update.match_id,
-        scores: match_update.scores,
-        state: match_update.state,
-        gamemode: match_update.gamemode,
+        match_id: match_id,
+        players: players,
+        tournament_id: tournament_id,
+        gamemode: gamemode,
+        scores: scores,
       }),
     };
     this.broadcast(payload);
   }
 
-  endTournament(tournament_update) {
+  updateTournament({ tournament_id, players, team_count, gamemode, tournament_secret, active }) {
     const payload = {
-      event: "end_tournament",
+      event: "tounament_update",
       data: JSON.stringify({
-        players: tournament_update.players.map(p => p.account_id)
+        tournament_id: tournament_id,
+        players: players,
+        team_count: team_count,
+        gamemode: gamemode,
+        tournament_secret: tournament_secret,
+        active: active,
       }),
     };
     this.broadcast(payload);

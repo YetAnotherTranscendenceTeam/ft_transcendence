@@ -166,6 +166,7 @@ class TournamentMatch {
           match: this.nextMatch,
         });
       }
+      this.tournament.updateToLobbyConnection();
     }
     else
       this.updateDB();
@@ -310,6 +311,23 @@ export class Tournament {
     this.finish();
   }
 
+  updateToLobbyConnection(active=true) {
+    this.lobbyConnection.send({
+      event: "tournament_update",
+      data: {
+        tournament_id: this.id,
+        // TODO: handle eliminated players/teams
+        players: this.teams.flatMap((team) => team.players.map((player) => player.account_id)),
+        team_count: this.teams.length,
+        lobby_secret: this.lobbySecret,
+        gamemode: this.gamemode,
+        stage: this.matches.find((match) => match.state === TournamentMatchState.PLAYING)?.stage,
+        active
+      },
+    })
+    
+  }
+
   finish() {
     db.prepare(
       `
@@ -328,14 +346,7 @@ export class Tournament {
         subscriber.raw.end();
       }
     );
-    this.lobbyConnection.send({
-      event: "tournament_end",
-      data: {
-        tournament_id: this.id,
-        players: this.teams.flatMap((team) => team.players.map((player) => player.account_id)),
-        lobby_secret: this.lobbySecret,
-      },
-    })
+    this.updateToLobbyConnection(false);
   }
 
   getMatch(match_id) {

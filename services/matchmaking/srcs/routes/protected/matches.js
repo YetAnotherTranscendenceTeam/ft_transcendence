@@ -111,7 +111,7 @@ export default function router(fastify, opts, done) {
           update_team_score.run(score_1, request.params.match_id, 1);
       }
 
-      fastify.matches.getActiveMatch(request.params.match_id)?.update({
+      fastify.matches.getActiveMatch(request.params.match_id)?.updateMatch({
         score_0,
         score_1,
         state: updated?.state,

@@ -36,7 +36,7 @@ export class ActiveMatch {
     this.manager = manager;
   }
 
-  update({ score_0, score_1, state }) {
+  updateMatch({ score_0, score_1, state }) {
     if (state === MatchState.CANCELLED || state === MatchState.DONE) {
       this.manager.removeMatch(this.match_id);
     }
@@ -56,7 +56,7 @@ export class ActiveMatch {
 
   cancel() {
     ActiveMatch.cancelMatch.run(this.match_id);
-    this.update({
+    this.updateMatch({
       state: MatchState.CANCELLED,
       score_0: 0,
       score_1: 0,
@@ -71,8 +71,6 @@ export class ActiveMatchManager {
   }
 
   addMatch(match, lobbies, lobbyConnection) {
-    console.log(`Adding match ${match.match_id}`);
-    console.log({lobbies, lobbyConnection});
     this.activeMatches.set(match.match_id, new ActiveMatch(
       match,
       lobbies,

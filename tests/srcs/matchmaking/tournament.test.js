@@ -215,6 +215,12 @@ describe.each(tests)(
             expect(event.data.scores[winnerIndex]).toBe(1);
             expect(event.data.scores[loserIndex]).toBe(0);
           });
+          await ws.expectJson((event) => {
+            expect(event.event).toBe("tournament_update");
+            expect(event.data.tournament_id).toBe(tournament.id);
+            expect(event.data.team_count).toBe(team_count);
+            expect(event.data.players.length).toBe(player_count);
+          });
           await sse.expectJson("match_update", (event) => {
             expect(event.match.match_id).toBe(match.match_id);
             expect(event.match.index).toBe(match.index);
@@ -279,13 +285,6 @@ describe.each(tests)(
     it("expect tournament finished", async () => {
       await sse.expectJson("finish", async () => {
         await sse.expectClose();
-      });
-      await ws.expectJson((event) => {
-        expect(event.event).toBe("tournament_end");
-        expect(event.data.players.sort()).toStrictEqual(
-          lobby.players.map((player) => (player.account_id)).sort()
-        )
-        expect(event.data.tournament_id).toBe(tournament.id);
       });
     });
   }

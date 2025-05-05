@@ -21,6 +21,19 @@ export default class MatchmakingConnection extends EventEmitter {
           lobbyInstance.matchFound(message.data.match);
         }
       }
+      if (message.data.match.type === "match") {
+        const match = message.data.match.match;
+        activityEvents.updateMatch({
+          match_id: match.match_id,
+          players: match.players.map((player) => player.account_id),
+          tournament_id: match.tournament_id,
+          gamemode: match.gamemode,
+          scores: match.scores,
+        });
+      }
+      else if (message.data.match.type === "tournament") {
+        activityEvents.updateTournament(message.data.match.tournament);
+      }
     },
     confirm_queue: (message) => {
       const lobby = this.queuedLobbies.get(message.data.lobby.join_secret);
@@ -36,6 +49,7 @@ export default class MatchmakingConnection extends EventEmitter {
       }
     },
     match_update: (message) => {
+      activityEvents.updateMatch(message.data);
       if (message.data.state === 2 || message.data.state === 3) {
         for (let secret of message.data.lobby_secrets) {
           const lobby = this.matchedLobbies.get(secret);
@@ -45,18 +59,14 @@ export default class MatchmakingConnection extends EventEmitter {
           }
         }
       }
-      console.log("Match update", message);
-      activityEvents.updateMatch(message.data);
     },
-    tournament_end: (message) => {
-      for (let secret of message.data.lobby_secrets) {
-        const lobby = this.matchedLobbies.get(secret);
-        if (lobby) {
-          lobby.setState(LobbyState.done());
-          this.matchedLobbies.delete(lobby.join_secret);
-        }
+    tournament_update: (message) => {
+      activityEvents.updateTournament(message.data);
+      const lobby = this.matchedLobbies.get(message.data.lobby_secret);
+      if (lobby) {
+        lobby.setState(LobbyState.waiting());
+        this.matchedLobbies.delete(lobby.join_secret);
       }
-      activityEvents.endTournament(message);
     }
   }
 
