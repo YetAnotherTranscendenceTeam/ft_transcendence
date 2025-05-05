@@ -37,7 +37,7 @@ class ActivityEvents {
     const payload = {
       event: "match_update",
       data: JSON.stringify({
-        players: match_update.player_ids,
+        players: match_update.players,
         match_id: match_update.match_id,
         scores: match_update.scores,
         state: match_update.state,

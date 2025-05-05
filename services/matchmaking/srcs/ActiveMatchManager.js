@@ -44,7 +44,7 @@ export class ActiveMatch {
       event: "match_update",
       data: {
         match_id: this.match_id,
-        player_ids: this.player_ids,
+        players: this.player_ids,
         lobby_secrets: this.lobbySecrets,
         tournament_id: this.tournament_id,
         gamemode: this.gamemode,
