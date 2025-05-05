@@ -11,23 +11,6 @@ export default function ProfileGameList({}: {}) {
 		</div>
 		<div className='profile-game-list-body flex flex-col items-center w-full h-full scrollbar gap-2'>
 			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
-			<ProfileGameListItem/>
 		</div>
 		<div className='profile-game-list-footer flex flex-row items-center justify-center w-full'>
 			<Pagination
@@ -36,7 +19,7 @@ export default function ProfileGameList({}: {}) {
 				setPage={(page) => {
 					console.log(page);
 				}}
-				/>
+			/>
 		</div>
 	</table>
 }

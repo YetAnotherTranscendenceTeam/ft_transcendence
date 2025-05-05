@@ -19,10 +19,12 @@ export default function ProfileGameListItem({
 			<Avatar
 				size="lg"
 				name="Player 1"
+				src=""
 			/>
 			<Avatar
 				size="lg"
 				name="Player 2"
+				src=""
 			/>
 			<h2>
 				Teams 1
@@ -43,10 +45,12 @@ export default function ProfileGameListItem({
 			<Avatar
 				size="lg"
 				name="Player 3"
+				src=""
 			/>
 			<Avatar
 				size="lg"
 				name="Player 4"
+				src=""
 			/>
 		</div>
 	</div>
