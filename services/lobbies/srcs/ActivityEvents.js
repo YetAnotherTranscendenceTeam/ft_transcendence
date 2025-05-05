@@ -3,6 +3,14 @@
 class ActivityEvents {
   subscriptions = new Set();
 
+  constructor() {
+    setInterval(() => {
+      this.subscriptions.forEach(subscription => {
+        subscription.sseComment("");
+      });
+    }, 20000);
+  }
+
   addSubscription(subscription) {
     subscription.sse({ event: "subscribed", data: {} });
     this.subscriptions.add(subscription);
