@@ -89,11 +89,27 @@ describe("already in a tournament and queue for another", () => {
   });
   it("finish tournament", async () => {
 	await finishMatch(app, tournament.matches[1].match_id, 1);
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("match_update");
+		expect(message.data.match_id).toBe(tournament.matches[1].match_id);
+		expect(message.data.state).toBe(2);
+		expect(message.data.scores[1]).toBe(1);
+		expect(message.data.scores[0]).toBe(0);
+		expect(message.data.tournament_id).toBe(tournament.id);
+	});
 	const res = await request(apiURL)
 	  .get(`/matchmaking/tournaments/${tournament.id}`)
 	  .set("Authorization", `Bearer ${users[0].jwt}`);
 	tournament = res.body;
 	await finishMatch(app, tournament.matches[0].match_id, 1);
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("match_update");
+		expect(message.data.match_id).toBe(tournament.matches[0].match_id);
+		expect(message.data.state).toBe(2);
+		expect(message.data.scores[1]).toBe(1);
+		expect(message.data.scores[0]).toBe(0);
+		expect(message.data.tournament_id).toBe(tournament.id);
+	});
   });
 });
 

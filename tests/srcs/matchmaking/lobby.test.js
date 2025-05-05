@@ -138,6 +138,12 @@ describe.each(matchmaking_tests)(
     it("close lobbies", async () => {
       await Promise.all(
         lobbies.map(async (lobby) => {
+          for (let player of lobby) {
+            await player.ws.expectJson((message) => {
+              expect(message.event).toBe("state_change");
+              expect(message.data.state.type).toBe("waiting");
+            });
+          }
           while (lobby.length > 0) {
             let player = lobby.pop();
             await player.close();
