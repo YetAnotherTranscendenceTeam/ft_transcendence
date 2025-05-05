@@ -4,28 +4,12 @@ import Fastify from "fastify";
 import formbody from "@fastify/formbody";
 import jwt from "@fastify/jwt";
 import router from "./router.js";
-import YATT from "yatt-utils";
 import { CDN_SECRET, CDN_URL } from "./env.js";
 import { UsernameBank } from "../utils/UsernameBank.js";
 import db from "./database.js";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
-
-  if (process.env.ENV !== "production") {
-    // DEVELOPEMENT configuration
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "[PLACEHOLDER]",
-        description: "[PLACEHOLDER]",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:7001", description: "Development network" },
-        { url: "http://profiles:3000", description: "Containers network" },
-      ],
-    });
-  }
 
   app.register(jwt, { secret: CDN_SECRET })
   app.register(formbody);
