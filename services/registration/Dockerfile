@@ -5,7 +5,7 @@ FROM $BASE_IMAGE
 WORKDIR /services/registration/
 COPY . .
 
-RUN npm install --production
+RUN npm install --omit=dev
 
 ENTRYPOINT [ "npm", "start" ]
 
