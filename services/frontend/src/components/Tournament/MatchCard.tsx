@@ -2,7 +2,7 @@ import Babact from "babact";
 import { HPosition, VPosition } from "./Stage";
 import Avatar from "../../ui/Avatar";
 import { useAuth } from "../../contexts/useAuth";
-import { Match, MatchState } from "../../hooks/useTournament";
+import { TournamentMatch, MatchState } from "../../hooks/useTournament";
 
 export default function MatchCard({
 		match,
@@ -10,7 +10,7 @@ export default function MatchCard({
 		positionV,
 		...props
 	}: {
-		match: Match,
+		match: TournamentMatch,
 		positionH: HPosition,
 		positionV: VPosition,
 		[key: string]: any

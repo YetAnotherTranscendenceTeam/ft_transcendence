@@ -1,7 +1,7 @@
 import Babact from "babact";
 import Button from "../../ui/Button";
 import { useNavigate } from "babact-router-dom";
-import { Match } from "../../hooks/useTournament";
+import { TournamentMatch } from "../../hooks/useTournament";
 
 export default function JoinMatchButton({
 		match,
@@ -9,7 +9,7 @@ export default function JoinMatchButton({
 		timeout,
 		onTimeout
 	}: {
-		match: Match,
+		match: TournamentMatch,
 		opponent: string,
 		timeout: Date,
 		onTimeout: () => void

@@ -11,7 +11,7 @@ export enum MatchState {
 	DONE = 'done'
 }
 
-export interface IMatch {
+export interface ITournamentMatch {
 	team_ids: number[]
 	scores: number[]
 	match_id?: number
@@ -21,7 +21,7 @@ export interface IMatch {
 }
 
 export interface Tournament {
-	matches: Match[]
+	matches: TournamentMatch[]
 	teams: ITeam[]
 	gamemode: IGameMode
 	id: number
@@ -48,7 +48,7 @@ export class Team implements ITeam {
 
 }
 
-export class Match implements IMatch {
+export class TournamentMatch implements ITournamentMatch {
 	team_ids: number[];
 	scores: number[];
 	teams: Team[];
@@ -57,7 +57,7 @@ export class Match implements IMatch {
 	stage: number;
 	index: number;
 
-	constructor(match: IMatch, teams: ITeam[]) {
+	constructor(match: ITournamentMatch, teams: ITeam[]) {
 		this.team_ids = match.team_ids;
 		this.scores = match.scores;
 		this.match_id = match.match_id;
@@ -95,8 +95,8 @@ export class Match implements IMatch {
 export default function useTournament(tournamentId: number, onFinishCallback: (isOpen: boolean) => void) {
 
 	const teamsRef = Babact.useRef<ITeam[]>([]);
-	const [matches, setMatches] = Babact.useState<Match[]>([]);
-	const [currentMatch, setCurrentMatch] = Babact.useState<Match>(null);
+	const [matches, setMatches] = Babact.useState<TournamentMatch[]>([]);
+	const [currentMatch, setCurrentMatch] = Babact.useState<TournamentMatch>(null);
 	const { me } = useAuth();
 	const { ft_fetch } = useFetch();
 
@@ -113,14 +113,14 @@ export default function useTournament(tournamentId: number, onFinishCallback: (i
 	const onSync = ({tournament} : {tournament: Tournament}) => {
 		teamsRef.current = tournament.teams;
 		const matches = tournament.matches.map((match) => (
-			new Match(match, tournament.teams)
+			new TournamentMatch(match, tournament.teams)
 		));
 		setMatches(matches);
 	}
 
-	const onMatchUpdate = ({match}: {match: IMatch}) => {
+	const onMatchUpdate = ({match}: {match: ITournamentMatch}) => {
 		setMatches((prevMatches) => {
-			const newMatch = new Match(match, teamsRef.current);
+			const newMatch = new TournamentMatch(match, teamsRef.current);
 			prevMatches[match.index] = newMatch;
 			return [...prevMatches];
 		})
