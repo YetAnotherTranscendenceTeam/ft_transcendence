@@ -1,5 +1,5 @@
 import Babact from "babact";
-import useFetch from "./useFetch";
+import { APIRefreshToken } from "./useAPI";
 
 export type SSEHook = {
 	connected: boolean,
@@ -22,15 +22,13 @@ export default function useSSE({
 	const sse = Babact.useRef<EventSource>(null);
 	const [connected, setConnected] = Babact.useState<boolean>(false);
 
-	const { refreshToken } = useFetch();
-
 	const connect = async (url: string, enableToken: boolean = false) => {
 		if (sse.current) {
 			close();
 		}
 		let SSEUrl = url
 		if (enableToken) {
-			await refreshToken();
+			await APIRefreshToken();
 			const parsedUrl = new URL(url);
 			if (parsedUrl.search === '')
 				SSEUrl += '?';
