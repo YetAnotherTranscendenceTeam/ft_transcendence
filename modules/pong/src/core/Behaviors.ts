@@ -38,9 +38,11 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			Vec2.normalize(ballEmitter.velocity, ballEmitter.velocity);
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
 		}
+
 		if (this._stats.lastSideToHit !== other.side()) {
-			ballEmitter.faster();
+			// ballEmitter.faster();
 		}
+		ballEmitter.correctSpeed();
 
 		// register the hit
 		const playerId: PlayerID = this.getPlayerIdFromBodyId(other.id);

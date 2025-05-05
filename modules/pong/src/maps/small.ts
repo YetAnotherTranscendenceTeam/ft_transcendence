@@ -6,7 +6,7 @@ import Ball from "../core/Ball.js";
 import Paddle from "../core/Paddle.js";
 import Goal from "../core/Goal.js";
 import Wall from "../core/Wall.js";
-
+import EventBox from "../core/EventBox.js";
 
 export const playGround = {
 	width: 16,
@@ -31,6 +31,21 @@ export const paddleRightPosition: Vec2 = new Vec2(playGround.width / 2 - K.wallT
 export const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(wallSize[0] / 2, wallSize[1] / 2);
 export const goalShape: PH2D.PolygonShape = new PH2D.PolygonShape(goalSize[0] / 2, goalSize[1] / 2);
 
+const eventBoxShape: Array<{pos: Vec2, shape: PH2D.CircleShape}> = [ // event boxes
+	{ // top event box
+		pos: new Vec2(0, playGround.height * 0.45),
+		shape: new PH2D.CircleShape(K.eventboxRadius)
+	},
+	{ // bottom event box
+		pos: new Vec2(0, -(playGround.height * 0.45)),
+		shape: new PH2D.CircleShape(K.eventboxRadius)
+	},
+	{ // center event box
+		pos: new Vec2(0, 0),
+		shape: new PH2D.CircleShape(K.eventboxRadius)
+	}
+];
+
 const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape}> = [ // non rectangular obstacles
 	{ // bottom triangle
 		pos: new Vec2(0, -playGround.height * 0.4), shape: new PH2D.PolygonShape([
@@ -48,6 +63,7 @@ const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape}> = [ // non rec
 	}
 ];
 
+
 export function createMap(): IPongMap {
 	return {
 		mapId: MapID.SMALL,
@@ -63,6 +79,10 @@ export function createMap(): IPongMap {
 			const wall = new Wall(shape, pos, new Vec2(0, 0));
 			return wall;
 		}),
+		eventboxes: eventBoxShape.map(({pos, shape}) => {
+			const eventBox = new EventBox(shape, pos);
+			return eventBox;
+		}),
 		getObjects(): PH2D.Body[] {
 			return [
 				this.wallTop,
@@ -71,7 +91,7 @@ export function createMap(): IPongMap {
 				this.goalRight,
 				this.paddleLeftBack,
 				this.paddleRightBack
-			].concat(this.obstacles);
+			].concat(this.obstacles).concat(this.eventboxes);
 		},
 		clone: createMap
 	}

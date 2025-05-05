@@ -41,11 +41,13 @@ export function createMap(): IPongMap {
 		paddleRightBack: new Paddle(paddleRightPosition, Vec2.create(), K.paddleSpeed),
 		paddleRightFront: null,
 		obstacles: [],
+		eventboxes: [],
 		getObjects(): PH2D.Body[] {
 			return [
 				this.wallTop,
 				this.wallBottom,
-				...this.obstacles
+				...this.obstacles,
+				...this.eventboxes
 			];
 		},
 		clone: createMap

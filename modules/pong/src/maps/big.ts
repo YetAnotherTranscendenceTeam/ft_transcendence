@@ -44,6 +44,7 @@ export function createMap(): IPongMap {
 		paddleRightBack: new Paddle(paddleRightBackPosition, Vec2.create(), K.paddleSpeed),
 		paddleRightFront: new Paddle(paddleRightFrontPosition, Vec2.create(), K.paddleSpeed),
 		obstacles: [],
+		eventboxes: [],
 		getObjects(): PH2D.Body[] {
 			return [
 				this.wallTop,
@@ -54,7 +55,7 @@ export function createMap(): IPongMap {
 				this.paddleLeftFront,
 				this.paddleRightBack,
 				this.paddleRightFront,
-			].concat(this.obstacles);
+			].concat(this.obstacles).concat(this.eventboxes);
 		},
 		clone: createMap
 	}

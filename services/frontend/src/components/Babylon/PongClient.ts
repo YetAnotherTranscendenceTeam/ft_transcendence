@@ -4,7 +4,7 @@ import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import { GameMode, GameModeType, IGameMode, IPlayer } from 'yatt-lobbies'
-import { ClientBall, ClientPaddle, ClientWall, ClientGoal } from "./Objects/objects";
+import { ClientBall, ClientPaddle, ClientWall, ClientGoal, ClientEventBox } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
@@ -277,6 +277,8 @@ export default class PongClient extends PONG.Pong {
 					clientObject = new ClientGoal(this._babylonScene, ("goal" + map.mapId.toString() + counter.toPrecision(2)), object);
 				} else if (object instanceof PONG.Paddle) {
 					clientObject = new ClientPaddle(this._babylonScene, ("paddle" + map.mapId.toString() + counter.toPrecision(2)), object);
+				} else if (object instanceof PONG.EventBox) {
+					clientObject = new ClientEventBox(this._babylonScene, ("eventbox" + map.mapId.toString() + counter.toPrecision(2)), object);
 				}
 				if (clientObject !== undefined) {
 					clientObject.disable();
