@@ -163,6 +163,14 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
+	public restartGame() {
+		this._state = PONG.PongState.FREEZE.clone();
+		this._stats = new PONG.Stats(0, PONG.K.defaultPointsToWin);
+		this.start();
+		this._time = 0;
+		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
+	}
+
 	public connect(match_id: number) {
 		if (this._websocket) {
 			this._websocket.onclose = undefined;

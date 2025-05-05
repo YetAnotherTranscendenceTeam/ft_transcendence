@@ -27,7 +27,6 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		const paddleVelocity: Vec2 = new Vec2(x, y);
 		Vec2.normalize(paddleVelocity, paddleVelocity);
 		Vec2.scale(paddleVelocity, paddleVelocity, speed);
-		// ballEmitter.velocity = paddleVelocity;
 		if (relativePositionY < 1 && relativePositionY > -1) {
 			// blend the ball's velocity with the paddle's velocity
 			Vec2.add(ballEmitter.velocity, ballEmitter.velocity, paddleVelocity);
@@ -39,11 +38,11 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			Vec2.normalize(ballEmitter.velocity, ballEmitter.velocity);
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
 		}
-		// ballEmitter.correctSpeed();
-		ballEmitter.faster();
+		if (this._stats.lastSideToHit !== other.side()) {
+			ballEmitter.faster();
+		}
 
-		console.log("ball mag: " + ballEmitter.velocity.magnitude);
-		// find player where paddle id === other.id, _paddles is a Map<number, Paddle>
+		// register the hit
 		const playerId: PlayerID = this.getPlayerIdFromBodyId(other.id);
 		if (playerId !== undefined) {
 			this._stats.hit(playerId, ballEmitter.id, this._tick);

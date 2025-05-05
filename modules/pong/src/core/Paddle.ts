@@ -1,6 +1,7 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { DT, bounceMaterial, paddleShape } from "./constants.js";
+import { MapSide } from "./types.js";
 
 export default class Paddle extends PH2D.Body {
 	private _speed: number;
@@ -15,5 +16,13 @@ export default class Paddle extends PH2D.Body {
 
 	public set speed(value: number) {
 		this._speed = value;
+	}
+	
+	public side(): MapSide {
+		if (this.position[0] < 0) {
+			return MapSide.LEFT;
+		} else {
+			return MapSide.RIGHT;
+		}
 	}
 }

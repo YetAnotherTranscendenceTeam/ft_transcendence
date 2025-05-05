@@ -137,8 +137,9 @@ export default class Stats {
 		if (this.lastGoal.ballId === ballId && this.lastGoal.tick === tick) {
 			return;
 		}
-		this._score[side]++;
-		this._team[side].goals++;
+		const sideToGoal = side === MapSide.LEFT ? MapSide.RIGHT : MapSide.LEFT;
+		this._score[sideToGoal]++;
+		this._team[sideToGoal].goals++;
 		const playerId = this._lastHit.playerId;
 		if (playerId !== undefined) {
 			this._player[playerId].goals++;
@@ -148,9 +149,9 @@ export default class Stats {
 			ballId: ballId,
 			tick: tick
 		};
-		this._lastSideToScore = side;
-		if (this._score[side] >= this._pointToWin) {
-			this._winner = side;
+		this._lastSideToScore = sideToGoal;
+		if (this._score[sideToGoal] >= this._pointToWin) {
+			this._winner = sideToGoal;
 		}
 	}
 

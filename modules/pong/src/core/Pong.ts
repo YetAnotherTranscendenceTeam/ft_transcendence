@@ -179,8 +179,6 @@ export class Pong {
 	protected start() {
 		this._tick = 0;
 		this._accumulator = 0;
-		this._stats.score = [0, 0];
-		// this._winner = undefined;
 
 		this.roundStart();
 	}
@@ -231,13 +229,17 @@ export class Pong {
 	}
 
 	private launchBall() {
-		// TODO: side depending on the last goal
 		this._balls[0].position[0] = 0;
 		this._balls[0].position[1] = 0;
 		this._balls[0].previousPosition[0] = 0;
 		this._balls[0].previousPosition[1] = 0;
-		const dir: number = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		const angle: number = Math.random() * K.launchAngle; // random angle between -20 and 20 degrees
+		let dir: number;
+		if (this._stats.lastSideToScore === undefined) {
+			dir = Math.floor(Math.random() * 2); // 0 = left, 1 = right
+		} else {
+			dir = this._stats.lastSideToScore === MapSide.LEFT ? 1 : 0; // losing side gets the ball
+		}
+		const angle: number = (Math.random() - 0.5) * 2 * K.launchAngle; // random angle between -20 and 20 degrees
 		const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
 		const y: number = Math.sin(angle); // vertical component of the ball's velocity
 		const ballVelocity: Vec2 = new Vec2(x, y);
