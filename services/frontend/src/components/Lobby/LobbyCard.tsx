@@ -74,6 +74,9 @@ export default function LobbyCard() {
 						<div className='flex flex-col gap-2'>
 							<Button
 								className="info"
+								onClick={() => {
+									navigate(`/profiles/${player.account_id}`);
+								}}
 							>
 								<i className="fa-solid fa-user"></i>
 								Profile
