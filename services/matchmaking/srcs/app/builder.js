@@ -12,11 +12,14 @@ import bearerAuth from "@fastify/bearer-auth";
 import qs from "qs";
 import db from "./database.js";
 import cors from "@fastify/cors";
+import { fastifySchedule } from '@fastify/schedule';
+import { SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 
 import { TournamentManager } from "../TournamentManager.js";
+import { computeLeaderboards } from "../computeLeaderboards.js";
 
 export default function build(opts = {}) {
-  const app = Fastify({...opts, querystringParser: (str) => qs.parse(str)});
+  const app = Fastify({ ...opts, querystringParser: (str) => qs.parse(str) });
 
   app.register(cors, {
     origin: process.env.CORS_ORIGIN || false,
@@ -35,7 +38,7 @@ export default function build(opts = {}) {
   });
 
   app.register(sse);
-  
+
   const serviceAuthorization = (token, request) => {
     try {
       const decoded = app.jwt.verify(token);
@@ -58,6 +61,27 @@ export default function build(opts = {}) {
   app.decorate("tournaments", new TournamentManager(app));
   app.register(fastifyFormbody);
   app.register(websocket);
+
+  // Leaderboard computation schedule
+  app.register(fastifySchedule);
+  app.decorate("leaderboards", new Array());
+  const task = new AsyncTask('compute-leaderboards', async () => {
+    app.leaderboards = await computeLeaderboards();
+    // console.log(`SCHEDULE: Leaderboard updated`);
+  });
+
+  const updateLeaderboards = new SimpleIntervalJob(
+    { seconds: 20 },
+    task,
+    { id: 'compute-leaderboards' }
+  );
+
+  app.ready().then(async () => {
+    app.leaderboards = await computeLeaderboards();
+    console.log("Leaderboards computed");
+    app.scheduler.addSimpleIntervalJob(updateLeaderboards);
+    console.log("Leaderboards update job scheduled");
+  });
 
   app.register(router);
 

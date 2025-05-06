@@ -80,10 +80,8 @@ clean-db:
 	-rm $$HOME/goinfre/docker/volumes/ft_transcendence_sqlite/_data/*
 
 fclean:
-	$(MAKE) clean-modules
-	$(MAKE) clean-services
+	$(MAKE) clean-deps
 	$(MAKE) clean-db
-	rm -f $(SSL_CERTIFICATE)
 
 re:
 	docker compose down
