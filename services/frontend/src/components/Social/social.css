@@ -148,6 +148,18 @@
 	overflow: auto;
 }
 
+.social-manager-search-form {
+	position: relative;
+}
+
+.social-manager-search-form .spinner {
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: var(--fg-3);
+}
+
 /* ============================== */
 /* ========== Friends =========== */
 /* ============================== */
