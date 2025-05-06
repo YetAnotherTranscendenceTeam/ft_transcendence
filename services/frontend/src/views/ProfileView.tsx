@@ -9,6 +9,7 @@ import ProfilePieChart from "../components/Profile/ProfilePieChart";
 import ProfileLineChart from "../components/Profile/ProfileLineChart";
 import useMatches from "../hooks/useMatches";
 import ProfileHeader from "../components/Profile/ProfileHeader";
+import ProfileGameDrawer from "../components/Profile/ProfileGameDrawer";
 
 export default function ProfileView() {
 
@@ -22,15 +23,35 @@ export default function ProfileView() {
 		app.setGameScene(GameScene.MENU);
 	}, [])
 
-	const { matches } = useMatches(userId);
+	const [filter, setFilter] = Babact.useState<string>("");
+	const { matches, isLoading, page } = useMatches(userId, 10, filter);
+	const [selectedMatch, setSelectedMatch] = Babact.useState<number>(null);
 	
   	return <div>
 		<div className='profile-view'>
 			{user && <ProfileHeader user={user} />}
-			<ProfileFilter />
-			<ProfileGameList/>
+			<ProfileFilter
+				onChange={(string) => {
+					console.log(string);
+					setFilter(string);
+				}}
+			/>
+			<ProfileGameList
+				page={page}
+				loading={isLoading}
+				matches={matches}
+				onSelectMatch={(match) => {
+					setSelectedMatch(match.match_id);
+				}}
+			/>
 			<ProfilePieChart/>
 			<ProfileLineChart/>
+			<ProfileGameDrawer
+				match_id={selectedMatch}
+				onClose={() => {
+					setSelectedMatch(null);
+				}}
+			/>
 		</div>
 	</div>
 

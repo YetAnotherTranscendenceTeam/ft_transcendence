@@ -179,6 +179,7 @@
 .profile-game-list-item h3 {
 	font-size: small;
 	color: var(--fg-3);
+	text-transform: capitalize;
 }
 
 /* profile game list item */
@@ -189,6 +190,7 @@
 	border-radius: 4px;
 	background-color: var(--bg-4);
 	cursor: pointer;
+	min-height: 80px;
 }
 
 .profile-game-list-item.win {
@@ -218,4 +220,77 @@
 	grid-row: span 8;
 	padding: 16px;
 	color: var(--fg-1);
+}
+
+
+/* Profile Game drawer */
+
+.profile-game-drawer {
+	position: absolute;
+	z-index: 9999;
+	top: 0;
+	right: -100%;
+	min-width: 400px;
+	height: 100%;
+	transition: right 0.4s ease;
+	box-sizing: border-box;
+	padding: 32px;
+}
+
+.profile-game-drawer.open {
+	right: 0;
+}
+
+.profile-game-drawer-header h1 {
+	font-size: xx-large;
+	font-weight: bolder;
+	color: var(--fg-1);
+}
+
+.profile-game-drawer-header p {
+	font-size: medium;
+	color: var(--fg-3);
+}
+
+
+.profile-game-drawer-team h3{
+	color: var(--fg-3);
+}
+
+.profile-game-drawer-team {
+	background-color: var(--bg-1);
+	box-sizing: border-box;
+	padding: 1rem;
+	border-radius: 8px;
+}
+
+.profile-game-drawer-team h1 {
+	font-size: medium;
+	font-weight: bolder;
+}
+
+.profile-game-drawer-player {
+	background-color: var(--bg-2);
+	box-sizing: border-box;
+	padding: 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.profile-game-drawer-player:hover {
+	background-color: var(--bg-3);
+}
+
+.profile-game-drawer-player-mmr {
+	font-size: medium;
+	margin-left: auto;
+}
+
+.profile-game-drawer-player-mmr.positive {
+	color: var(--success-color);
+}
+
+.profile-game-drawer-player-mmr.negative {
+	color: var(--danger-color);
 }

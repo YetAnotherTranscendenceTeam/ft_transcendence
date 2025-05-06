@@ -1,32 +1,77 @@
 import Babact from "babact";
 import useFetch from "./useFetch";
 import config from "../config";
-import { IPlayer, ITeam } from "yatt-lobbies";
+import { IUser, User } from "./useUsers";
 
-export enum MatchState {
-	WAITING = 'waiting',
-	PLAYING = 'playing',
-	DONE = 'done'
+
+export interface IMatchPlayer {
+	account_id: number,
+	team_index: number,
+	player_index: number,
+	win_probability: number,
+	begin_rating: number,
+	end_rating: number,
+	created_at: string,
+	updated_at: string,
+	profile: IUser
 }
 
-export interface IMatchPlayer extends IPlayer {
-    team_index?: number,
-    player_index?: number,
-    win_probability?: number,
-    begin_rating?: number,
-    end_rating?: number,
-}
+export class MatchPlayer implements IMatchPlayer {
+	account_id: number;
+	team_index: number;
+	player_index: number;
+	win_probability: number;
+	begin_rating: number;
+	end_rating: number;
+	created_at: string;
+	updated_at: string;
+	profile: IUser;
+	mmr: number;
 
-export class Team implements ITeam {
-	players: IPlayer[];
-	name: string;
-
-	constructor(team: ITeam) {
-		this.players = team.players;
-		this.name = team.name;
+	constructor(player: IMatchPlayer) {
+		this.account_id = player.account_id;
+		this.team_index = player.team_index;
+		this.player_index = player.player_index;
+		this.win_probability = player.win_probability;
+		this.begin_rating = player.begin_rating;
+		this.end_rating = player.end_rating;
+		this.created_at = player.created_at;
+		this.updated_at = player.updated_at;
+		this.profile = player.profile;
+		this.mmr = this.getMMRDelta();
 	}
 
-	getDisplayName() {
+	public getMMRDelta(): number {
+		if (!this.end_rating || !this.begin_rating)
+			return null;
+		return this.end_rating - this.begin_rating;
+	}
+}
+
+export interface IMatchTeam {
+	team_index: number;
+	name: string;
+	score: number;
+	winning: number;
+}
+
+export class Team implements IMatchTeam {
+
+	team_index: number;
+	name: string;
+	score: number;
+	winning: number;
+	players: MatchPlayer[];
+
+	constructor(team: IMatchTeam, players: MatchPlayer[]) {
+		this.team_index = team.team_index;
+		this.name = team.name;
+		this.score = team.score;
+		this.winning = team.winning;
+		this.players = players.filter((player) => player.team_index === team.team_index);
+	}
+
+	public getDisplayName() {
 		if (this.name)
 			return this.name;
 		if (this.players.length > 1)
@@ -35,62 +80,93 @@ export class Team implements ITeam {
 			return this.players[0].profile.username;
 		return 'Unknown';
 	}
+
 }
 
 export interface IMatch {
-	team_ids: number[]
-	scores: number[]
-	match_id?: number
-	state: MatchState
-	stage: number
-	index: number
-	teams: ITeam[]
-	tournament_id?: number
-}
-
-export class Match {
-	scores: number[];
-	teams: Team[];
 	match_id: number;
-	state: MatchState;
-	stage: number;
-	index: number;
+	tournament_id: number;
+	gamemode: string;
+	state: string;
+	created_at: string;
+	updated_at: string;
+	teams: IMatchTeam[];
+	players: IMatchPlayer[];
+}
 
-	constructor(match: IMatch) {
-		this.scores = match.scores;
+
+
+
+export class Match implements IMatch {
+	match_id: number;
+	tournament_id: number;
+	gamemode: string;
+	state: string;
+	created_at: string;
+	updated_at: string;
+	teams: Team[];
+	players: MatchPlayer[];
+	scores: number[];
+	account_id: number;
+
+	constructor(match: IMatch, accout_id: number) {
 		this.match_id = match.match_id;
+		this.tournament_id = match.tournament_id;
+		this.gamemode = match.gamemode;
 		this.state = match.state;
-		this.stage = match.stage;
-		this.index = match.index;
-		this.teams = match.teams.map((team) => new Team(team));
+		this.created_at = match.created_at;
+		this.updated_at = match.updated_at;
+		this.players = match.players.map((player) => new MatchPlayer(player));
+		this.teams = match.teams.map((team) => new Team(team, this.players));
+		this.scores = this.teams.map((team) => team.score);
+		this.account_id = accout_id;
 	}
 
-	playerTeamIndex(account_id: number) {
-		const team_index: number = this.teams.findIndex((team) => team.players.some((p) => p.account_id === account_id));
-		return team_index;
+	public hasPlayerWin(): boolean {
+		const player = this.players.find((p) => p.account_id == this.account_id);
+		if (player) {
+			return this.teams[player.team_index].winning == 1;
+		}
+		return false;
 	}
 
-	isPlayerIn(account_id: number) {
-		if (!account_id) return false;
-		return this.teams.some((team) => team.players.some((p) => p.account_id === account_id));
+	public getGameModeName(): string {
+		const gamemode = this.gamemode.split('_')[0];
+		if (gamemode)
+			return gamemode;
+		return 'Unknown';
 	}
 
-	getWinnerTeam() {
-		return this.scores[0] > this.scores[1] ? this.teams[0] : this.teams[1];
+	public getTime(): string {
+		const date = new Date(this.created_at);
+		if (date) {
+			return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		}
+		return '';
 	}
 
-	getOpponentTeam(account_id: number) {
-		return this.teams?.find((team) => !team.players.some((member) => member.account_id === account_id));
+	public getDate(): string {
+		const date = new Date(this.created_at);
+		if (date) {
+			return date.toLocaleDateString();
+		}
+		return '';
 	}
 
-	getOpponentTeamName(account_id: number) {
-		const team = this.getOpponentTeam(account_id);
-		if (!team) return 'Unknown';
-		return team.getDisplayName()
+	public getDuration(): string {
+		const startDate = new Date(this.created_at);
+		const endDate = new Date(this.updated_at);
+		if (startDate && endDate) {
+			const diff = endDate.getTime() - startDate.getTime();
+			const seconds = Math.floor(diff / 1000);
+			const minutes = Math.floor(seconds / 60);
+			return `${minutes}m ${seconds % 60}s`;
+		}
+		return '';
 	}
 }
 
-export default function useMatches(account_id: number, pageSize: number = 30) {
+export default function useMatches(account_id: number, pageSize: number = 10, filter?: string) {
 
 	const [matches, setMatches] = Babact.useState<Match[]>([]);
 	const [page, setPage] = Babact.useState(0);
@@ -98,18 +174,24 @@ export default function useMatches(account_id: number, pageSize: number = 30) {
 	const { ft_fetch, isLoading }  = useFetch();
 
 	const fetchMatches = async () => {
-		const response = await ft_fetch(`${config.API_URL}/matchmaking/users/${account_id}/matches?offset=${page * pageSize}&limit=${pageSize}`, {}, {
+		const params = new URLSearchParams();
+		params.append('offset', `${page * pageSize}`);
+		params.append('limit', `${pageSize}`);
+		if (filter) {
+			params.append('filter[gamemode]', filter+'_2v2');
+			params.append('filter[gamemode]', filter+'_1v1');
+		}
+		const response = await ft_fetch(`${config.API_URL}/matchmaking/users/${account_id}/matches?${params.toString()}`, {}, {
 			show_error: true,
-			success_message: 'Matches loaded',
 		});
 		if (response) {
-			console.log('Matches', response);
+			setMatches(response.map((match: IMatch) => new Match(match, account_id)));
 		}
 	}
 
 	Babact.useEffect(() => {
 		fetchMatches();
-	}, [page]);
+	}, [page, account_id, filter]);
 
 	return {
 		matches,

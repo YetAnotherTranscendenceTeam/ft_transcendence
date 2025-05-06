@@ -82,6 +82,23 @@
 	position: relative;
 }
 
+.match-card.focused {
+	border: 0px solid var(--primary-color);
+	animation: highlight 1s 20;
+}
+
+@keyframes highlight {
+    0% {
+        border-width: 0px;
+    }
+    50% {
+        border-width: 8px;
+    }
+    100% {
+        border-width: 0px;
+    }
+}
+
 .match-card i {
 	font-size: small;
 	color: var(--warning-color);

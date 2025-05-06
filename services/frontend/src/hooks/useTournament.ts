@@ -36,7 +36,7 @@ export class Team implements ITeam {
 		this.name = team.name;
 	}
 
-	getDisplayName() {
+	public getDisplayName() {
 		if (this.name)
 			return this.name;
 		if (this.players.length > 1)

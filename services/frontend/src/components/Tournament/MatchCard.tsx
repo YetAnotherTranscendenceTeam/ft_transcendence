@@ -28,13 +28,15 @@ export default function MatchCard({
 
 	const { me } = useAuth();
 
+	const isFocused = window.location.search.includes(`match_id=${match.match_id}`);
+
 	return (
 		<div
 			className={`match-card-container flex items-center justify-center ${positionH} ${positionV}`}
 			{...props}
 		>
 			<div
-				className={`match-card flex flex-col items-center justify-between ${match.state}`}
+				className={`match-card flex flex-col items-center justify-between ${match.state} ${isFocused ? 'focused' : ''}`}
 				>
 				{match.teams.map((team, i) =>
 					team ? <div
