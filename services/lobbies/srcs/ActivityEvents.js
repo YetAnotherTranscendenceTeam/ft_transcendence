@@ -58,7 +58,7 @@ class ActivityEvents {
 
   updateTournament({ tournament_id, players, team_count, gamemode, tournament_secret, active }) {
     const payload = {
-      event: "tounament_update",
+      event: "tournament_update",
       data: JSON.stringify({
         tournament_id: tournament_id,
         players: players,

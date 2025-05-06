@@ -70,4 +70,13 @@ export class GameMode implements IGameMode {
   getDisplayName(): string {
     return this.team_size + "v" + this.team_size;
   }
+
+  getDisplayTypeName(): string {
+    if (this.type === GameModeType.CUSTOM) return "Custom";
+    if (this.type === GameModeType.TOURNAMENT) return "Clash";
+    if (this.type === GameModeType.RANKED) return "Ranked";
+    if (this.type === GameModeType.UNRANKED) return "Unranked";
+    return "";
+  }
+
 }

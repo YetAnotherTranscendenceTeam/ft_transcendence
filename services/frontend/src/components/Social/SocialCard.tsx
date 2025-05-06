@@ -22,7 +22,7 @@ export default function SocialCard({
 	const navigate = useNavigate();
 
 	return <div
-		className={`social-manager-user-card flex flex-row items-center justify-between gap-2 w-full`}
+		className={`social-manager-user-card flex flex-row items-center justify-between gap-1 w-full`}
 	>
 		<div className={`social-manager-user-card-header flex flex-row items-center gap-2`}
 			onClick={() => navigate(`/profiles/${user.account_id}`)}
@@ -32,12 +32,12 @@ export default function SocialCard({
 				name={user.username}
 				status={type ?? null}
 			/>
-			<div className='flex flex-col gap-1'>
+			<div className='social-manager-user-card-user flex flex-col gap-1'>
 				<h1>{user.username}</h1>
 				{type && <SocialTypeText type={type} />}
 			</div>
 		</div> 
-		<div className={`flex flex-row items-center gap-2 ${className}`}>
+		<div className={`social-manager-user-card-content flex flex-row items-center justify-end gap-2 ${className}`}>
 			{children}
 		</div>
 	</div>

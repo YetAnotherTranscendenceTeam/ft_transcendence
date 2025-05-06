@@ -14,7 +14,7 @@ export default function TournamentCard() {
 		className="tournament-card left w-full gap-2"
 	>
 		<h1>
-			You're currently in a tournament
+			You are currently in a clash
 		</h1>
 
 		<Button
@@ -23,7 +23,7 @@ export default function TournamentCard() {
 				navigate(`/tournaments/${me.last_tournament.tournament_id}`);
 			}}
 		>
-			Go to tournament <i className="fa-solid fa-people-group"></i>
+			Go to clash <i className="fa-solid fa-people-group"></i>
 		</Button>
 	</Card>;
 }
