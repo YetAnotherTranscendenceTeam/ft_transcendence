@@ -33,7 +33,7 @@ export default function TournamentView() {
 	const { app } = usePong();
 
 	Babact.useEffect(() => {
-		app.setGameScene(GameScene.LOBBY);
+		app.setGameScene(GameScene.MENU);
 	}, [])
 
 	const tournamentWinner = (matches.length > 0 && matches[0].state === MatchState.DONE && matches[0]) || null;

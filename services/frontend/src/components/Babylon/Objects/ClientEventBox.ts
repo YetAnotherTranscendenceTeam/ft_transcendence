@@ -12,7 +12,7 @@ export default class ClientEventBox extends AObject {
 
 	public constructor(scene: Scene, name: string, physicsBody: PONG.EventBox) {
 		super(scene, physicsBody);
-		// this._isEnabled = true;
+		this._isEnabled = false;
 		this._mesh = MeshBuilder.CreateCylinder(
 			name,
 			{

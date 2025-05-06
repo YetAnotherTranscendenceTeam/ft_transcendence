@@ -5,11 +5,12 @@ export default abstract class AObject {
 	protected _scene: Scene;
 	protected _mesh: Mesh;
 	protected _physicsBody: PH2D.Body;
-	protected _isEnabled: boolean = true;
+	protected _isEnabled: boolean;
 
 	public constructor(scene: Scene, physicsBody: PH2D.Body) {
 		this._scene = scene;
 		this._physicsBody = physicsBody;
+		this._isEnabled = true;
 	}
 
 	public update(dt: number): void {}
@@ -17,11 +18,13 @@ export default abstract class AObject {
 	public disable(): void {
 		this._mesh?.setEnabled(false);
 		this._isEnabled = false;
+		this._physicsBody.filter = 1;
 	}
 
 	public enable(): void {
 		this._mesh?.setEnabled(true);
 		this._isEnabled = true;
+		this._physicsBody.filter = 0;
 	}
 
 	public get mesh(): Mesh {

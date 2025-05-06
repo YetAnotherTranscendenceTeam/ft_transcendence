@@ -4,7 +4,7 @@ import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import { GameMode, GameModeType, IGameMode, IPlayer } from 'yatt-lobbies'
-import { ClientBall, ClientPaddle, ClientWall, ClientGoal, ClientEventBox } from "./Objects/objects";
+import { ClientBall, ClientPaddle, ClientWall, ClientGoal, ClientEventBox, ClientObstacle } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
@@ -144,8 +144,6 @@ export default class PongClient extends PONG.Pong {
 		this._gameScene = scene;
 		if (this._gameScene === GameScene.MENU) {
 			this.menuScene();
-		} else if (this._gameScene === GameScene.LOBBY) {
-			this.lobbyScene();
 		} else if (this._gameScene === GameScene.LOCAL) {
 			this.localScene();
 		}
@@ -277,6 +275,8 @@ export default class PongClient extends PONG.Pong {
 					clientObject = new ClientGoal(this._babylonScene, ("goal" + map.mapId.toString() + counter.toPrecision(2)), object);
 				} else if (object instanceof PONG.Paddle) {
 					clientObject = new ClientPaddle(this._babylonScene, ("paddle" + map.mapId.toString() + counter.toPrecision(2)), object);
+				} else if (object instanceof PONG.Obstacle) {
+					clientObject = new ClientObstacle(this._babylonScene, ("obstacle" + map.mapId.toString() + counter.toPrecision(2)), object);
 				} else if (object instanceof PONG.EventBox) {
 					clientObject = new ClientEventBox(this._babylonScene, ("eventbox" + map.mapId.toString() + counter.toPrecision(2)), object);
 				}
@@ -304,8 +304,14 @@ export default class PongClient extends PONG.Pong {
 		super.switchMap(mapId);
 		const objects: PH2D.Body[] = this._currentMap.getObjects();
 		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject, index: number) => {
-			object.enable();
 			object.updateBodyReference(objects[index]);
+			object.enable();
+			if (object instanceof ClientEventBox) {
+				object.disable();
+			}
+			if (object instanceof ClientObstacle && !this._gameMode.match_parameters.obstacles) {
+				object.disable();
+			}
 		});
 		
 	}
@@ -313,14 +319,6 @@ export default class PongClient extends PONG.Pong {
 	private menuScene() {
 		this.menuSetup();
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.305882353, 0.384313725, 0.521568627));
-		
-		this.loadBalls();
-		this.bindPaddles();
-	}
-	
-	private lobbyScene() {
-		this.lobbySetup();
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Green());
 		
 		this.loadBalls();
 		this.bindPaddles();

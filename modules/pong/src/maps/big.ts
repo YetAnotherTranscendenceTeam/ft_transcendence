@@ -55,7 +55,9 @@ export function createMap(): IPongMap {
 				this.paddleLeftFront,
 				this.paddleRightBack,
 				this.paddleRightFront,
-			].concat(this.obstacles).concat(this.eventboxes);
+				...this.obstacles,
+				...this.eventboxes
+			];
 		},
 		clone: createMap
 	}

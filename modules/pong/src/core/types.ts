@@ -3,6 +3,7 @@ import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import Wall from "./Wall.js";
+import Obstacle from "./Obstacle.js";
 import EventBox from "./EventBox.js";
 import * as K from "./constants.js";
 import { Body } from "physics-engine"
@@ -135,7 +136,7 @@ export interface IPongMap {
 	paddleRightBack: Paddle;
 	paddleRightFront: Paddle;
 
-	obstacles: Wall[];
+	obstacles: Obstacle[];
 	eventboxes: EventBox[];
 
 	getObjects: () => Body[];

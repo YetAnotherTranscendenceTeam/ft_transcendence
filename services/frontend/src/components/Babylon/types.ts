@@ -9,7 +9,6 @@ export enum KeyState {
 
 export enum GameScene {
 	MENU,
-	LOBBY,
 	ONLINE,
 	LOCAL,
 }

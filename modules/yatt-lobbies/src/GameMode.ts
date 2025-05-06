@@ -51,6 +51,13 @@ export class GameMode implements IGameMode {
       this.team_count = oth.team_count;
       this.match_parameters = oth.match_parameters;
     }
+    this.match_parameters = { // default values hardcoded until we have a proper config system
+      obstacles: false,
+      powerups: true,
+      time_limit: 0,
+      ball_speed: 0,
+      point_to_win: 5
+    };
   }
 
   toJSON(): IGameMode {

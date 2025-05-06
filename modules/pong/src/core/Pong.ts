@@ -6,6 +6,7 @@ import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import Wall from "./Wall.js";
+import EventBox from "./EventBox.js";
 import { ballCollision } from "./Behaviors.js";
 import { MapSide, IPongMap, MapID, PlayerID, PongState, IPongState, PlayerMovement, IBall, IPongPlayer } from "./types.js";
 import * as maps from "../maps/index.js";
@@ -86,9 +87,16 @@ export class Pong {
 			this._physicsScene.addBody(this._currentMap.paddleRightFront);
 			this._paddles.set(PlayerID.RIGHT_FRONT, this._currentMap.paddleRightFront);
 		}
-		this._currentMap.obstacles.forEach((obstacle: Wall) => {
-			this._physicsScene.addBody(obstacle);
-		});
+		if (this._gameMode.match_parameters.obstacles) {
+			this._currentMap.obstacles.forEach((obstacle: Wall) => {
+				this._physicsScene.addBody(obstacle);
+			});
+		}
+		if (this._gameMode.match_parameters.powerups) {
+			this._currentMap.eventboxes.forEach((eventbox: EventBox) => {
+				this._physicsScene.addBody(eventbox);
+			});
+		}
 	}
 
 	public cleanUp() {
@@ -101,20 +109,33 @@ export class Pong {
 		this._stats = undefined;
 	}
 
+	private setup() {
+		if (this._gameMode.team_size === 2) {
+			this.switchMap(MapID.BIG);
+		} else if (this._gameMode.team_size === 1) {
+			this.switchMap(MapID.SMALL);
+		} else {
+			this.switchMap(MapID.FAKE);
+		}
+
+		this._balls.push(new Ball());
+		this._physicsScene.addBody(this._balls[0]);
+		this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		this._stats = new Stats(this._gameMode.team_size, this._gameMode.match_parameters.point_to_win);
+	}
+
 	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED.clone()) {
 		this.cleanUp();
 		this._matchId = match_id;
 		this._gameMode = gamemode;
+		console.log("Game mode", this._gameMode);
 		if (state instanceof PongState)
 			this._state = state;
 		else
 			this._state = new PongState(state.name, state);
 
-		// do things based on gamemode (not implemented yet)
-		if (gamemode.team_size === 2)
-			this.switchMap(MapID.BIG);
-		else
-			this.switchMap(MapID.SMALL);
+		this.setup();
+
 		let playerId: number = 0;
 		this._players = players.map((player: IPlayer, index: number) => {
 			if (!this._paddles.has(playerId)) {
@@ -136,44 +157,46 @@ export class Pong {
 				}
 			}
 		});
-
-		this._balls.push(new Ball());
-		this._physicsScene.addBody(this._balls[0]);
-		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(gamemode.team_size, K.defaultPointsToWin); // TO DO : points to win from gamemode
 	}
 
 	protected localSetup() {
 		this.cleanUp();
 
-		this.switchMap(MapID.SMALL);
+		this._gameMode = new GameMode("local", {
+			type: null,
+			team_size: 1,
+			team_count: 2,
+			match_parameters: {
+				obstacles: false,
+				powerups: false,
+				time_limit: 0,
+				ball_speed: K.defaultBallSpeed,
+				point_to_win: K.defaultPointsToWin,
+			}
+		});
+		this._matchId = -1;
 
-		this._balls.push(new Ball());
-		this._physicsScene.addBody(this._balls[0]);
-		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(2, K.defaultPointsToWin);
+		this.setup();
 	}
 
 	protected menuSetup() {
 		this.cleanUp();
 
-		this.switchMap(MapID.FAKE);
+		this._gameMode = new GameMode("menu", {
+			type: null,
+			team_size: 0,
+			team_count: 0,
+			match_parameters: {
+				obstacles: false,
+				powerups: false,
+				time_limit: 0,
+				ball_speed: K.defaultBallSpeed,
+				point_to_win: K.defaultPointsToWin,
+			}
+		});
+		this._matchId = -1;
 
-		this._balls.push(new Ball());
-		this._physicsScene.addBody(this._balls[0]);
-		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(0, K.defaultPointsToWin);
-	}
-
-	protected lobbySetup() {
-		this.cleanUp();
-
-		this.switchMap(MapID.FAKE);
-
-		this._balls.push(new Ball());
-		this._physicsScene.addBody(this._balls[0]);
-		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(0, K.defaultPointsToWin);
+		this.setup();
 	}
 
 	protected start() {
