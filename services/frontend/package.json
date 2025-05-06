@@ -23,7 +23,6 @@
     "earcut": "^3.0.1",
     "gl-matrix": "^4.0.0-beta.2",
     "js-confetti": "^0.12.0",
-    "path": "^0.12.7",
     "physics-engine": "file:../../modules/physics-engine",
     "pong": "file:../../modules/pong",
     "qrcode": "^1.5.4",
