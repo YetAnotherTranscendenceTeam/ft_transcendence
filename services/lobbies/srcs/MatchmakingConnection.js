@@ -29,6 +29,7 @@ export default class MatchmakingConnection extends EventEmitter {
           tournament_id: match.tournament_id,
           gamemode: match.gamemode,
           scores: match.scores,
+          state: match.state,
         });
       }
       else if (message.data.match.type === "tournament") {

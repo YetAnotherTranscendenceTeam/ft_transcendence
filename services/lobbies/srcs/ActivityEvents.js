@@ -22,7 +22,7 @@ class ActivityEvents {
 
   update(lobby) {
     const payload = {
-      event: "update",
+      event: "lobby_update",
       data: JSON.stringify({
         players: lobby.players.map(p => p.account_id),
         gamemode: lobby.mode,
@@ -34,14 +34,14 @@ class ActivityEvents {
 
   leave(lobby, leaver_id) {
     const payload = {
-      event: "leave",
+      event: "lobby_leave",
       data: leaver_id,
     }
     this.broadcast(payload);
     this.update(lobby);
   };
 
-  updateMatch({ match_id, players, tournament_id, gamemode, scores }) {
+  updateMatch({ match_id, players, tournament_id, gamemode, scores, state }) {
     const payload = {
       event: "match_update",
       data: JSON.stringify({
@@ -50,6 +50,7 @@ class ActivityEvents {
         tournament_id: tournament_id,
         gamemode: gamemode,
         scores: scores,
+        state: state,
       }),
     };
     this.broadcast(payload);

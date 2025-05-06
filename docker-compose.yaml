@@ -191,7 +191,8 @@ services:
       - frontend
       - profiles
     depends_on:
-      - matchmaking
+      matchmaking:
+        condition: service_healthy
 
   matchmaking:
     build:

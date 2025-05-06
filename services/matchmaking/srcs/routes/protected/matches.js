@@ -98,13 +98,13 @@ export default function router(fastify, opts, done) {
         throw new HttpError.NotFound("Match not found");
       }
       const { score_0, score_1} = request.body;
-      if (score_0) {
+      if (score_0 !== undefined) {
         if (score_0 > score_1)
           update_team_score_wining.run(score_0, request.params.match_id, 0);
         else
           update_team_score.run(score_0, request.params.match_id, 0);
       }
-      if (score_1) {
+      if (score_1 !== undefined) {
         if (score_1 > score_0)
           update_team_score_wining.run(score_1, request.params.match_id, 1);
         else
