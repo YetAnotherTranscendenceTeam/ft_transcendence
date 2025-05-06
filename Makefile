@@ -25,7 +25,7 @@ override TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 
 override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
-dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS) $(SSL_CERTIFICATE)
+dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SSL_CERTIFICATE)
 	./env-generator.sh evaluation
 	docker compose up -d --build --wait
 
@@ -54,6 +54,8 @@ evaluation:
 	./env-generator.sh evaluation
 	(cd modules && docker compose build)
 	docker compose -f docker-compose.yaml -f docker-compose.eval.yaml up -d --build --wait
+
+services-modules: $(SERVICES_DEPS)
 
 clean-modules:
 	-rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
