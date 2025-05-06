@@ -26,7 +26,7 @@ override TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
 dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SSL_CERTIFICATE)
-	./env-generator.sh evaluation
+	./env-generator.sh
 	docker compose up -d --build --wait
 
 $(MODULES_DEPS) $(SERVICES_DEPS):
@@ -55,14 +55,25 @@ evaluation:
 	(cd modules && docker compose build)
 	docker compose -f docker-compose.yaml -f docker-compose.eval.yaml up -d --build --wait
 
-services-modules: $(SERVICES_DEPS)
 
-clean-modules:
+cert: $(SSL_CERTIFICATE)
+
+deps: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS)
+
+deps-modules: $(MODULES_DEPS) $(TS_MODULES_DEPS)
+
+deps-services: $(SERVICES_DEPS)
+
+clean-deps:
+	$(MAKE) clean-deps-modules
+	$(MAKE) clean-deps-services
+
+clean-deps-modules:
 	-rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
 	-rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 	-rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
 
-clean-services:
+clean-deps-services:
 	-rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
 
 clean-db:
@@ -72,6 +83,7 @@ fclean:
 	$(MAKE) clean-modules
 	$(MAKE) clean-services
 	$(MAKE) clean-db
+	rm -f $(SSL_CERTIFICATE)
 
 re:
 	docker compose down
