@@ -9,13 +9,23 @@ const update_match_state = db.prepare(
   UPDATE matches
   SET state = ?
   WHERE match_id = ?
-  RETURNING gamemode
+  RETURNING gamemode, state
   `);
 
 const update_team_score = db.prepare(
   `
   UPDATE match_teams
   SET score = ?
+  WHERE match_id = ? AND team_index = ?
+  `
+);
+
+const update_team_score_wining = db.prepare(
+  `
+  UPDATE match_teams
+  SET
+    score = ?,
+    winning = 1
   WHERE match_id = ? AND team_index = ?
   `
 );
@@ -44,6 +54,18 @@ const update_rating = db.prepare(`
     matchmaking_users.rating,
     matchmaking_users.match_count,
     matchmaking_users.updated_at
+`);
+
+const update_rating_end = db.prepare(`
+
+  UPDATE match_players
+    SET
+      end_rating = matchmaking_users.rating
+  FROM matchmaking_users
+  WHERE
+    match_players.match_id = ?
+    AND match_players.account_id = matchmaking_users.account_id
+    AND matchmaking_users.gamemode = ?
 `);
 
 export default function router(fastify, opts, done) {
@@ -77,10 +99,16 @@ export default function router(fastify, opts, done) {
       }
       const { score_0, score_1} = request.body;
       if (score_0) {
-        update_team_score.run(score_0, request.params.match_id, 0);
+        if (score_0 > score_1)
+          update_team_score_wining.run(score_0, request.params.match_id, 0);
+        else
+          update_team_score.run(score_0, request.params.match_id, 0);
       }
       if (score_1) {
-        update_team_score.run(score_1, request.params.match_id, 1);
+        if (score_1 > score_0)
+          update_team_score_wining.run(score_1, request.params.match_id, 1);
+        else
+          update_team_score.run(score_1, request.params.match_id, 1);
       }
 
       const tournamentMatch = fastify.tournaments.getTournamentMatch(request.params.match_id);
@@ -89,6 +117,7 @@ export default function router(fastify, opts, done) {
       if (request.body.state === MatchState.DONE && GameModes[updated.gamemode].type === GameModeType.RANKED) {
         const winning_team = score_0 > score_1 ? 0 : 1;
         update_rating.all({winning_team}, request.params.match_id, updated.gamemode);
+        update_rating_end.run(request.params.match_id, updated.gamemode);
       }
       reply.status(200).send(updated);
     }

@@ -14,7 +14,7 @@ export default function Avatar({
 		name?: string,
 		status?: string,
 		children?: any,
-		size?: 'xs' | 'sm' | 'md' | 'lg',
+		size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl',
 		[key: string]: any
 	}) {
 

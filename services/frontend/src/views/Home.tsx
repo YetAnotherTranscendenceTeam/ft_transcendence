@@ -11,8 +11,7 @@ export default function Home() {
 		app.setGameScene(GameScene.MENU);
 	}, [])
 
-	return <Overlay>
+	return <div>
 		<h1>Home</h1>
-
-	</Overlay>
+	</div>
 }

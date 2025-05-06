@@ -11,13 +11,12 @@ import './templates.css'
 import TournamentCard from "../components/Tournament/TournamentCard";
 
 export default function Overlay({
-		modal,
 		hidden = false,
 		children
 	}: {
-		modal?: any,
 		hidden?: boolean,
-		children?: any
+		children?: any,
+		[key: string]: any
 	}) {
 
 	const { me } = useAuth()
@@ -33,22 +32,19 @@ export default function Overlay({
 
 	return <div className={`overlay flex ${hidden ? 'hidden' : ''}`} key='overlay'>
 			<Settings
+				key='settings'
 				me={me}
 				isOpen={selected === 'settings'}
 				onClose={() => setSelected(null)}
 			/>
-			{me && <SelectModeOverlay
+			<SelectModeOverlay
+				key='select-mode'
 				isOpen={selected === 'online'}
 				onClose={() => setSelected(null)}
-			/>}
+			/>
 			<div className='template-content'>
 				{children}
 			</div>
-			{ modal &&
-				<div className='template-modal'>
-					{modal}
-				</div>
-			}
 			<header className='header flex gap-4 items-center justify-center' key='header'>
 				<Menu
 					selected={selected}
@@ -56,10 +52,10 @@ export default function Overlay({
 				/>
 			</header>
 			<aside className='aside flex' key='aside'>
-				<div className='aside-content flex flex-col gap-4'>
-					<TournamentCard/>
-					{lobby && <LobbyCard/>}
-					{me ? <ProfileCard me={me}/> : <AuthCard/>}
+				<div className='aside-content flex flex-col gap-4' key='aside-content'>
+					{me && <TournamentCard/>}
+					{me && lobby && <LobbyCard/>}
+					{me ? <ProfileCard me={me} key='profile-card'/> : <AuthCard/>}
 				</div>
 			</aside>
 		</div>

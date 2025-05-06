@@ -1,19 +1,21 @@
 import Babact from "babact";
-import Overlay from "../templates/Overlay";
 import { useParams } from "babact-router-dom";
 import useUser from "../hooks/useUser";
-import Card from "../ui/Card";
-import Spinner from "../ui/Spinner";
-import Avatar from "../ui/Avatar";
-import UserCard from "../components/Profile/UserCard";
 import { usePong } from "../contexts/usePong";
 import { GameScene } from "../components/Babylon/types";
+import ProfileFilter from "../components/Profile/ProfileFilter";
+import ProfileGameList from "../components/Profile/ProfileGameList";
+import ProfilePieChart from "../components/Profile/ProfilePieChart";
+import ProfileLineChart from "../components/Profile/ProfileLineChart";
+import useMatches from "../hooks/useMatches";
+import ProfileHeader from "../components/Profile/ProfileHeader";
+import ProfileGameDrawer from "../components/Profile/ProfileGameDrawer";
 
 export default function ProfileView() {
 
 	const { id: userId } = useParams();
 
-	const { user, loading } = useUser(userId);
+	const { user } = useUser(userId);
 
 	const { app } = usePong();
 
@@ -21,14 +23,36 @@ export default function ProfileView() {
 		app.setGameScene(GameScene.MENU);
 	}, [])
 
-	if (loading || !user) {
-		return <div>
-			<Spinner />
+	const [filter, setFilter] = Babact.useState<string>("");
+	const { matches, isLoading, page } = useMatches(userId, 10, filter);
+	const [selectedMatch, setSelectedMatch] = Babact.useState<number>(null);
+	
+  	return <div>
+		<div className='profile-view'>
+			{user && <ProfileHeader user={user} />}
+			<ProfileFilter
+				onChange={(string) => {
+					console.log(string);
+					setFilter(string);
+				}}
+			/>
+			<ProfileGameList
+				page={page}
+				loading={isLoading}
+				matches={matches}
+				onSelectMatch={(match) => {
+					setSelectedMatch(match.match_id);
+				}}
+			/>
+			<ProfilePieChart/>
+			<ProfileLineChart/>
+			<ProfileGameDrawer
+				match_id={selectedMatch}
+				onClose={() => {
+					setSelectedMatch(null);
+				}}
+			/>
 		</div>
-	}
-
-  	return <Overlay>
-		<UserCard user={user} />
-	</Overlay>
+	</div>
 
 }

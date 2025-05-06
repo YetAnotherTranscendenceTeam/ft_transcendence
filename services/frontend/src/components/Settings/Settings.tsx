@@ -13,6 +13,7 @@ export default function Settings({
 		me: any,
 		isOpen?: boolean,
 		onClose: () => void,
+		[key: string]: any
 	}) {
 
 	useEscape(isOpen, onClose);

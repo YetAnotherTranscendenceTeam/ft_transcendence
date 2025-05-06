@@ -1,5 +1,6 @@
 import Babact from "babact";
 import useFetch from "./useFetch";
+import { APIRefreshToken } from "./useAPI";
 
 export type WebSocketHook = {
 	connected: boolean,
@@ -24,7 +25,6 @@ export default function useWebSocket({
 
 	const ws = Babact.useRef(null);
 	const [connected, setConnected] = Babact.useState<boolean>(false);
-	const { refreshToken } = useFetch();
 
 	const connect = async (url: string, enableToken: boolean = false) => {
 		if (ws.current) {
@@ -32,7 +32,7 @@ export default function useWebSocket({
 		}
 		let wsUrl = url
 		if (enableToken) {
-			await refreshToken();
+			await APIRefreshToken();
 			const parsedUrl = new URL(url);
 			if (parsedUrl.search === '')
 				wsUrl += '?';

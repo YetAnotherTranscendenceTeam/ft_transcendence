@@ -13,7 +13,7 @@ import SocialRequestCard from "./SocialRequestCard";
 import SocialBlockedCard from "./SocialBlockCard";
 import SocialFriendCard from "./SocialFriendCard";
 
-export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
+export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any, [key: string]: any }) {
 
 	const [selected, setSelected] = Babact.useState<string>('follow');
 

@@ -18,9 +18,7 @@ export default function OnlineView() {
 
 	if (!overlay)
 		return;
-	return <Overlay
-		hidden={overlay.gameStatus.name === PongState.PLAYING.name || overlay.gameStatus.name === PongState.FREEZE.name}
-	>
+	return <div>
 		<GameOverlay/>
-	</Overlay>
+	</div>
 }

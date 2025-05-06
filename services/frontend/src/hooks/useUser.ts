@@ -14,6 +14,7 @@ export default function useUser(account_id: number): {
 	const { ft_fetch, isLoading } = useFetch();
 
 	const fetchUser = async () => {
+		if (!account_id) return;
 		const response = await ft_fetch(`${config.API_URL}/users/${account_id}`);
 		if (response) {
 			setUser(new User(response, ft_fetch));

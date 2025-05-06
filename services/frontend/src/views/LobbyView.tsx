@@ -35,8 +35,8 @@ export default function LobbyView() {
 	}, [lobby])
 
 
-	return <Overlay>
+	return <div>
 		{lobby && <LobbyTeamsList lobby={lobby} />}
-	</Overlay>
+	</div>
 
 }
