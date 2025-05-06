@@ -18,10 +18,10 @@ export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]:
 	const { socials } = useAuth();
 
 	useEscape(isOpen, () => setIsOpen(false));
-	
+
 	if (!me)
 		return null;
-	
+
 	return <Card className={`profile-card left flex flex-col`} key='profile-card' {...props}>
 		<div className='profile-card-header flex items-center gap-2 justify-between pointer'>
 			<div
@@ -44,8 +44,8 @@ export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]:
 				</Button>
 			</div>
 		</div>
-		<div className={`profile-card-body flex flex-col gap-4 w-full ${isOpen ? 'open' : ''}`}>
-			<SocialManager />
+		<div className={`profile-card-body flex flex-col gap-4 w-full ${isOpen ? 'open' : ''}`} key='social-manager-container'>
+			<SocialManager key='social-manager'/>
 		</div>
 	</Card>;
 }

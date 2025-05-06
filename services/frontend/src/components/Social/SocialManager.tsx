@@ -13,7 +13,7 @@ import SocialRequestCard from "./SocialRequestCard";
 import SocialBlockedCard from "./SocialBlockCard";
 import SocialFriendCard from "./SocialFriendCard";
 
-export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any }) {
+export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any, [key: string]: any }) {
 
 	const [selected, setSelected] = Babact.useState<string>('follow');
 
@@ -28,7 +28,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 	Babact.useEffect(() => {
 		if (me)
 			search('', 20, [me.account_id]);
-	}, [me]);
+	}, [me?.account_id]);
 
 	const sortFollows = (follows: Friend[]) => {
 		return follows.sort((a, b) => {

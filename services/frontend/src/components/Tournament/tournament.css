@@ -82,6 +82,23 @@
 	position: relative;
 }
 
+.match-card.focused {
+	border: 0px solid var(--primary-color);
+	animation: highlight 1s 20;
+}
+
+@keyframes highlight {
+    0% {
+        border-width: 0px;
+    }
+    50% {
+        border-width: 8px;
+    }
+    100% {
+        border-width: 0px;
+    }
+}
+
 .match-card i {
 	font-size: small;
 	color: var(--warning-color);
@@ -153,6 +170,16 @@
 }
 
 /* ===== Modal ====== */
+
+.tournament-end-modal {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: color-mix(in srgb, var(--bg-1), transparent 40%);
+	color: var(--fg-1);
+}
 
 .tournament-end-modal h2 {
 	font-size: xx-large;

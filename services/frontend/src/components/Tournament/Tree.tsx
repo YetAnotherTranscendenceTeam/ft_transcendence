@@ -1,19 +1,19 @@
 import Babact from "babact";
 import Stage from "./Stage";
-import { Match } from "../../hooks/useTournament";
+import { TournamentMatch } from "../../hooks/useTournament";
 
 export default function Tree({
 		matches,
 		...props
 	}: {
-		matches: Match[],
+		matches: TournamentMatch[],
 		[key: string]: any
 	}) {
 
-	const [stages, setStages] = Babact.useState<Match[][]>([]);
+	const [stages, setStages] = Babact.useState<TournamentMatch[][]>([]);
 	
 	const createStages = () => {
-		const newStages: Match[][] = [];
+		const newStages: TournamentMatch[][] = [];
 		const nbRounds = Math.log2(matches.length + 1);
 		for(let i = 0; i < nbRounds; i++) {
 			const start = Math.pow(2, i) - 1;

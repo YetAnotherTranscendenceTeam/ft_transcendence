@@ -88,7 +88,7 @@
 }
 
 .mode-button.custom h1 i {
-	color: #6fff72;
+	color: rgb(50, 255, 115);
 }
 
 .mode-button.ranked h1 i {
@@ -100,7 +100,7 @@
 }
 
 .mode-button.tournament h1 i {
-	color: #ffb24e;
+	color: rgb(255, 178, 78);
 }
 
 .mode-button h2 {
@@ -130,5 +130,5 @@
 }
 
 .mode-buttons .segmented-control-button {
-	padding: 0 16px;
+	padding: 8px 16px;
 }

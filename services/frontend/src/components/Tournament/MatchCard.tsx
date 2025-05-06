@@ -2,7 +2,7 @@ import Babact from "babact";
 import { HPosition, VPosition } from "./Stage";
 import Avatar from "../../ui/Avatar";
 import { useAuth } from "../../contexts/useAuth";
-import { Match, MatchState } from "../../hooks/useTournament";
+import { TournamentMatch, MatchState } from "../../hooks/useTournament";
 
 export default function MatchCard({
 		match,
@@ -10,7 +10,7 @@ export default function MatchCard({
 		positionV,
 		...props
 	}: {
-		match: Match,
+		match: TournamentMatch,
 		positionH: HPosition,
 		positionV: VPosition,
 		[key: string]: any
@@ -28,13 +28,15 @@ export default function MatchCard({
 
 	const { me } = useAuth();
 
+	const isFocused = window.location.search.includes(`match_id=${match.match_id}`);
+
 	return (
 		<div
 			className={`match-card-container flex items-center justify-center ${positionH} ${positionV}`}
 			{...props}
 		>
 			<div
-				className={`match-card flex flex-col items-center justify-between ${match.state}`}
+				className={`match-card flex flex-col items-center justify-between ${match.state} ${isFocused ? 'focused' : ''}`}
 				>
 				{match.teams.map((team, i) =>
 					team ? <div
