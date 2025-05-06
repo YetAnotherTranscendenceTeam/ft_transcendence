@@ -15,7 +15,8 @@ export enum StatusType {
 	OFFLINE = 'offline',
 	INGAME = 'ingame',
 	INACTIVE = 'inactive',
-	INLOBBY = 'inlobby'
+	INLOBBY = 'inlobby',
+	INTOURNAMENT = 'intournament',
 }
 
 export type FriendStatus = {

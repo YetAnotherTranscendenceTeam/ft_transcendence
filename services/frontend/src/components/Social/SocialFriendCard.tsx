@@ -21,6 +21,7 @@ export default function SocialFriendCard({
 
 	const isInLobby = (friend.status.type === StatusType.INLOBBY) && friend.status.data && new GameMode(friend.status.data.gamemode);
 	const isInGame = (friend.status.type === StatusType.INGAME) && friend.status.data && new GameMode(friend.status.data.gamemode);
+	const isInTournament = (friend.status.type === StatusType.INTOURNAMENT) && friend.status.data && new GameMode(friend.status.data.gamemode);
 	
 	const { lobby } = useLobby();
 
@@ -94,10 +95,19 @@ export default function SocialFriendCard({
 		}
 
 		{ isInGame &&
-			<div className={`social-friend-card-status flex justify-between w-full ${isRequestable ? 'requestable' : ''} ${friend.status.type}`}>
+			<div className={`social-friend-card-status flex justify-between w-full ${friend.status.type}`}>
 				<div className='flex flex-col gap-1'>
 					<h1>{isInGame.getDisplayName()}</h1>
 					<h2>{isInGame.getDisplayTypeName()}</h2>
+				</div>
+			</div>
+		}
+
+		{ isInTournament &&
+			<div className={`social-friend-card-status flex justify-between w-full ${friend.status.type}`}>
+				<div className='flex flex-col gap-1'>
+					<h1>{isInTournament.getDisplayName()}</h1>
+					<h2>{isInTournament.getDisplayTypeName()}</h2>
 				</div>
 			</div>
 		}

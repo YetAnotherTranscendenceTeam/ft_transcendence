@@ -68,6 +68,7 @@ class ActivityEvents {
         active: active,
       }),
     };
+    console.error("TOURNEY UPDATE SENT FROM LOBBIES", payload);
     this.broadcast(payload);
   };
 

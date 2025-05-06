@@ -306,6 +306,10 @@
 	background-color: var(--ingame-color);
 }
 
+.avatar-status.intournament {
+	background-color: var(--tournament-color);
+}
+
 /* ================================== */
 /* =========== Separator ============ */
 /* ================================== */

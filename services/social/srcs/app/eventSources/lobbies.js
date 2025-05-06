@@ -33,7 +33,7 @@ export function lobbiesEventSource(fastify) {
   // Event received on lobby update 
   lobbiesEvents.addEventListener('lobby_update', (event) => {
     const { players, gamemode, state } = JSON.parse(event.data);
-    console.log("LOBBY_UPDATE:", { players, gamemode, state });
+    // console.log("LOBBY_UPDATE:", { players, gamemode, state });
 
     const status = {
       type: StatusTypes.INLOBBY,
@@ -56,22 +56,26 @@ export function lobbiesEventSource(fastify) {
 
   // Event received when a user leaves a lobby
   lobbiesEvents.addEventListener('lobby_leave', (event) => {
-    console.log("LEAVE_LOBBY:", event.data);
+    // console.log("LEAVE_LOBBY:", event.data);
     fastify.clients.get(Number.parseInt(event.data))?.setStatus(online);
   });
 
   // Event received on a tournament update
   lobbiesEvents.addEventListener('tournament_update', (event) => {
     const data = JSON.parse(event.data);
-
-    const status = {
-      type: StatusTypes.INTOURNAMENT,
-      data: {
-
-      },
-    };
-
     console.log("TOURNEY:", data);
+    
+    // Prepare status
+    const status = { type: StatusTypes.INTOURNAMENT, data };
+    
+    data.players.forEach(id => {
+      const client = fastify.clients.get(id);
+      if (!client) return;
+  
+      if (client.status?.type !== StatusTypes.INGAME) {
+        client.setStatus(status);
+      }
+    });
   });
 
   const MatchState = {
