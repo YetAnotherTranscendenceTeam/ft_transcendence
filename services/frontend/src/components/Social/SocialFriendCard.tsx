@@ -31,7 +31,8 @@ export default function SocialFriendCard({
 
 	const isInvitable = (friend.status.type === StatusType.ONLINE || friend.status.type === StatusType.INACTIVE)
 		&& !lobby?.players.find(p => p.account_id === friend.account_id)
-		&& lobby?.getCapacity() > lobby?.players.length;
+		&& lobby?.getCapacity() > lobby?.players.length
+		&& lobby?.state.joinable === true;
 
 	const isRequestable = isInLobby
 		&& friend.status.data.player_ids.length < isInLobby.getLobbyCapacity()

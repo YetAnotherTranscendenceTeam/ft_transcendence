@@ -8,10 +8,10 @@ import { useNavigate } from "babact-router-dom";
 import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
 import CopyButton from "../../ui/CopyButton";
-import Accordion from "../../ui/Accordion";
-import SegmentedControl from "../../ui/SegmentedControl";
 import LobbySettings from "./LobbySettings";
 import { GameModeType } from "yatt-lobbies";
+import PopHover from "../../ui/PopHover";
+import Dropdown from "../../ui/Dropdown";
 
 export default function LobbyCard() {
 
@@ -58,20 +58,43 @@ export default function LobbyCard() {
 		<div className='lobby-card-body flex gap-1'>
 			{lobby.players.map((player: any, i) => {
 				if (player.profile)
-					return <Avatar
-							key={i}
-							src={player.profile.avatar}
-							name={player.profile.username}
-							className={player.account_id === lobby.leader_account_id ? 'leader' : ''}
-						>
+					return <Dropdown
+						openButton={
+							<Avatar
+								key={i}
+								src={player.profile.avatar}
+								name={player.profile.username}
+								className={player.account_id === lobby.leader_account_id ? 'leader' : ''}
+								>
+							</Avatar>
+						}
+						openButtonClassName='clear'
+						pos="top"
+					>
+						<div className='lobby-avatar-dropdown flex flex-col gap-2'>
+							<h1>{player.profile.username}</h1>
+							<Button
+								className="info"
+								onClick={() => {
+									navigate(`/profiles/${player.account_id}`);
+								}}
+							>
+								<i className="fa-solid fa-user"></i>
+								Profile
+							</Button>
 							{ me && lobby.leader_account_id === me.account_id && player.account_id !== me.account_id &&
 								<Button
-									className="kick-button icon ghost"
-									onClick={() => lobby.kickPlayer(player.account_id)}
+									className="danger"
+									onClick={() => {
+										lobby.kickPlayer(player.account_id);
+									}}
 								>
-									<i className="fa-solid fa-ban"></i>
-								</Button>}
-						</Avatar>
+									<i className="fa-solid fa-user-minus"></i>
+									Kick
+								</Button>
+							}
+						</div>
+					</Dropdown>
 			
 			})}
 		</div>
