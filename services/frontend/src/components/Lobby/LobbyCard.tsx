@@ -71,7 +71,8 @@ export default function LobbyCard() {
 						openButtonClassName='clear'
 						pos="top"
 					>
-						<div className='flex flex-col gap-2'>
+						<div className='lobby-avatar-dropdown flex flex-col gap-2'>
+							<h1>{player.profile.username}</h1>
 							<Button
 								className="info"
 								onClick={() => {
