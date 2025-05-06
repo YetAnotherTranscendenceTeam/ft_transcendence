@@ -23,7 +23,7 @@ export default function LobbyView() {
 	}, [])
 
 	Babact.useEffect(() => {
-		if (code && lobby === null && me) {
+		if (code && lobby === null && me && window.location.pathname === `/lobby/${code}`) {
 			join(code);
 		}
 	}, [me, lobby])
