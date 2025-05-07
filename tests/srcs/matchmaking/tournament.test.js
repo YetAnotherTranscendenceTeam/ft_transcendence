@@ -212,8 +212,6 @@ describe.each(tests)(
             expect(event.event).toBe("match_update");
             expect(event.data.match_id).toBe(match.match_id);
             expect(event.data.state).toBe(2);
-            expect(event.data.scores[winnerIndex]).toBe(1);
-            expect(event.data.scores[loserIndex]).toBe(0);
           });
           await ws.expectJson((event) => {
             expect(event.event).toBe("tournament_update");

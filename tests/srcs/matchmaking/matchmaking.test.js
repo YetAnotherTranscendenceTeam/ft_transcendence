@@ -71,8 +71,6 @@ describe("direct match making", () => {
         expect(message.event).toBe("match_update");
         expect(message.data.match_id).toBeDefined();
         expect(message.data.state).toBe(state);
-        expect(message.data.scores[1]).toBe(scores[1]);
-        expect(message.data.scores[0]).toBe(scores[0]);
         expect(message.data.tournament_id).toBe(null);
       }
       for (let i = 0; i < expected_matches.length; i++) {

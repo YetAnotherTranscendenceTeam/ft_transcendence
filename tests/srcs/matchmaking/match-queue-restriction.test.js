@@ -90,8 +90,6 @@ describe("already in a match and queue for another", () => {
       expect(message.event).toBe("match_update");
       expect(message.data.match_id).toBe(match_id);
       expect(message.data.state).toBe(2);
-      expect(message.data.scores[1]).toBe(1);
-      expect(message.data.scores[0]).toBe(0);
     });
   });
   it("queue for another match", async () => {

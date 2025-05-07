@@ -41,7 +41,7 @@ class ActivityEvents {
     this.update(lobby);
   };
 
-  updateMatch({ match_id, players, tournament_id, gamemode, scores, state }) {
+  updateMatch({ match_id, players, tournament_id, gamemode }) {
     const payload = {
       event: "match_update",
       data: JSON.stringify({
@@ -49,23 +49,21 @@ class ActivityEvents {
         players: players,
         tournament_id: tournament_id,
         gamemode: gamemode,
-        scores: scores,
-        state: state,
       }),
     };
     this.broadcast(payload);
   }
 
-  updateTournament({ tournament_id, players, team_count, gamemode, tournament_secret, active }) {
+  updateTournament({ tournament_id, players, team_count, gamemode, stage, active }) {
     const payload = {
       event: "tournament_update",
       data: JSON.stringify({
-        tournament_id: tournament_id,
-        players: players,
-        team_count: team_count,
-        gamemode: gamemode,
-        tournament_secret: tournament_secret,
-        active: active,
+        tournament_id,
+        players,
+        team_count,
+        gamemode,
+        stage,
+        active,
       }),
     };
     console.error("TOURNEY UPDATE SENT FROM LOBBIES", payload);

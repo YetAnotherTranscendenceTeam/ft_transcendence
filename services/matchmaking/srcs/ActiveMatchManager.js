@@ -36,7 +36,7 @@ export class ActiveMatch {
     this.manager = manager;
   }
 
-  updateMatch({ score_0, score_1, state }) {
+  updateMatch({ state }) {
     if (state === MatchState.CANCELLED || state === MatchState.DONE) {
       this.manager.removeMatch(this.match_id);
     }
@@ -48,7 +48,6 @@ export class ActiveMatch {
         lobby_secrets: this.lobbySecrets,
         tournament_id: this.tournament_id,
         gamemode: this.gamemode,
-        scores: [score_0, score_1],
         state,
       },
     });
@@ -57,9 +56,7 @@ export class ActiveMatch {
   cancel() {
     ActiveMatch.cancelMatch.run(this.match_id);
     this.updateMatch({
-      state: MatchState.CANCELLED,
-      score_0: 0,
-      score_1: 0,
+      state: MatchState.CANCELLED
     });
   }
 }

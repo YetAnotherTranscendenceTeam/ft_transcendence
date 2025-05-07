@@ -220,8 +220,6 @@ describe.each(tests)("#$# match $lobbies.length lobbies, team $winner wins", (te
       expect(message.event).toBe("match_update");
       expect(message.data.match_id).toBe(match.match_id);
       expect(message.data.state).toBe(2);
-      expect(message.data.scores[1]).toBe(test.winner);
-      expect(message.data.scores[0]).toBe(1 - test.winner);
     });
   });
   it.each(test.lobbies.flat())("check for rating update on player $#", async (player) => {

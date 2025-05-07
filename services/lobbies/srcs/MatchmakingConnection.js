@@ -28,12 +28,18 @@ export default class MatchmakingConnection extends EventEmitter {
           players: match.players.map((player) => player.account_id),
           tournament_id: match.tournament_id,
           gamemode: match.gamemode,
-          scores: match.scores,
-          state: match.state,
         });
       }
       else if (message.data.match.type === "tournament") {
-        activityEvents.updateTournament(message.data.match.tournament);
+        const tournament = message.data.match.tournament;
+        activityEvents.updateTournament({
+          tournament_id: tournament.id,
+          players: tournament.teams.map((team) => team.players.map((player) => player.account_id)).flat(),
+          team_count: tournament.teams.length,
+          gamemode: tournament.gamemode,
+          stage: tournament.matches.find(match => match.state === "playing")?.stage,
+          active: true,
+        });
       }
     },
     confirm_queue: (message) => {
