@@ -13,7 +13,13 @@ export default function router(fastify, opts, done) {
     profile.credentials = await YATT.fetch(`http://credentials:3000/${account_id}`);
     try {
       // Add game related infos
-      const { last_match, last_tournament, matchmaking_users } = await YATT.fetch(`http://matchmaking:3000/users/${account_id}`);
+      const { last_match, last_tournament, matchmaking_users } = await YATT.fetch(`http://matchmaking:3000/users/${account_id}`,
+        {
+          headers: {
+            Authorization: request.headers.authorization,
+          },
+        }
+      );
 
       profile.last_match = last_match;
       profile.last_tournament = last_tournament;
