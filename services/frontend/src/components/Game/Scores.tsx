@@ -15,12 +15,12 @@ export default function Scores() {
 	const goal = Math.floor(bestOf / 2);
 
 	const generateScores = () => {
-		const newSocres = new Array(overlay.scores[0]).fill('team-1').concat(
+		const newScores = new Array(overlay.scores[0]).fill('team-1').concat(
 			new Array(bestOf - overlay.scores[0] - overlay.scores[1]).fill('')
 		).concat(
 			new Array(overlay.scores[1]).fill('team-2')
 		);
-		setScores(newSocres);
+		setScores(newScores);
 	}
 
 	const pulseIndex: number = (overlay.gameStatus.name === PongState.ENDED.name && goal) || (overlay.lastWinner !== null && (overlay.lastWinner === 0 ? overlay.scores[0] - 1 : bestOf - overlay.scores[1]));
@@ -46,7 +46,7 @@ export default function Scores() {
 			}
 			<div className='score flex flex-col gap-2 justify-center items-center'>
 				<div
-					className='scrore-top flex gap-2 justify-center items-center w-full'
+					className='flex gap-2 justify-center items-center w-full'
 				>
 					{overlay.teams.length > 1 &&<div className="score-team-name flex flex-col">
 						<p>{overlay.teams[0].getDisplayName()}</p>
