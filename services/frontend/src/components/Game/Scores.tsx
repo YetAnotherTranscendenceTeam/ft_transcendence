@@ -13,6 +13,7 @@ export default function Scores() {
 	const pointToWin = overlay.pointsToWin;
 	const bestOf = pointToWin * 2 - 1;
 	const goal = Math.floor(bestOf / 2);
+	const goldenGoal = overlay.scores[0] === pointToWin - 1  || overlay.scores[1] === pointToWin - 1 || overlay.gameStatus.name === PongState.ENDED.name;
 
 	const generateScores = () => {
 		const newScores = new Array(overlay.scores[0]).fill('team-1').concat(
@@ -52,7 +53,7 @@ export default function Scores() {
 						<p>{overlay.teams[0].getDisplayName()}</p>
 						<p>{overlay.teams[1].getDisplayName()}</p>
 					</div>}
-					<i className="fa-solid fa-crown"></i>
+					<i className={`fa-solid fa-crown ${goldenGoal ? 'levitate' : ''}`}></i>
 					{overlay.teams.length > 1 &&<div className="score-team-name flex flex-col">
 						<p>{overlay.teams[1].getDisplayName()}</p>
 						<p>{overlay.teams[0].getDisplayName()}</p>
@@ -77,8 +78,8 @@ export default function Scores() {
 				</div>
 			}
 		</div>
-		<div className='time'>
+		<Card className='time top'>
 			{Math.round(overlay.time / 60).toString().padStart(2, '0')} : {Math.round(overlay.time % 60).toString().padStart(2, '0')}
-		</div>
+		</Card>
 	</Card>
 }
