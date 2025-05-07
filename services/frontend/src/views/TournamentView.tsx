@@ -1,5 +1,5 @@
 import Babact from "babact";
-import Overlay from "../templates/Overlay";
+import Overlay from "../components/Overlay/Overlay";
 import Tree from "../components/Tournament/Tree";
 import { useNavigate, useParams } from "babact-router-dom";
 import { useAuth } from "../contexts/useAuth";

@@ -1,7 +1,6 @@
 import Babact from "babact";
 import { GameScene } from "../components/Babylon/types";
 import { usePong } from "../contexts/usePong";
-import Overlay from "../templates/Overlay";
 import useEscape from "../hooks/useEscape";
 import { PongState } from "pong";
 import GameOverlay from "../components/Game/GameOverlay";
