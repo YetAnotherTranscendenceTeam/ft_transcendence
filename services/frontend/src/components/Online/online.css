@@ -100,7 +100,7 @@
 }
 
 .mode-button.tournament h1 i {
-	color: rgb(255, 178, 78);
+	color: var(--intournament-color);
 }
 
 .mode-button h2 {

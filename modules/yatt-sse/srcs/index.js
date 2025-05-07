@@ -17,6 +17,19 @@ function plugin(fastify, options, done) {
     + `\n`;
     this.raw.write(message);
 	});
+  fastify.decorateReply('sseComment', function handler(str) {
+    if (!this.raw.headersSent) {
+      this.raw.writeHead(200, {
+        ...this.getHeaders(),
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      });
+      this.raw.write(`retry: 0\n`);
+    }
+    const message = `: ${str}\n\n`;
+    this.raw.write(message);
+  });
   done();
 }
 

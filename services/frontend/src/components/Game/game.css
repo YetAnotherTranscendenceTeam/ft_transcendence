@@ -13,6 +13,22 @@
 	color: var(--warning-color);
 }
 
+.score i.levitate {
+	animation: levitate 1s ease-in-out infinite;
+}
+
+@keyframes levitate {
+	0% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-5px);
+	}
+	100% {
+		transform: translateY(0);
+	}
+}
+
 .score-frame-container {
 	min-width: 200px;
 }
@@ -38,10 +54,17 @@
 
 .score-frame.team-1 {
 	background-color: var(--team-1-color);
+	background: radial-gradient(circle,var(--team-1-color-active) 0%, var(--team-1-color) 100%);
+	box-shadow: 0px 0px 10px 0px var(--team-1-color);
+	border-color: transparent;
 }
 
 .score-frame.team-2 {
 	background-color: var(--team-2-color);
+	background: radial-gradient(circle,var(--team-2-color-active) 0%, var(--team-2-color) 100%);
+	box-shadow: 0px 0px 10px 0px var(--team-2-color);
+	border-color: transparent;
+	
 }
 
 .score-frame.goal {
@@ -53,16 +76,17 @@
 }
 
 .scores .time {
-	font-size: medium;
+	font-size: large;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	min-width: 50px;
-	color: var(--fg-3);
+	color: var(--fg-1);
 	position: absolute;
-	bottom: -20px;
+	bottom: -44px;
 	left: 50%;
 	transform: translateX(-50%);
+	padding: 8px;
 }
 
 .scores p {

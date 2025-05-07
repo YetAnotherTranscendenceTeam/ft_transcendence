@@ -17,10 +17,22 @@
 
 .social-manager-user-card-header {
 	cursor: pointer;
+	flex: 1;
+	min-width: 0;
+}
+
+.social-manager-user-card-header .avatar {
+	min-width: 48px;
+}
+
+.social-manager-user-card-user {
+	min-width: 0;
 }
 
 .social-manager-user-card-header h1 {
 	font-weight: bold;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .social-manager-user-card-header h2 {
@@ -32,6 +44,10 @@
 	font-size: small;
 }
 
+.social-manager-user-card-content {
+	flex: 1;
+	min-width: 0;
+}
 
 /* ============================== */
 /* ===== Social Friend Card ===== */
@@ -45,7 +61,6 @@
 	background: var(--bg-1);
 	padding: 8px;
 	border-radius: 4px;
-	/* border-left: var(--inlobby-color) 2px solid; */
 	flex: 1;
 	box-sizing: border-box;
 	position: relative;
@@ -59,8 +74,20 @@
 	left: 0;
 	width: 2px;
 	height: 100%;
-	background: var(--inlobby-color-active);
 }
+
+.social-friend-card-status.inlobby::after {
+	background-color: var(--inlobby-color-active);
+}
+
+.social-friend-card-status.ingame::after {
+	background-color: var(--ingame-color);
+}
+
+.social-friend-card-status.intournament::after {
+	background-color: var(--intournament-color);
+}
+
 
 .social-friend-card-button {
 	position: absolute;

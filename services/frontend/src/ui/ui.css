@@ -340,6 +340,14 @@
 	background-color: var(--inlobby-color-active);
 }
 
+.avatar-status.ingame {
+	background-color: var(--ingame-color);
+}
+
+.avatar-status.intournament {
+	background-color: var(--intournament-color);
+}
+
 /* ================================== */
 /* =========== Separator ============ */
 /* ================================== */

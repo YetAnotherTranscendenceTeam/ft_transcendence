@@ -131,9 +131,11 @@ describe.each(tests)(
   ({ player_count, gamemode, team_size, match_it_start, match_it_end, match_it_inc }) => {
     let team_count = Math.ceil(player_count / team_size);
     let tournament;
+    let lobby;
+
     let sse;
     it("create lobby and queue for tournament", async () => {
-      const lobby = {
+      lobby = {
         team_names: [],
         players: Array.from({ length: player_count }, (_, index) => ({
           account_id: users[index].account_id,
@@ -206,6 +208,17 @@ describe.each(tests)(
           expect(match.match_id).toBeDefined();
           expect(match.team_ids.every((id) => id !== null)).toBe(true);
           await finishMatch(app, match.match_id, winnerIndex);
+          await ws.expectJson((event) => {
+            expect(event.event).toBe("match_update");
+            expect(event.data.match_id).toBe(match.match_id);
+            expect(event.data.state).toBe(2);
+          });
+          await ws.expectJson((event) => {
+            expect(event.event).toBe("tournament_update");
+            expect(event.data.tournament_id).toBe(tournament.id);
+            expect(event.data.team_count).toBe(team_count);
+            expect(event.data.players.length).toBe(player_count);
+          });
           await sse.expectJson("match_update", (event) => {
             expect(event.match.match_id).toBe(match.match_id);
             expect(event.match.index).toBe(match.index);

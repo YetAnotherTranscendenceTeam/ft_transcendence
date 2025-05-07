@@ -21,13 +21,16 @@
 	--bg-5: #adb5bd;
 	--shadow: 0px 0px 16px 4px var(--primary-color);
 	--team-1-color: #ff3c3c;
+	--team-1-color-active: color-mix(in srgb, var(--team-1-color) 80%, white);
 	--team-2-color: #1b99ff;
+	--team-2-color-active: color-mix(in srgb, var(--team-2-color) 80%, white);
 	--offline-color: #b3b3b3;
 	--online-color: #39df5d;
 	--inactive-color: #ff9f32;
 	--inlobby-color: #9c52fd;
 	--inlobby-color-active: #a76cff;
-	--ingame-color: #9048f0;
+	--ingame-color: #4660f7;
+	--intournament-color: #ffb24e;
 }
 
 :root {

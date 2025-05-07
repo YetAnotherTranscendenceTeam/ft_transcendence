@@ -151,7 +151,8 @@ services:
       - client
       - private
     depends_on:
-      - matchmaking
+      matchmaking:
+        condition: service_healthy
 
   matchmaking:
     build: 

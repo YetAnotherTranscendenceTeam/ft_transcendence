@@ -16,7 +16,7 @@ export default function ModeButton({
 		if (gamemode.type === GameModeType.CUSTOM)
 			return "Custom matches played with friends. No MMR changes";
 		if (gamemode.type === GameModeType.TOURNAMENT)
-			return "Tournament matches played with friends. No MMR changes";
+			return "Clash matches played with friends. No MMR changes";
 		if (gamemode.type === GameModeType.RANKED)
 			return 'Competitive matches with power-ups enabled. Every match affects your MMR';
 		if (gamemode.type === GameModeType.UNRANKED)
@@ -43,7 +43,7 @@ export default function ModeButton({
 		onClick={() => onSelect(gamemode.name)}
 	>
 		<div className='flex gap-1 items-end'>
-			<h1>{getIcon()} {gamemode.type}</h1>
+			<h1>{getIcon()} {gamemode.getDisplayTypeName()}</h1>
 			{(gamemode.type === GameModeType.RANKED || gamemode.type === GameModeType.UNRANKED) && <h2>{gamemode.getDisplayName()}</h2>}
 		</div>
 		<p>{getDescription()}</p>
