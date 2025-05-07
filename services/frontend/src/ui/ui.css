@@ -340,6 +340,14 @@
 	background-color: var(--inlobby-color-active);
 }
 
+.avatar-status.ingame {
+	background-color: var(--ingame-color);
+}
+
+.avatar-status.intournament {
+	background-color: var(--intournament-color);
+}
+
 /* ================================== */
 /* =========== Separator ============ */
 /* ================================== */
@@ -835,6 +843,7 @@
 	padding: 16px;
 	gap: 16px;
 	border-radius: 8px;
+	line-height: 120%;
 }
 
 .alert.info {

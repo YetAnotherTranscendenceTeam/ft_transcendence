@@ -116,7 +116,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const onStateChange = (state: any) => {
 		if (state.type === 'playing') {
 			if (state.match.type === 'tournament') {
-				createToast('Tournament created', ToastType.INFO);	
+				createToast('Clash created', ToastType.INFO);	
 				navigate(`/tournaments/${state.match.tournament.id}`);
 			}
 			else if (state.match.type === 'match') {

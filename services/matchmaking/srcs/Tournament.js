@@ -126,10 +126,10 @@ class TournamentMatch {
       ],
       this.tournament.gamemode,
       this.tournament.id,
-      this.tournament.manager.fastify
+      this.tournament.manager.fastify,
     );
     this.internal_match.insert();
-    await this.internal_match.reserve();
+    await this.internal_match.reserve(this.tournament.lobbyConnection, []);
     this.tournament.manager.registerTournamentMatch(this);
     return this.internal_match;
   }
@@ -137,6 +137,9 @@ class TournamentMatch {
   async updateMatch({ state, score_0, score_1 }) {
     this.internal_match.teams[0].score = score_0;
     this.internal_match.teams[1].score = score_1;
+    if (!state) {
+      state = this.internal_match.state;
+    }
     this.internal_match.state = state;
     const states = {
       [MatchState.RESERVED]: TournamentMatchState.PLAYING,
@@ -166,6 +169,7 @@ class TournamentMatch {
           match: this.nextMatch,
         });
       }
+      this.tournament.updateToLobbyConnection();
     }
     else
       this.updateDB();
@@ -189,8 +193,9 @@ export class Tournament {
   matches = [];
   subscribers = new Set();
   gamemode;
+  lobbyConnection;
 
-  constructor(teams, gamemode, manager) {
+  constructor(teams, gamemode, manager, lobbyConnection, lobbySecret) {
     teams.forEach((team, index) => {
       team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
@@ -199,6 +204,8 @@ export class Tournament {
     );
     this.gamemode = gamemode;
     this.manager = manager;
+    this.lobbyConnection = lobbyConnection;
+    this.lobbySecret = lobbySecret;
   }
 
   async insert() {
@@ -307,6 +314,23 @@ export class Tournament {
     this.finish();
   }
 
+  updateToLobbyConnection(active=true) {
+    this.lobbyConnection.send({
+      event: "tournament_update",
+      data: {
+        tournament_id: this.id,
+        // TODO: handle eliminated players/teams
+        players: this.teams.flatMap((team) => team.players.map((player) => player.account_id)),
+        team_count: this.teams.length,
+        lobby_secret: this.lobbySecret,
+        gamemode: this.gamemode,
+        stage: this.matches.find((match) => match.state === TournamentMatchState.PLAYING)?.stage,
+        active
+      },
+    })
+    
+  }
+
   finish() {
     db.prepare(
       `
@@ -325,6 +349,7 @@ export class Tournament {
         subscriber.raw.end();
       }
     );
+    this.updateToLobbyConnection(false);
   }
 
   getMatch(match_id) {

@@ -89,11 +89,37 @@ describe("already in a tournament and queue for another", () => {
   });
   it("finish tournament", async () => {
 	await finishMatch(app, tournament.matches[1].match_id, 1);
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("match_update");
+		expect(message.data.match_id).toBe(tournament.matches[1].match_id);
+		expect(message.data.state).toBe(2);
+		expect(message.data.tournament_id).toBe(tournament.id);
+	});
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("tournament_update");
+		expect(message.data.tournament_id).toBe(tournament.id);
+		expect(message.data.stage).toBe(0);
+		expect(message.data.team_count).toBe(3);
+		expect(message.data.players.length).toBe(6);
+	});
 	const res = await request(apiURL)
 	  .get(`/matchmaking/tournaments/${tournament.id}`)
 	  .set("Authorization", `Bearer ${users[0].jwt}`);
 	tournament = res.body;
 	await finishMatch(app, tournament.matches[0].match_id, 1);
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("match_update");
+		expect(message.data.match_id).toBe(tournament.matches[0].match_id);
+		expect(message.data.state).toBe(2);
+		expect(message.data.tournament_id).toBe(tournament.id);
+	});
+	await ws.expectJson((message) => {
+		expect(message.event).toBe("tournament_update");
+		expect(message.data.tournament_id).toBe(tournament.id);
+		expect(message.data.stage).toBeUndefined();
+		expect(message.data.team_count).toBe(3);
+		expect(message.data.players.length).toBe(6);
+	});
   });
 });
 

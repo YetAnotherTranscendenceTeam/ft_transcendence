@@ -38,6 +38,7 @@ export class LobbyConnection {
       if (typeof mode !== "object") return;
       this.queues.set(mode.name, new Queue(mode, this, fastify));
     });
+    this.fastify = fastify;
     this.socket = socket;
     this.socket.on("close", (code, reason) => {
       clearInterval(this.scheduler);

@@ -3,7 +3,6 @@ import { useParams } from "babact-router-dom";
 import LobbyTeamsList from "../components/Lobby/LobbyTeamsList";
 import { useLobby } from "../contexts/useLobby";
 import './views.css'
-import Overlay from "../templates/Overlay";
 import { usePong } from "../contexts/usePong";
 import { GameScene } from "../components/Babylon/types";
 import { useAuth } from "../contexts/useAuth";

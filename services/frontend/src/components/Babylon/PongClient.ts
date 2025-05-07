@@ -28,7 +28,8 @@ export interface IPongOverlay {
 	lastWinner: number,
 	gameStatus: PONG.PongState,
 	local: boolean,
-	gamemode: GameMode
+	gamemode: GameMode,
+	pointsToWin: number
 }
 
 export default class PongClient extends PONG.Pong {
@@ -121,8 +122,9 @@ export default class PongClient extends PONG.Pong {
 			localPlayer: this._player,
 			time: this._tick * PONG.K.DT,
 			countDown: this._state.frozen_until,
-			lastWinner: (this._state.name === "FREEZE" && this._stats && this._stats.lastSideToScore) ? this._stats.lastSideToScore : null,
+			lastWinner: (this._state.name === "FREEZE" && this._stats) ? this._stats.lastSideToScore : null,
 			gameStatus: this._state,
+			pointsToWin: PONG.K.defaultPointsToWin,
 		}
 	}
 

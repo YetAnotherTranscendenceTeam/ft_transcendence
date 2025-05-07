@@ -17,26 +17,6 @@ events.register("ping", {
   },
 });
 
-// events.register("send_status", {
-//   schema: {
-//     type: "object",
-//     properties: {
-//       type: {
-//         type: "string",
-//         enum: ["online", "ingame", "inlobby"],
-//       },
-//       data: {
-//         type: "object"
-//       },
-//     },
-//     required: ["type"],
-//     additionalProperties: false,
-//   },
-//   handler: (socket, payload, client) => {
-//     client.setStatus(payload.data);
-//   },
-// });
-
 events.register("send_lobby_invite", {
   schema: {
     type: "object",

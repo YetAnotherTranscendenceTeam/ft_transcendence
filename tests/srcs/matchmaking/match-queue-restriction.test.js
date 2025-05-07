@@ -86,6 +86,11 @@ describe("already in a match and queue for another", () => {
   });
   it("finish match", async () => {
     await finishMatch(app, match_id, 1);
+    await ws.expectJson((message) => {
+      expect(message.event).toBe("match_update");
+      expect(message.data.match_id).toBe(match_id);
+      expect(message.data.state).toBe(2);
+    });
   });
   it("queue for another match", async () => {
     const lobby = {

@@ -67,6 +67,7 @@ export class PongServer extends Pong {
 	roundStart() {
 		super.roundStart();
 		const back_state = this._stats.winner !== undefined ? 2 : 1;
+		const oldStateName = this._state.name;
 		YATT.fetch(`http://matchmaking:3000/matches/${this._matchId}`, {
 			method: "PATCH",
 			headers: {
@@ -76,7 +77,7 @@ export class PongServer extends Pong {
 			body: JSON.stringify({
 				score_0: this._stats.score[0],
 				score_1: this._stats.score[1],
-				state: back_state
+				state: oldStateName === "RESERVED" || back_state == 2 ? back_state : undefined
 			}),
 		}).catch((err) => {
 			console.error("Error updating match:", err);

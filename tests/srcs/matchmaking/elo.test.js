@@ -216,6 +216,11 @@ describe.each(tests)("#$# match $lobbies.length lobbies, team $winner wins", (te
   });
   it("finish match", async () => {
     await finishMatch(app, match.match_id, test.winner);
+    await ws.expectJson((message) => {
+      expect(message.event).toBe("match_update");
+      expect(message.data.match_id).toBe(match.match_id);
+      expect(message.data.state).toBe(2);
+    });
   });
   it.each(test.lobbies.flat())("check for rating update on player $#", async (player) => {
     const is_winner = test.lobbies[test.winner].includes(player)
