@@ -76,7 +76,7 @@ export default function RegisterForm({
 				pattern={config.PASSWORD_REGEX}
 				required
 				field="register-password"
-				help='Your password is used to log in to the game and manage your account.'
+				help='Your password keeps your account secure.'
 				name="password"
 				tooltip={
 					<div

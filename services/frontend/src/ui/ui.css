@@ -835,6 +835,7 @@
 	padding: 16px;
 	gap: 16px;
 	border-radius: 8px;
+	line-height: 120%;
 }
 
 .alert.info {
