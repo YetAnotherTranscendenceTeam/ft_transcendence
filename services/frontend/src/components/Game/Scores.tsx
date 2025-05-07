@@ -9,7 +9,7 @@ export default function Scores() {
 	const { overlay } = usePong();
 	const [scores, setScores] = Babact.useState<string[]>(null);
 
-	const pointToWin = 5;
+	const pointToWin = overlay.pointsToWin;
 	const bestOf = pointToWin * 2 - 1;
 	const goal = Math.floor(bestOf / 2);
 
