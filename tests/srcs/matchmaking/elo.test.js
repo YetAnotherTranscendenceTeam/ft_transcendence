@@ -222,7 +222,7 @@ describe.each(tests)("#$# match $lobbies.length lobbies, team $winner wins", (te
     const user = users[player.user_index];
     const res = await request(apiURL)
       .get(`/matchmaking/users/${user.account_id}`)
-      .set("Authorization", `Bearer ${app.jwt.sign({})}`);
+      .set("Authorization", `Bearer ${user.jwt}`);
     expect(res.status).toBe(200);
     expect(res.body.last_match.match_id).toBe(match.match_id);
     const matchmaking_user = res.body.matchmaking_users.find(
