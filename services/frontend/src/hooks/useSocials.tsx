@@ -27,6 +27,8 @@ export type FriendStatus = {
 		state: ILobbyState | MatchState,
 		match_id?: number,
 		scores?: number[],
+		stage?: number,
+		tournament_id?: number,
 	},
 }
 

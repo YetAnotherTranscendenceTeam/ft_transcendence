@@ -23,7 +23,7 @@ export function lobbiesEventSource(fastify) {
   }
 
   lobbiesEvents.onerror = (err) => {
-    console.error(err);
+    // console.error(err);
   }
 
   lobbiesEvents.addEventListener('subscribed', (event) => {
@@ -33,7 +33,6 @@ export function lobbiesEventSource(fastify) {
   // Event received on lobby update 
   lobbiesEvents.addEventListener('lobby_update', (event) => {
     const { players, gamemode, state } = JSON.parse(event.data);
-    // console.log("LOBBY_UPDATE:", { players, gamemode, state });
 
     const status = {
       type: StatusTypes.INLOBBY,
@@ -43,12 +42,12 @@ export function lobbiesEventSource(fastify) {
         state,
       },
     };
+
     players.forEach(id => {
       const client = fastify.clients.get(id);
       if (!client) return;
-  
-      const currentType = client.status?.type;
-      if (currentType !== StatusTypes.INGAME || currentType !== StatusTypes.INTOURNAMENT) {
+
+      if (![StatusTypes.INGAME, StatusTypes.INTOURNAMENT].includes(client.customStatus?.type)) {
         client.setStatus(status);
       }
     });
@@ -56,23 +55,30 @@ export function lobbiesEventSource(fastify) {
 
   // Event received when a user leaves a lobby
   lobbiesEvents.addEventListener('lobby_leave', (event) => {
-    // console.log("LEAVE_LOBBY:", event.data);
-    fastify.clients.get(Number.parseInt(event.data))?.setStatus(online);
+
+    const client = fastify.clients.get(Number.parseInt(event.data));
+    if (!client) return;
+
+    if (![StatusTypes.INGAME, StatusTypes.INTOURNAMENT].includes(client.customStatus?.type)) {
+      client.setStatus(online);
+    }
   });
 
   // Event received on a tournament update
   lobbiesEvents.addEventListener('tournament_update', (event) => {
     const data = JSON.parse(event.data);
-    console.log("TOURNEY:", data);
     
     // Prepare status
-    const status = { type: StatusTypes.INTOURNAMENT, data };
+    const status = data.active
+      ? { type: StatusTypes.INTOURNAMENT, data }
+      : online;
     
+    // Send to every player in the tournament
     data.players.forEach(id => {
       const client = fastify.clients.get(id);
       if (!client) return;
   
-      if (client.status?.type !== StatusTypes.INGAME) {
+      if (client.customStatus?.type !== StatusTypes.INGAME) {
         client.setStatus(status);
       }
     });
@@ -88,19 +94,13 @@ export function lobbiesEventSource(fastify) {
   // Event received on a match update
   lobbiesEvents.addEventListener('match_update', (event) => {
     const data = JSON.parse(event.data);
-    console.log("MATCH:", data);
 
-    // Set to online status if match has ended
-    if (data.state === MatchState.DONE || data.state === MatchState.CANCELLED) {
-      data.players.forEach(id => {
-        fastify.clients.get(id)?.setStatus(online);
-      })
-      return;
-    }
+    // Prepare status
+    const status = data.state === MatchState.PLAYING
+      ? { type: "ingame", data }
+      : online ;
 
-    // Send ingame status
-    const status = { type: "ingame", data };
-
+    // Send to each player in the match
     data.players.forEach(id => {
       fastify.clients.get(id)?.setStatus(status);
     });

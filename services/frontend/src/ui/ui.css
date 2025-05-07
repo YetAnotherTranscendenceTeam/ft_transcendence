@@ -307,7 +307,7 @@
 }
 
 .avatar-status.intournament {
-	background-color: var(--tournament-color);
+	background-color: var(--intournament-color);
 }
 
 /* ================================== */

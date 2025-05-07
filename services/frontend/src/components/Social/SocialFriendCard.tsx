@@ -31,6 +31,17 @@ export default function SocialFriendCard({
 
 	const [loading, setLoading] = Babact.useState<boolean>(false);
 
+	const getStage = (stage: number) => {
+		if (stage === 0)
+			return 'Final';
+		if (stage === 1)
+			return 'Semi-Final';
+		if (stage === 2)
+			return 'Quarter-Final';
+		else if (stage !== undefined)
+			return `Round of ${2**(stage + 1)}`;
+	}
+
 	const isInvitable = (friend.status.type === StatusType.ONLINE || friend.status.type === StatusType.INACTIVE)
 		&& !lobby?.players.find(p => p.account_id === friend.account_id)
 		&& lobby?.getCapacity() > lobby?.players.length;
@@ -107,7 +118,7 @@ export default function SocialFriendCard({
 			<div className={`social-friend-card-status flex justify-between w-full ${friend.status.type}`}>
 				<div className='flex flex-col gap-1'>
 					<h1>{isInTournament.getDisplayName()}</h1>
-					<h2>{isInTournament.getDisplayTypeName()}</h2>
+					<h2>{getStage(friend.status.data.stage)}</h2>
 				</div>
 			</div>
 		}

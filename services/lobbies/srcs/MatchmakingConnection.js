@@ -21,16 +21,7 @@ export default class MatchmakingConnection extends EventEmitter {
           lobbyInstance.matchFound(message.data.match);
         }
       }
-      if (message.data.match.type === "match") {
-        const match = message.data.match.match;
-        activityEvents.updateMatch({
-          match_id: match.match_id,
-          players: match.players.map((player) => player.account_id),
-          tournament_id: match.tournament_id,
-          gamemode: match.gamemode,
-        });
-      }
-      else if (message.data.match.type === "tournament") {
+      if (message.data.match.type === "tournament") {
         const tournament = message.data.match.tournament;
         activityEvents.updateTournament({
           tournament_id: tournament.id,
@@ -70,7 +61,7 @@ export default class MatchmakingConnection extends EventEmitter {
     tournament_update: (message) => {
       activityEvents.updateTournament(message.data);
       const lobby = this.matchedLobbies.get(message.data.lobby_secret);
-      if (lobby) {
+      if (lobby && !message.data.active) {
         lobby.setState(LobbyState.waiting());
         this.matchedLobbies.delete(lobby.join_secret);
       }

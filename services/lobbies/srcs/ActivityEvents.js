@@ -41,14 +41,15 @@ class ActivityEvents {
     this.update(lobby);
   };
 
-  updateMatch({ match_id, players, tournament_id, gamemode }) {
+  updateMatch({ match_id, players, tournament_id, gamemode, state }) {
     const payload = {
       event: "match_update",
       data: JSON.stringify({
-        match_id: match_id,
-        players: players,
-        tournament_id: tournament_id,
-        gamemode: gamemode,
+        match_id,
+        players,
+        tournament_id,
+        gamemode,
+        state
       }),
     };
     this.broadcast(payload);
