@@ -137,6 +137,9 @@ class TournamentMatch {
   async updateMatch({ state, score_0, score_1 }) {
     this.internal_match.teams[0].score = score_0;
     this.internal_match.teams[1].score = score_1;
+    if (!state) {
+      state = this.internal_match.state;
+    }
     this.internal_match.state = state;
     const states = {
       [MatchState.RESERVED]: TournamentMatchState.PLAYING,
