@@ -137,6 +137,10 @@ export class Lobby implements ILobby {
     return teams;
   }
 
+  areTeamsFilled(): boolean {
+    return this.players.length % this.mode.team_size === 0;
+  }
+
   getCapacity(): number {
     return this.mode.getLobbyCapacity();
   }

@@ -96,13 +96,13 @@ it("connect to matchmaking websocket", async () => {
     });
 });
 
-const tournaments = Array.from({ length: 14 }, (_, index) => ({
+let tournaments = Array.from({ length: 14 }, (_, index) => ({
   player_count: index + 3,
   gamemode: "tournament_1v1",
   team_size: 1,
 })).concat(
-  Array.from({ length: 28 }, (_, index) => ({
-    player_count: index + 5,
+  Array.from({ length: 28 / 2 }, (_, index) => ({
+    player_count: (index * 2) + 6,
     gamemode: "tournament_2v2",
     team_size: 2,
   }))
@@ -148,12 +148,16 @@ describe.each(tests)(
           event: "queue_lobby",
           data: { lobby },
         })
-        .expectJson((message) => {
-          expect(message.event).toBe("confirm_queue");
-          expect(message.data.queue_stats.players).toBe(player_count);
-          expect(message.data.queue_stats.lobbies).toBe(1);
-        });
     });
+
+    it("expect confirm queue", async () => {
+      await ws.expectJson((message) => {
+        expect(message.event).toBe("confirm_queue");
+        expect(message.data.queue_stats.players).toBe(player_count);
+        expect(message.data.queue_stats.lobbies).toBe(1);
+      });
+    });
+
     it("expect tournament start", async () => {
       await ws.expectJson((message) => {
         expect(message.event).toBe("match");
@@ -164,6 +168,7 @@ describe.each(tests)(
         tournament = message.data.match.tournament;
       });
     });
+
     it("connect to SSE and expect tournament sync", async () => {
       sse = await createTestSSE(
         `${apiURL}/matchmaking/tournaments/${tournament.id}/notify?access_token=${users[0].jwt}`
@@ -245,8 +250,8 @@ describe.each(tests)(
             match_update.scores = event.match.scores;
           });
           const res = await request(apiURL)
-          .get(`/matchmaking/tournaments/${tournament.id}`)
-          .set("Authorization", `Bearer ${users[0].jwt}`)
+            .get(`/matchmaking/tournaments/${tournament.id}`)
+            .set("Authorization", `Bearer ${users[0].jwt}`)
           expect(res.body).toMatchObject({
             matches: tournament.matches,
             teams: tournament.teams.map((team) => ({

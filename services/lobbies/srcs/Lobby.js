@@ -185,6 +185,7 @@ export class Lobby extends LobbyBase {
     if (this.state.type != LobbyStateType.WAITING) throw new Error("Lobby is not waiting");
     if (this.mode.type == GameModeType.TOURNAMENT && this.getTeamCount() < 3) throw new Error("Lobby requires at least 3 teams to start a tournament");
     if (this.mode.type == GameModeType.CUSTOM && this.getTeamCount() != 2) throw new Error("Custom lobbies require 2 teams to start");
+    if ([GameModeType.TOURNAMENT, GameModeType.CUSTOM].includes(this.mode.type) && !this.areTeamsFilled()) throw new Error("Lobby contains an uncomplete team");
     if (!MatchmakingConnection.getInstance().isReady) {
       throw new Error("Matchmaking service is currently not available");
     }
