@@ -1,5 +1,5 @@
 import Babact from "babact";
-import Overlay from "../templates/Overlay";
+import Overlay from "../components/Overlay/Overlay";
 import { usePong } from "./usePong";
 import { PongState } from "pong";
 

@@ -1,5 +1,4 @@
 import Babact from "babact"
-import Overlay from "../templates/Overlay"
 import { usePong } from "../contexts/usePong"
 import { GameScene } from "../components/Babylon/types";
  

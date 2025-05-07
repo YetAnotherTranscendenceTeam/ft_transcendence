@@ -41,7 +41,7 @@ export default function AccountForm({
 			{
 				me.credentials.auth_method !== AuthMethod.password_auth &&
 				<Alert
-					message={`You are logged in with ${me.credentials.auth_method === AuthMethod.google_auth ? 'GoogleSignIn' : '42Intra'}.`}
+					message={`You are logged in with ${me.credentials.auth_method === AuthMethod.google_auth ? 'GoogleSignIn' : '42Intra'}:\n${me.credentials.email}`}
 				/>
 			}
 			{ me.credentials.auth_method === 'password_auth' &&
@@ -62,7 +62,7 @@ export default function AccountForm({
 						name='password'
 						type='password'
 						pattern={config.PASSWORD_REGEX}
-						help='Your password is used to log in to the game and manage your account.'
+						help='Your password keeps your account secure.'
 						tooltip={
 							<div
 								className='settings-tooltip flex flex-col'
