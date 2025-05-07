@@ -137,10 +137,6 @@ export class Lobby implements ILobby {
     return teams;
   }
 
-  areTeamsFilled(): boolean {
-    return this.players.length % this.mode.team_size === 0;
-  }
-
   getCapacity(): number {
     return this.mode.getLobbyCapacity();
   }
@@ -172,5 +168,17 @@ export class Lobby implements ILobby {
   setPlayers(players: IPlayer[]): this {
     this.players = players;
     return this;
+  }
+
+  areTeamsFull(): boolean {
+    return this.players.length % this.mode.team_size === 0;
+  }
+
+  canQueue(): boolean {
+    if (this.state.type != LobbyStateType.WAITING) return false;
+    if (this.mode.type == GameModeType.TOURNAMENT && this.getTeamCount() < 3) return false;
+    if (this.mode.type == GameModeType.CUSTOM && this.getTeamCount() != 2) return false;
+    if ([GameModeType.TOURNAMENT, GameModeType.CUSTOM].includes(this.mode.type) && !this.areTeamsFull()) return false;
+    return true;
   }
 }

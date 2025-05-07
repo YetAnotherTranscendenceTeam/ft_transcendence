@@ -117,6 +117,7 @@ export default function LobbyCard() {
 					<Button
 						className="success"
 						onClick={() => lobby.queueStart()}	
+						disabled={!lobby.canQueue()}
 					>
 						<i className="fa-solid fa-play"></i>
 						Start
