@@ -1,7 +1,7 @@
 import Babact from "babact";
 import './tournament.css'
 import MatchCard from "./MatchCard";
-import { Match, MatchState } from "../../hooks/useTournament";
+import { TournamentMatch, MatchState } from "../../hooks/useTournament";
 
 
 export enum HPosition {
@@ -22,8 +22,8 @@ export default function Stage({
 		stageIndex,
 		...props
 	}: {
-		stage: Match[],
-		nextStage: Match[],
+		stage: TournamentMatch[],
+		nextStage: TournamentMatch[],
 		stageIndex: number
 		[key: string]: any
 	}) {
@@ -68,7 +68,7 @@ export default function Stage({
 			{Array(nbMaxMatch - nbMatch).fill(null).map((_, i) =>
 				<div className='match-card-container empty' key={'empty' + i}>
 					<MatchCard
-						match={new Match({team_ids: [], scores: [0, 0], state: MatchState.DONE, stage: stageIndex, index: i}, [])}
+						match={new TournamentMatch({team_ids: [], scores: [0, 0], state: MatchState.DONE, stage: stageIndex, index: i}, [])}
 						positionH={HPosition.CENTER}
 						positionV={VPosition.TOP}
 					/>

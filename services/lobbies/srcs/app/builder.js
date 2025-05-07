@@ -18,7 +18,7 @@ export default function build(opts = {}) {
   });
 
   app.register(cors, {
-    origin: new RegExp(process.env.CORS_ORIGIN) || true,
+    origin: process.env.CORS_ORIGIN || false,
     methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
     maxAge: 600,

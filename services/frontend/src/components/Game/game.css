@@ -1,31 +1,73 @@
 .scores {
 	padding: 0;
-	overflow: hidden;
 	margin-top: 16px;
 	z-index: 10;
 	padding: 16px;
 	border-left: 4px solid var(--team-1-color);
 	border-right: 4px solid var(--team-2-color);
+	position: relative;
 }
 
-.scores .score {
-	font-size: xx-large;
-	padding: 0px;
+.scores .score i{
+	font-size: medium;
+	color: var(--warning-color);
 }
 
+.score-frame-container {
+	min-width: 200px;
+}
+
+.score-team-name:nth-child(1) {
+	text-align: right;
+}
+
+.score-team-name > *:nth-child(2) {
+	color: var(--team-1-color);
+	overflow: hidden;
+	height: 0;
+}
+
+
+.score-frame {
+	height: 20px;
+	border-radius: 10%;
+	border: 1px solid var(--fg-5);
+	min-width: 1px;
+	flex: 1;
+}
+
+.score-frame.team-1 {
+	background-color: var(--team-1-color);
+}
+
+.score-frame.team-2 {
+	background-color: var(--team-2-color);
+}
+
+.score-frame.goal {
+	border-color: var(--warning-color);
+}
+
+.score-frame.pulse {
+	animation: pulse 0.75s ease-in-out 10;
+}
 
 .scores .time {
 	font-size: medium;
-	height: 100%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	min-width: 50px;
 	color: var(--fg-3);
+	position: absolute;
+	bottom: -20px;
+	left: 50%;
+	transform: translateX(-50%);
 }
 
 .scores p {
-	font-size: medium;
+	font-size: large;
+	width: 100%;
 }
 
 /* local start modal */
@@ -87,7 +129,7 @@
 
 .timer h2 {
 	animation: zoomIn 0.5s ease-in-out;
-	font-size: 5rem;
+	font-size: 8rem;
 	font-weight: bold;
 	color: var(--fg-1);
 }

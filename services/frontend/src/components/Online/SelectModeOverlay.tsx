@@ -2,13 +2,10 @@ import Babact from "babact";
 import './online.css'
 import ModeButton from "./ModeButton";
 import { useLobby } from "../../contexts/useLobby";
-import { Form } from "../../contexts/useForm";
-import Input from "../../ui/Input";
-import Submit from "../../ui/Submit";
 import useEscape from "../../hooks/useEscape";
 import Button from "../../ui/Button";
 import useGamemodes from "../../hooks/useGamemodes";
-import { GameMode, GameModeType } from "yatt-lobbies";
+import { GameMode } from "yatt-lobbies";
 import SegmentedControl from "../../ui/SegmentedControl";
 import Separator from "../../ui/Separator";
 

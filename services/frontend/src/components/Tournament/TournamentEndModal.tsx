@@ -1,5 +1,5 @@
 import Babact from "babact";
-import { Match } from "../../hooks/useTournament";
+import { TournamentMatch } from "../../hooks/useTournament";
 import Avatar from "../../ui/Avatar";
 import JSConfetti from "js-confetti";
 import Button from "../../ui/Button";
@@ -8,7 +8,7 @@ export default function TournamentEndModal({
 		finalMatch,
 		onClose
 	} : {
-		finalMatch: Match,
+		finalMatch: TournamentMatch,
 		onClose: () => void
 	}) {
 	

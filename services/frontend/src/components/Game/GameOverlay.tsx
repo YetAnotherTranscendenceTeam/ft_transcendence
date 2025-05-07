@@ -10,10 +10,12 @@ import WaitingPlayerOverlay from './WaitingPlayerOverlay';
 
 export default function GameOverlay({
 		onResume,
-		onStart
+		onStart,
+		onRestart
 	}: {
 		onResume?: () => void;
 		onStart?: () => void;
+		onRestart?: () => void;
 	}) {
 
 	const { overlay } = usePong();
@@ -35,7 +37,7 @@ export default function GameOverlay({
 			{overlay.lastWinner !== null && <WinnerRoundOverlay />}
 			{overlay.countDown > 0 ? <Timer time={overlay.countDown}/> : ''}
 			{overlay.gameStatus.name === PongState.RESERVED.name && !overlay.local && <WaitingPlayerOverlay />}
-			{overlay.gameStatus.name === PongState.ENDED.name && <WinnerMatchOverlay key='match-overlay' onRestart={onStart}/>}
+			{overlay.gameStatus.name === PongState.ENDED.name && <WinnerMatchOverlay key='match-overlay' onRestart={onRestart}/>}
 			{
 				overlay.local && overlay.gameStatus.name === PongState.RESERVED.name &&
 				<Button className="primary" onClick={() => onStart()}>

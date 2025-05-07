@@ -19,18 +19,15 @@ override TS_MODULES = \
 	physics-engine \
 	pong \
 
-SERVICES_DEPS = $(patsubst %, services/%/node_modules, $(SERVICES))
-MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(MODULES))
-TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
+override SERVICES_DEPS = $(patsubst %, services/%/node_modules, $(SERVICES))
+override MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(MODULES))
+override TS_MODULES_DEPS = $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 
 override SSL_CERTIFICATE = secrets/localhost.crt secrets/localhost.key
 
-dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS) $(SSL_CERTIFICATE)
-
-evaluation:
-	./env-generator.sh evaluation
-	(cd modules && docker compose build)
-	docker compose -f docker-compose.prod.yaml -f docker-compose.eval.yaml up -d --build --wait
+dev: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SSL_CERTIFICATE)
+	./env-generator.sh
+	docker compose up -d --build --wait
 
 $(MODULES_DEPS) $(SERVICES_DEPS):
 	(cd $(@D) && npm i)
@@ -50,18 +47,33 @@ $(SSL_CERTIFICATE):
 		-subj "/C=FR/ST=Rhone-Alpes/L=Lyon/O=YATT/OU=IT Department/CN=www.localhost.com"
 
 test:
-ifeq ($(ENV),production)
-	$(error Tests cannot be run in production environment)
-else
+	(cd ./tests && npm i)
 	npm --prefix ./tests run test
-endif
 
-clean-modules:
+evaluation:
+	./env-generator.sh evaluation
+	(cd modules && docker compose build)
+	docker compose -f docker-compose.yaml -f docker-compose.eval.yaml up -d --build --wait
+
+
+cert: $(SSL_CERTIFICATE)
+
+deps: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS)
+
+deps-modules: $(MODULES_DEPS) $(TS_MODULES_DEPS)
+
+deps-services: $(SERVICES_DEPS)
+
+clean-deps:
+	$(MAKE) clean-deps-modules
+	$(MAKE) clean-deps-services
+
+clean-deps-modules:
 	-rm -rf $(patsubst %, modules/%/node_modules, $(MODULES))
 	-rm -rf $(patsubst %, modules/%/node_modules, $(TS_MODULES))
 	-rm -rf $(patsubst %, modules/%/dist, $(TS_MODULES))
 
-clean-services:
+clean-deps-services:
 	-rm -rf $(patsubst %, services/%/node_modules, $(SERVICES))
 
 clean-db:
@@ -71,3 +83,9 @@ fclean:
 	$(MAKE) clean-modules
 	$(MAKE) clean-services
 	$(MAKE) clean-db
+	rm -f $(SSL_CERTIFICATE)
+
+re:
+	docker compose down
+	$(MAKE) fclean
+	$(MAKE) dev

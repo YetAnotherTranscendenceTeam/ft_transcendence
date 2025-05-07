@@ -37,7 +37,7 @@ export default function ModeButton({
 
 
 
-	const disabled = (lobby && gamemode.getLobbyCapacity() < lobby.players.length) || lobby?.mode.name === gamemode.name;
+	const disabled = (lobby && gamemode?.getLobbyCapacity() < lobby.players.length) || lobby?.mode.name === gamemode.name;
 	return <div
 		className={`mode-button flex flex-col justify-end gap-2 ${gamemode.type} ${disabled ? 'disabled' : ''}`}
 		onClick={() => onSelect(gamemode.name)}

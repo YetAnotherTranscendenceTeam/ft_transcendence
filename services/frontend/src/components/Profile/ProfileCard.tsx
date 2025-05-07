@@ -18,14 +18,14 @@ export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]:
 	const { socials } = useAuth();
 
 	useEscape(isOpen, () => setIsOpen(false));
-	
+
 	if (!me)
 		return null;
-	
+
 	return <Card className={`profile-card left flex flex-col`} key='profile-card' {...props}>
 		<div className='profile-card-header flex items-center gap-2 justify-between pointer'>
 			<div
-				className='flex flex-row items-center gap-2'
+				className='flex flex-row items-center gap-2 flex-2'
 				onClick={() => navigate(`/profiles/${me.account_id}`)}
 			>
 				<Avatar src={me.avatar} name={me.username} status={me.status?.type}/>
@@ -34,18 +34,18 @@ export default function ProfileCard({ me, ...props } : { me: IMe, [key: string]:
 					{me.status && <SocialTypeText type={me.status.type} />}
 				</div>
 			</div>
-			<div className='flex flex-row items-center gap-2'>
-				<Button onClick={() => setIsOpen(!isOpen)}>
+			<div className='flex flex-row items-center gap-2 flex-1'>
+				<Button onClick={() => setIsOpen(!isOpen)} className={`w-full ${!isOpen ? 'primary' : ''}`}>
 					{	!isOpen 
-						? <>Open <i className="fa-solid fa-up-right-and-down-left-from-center"></i></>
-						: <>Close <i className="fa-solid fa-down-left-and-up-right-to-center"></i></>
+						? <>Social <i className="fa-solid fa-user-group"></i></>
+						: <>Close <i className="fa-solid fa-xmark"></i></>
 					}
 					{socials?.pending.received.length > 0 && <Label>{socials.pending.received.length}</Label>}
 				</Button>
 			</div>
 		</div>
-		<div className={`profile-card-body flex flex-col gap-4 w-full ${isOpen ? 'open' : ''}`}>
-			<SocialManager />
+		<div className={`profile-card-body flex flex-col gap-4 w-full ${isOpen ? 'open' : ''}`} key='social-manager-container'>
+			<SocialManager key='social-manager'/>
 		</div>
 	</Card>;
 }

@@ -1,5 +1,5 @@
 import Babact from "babact";
-import Overlay from "../templates/Overlay";
+import Overlay from "../components/Overlay/Overlay";
 import Tree from "../components/Tournament/Tree";
 import { useNavigate, useParams } from "babact-router-dom";
 import { useAuth } from "../contexts/useAuth";
@@ -29,7 +29,7 @@ export default function TournamentView() {
 		}
 	}, [currentMatch?.match_id]);
 
-	
+
 	const { app } = usePong();
 
 	Babact.useEffect(() => {
@@ -39,10 +39,7 @@ export default function TournamentView() {
 	const tournamentWinner = (matches.length > 0 && matches[0].state === MatchState.DONE && matches[0]) || null;
 
 	return <Overlay
-		modal={isOpen && <TournamentEndModal
-			onClose={() => setIsOpen(false)}
-			finalMatch={tournamentWinner}
-		/>}
+		key='view-overlay'
 	>
 		<div
 			className='tournament-view scrollbar'
@@ -57,6 +54,10 @@ export default function TournamentView() {
 				}}
 			/>}
 			{matches && matches.length > 0 && <Tree matches={matches} />}
+			{isOpen && <TournamentEndModal
+				onClose={() => setIsOpen(false)}
+				finalMatch={tournamentWinner}
+			/>}
 		</div>
 	</Overlay>
 }

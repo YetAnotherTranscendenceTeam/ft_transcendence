@@ -53,6 +53,18 @@
 	opacity: 1;
 }
 
+.lobby-card-body .dropdown-content {
+	background-color: var(--bg-2);
+}
+
+.lobby-avatar-dropdown h1 {
+	font-size: small;
+	font-weight: 500;
+	color: var(--fg-1);
+	width: 100%;
+	text-align: center;
+}
+
 /* =============== List =============== */
 
 .lobby-teams {

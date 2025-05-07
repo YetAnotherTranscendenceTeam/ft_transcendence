@@ -1,9 +1,7 @@
 import Babact from "babact";
 import { usePong } from "../contexts/usePong";
-import Overlay from "../templates/Overlay";
-import { useNavigate, useParams } from "babact-router-dom";
+import { useParams } from "babact-router-dom";
 import GameOverlay from "../components/Game/GameOverlay";
-import { PongState } from "pong";
 
 export default function OnlineView() {
 
@@ -18,9 +16,7 @@ export default function OnlineView() {
 
 	if (!overlay)
 		return;
-	return <Overlay
-		hidden={overlay.gameStatus.name === PongState.PLAYING.name || overlay.gameStatus.name === PongState.FREEZE.name}
-	>
+	return <div>
 		<GameOverlay/>
-	</Overlay>
+	</div>
 }

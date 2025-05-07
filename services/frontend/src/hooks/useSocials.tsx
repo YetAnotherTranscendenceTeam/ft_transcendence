@@ -192,7 +192,6 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 			},
 			blocked: IBlockedUser[],
 		}) => {
-		console.log(friends)
 		setSocials({
 			friends: friends.map((f: IFriend) => new Friend(f, ws, ft_fetch)),
 			pending: {
@@ -206,7 +205,6 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	};
 
 	const onStatusChange = ({ account_id, status }: {account_id: number, status: FriendStatus}) => {
-		console.log('status', status);
 		if (getMe()?.account_id === account_id)
 			setMeStatus(status);
 		setSocials(s => ({
@@ -449,7 +447,7 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	};
 
 	const onConnect = () => {
-		status({type: StatusType.ONLINE});
+		console.log('Connected to Social WebSocket');
 	};
 
 	const ws = useWebSocket({
