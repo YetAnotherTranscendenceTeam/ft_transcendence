@@ -157,18 +157,6 @@
 }
 
 
-/* ==== Join Button ==== */
-
-.match-join-button {
-	position: absolute;
-	top: calc(var(--header-height) + 16px);
-	left: 50%;
-	transform: translateX(-50%);
-	width: fit-content;
-	z-index: 10;
-	font-size: medium;
-}
-
 /* ===== Modal ====== */
 
 .tournament-end-modal {
