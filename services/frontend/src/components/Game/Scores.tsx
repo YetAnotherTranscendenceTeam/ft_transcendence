@@ -3,6 +3,7 @@ import Card from "../../ui/Card";
 import './game.css'
 import { usePong } from "../../contexts/usePong";
 import Avatar from "../../ui/Avatar";
+import { PongState } from "pong";
 
 export default function Scores() {
 
@@ -19,20 +20,16 @@ export default function Scores() {
 		).concat(
 			new Array(overlay.scores[1]).fill('team-2')
 		);
-		console.log('generateScores', overlay.scores, overlay.lastWinner, newSocres);
-		if (overlay.lastWinner !== null) {
-			if (overlay.lastWinner === 0) {
-				newSocres[overlay.scores[0] - 1] += ' pulse';
-			}
-		}
 		setScores(newSocres);
 	}
+
+	const pulseIndex: number = (overlay.gameStatus.name === PongState.ENDED.name && goal) || (overlay.lastWinner !== null && (overlay.lastWinner === 0 ? overlay.scores[0] - 1 : bestOf - overlay.scores[1]));
 
 	Babact.useEffect(() => {
 		if (overlay.scores) {
 			generateScores();
 		}
-	}, [overlay?.scores[0], overlay?.scores[1], overlay?.lastWinner]);
+	}, [overlay.scores[0], overlay.scores[1]]);
 
 	return <Card className='scores'>
 		<div className="flex flex-row gap-2 items-center flex-1">
@@ -63,7 +60,7 @@ export default function Scores() {
 				</div>
 				<div className='score-frame-container flex justify-between items-center gap-1'>
 					{scores && scores.map((_, index) => <span
-						className={`score-frame ${index === goal ? 'goal' : ''} ${_}`}
+						className={`score-frame ${index === goal ? 'goal' : ''} ${_} ${index === pulseIndex ? 'pulse' : ''}`}
 						key={index}
 					/>)}
 				</div>

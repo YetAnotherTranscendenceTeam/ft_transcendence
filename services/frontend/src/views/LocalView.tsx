@@ -31,13 +31,6 @@ export default function LocalView() {
 
 	useEscape(overlay?.gameStatus.name === PongState.PLAYING.name, () => handlePause())
 
-	Babact.useEffect(() => {
-		console.log('local view mounted');
-		return () => {
-			console.log('local view unmounted');
-		}
-	}, []);
-
 	if (!overlay)
 		return;
 
