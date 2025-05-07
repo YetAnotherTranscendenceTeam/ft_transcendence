@@ -7,7 +7,9 @@ import { MatchState } from "../Match.js";
 import { GameModes } from "../GameModes.js";
 
 export default function router(fastify, opts, done) {
-  fastify.get("/:account_id", function handler(request, reply) {
+  fastify.get("/:account_id", {
+    preHandler: fastify.verifyBearerAuth,
+  }, function handler(request, reply) {
     const matchmaking_users = db
       .prepare("SELECT gamemode, rating, created_at, updated_at FROM matchmaking_users WHERE account_id = ?")
       .all(request.params.account_id);
@@ -42,6 +44,7 @@ export default function router(fastify, opts, done) {
     reply.send({matchmaking_users, last_match, last_tournament});
   });
   fastify.get("/:account_id/matches", {
+    preHandler: fastify.verifyBearerAuth,
     schema: {
       query: {
         type: "object",
