@@ -77,8 +77,6 @@ export default function router(fastify, opts, done) {
               winning: properties.sort,
               player_index: properties.sort,
               state: properties.sort,
-              created_at: properties.sort,
-              updated_at: properties.sort,
             },
             additionalProperties: false,
           },

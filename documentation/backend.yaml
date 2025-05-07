@@ -160,6 +160,9 @@ components:
         match_id:
           type: integer
           example: 12345
+        tournament_id:
+          type: integer
+          example: 67890
         gamemode:
           $ref: "#/components/schemas/gamemode_name"
         state:
@@ -214,6 +217,8 @@ components:
                 type: number
                 format: number
                 example: 1515
+              profile:
+                $ref: "#/components/schemas/user"
 
 
     order:
@@ -1259,7 +1264,7 @@ paths:
                 - 0
                 - 1
           description: Filters results to include won or lost matches
-        
+
         - in: query
           name: filter[player_index]
           schema:
@@ -1274,32 +1279,17 @@ paths:
             $ref: "#/components/schemas/order"
 
         - in: query
-          name: order[created_at]
-          schema:
-            $ref: "#/components/schemas/order"
-
-        - in: query
-          name: order[updated_at]
-          schema:
-            $ref: "#/components/schemas/order"
-
-        - in: query
-          name: order[score_0]
-          schema:
-            $ref: "#/components/schemas/order"
-
-        - in: query
-          name: order[score_1]
-          schema:
-            $ref: "#/components/schemas/order"
-
-        - in: query
           name: order[gamemode]
           schema:
             $ref: "#/components/schemas/order"
 
         - in: query
           name: order[state]
+          schema:
+            $ref: "#/components/schemas/order"
+        
+        - in: query
+          name: order[player_index]
           schema:
             $ref: "#/components/schemas/order"
 
@@ -1313,7 +1303,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/match"
+                  $ref: "#/components/schemas/db_match"
 
   /lobbies/join:
     get:
