@@ -88,7 +88,6 @@ export default function router(fastify, opts, done) {
       }
     }
   }, async function handler(request, reply) {
-    try {
     const { filterClause, filterParams } = YATT.filterToSql(request.query.filter);
     const { orderClause, orderParams } = YATT.orderToSql(request.query.order);
     const { matches_json, total_count } = db
@@ -173,10 +172,6 @@ export default function router(fastify, opts, done) {
     reply.header("X-Count", matches.length);
     reply.header("Access-Control-Expose-Headers", "X-Total-Count, X-Count");
     reply.send(matches);
-  }
-  catch(e) {
-    console.error(e);
-  }
   });
   done();
 }
