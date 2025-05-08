@@ -1,4 +1,3 @@
-import useEffect from "babact/dist/hooks/useEffect";
 import useFetch from "./useFetch";
 import Babact from "babact";
 import config from "../config";
@@ -21,7 +20,7 @@ export default function useGamemodes() {
 		setGamemodes(gamemodes);
 	}
 
-	useEffect(() => {
+	Babact.useEffect(() => {
 		fetchGamemodes();
 	}, []);
 
