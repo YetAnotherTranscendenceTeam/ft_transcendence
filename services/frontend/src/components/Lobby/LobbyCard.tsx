@@ -39,7 +39,7 @@ export default function LobbyCard() {
 	queueErrors[QueueStatus.BAD_LOBBY] = "Lobby does not meet queue requirements";
 	queueErrors[QueueStatus.FEW_TEAMS] = "Clashes require at least three teams";
 	queueErrors[QueueStatus.NO_OPPONENT] = "Custom games require an opposing team";
-	queueErrors[QueueStatus.UNCOMPLETE_TEAM] = "Lobby contains an imcomplete team";
+	queueErrors[QueueStatus.UNCOMPLETE_TEAM] = "Lobby contains an incomplete team";
 
 	return <Card className='lobby-card left gap-4'>
 		<div className='lobby-card-header flex items-center justify-between w-full gap-4'>
