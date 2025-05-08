@@ -27,11 +27,20 @@ export default function LobbyCard() {
 
 	if (!me)
 		return;
+	
+	if (!lobby)
+		return;
 
 	const copyText = `**Join me in _YetAnotherPong_!** 🎮  \nClick the link to enter the game lobby: [Join the game](${window.location.origin}/lobby/${lobby.join_secret}?username=${me.username}&avatar=${me.avatar}&gamemode=${lobby.mode.type}%20${lobby.mode.getDisplayName()})`
 	
+	const queueStatus = lobby.canQueue();
 
-	if (lobby)
+	const  queueErrors: string[] = [];
+	queueErrors[QueueStatus.BAD_LOBBY] = "Lobby does not meet queue requirements";
+	queueErrors[QueueStatus.FEW_TEAMS] = "Clashes require at least three teams";
+	queueErrors[QueueStatus.NO_OPPONENT] = "Custom games require an opposing team";
+	queueErrors[QueueStatus.UNCOMPLETE_TEAM] = "Lobby contains an imcomplete team";
+
 	return <Card className='lobby-card left gap-4'>
 		<div className='lobby-card-header flex items-center justify-between w-full gap-4'>
 			<div className='flex gap-4'>
@@ -114,14 +123,17 @@ export default function LobbyCard() {
 					</Button> 
 				) ||
 				(lobby.state.type === 'waiting' &&
+					<PopHover
+						content={queueStatus !== QueueStatus.CAN_QUEUE ? <p className='w-max'>{queueErrors[queueStatus] || queueErrors[QueueStatus.BAD_LOBBY]}</p> : null}>
 					<Button
-						className="success"
+						className="success" 
 						onClick={() => lobby.queueStart()}	
-						disabled={lobby.canQueue() !== QueueStatus.CAN_QUEUE}
+						disabled={queueStatus !== QueueStatus.CAN_QUEUE}
 					>
 						<i className="fa-solid fa-play"></i>
 						Start
 					</Button>
+					</PopHover>
 				))
 			}
 			{lobby.getCapacity() > 1 && <CopyButton
