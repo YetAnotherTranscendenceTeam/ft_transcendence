@@ -13,10 +13,14 @@ export default function JoinMatchButton({
 	
 	const navigate = useNavigate();
 	const [timeRemaining, setTimeRemaining] = Babact.useState(10);
+	const [timeout, setTimeout] = Babact.useState(null);
 	const { me } = useAuth();
 
 	Babact.useEffect(() => {
-		const timeout = new Date(new Date().getTime() + 10000);
+		setTimeout(new Date(new Date().getTime() + 10000));
+	}, [match])
+
+	Babact.useEffect(() => {
 		const interval = setInterval(() => {
 			if (!timeout) return;
 			const now = new Date();
@@ -28,15 +32,24 @@ export default function JoinMatchButton({
 			} else {
 				setTimeRemaining(Math.floor(timeLeft / 1000));
 			}
-		}, 250);
-
+		}, 500);
 		return () => clearInterval(interval);
-	}, [match]);
+	}, [match, timeout]);
+
+
+	Babact.useEffect(() => {
+		if (timeRemaining <= 0 && !window.location.pathname.startsWith(`/matches/${match.match_id}`)) {
+			setTimeout(new Date(new Date().getTime() + 5000));
+		}
+	}, [window.location.pathname]);
 
 	if (!window.location.pathname.startsWith(`/matches/${match.match_id}`))
 	return <Button
 		className="match-join-button game"
-		onClick={() => navigate(`/matches/${match.match_id}`)}
+		onClick={() => {
+			navigate(`/matches/${match.match_id}`);
+			setTimeout(null);
+		}}
 		key={match.match_id}
 		loading={timeRemaining <= 0}
 	>

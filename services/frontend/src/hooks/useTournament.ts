@@ -100,9 +100,7 @@ export default function useTournament(tournamentId: number) {
 	const RTTournament = useRTTournament();
 
 	const fetchTournament = async () => {
-		const response = await ft_fetch(`${config.API_URL}/matchmaking/tournaments/${tournamentId}`, {}, {
-			show_error: true
-		});
+		const response = await ft_fetch(`${config.API_URL}/matchmaking/tournaments/${tournamentId}`, {});
 		if (response) {
 			const matches = response.matches.map((match) => (
 				new TournamentMatch(match, response.teams)
@@ -112,7 +110,7 @@ export default function useTournament(tournamentId: number) {
 	}
 
 	Babact.useEffect(() => {
-		if (me && RTTournament.tournament_id != tournamentId) {
+		if (me && RTTournament.tournament_id != tournamentId || RTTournament.matches.length == 0) {
 			console.log('Tournament useEffect', tournamentId, RTTournament);
 			fetchTournament();
 		}

@@ -13,6 +13,10 @@
 	color: var(--fg-2);
 }
 
+.lobby-card-body {
+	flex-wrap: wrap;
+}
+
 .lobby-card-body .leader {
 	border: 1px solid var(--primary-color);
 }

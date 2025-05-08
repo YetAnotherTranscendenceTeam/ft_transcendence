@@ -12,16 +12,16 @@ export default function TournamentCard() {
 	const navigate = useNavigate();
 	const tournament = useRTTournament();
 
-	if (me && tournament.tournament_id)
+	if (me && tournament.matches.length > 0)
 	return <Card
 		className="tournament-card left w-full gap-2"
 	>
 		<h1>You are currently in a clash</h1>
-
 		<Button
+			disabled={window.location.pathname.startsWith(`/tournaments/${tournament.tournament_id}`)}
 			className="tournament"
 			onClick={() => {
-				navigate(`/tournaments/${me.last_tournament.tournament_id}`);
+				navigate(`/tournaments/${tournament.tournament_id}`);
 			}}
 		>
 			Go to clash <i className="fa-solid fa-people-group"></i>

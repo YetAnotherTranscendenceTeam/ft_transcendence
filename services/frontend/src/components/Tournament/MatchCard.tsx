@@ -41,7 +41,7 @@ export default function MatchCard({
 				{match.teams.map((team, i) =>
 					team ? <div
 						key={i}
-						className={`match-card-team flex items-center justify-between gap-4 w-full ${getWinnerIndex() === i  ? 'winner' : ''} ${match.state === MatchState.PLAYING && match.playerTeamIndex(me.account_id) === i ? 'playing' : ''}`}
+						className={`match-card-team flex items-center justify-between gap-4 w-full ${getWinnerIndex() === i  ? 'winner' : ''} ${match.state === MatchState.PLAYING && match.playerTeamIndex(me?.account_id) === i ? 'playing' : ''}`}
 					>
 						<div className='flex items-center gap-2'>
 							{team.players.map((player, i) =>

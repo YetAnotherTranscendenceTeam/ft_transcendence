@@ -4,25 +4,33 @@ import { ITeam } from "yatt-lobbies";
 import useSSE from "../hooks/useSSE";
 import { useAuth } from "./useAuth";
 import config from "../config";
+import useToast, { ToastType } from "../hooks/useToast";
+import { useNavigate } from "babact-router-dom";
 
 const RTTournamentContext = Babact.createContext<{
 	matches: TournamentMatch[],
 	currentMatch: TournamentMatch,
 	tournament_id: number,
 	connect: (tournamentId: number) => void,
+	ended: number,
+	close: () => void,
 }>();
 
 export const RTTournamentProvider = ({ children } : {children?: any}) => {
 
 	const [matches, setMatches] = Babact.useState<TournamentMatch[]>([]);
 	const [currentMatch, setCurrentMatch] = Babact.useState<TournamentMatch>(null);
-	const [tournamentId, setTournamentId] = Babact.useState<number>(null);
+	const tournamentId = Babact.useRef<number>(null);
+	const [tournamentEndId, setTournamentEndId] = Babact.useState<number>(null);
+	const { createToast } = useToast();
 	const teamsRef = Babact.useRef<ITeam[]>([]);
 	const { me } = useAuth();
+	const navigate = useNavigate();
 
 	const onSync = ({tournament} : {tournament: Tournament}) => {
 		console.log('Tournament sync', tournament);
-		setTournamentId(tournament.id);
+		setTournamentEndId(null);
+		tournamentId.current = tournament.id;
 		teamsRef.current = tournament.teams;
 		const matches = tournament.matches.map((match) => (
 			new TournamentMatch(match, tournament.teams)
@@ -39,10 +47,13 @@ export const RTTournamentProvider = ({ children } : {children?: any}) => {
 	}
 
 	const onFinish = () => {
-		console.log('Tournament finished');
-		setTournamentId(null);
-		setMatches([]);
-		// onFinishCall	back(true);
+		setTimeout(() => {
+			console.log('Tournament finished');
+			navigate(`/tournaments/${tournamentId.current}`);
+			setTournamentEndId(tournamentId.current);
+			tournamentId.current = null;
+			setMatches([]);
+		}, 7000);
 	}
 
 	const sse = useSSE({
@@ -71,6 +82,9 @@ export const RTTournamentProvider = ({ children } : {children?: any}) => {
 	Babact.useEffect(() => {
 		const newCurrentMatch = matches.find((match) => match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id)) ?? null;
 		setCurrentMatch(newCurrentMatch);
+		if (newCurrentMatch) {
+			createToast(`Match started against ${newCurrentMatch.getOpponentTeamName(me?.account_id)}`, ToastType.INFO);
+		}
 	}, [matches?.length, ...matches?.map((match) => match.state)]);
 
 	return (
@@ -78,8 +92,10 @@ export const RTTournamentProvider = ({ children } : {children?: any}) => {
 			value={{
 				matches,
 				currentMatch,
-				tournament_id: tournamentId,
+				tournament_id: tournamentId.current,
 				connect,
+				ended: tournamentEndId,
+				close: () => setTournamentEndId(null),
 			}}
 		>
 			{children}

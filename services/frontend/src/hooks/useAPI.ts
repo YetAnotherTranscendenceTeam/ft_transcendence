@@ -29,22 +29,26 @@ export async function APIFetch(url: string, fetch_options?: RequestInit) {
 }
 
 export async function APIRefreshToken() {
+	console.log('Checking token expiration');
 	const expired_at = localStorage.getItem('expire_at');
 	if (!expired_at)
 		return;
 	const expired_at_date = new Date(expired_at);
 	if (expired_at_date > new Date())
 		return;
+	console.log('Refreshing token');
 	const response = await fetch(`${config.API_URL}/token/refresh`, {
 		method: 'POST',
 		credentials: 'include'
 	});
 	if (response.ok) {
+		console.log('Token refreshed');
 		const data = await response.json();
 		localStorage.setItem('access_token', data.access_token);
 		localStorage.setItem('expire_at', data.expire_at);
 	}
 	else {
+		console.log('Token refresh failed');
 		localStorage.removeItem('access_token');
 		localStorage.removeItem('expire_at');
 	}
