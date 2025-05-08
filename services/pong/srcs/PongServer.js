@@ -8,6 +8,8 @@ PongState.RESERVED.tickCallback = function (dt, pong) {
 	return false;
 }
 
+PongState.RESERVED.frozen_until = 30;
+
 export class PongServer extends Pong {
 	collisions = [];
 	team_names = [];
@@ -16,7 +18,7 @@ export class PongServer extends Pong {
 		super();
 		this.manager = manager;
 		this._time = 0;
-		this._lastUpdate = 0;
+		this._lastUpdate = Date.now();
 		this.team_names = teams.map((team) => team.name);
 		this.onlineSetup(match_id, gamemode, teams.map((team) => team.players).flat(), PongState.RESERVED.clone());
 		for (let ball of this._balls) {
