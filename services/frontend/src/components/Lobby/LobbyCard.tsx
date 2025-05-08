@@ -9,7 +9,7 @@ import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
 import CopyButton from "../../ui/CopyButton";
 import LobbySettings from "./LobbySettings";
-import { GameModeType } from "yatt-lobbies";
+import { GameModeType, QueueStatus } from "yatt-lobbies";
 import PopHover from "../../ui/PopHover";
 import Dropdown from "../../ui/Dropdown";
 
@@ -117,7 +117,7 @@ export default function LobbyCard() {
 					<Button
 						className="success"
 						onClick={() => lobby.queueStart()}	
-						disabled={!lobby.canQueue()}
+						disabled={lobby.canQueue() !== QueueStatus.CAN_QUEUE}
 					>
 						<i className="fa-solid fa-play"></i>
 						Start

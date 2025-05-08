@@ -10,7 +10,7 @@ import {
 } from "./LobbyMessages.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
-import { LobbyStateType, Lobby as LobbyBase, GameModeType} from "yatt-lobbies";
+import { LobbyStateType, Lobby as LobbyBase, QueueStatus } from "yatt-lobbies";
 import { activityEvents } from "./ActivityEvents.js";
 
 export const LobbyState = {
@@ -182,7 +182,7 @@ export class Lobby extends LobbyBase {
   }
 
   queue() {
-    if (!this.canQueue()) {
+    if (this.canQueue() !== QueueStatus.CAN_QUEUE) {
       throw new Error("Lobby does not meet queue requirements");
     }
     if (!MatchmakingConnection.getInstance().isReady) {
