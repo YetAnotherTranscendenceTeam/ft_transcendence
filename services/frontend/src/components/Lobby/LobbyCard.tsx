@@ -124,15 +124,17 @@ export default function LobbyCard() {
 				) ||
 				(lobby.state.type === 'waiting' &&
 					<PopHover
-						content={queueStatus !== QueueStatus.CAN_QUEUE ? <p className='w-max'>{queueErrors[queueStatus] || queueErrors[QueueStatus.BAD_LOBBY]}</p> : null}>
-					<Button
-						className="success" 
-						onClick={() => lobby.queueStart()}	
-						disabled={queueStatus !== QueueStatus.CAN_QUEUE}
+						pos="top"
+						content={queueStatus !== QueueStatus.CAN_QUEUE ? <p className='w-max'>{queueErrors[queueStatus] || queueErrors[QueueStatus.BAD_LOBBY]}</p> : null}
 					>
-						<i className="fa-solid fa-play"></i>
-						Start
-					</Button>
+						<Button
+							className="success" 
+							onClick={() => lobby.queueStart()}	
+							disabled={queueStatus !== QueueStatus.CAN_QUEUE}
+						>
+							<i className="fa-solid fa-play"></i>
+							Start
+						</Button>
 					</PopHover>
 				))
 			}

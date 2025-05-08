@@ -4,12 +4,14 @@ export default function PopHover({
 		children,
 		content,
 		className,
+		pos = 'bottom',
 		...props
 	}: {
 		children?: any,
 		content?: any,
 		className?: string
 		width?: string,
+		pos?: 'top' | 'bottom' | 'left' | 'right',
 		[key: string]: any
 	}) {
 
@@ -20,7 +22,7 @@ export default function PopHover({
 	>
 		{children}
 		{content && <div
-			className='pop-hover'
+			className={`pop-hover ${pos}`}
 		>
 			{content}
 		</div>}
