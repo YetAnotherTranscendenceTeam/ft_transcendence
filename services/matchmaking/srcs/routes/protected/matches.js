@@ -15,7 +15,9 @@ const update_match_state = db.prepare(
 const update_team_score = db.prepare(
   `
   UPDATE match_teams
-  SET score = ?
+  SET
+    score = ?,
+    winning = 0
   WHERE match_id = ? AND team_index = ?
   `
 );
