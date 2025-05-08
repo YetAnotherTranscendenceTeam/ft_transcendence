@@ -11,6 +11,7 @@ import { ballCollision } from "./Behaviors.js";
 import { MapSide, IPongMap, MapID, PlayerID, PongState, IPongState, PlayerMovement, IBall, IPongPlayer } from "./types.js";
 import * as maps from "../maps/index.js";
 import Stats from "./Stats.js";
+import EventBoxManager from "./EventBoxManager.js";
 
 export class Pong {
 	private _accumulator: number;
@@ -29,7 +30,9 @@ export class Pong {
 	protected _balls: Ball[] = [];
 	protected _paddles: Map<number, PH2D.Body>;
 	protected _goals: Map<number, Goal>;
+	protected _eventBoxes: Map<number, EventBox>;
 	protected _teamNames: string[] = [];
+	protected _eventBoxManager: EventBoxManager;
 
 	protected _stats: Stats;
 
@@ -37,6 +40,7 @@ export class Pong {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, K.substeps);
 		this._paddles = new Map();
 		this._goals = new Map();
+		this._eventBoxes = new Map();
 		this._balls = [];
 		this._tick = 0;
 		this._accumulator = 0;
@@ -96,6 +100,7 @@ export class Pong {
 		if (this._matchParameters.events) {
 			this._currentMap.eventboxes.forEach((eventbox: EventBox) => {
 				this._physicsScene.addBody(eventbox);
+				this._eventBoxes.set(eventbox.id, eventbox);
 			});
 		}
 	}
@@ -123,6 +128,7 @@ export class Pong {
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
 		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
+		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this._stats);
 	}
 
 	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state: IPongState = PongState.RESERVED.clone()) {
@@ -220,7 +226,6 @@ export class Pong {
 			paddle.previousPosition.y = 0;
 			paddle.velocity = new Vec2(0, 0);
 		}
-		this.spawnEventBoxes();
 	}
 
 	public shouldUpdate(): boolean {
@@ -257,17 +262,6 @@ export class Pong {
 			}
 		});
 		return scored;
-	}
-
-	private spawnEventBoxes() {
-		if (this._matchParameters.events.length === 0) {
-			return;
-		}
-		const randomEventBox: number = Math.floor(Math.random() * this._currentMap.eventboxes.length);
-		const eventBox: EventBox = this._currentMap.eventboxes[randomEventBox];
-		const randomEvent = Math.floor(Math.random() * this._matchParameters.events.length);
-		// eventBox.setEvent(this._matchParameters.events[randomEvent]);
-		eventBox.activate();
 	}
 
 	private launchBall() {

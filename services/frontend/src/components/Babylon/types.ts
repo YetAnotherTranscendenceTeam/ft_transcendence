@@ -1,4 +1,5 @@
 import { IBall, PlayerMovement } from "pong";
+import { PongEventType } from 'yatt-lobbies'
 
 export enum KeyState {
 	IDLE = 0,

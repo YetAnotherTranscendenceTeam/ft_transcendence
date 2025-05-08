@@ -1,5 +1,5 @@
 export { Pong } from './core/Pong.js';
-export { PlayerID, IPongMap, MapID, PlayerMovement, IBall, IPongPlayer, PongState, IPongState } from './core/types.js';
+export { PlayerID, IPongMap, MapID, PlayerMovement, IBall, IPongPlayer, PongState, IPongState, IEventBoxSync } from './core/types.js';
 export { default as Ball } from './core/Ball.js';
 export { default as Paddle } from './core/Paddle.js';
 export { default as Goal } from './core/Goal.js';

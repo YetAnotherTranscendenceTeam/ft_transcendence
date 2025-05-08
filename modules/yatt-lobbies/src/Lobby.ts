@@ -34,6 +34,7 @@ export interface ILobbyState {
 
 
 export enum PongEventType {
+  NONE = 0,
 	MULTIBALL,
 	ATTRACTOR,
 	BIGPADDLE,

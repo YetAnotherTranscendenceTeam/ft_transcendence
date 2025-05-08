@@ -39,6 +39,7 @@ export class PongServer extends Pong {
 			lastSide: this._stats.lastSideToScore,
 			state: this._state,
 			score: this._stats.score,
+			event_boxes: this.getEventBoxes(),
 			paddles: this.getPaddlePositions(),
 			balls: this._balls,
 			tick: this.tick,
@@ -148,6 +149,16 @@ export class PongServer extends Pong {
 		});
 	}
 
+	getEventBoxes() {
+		const event_boxes = this._currentMap.getEventBoxes().map((box) => {
+			return {
+				active: box.active,
+				type: box.type,
+			}
+		});
+		return event_boxes;
+	}
+
 	update() {
 		let dt = (Date.now() - this._lastUpdate) / 1000;
 		if (this._state.tick(dt, this)) {
@@ -178,6 +189,7 @@ export class PongServer extends Pong {
 		this.broadcast({
 			event: "step",
 			data: {
+				event_boxes: this.getEventBoxes(),
 				collisions: this.collisions.length,
 				balls: this._balls,
 				paddles: this.getPaddlePositions(),

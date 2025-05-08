@@ -75,6 +75,7 @@ export default function router(fastify, opts, done) {
     }
     catch(e) {
       res.status(400).send({ error: e.message });
+      console.error(e);
       return;
     }
     res.status(201).send(game);

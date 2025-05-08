@@ -8,7 +8,7 @@ import EventBox from "./EventBox.js";
 import * as K from "./constants.js";
 import { Body } from "physics-engine"
 import { Pong } from "./Pong.js";
-import { IPlayer } from 'yatt-lobbies'
+import { IPlayer, PongEventType } from 'yatt-lobbies'
 
 export class IPongState {
 	name: "PLAYING" | "FREEZE" | "RESERVED" | "PAUSED" | "ENDED";
@@ -156,4 +156,9 @@ export interface IPaddle {
 	id: PlayerID;
 	position: number;
 	movement: PlayerMovement;
+}
+
+export interface IEventBoxSync {
+	eventType: PongEventType;
+	active: boolean;
 }

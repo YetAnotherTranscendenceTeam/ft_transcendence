@@ -189,6 +189,7 @@ export default class PongClient extends PONG.Pong {
 				}
 				this._ballSteps.push(serverStep);
 				this._paddleSteps.push(serverStep.paddles);
+				this.eventBoxSync(msg.data.event_boxes as PONG.IEventBoxSync[]);
 			}
 			else if (msg.event === "sync") {
 				console.log("sync", msg.data);
@@ -206,6 +207,7 @@ export default class PongClient extends PONG.Pong {
 				this._stats.lastSideToScore = msg.data.match.lastSide as number;
 				this.ballSync(msg.data.match.balls as PONG.IBall[], 0, 0);
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
+				this.eventBoxSync(msg.data.match.event_boxes as PONG.IEventBoxSync[]);
 				this.updateOverlay();
 			}
 			else if (msg.event === "state") {
@@ -446,13 +448,16 @@ export default class PongClient extends PONG.Pong {
 			for (let i = 0; i < this._balls.length; i++) {
 				this._balls[i].previousPosition = this._balls[i].interpolatePosition(ball_interp);
 			}
+			let lastStep: IServerStep | undefined;
 			while (this._ballSteps.length > 0
 				&& this._tick > oldTick
 				&& this._ballSteps[0].tick <= this._tick) {
 				const step = this._ballSteps.at(0);
 				this.serverStep(step, this._interpolation, step.collisions > 0);
 				this._ballSteps = this._ballSteps.slice(1);
+				lastStep = step;
 			}
+			this._tick = lastStep ? lastStep.tick : this._tick; 
 			for (let paddleStep of this._paddleSteps) {
 				this.paddleSync(paddleStep);
 			}
@@ -476,13 +481,20 @@ export default class PongClient extends PONG.Pong {
 
 	private serverStep(data: IServerStep, dt: number, forced: boolean = false) {
 		this.ballSync(data.balls, this._tick - data.tick, dt);
-		this._tick = data.tick;
 	}
 
 	private paddleSync(paddles: PaddleSyncs) {
 		for (let paddlesync of Object.values(paddles)) {
 			const paddle = this._paddleInstance.get(paddlesync.id);
 			paddle.sync(paddlesync);
+		}
+	}
+
+	private eventBoxSync(eventBoxes: PONG.IEventBoxSync[]) {
+		for (let i = 0; i < eventBoxes.length; i++) {
+			const eventBoxSync = eventBoxes[i];
+			const eventBox = this._currentMap.eventboxes[i];
+			eventBox.sync(eventBoxSync);
 		}
 	}
 

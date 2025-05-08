@@ -51,6 +51,7 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		if (playerId !== undefined) {
 			this._stats.hit(playerId, ballEmitter.id, this._tick);
 		}
+		this._eventBoxManager.onBallPaddleCollision();
 	}
 
 	if (other instanceof Goal) {
@@ -59,7 +60,6 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 	}
 
 	if (other instanceof EventBox) {
-		console.log("event box collision " + other.id);
 		if (other.active) {
 			// ballEmitter.setDirection(Vec2.fromValues(ballEmitter.velocity[0], -ballEmitter.velocity[1]));
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, -1);
