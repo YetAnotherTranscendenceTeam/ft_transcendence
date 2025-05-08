@@ -65,6 +65,10 @@
 	text-align: center;
 }
 
+.lobby-card-footer .pop-hover {
+	--pop-over-bg: var(--bg-3);
+}
+
 /* =============== List =============== */
 
 .lobby-teams {

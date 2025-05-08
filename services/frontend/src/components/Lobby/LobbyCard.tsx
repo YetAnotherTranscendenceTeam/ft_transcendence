@@ -9,7 +9,7 @@ import { useAuth } from "../../contexts/useAuth";
 import LobbyStatus from "./LobbyStatus";
 import CopyButton from "../../ui/CopyButton";
 import LobbySettings from "./LobbySettings";
-import { GameModeType } from "yatt-lobbies";
+import { GameModeType, QueueStatus } from "yatt-lobbies";
 import PopHover from "../../ui/PopHover";
 import Dropdown from "../../ui/Dropdown";
 
@@ -25,13 +25,19 @@ export default function LobbyCard() {
 		setOnLeave(() => (() => {}));
 	}
 
-	if (!me)
+	if (!me || !lobby)
 		return;
 
 	const copyText = `**Join me in _YetAnotherPong_!** 🎮  \nClick the link to enter the game lobby: [Join the game](${window.location.origin}/lobby/${lobby.join_secret}?username=${me.username}&avatar=${me.avatar}&gamemode=${lobby.mode.type}%20${lobby.mode.getDisplayName()})`
 	
+	const queueStatus = lobby.canQueue();
 
-	if (lobby)
+	const  queueErrors: string[] = [];
+	queueErrors[QueueStatus.BAD_LOBBY] = "Lobby does not meet queue requirements";
+	queueErrors[QueueStatus.FEW_TEAMS] = "Clashes require at least three teams";
+	queueErrors[QueueStatus.NO_OPPONENT] = "Custom games require an opposing team";
+	queueErrors[QueueStatus.UNCOMPLETE_TEAM] = "Lobby contains an incomplete team";
+
 	return <Card className='lobby-card left gap-4'>
 		<div className='lobby-card-header flex items-center justify-between w-full gap-4'>
 			<div className='flex gap-4'>
@@ -114,13 +120,19 @@ export default function LobbyCard() {
 					</Button> 
 				) ||
 				(lobby.state.type === 'waiting' &&
-					<Button
-						className="success"
-						onClick={() => lobby.queueStart()}	
+					<PopHover
+						pos="top"
+						content={queueStatus !== QueueStatus.CAN_QUEUE ? <p className='w-max'>{queueErrors[queueStatus] || queueErrors[QueueStatus.BAD_LOBBY]}</p> : null}
 					>
-						<i className="fa-solid fa-play"></i>
-						Start
-					</Button>
+						<Button
+							className="success" 
+							onClick={() => lobby.queueStart()}	
+							disabled={queueStatus !== QueueStatus.CAN_QUEUE}
+						>
+							<i className="fa-solid fa-play"></i>
+							Start
+						</Button>
+					</PopHover>
 				))
 			}
 			{lobby.getCapacity() > 1 && <CopyButton
