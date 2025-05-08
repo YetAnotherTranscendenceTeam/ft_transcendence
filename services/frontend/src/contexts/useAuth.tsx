@@ -2,8 +2,7 @@ import Babact from "babact";
 import useFetch from "../hooks/useFetch";
 import config from "../config";
 import { IUser } from "../hooks/useUsers";
-import useSocial, { Friend, FriendStatus, ISocials } from "../hooks/useSocials";
-import { GameModeType } from "yatt-lobbies";
+import useSocial, { FriendStatus, ISocials } from "../hooks/useSocials";
 
 const AuthContext = Babact.createContext<{
 		me: IMe,
@@ -24,11 +23,6 @@ const AuthContext = Babact.createContext<{
 			onSuccess: (access_token: string, expire_at: string) => void,
 			login?: boolean,
 		) => Promise<any>,
-		setLastTournament: (tournament: {
-			tournament_id: number,
-			gamemode: GameModeType,
-			active: number,
-		}) => void,
 	}>();
 
 export enum AuthMethod {
@@ -154,16 +148,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		return response;
 	}
 
-	const setLastTournament = async (tournament: {
-			tournament_id: number,
-			gamemode: string,
-			active: number,
-	}) => {
-		if (!me)
-			return;
-		setMe(me => ({...me, last_tournament: tournament}));
-	}
-
 	const { connect, socials, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
 
 	return (
@@ -177,8 +161,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 				refresh,
 				ping,
 				status,
-				confirm2FA,
-				setLastTournament,
+				confirm2FA
 			}}
 		>
 			{children}

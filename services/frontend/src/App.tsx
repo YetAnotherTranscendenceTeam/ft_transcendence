@@ -12,6 +12,7 @@ import LocalView from "./views/LocalView";
 import TournamentView from "./views/TournamentView";
 import OnlineView from "./views/OnlineView";
 import { OverlayProvider } from "./contexts/useOverlay";
+import { RTTournamentProvider } from "./contexts/useRTTournament";
 
 export default function App() {
 
@@ -36,6 +37,7 @@ export default function App() {
 		<UiProvider>
 		<PongProvider>
 		<AuthProvider>
+		<RTTournamentProvider>
 		<LobbyProvider>
 		<OverlayProvider>
 		<Routes>
@@ -49,6 +51,7 @@ export default function App() {
 		</Routes>
 		</OverlayProvider>
 		</LobbyProvider>
+		</RTTournamentProvider>
 		</AuthProvider>
 		</PongProvider>
 		</UiProvider>

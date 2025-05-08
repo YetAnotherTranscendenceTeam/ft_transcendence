@@ -30,6 +30,13 @@ export default function Overlay({
 		}
 	}, [hidden]);
 
+	Babact.useEffect(() => {
+		console.log('overlay mounted');
+		return () => {
+			console.log('overlay unmounted');
+		}
+	}, [])
+
 	return <div className={`overlay flex ${hidden ? 'hidden' : ''}`} key='overlay'>
 			<Settings
 				key='settings'

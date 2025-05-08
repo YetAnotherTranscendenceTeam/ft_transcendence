@@ -46,7 +46,7 @@
 }
 
 .button.primary.disabled, .button.primary.disabled:hover{
-	background-color: var(--primary-color-40);
+	background-color: var(--primary-color-20);
 }
 
 .button.ghost {
@@ -129,6 +129,32 @@
 .button.clear.disabled, .button.clear.disabled:hover{
 	background-color: transparent;
 	color: var(--fg-4);
+}
+
+.button.tournament {
+	background-color: var(--intournament-color);
+	color: var(--fg-1);
+}
+
+.button.tournament:hover {
+	background-color: var(--intournament-color-active);
+}
+
+.button.tournament.disabled, .button.tournament.disabled:hover{
+	background-color: var(--intournament-color-40);
+}
+
+.button.game {
+	background-color: var(--ingame-color);
+	color: var(--fg-1);
+}
+
+.button.game:hover {
+	background-color: var(--ingame-color-active);
+}
+
+.button.game.disabled, .button.game.disabled:hover{
+	background-color: var(--ingame-color-40);
 }
 
 /* ================================== */
@@ -537,7 +563,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 9999;
+	z-index: 999;
 }
 
 .modal.overlay {
