@@ -40,6 +40,8 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		}
 		if (this._stats.lastSideToHit !== other.side()) {
 			ballEmitter.faster();
+		} else {
+			ballEmitter.correctSpeed();
 		}
 
 		// register the hit
