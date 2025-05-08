@@ -27,7 +27,7 @@ export default function router(fastify, opts, done) {
         return;
       }
       if (player.socket) {
-        WsCloseError.OtherLocation.close(socket);
+        WsCloseError.OtherLocation.close(player.socket);
         player.socket = null;
       }
       player.socket = socket;
