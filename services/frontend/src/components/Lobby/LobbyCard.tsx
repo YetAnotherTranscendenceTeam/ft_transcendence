@@ -25,10 +25,7 @@ export default function LobbyCard() {
 		setOnLeave(() => (() => {}));
 	}
 
-	if (!me)
-		return;
-	
-	if (!lobby)
+	if (!me || !lobby)
 		return;
 
 	const copyText = `**Join me in _YetAnotherPong_!** 🎮  \nClick the link to enter the game lobby: [Join the game](${window.location.origin}/lobby/${lobby.join_secret}?username=${me.username}&avatar=${me.avatar}&gamemode=${lobby.mode.type}%20${lobby.mode.getDisplayName()})`
