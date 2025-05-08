@@ -5,6 +5,7 @@ import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import { IPongPlayer, PlayerID } from "./types.js";
+import EventBox from "./EventBox.js";
 
 export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) {
 	const { emitter, other, manifold } = event.detail;
@@ -43,6 +44,7 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			// ballEmitter.faster();
 		}
 		ballEmitter.correctSpeed();
+		console.log("ball speed: " + ballEmitter.velocity.magnitude);
 
 		// register the hit
 		const playerId: PlayerID = this.getPlayerIdFromBodyId(other.id);
@@ -54,5 +56,15 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 	if (other instanceof Goal) {
 		this._stats.scoreGoal(other.side(), ballEmitter.id, this._tick);
 		other.score();
+	}
+
+	if (other instanceof EventBox) {
+		console.log("event box collision " + other.id);
+		if (other.active) {
+			// ballEmitter.setDirection(Vec2.fromValues(ballEmitter.velocity[0], -ballEmitter.velocity[1]));
+			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, -1);
+			ballEmitter.correctSpeed();
+			other.deactivate();
+		}
 	}
 }

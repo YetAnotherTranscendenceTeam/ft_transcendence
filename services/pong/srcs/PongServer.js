@@ -12,13 +12,13 @@ export class PongServer extends Pong {
 	collisions = [];
 	team_names = [];
 
-	constructor(match_id, gamemode, teams, manager) {
+	constructor(match_id, gamemode, teams, match_parameters, manager) {
 		super();
 		this.manager = manager;
 		this._time = 0;
 		this._lastUpdate = 0;
 		this.team_names = teams.map((team) => team.name);
-		this.onlineSetup(match_id, gamemode, teams.map((team) => team.players).flat(), PongState.RESERVED.clone());
+		this.onlineSetup(match_id, gamemode, teams.map((team) => team.players).flat(), match_parameters, PongState.RESERVED.clone());
 		for (let ball of this._balls) {
 			ball.addEventListener("collision", (event) => {
 				this.collisions.push(event.detail);
@@ -42,6 +42,7 @@ export class PongServer extends Pong {
 			paddles: this.getPaddlePositions(),
 			balls: this._balls,
 			tick: this.tick,
+			matchParameters: this._matchParameters,
 		};
 	}
 

@@ -3,7 +3,7 @@ import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
-import { GameMode, GameModeType, IGameMode, IPlayer } from 'yatt-lobbies'
+import { GameMode, GameModeType, IGameMode, IPlayer, IMatchParameters } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientGoal, ClientEventBox, ClientObstacle } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
@@ -189,7 +189,6 @@ export default class PongClient extends PONG.Pong {
 				}
 				this._ballSteps.push(serverStep);
 				this._paddleSteps.push(serverStep.paddles);
-
 			}
 			else if (msg.event === "sync") {
 				console.log("sync", msg.data);
@@ -198,7 +197,8 @@ export default class PongClient extends PONG.Pong {
 				this.onlineScene(msg.data.match.match_id as number, 
 					new GameMode(msg.data.match.gamemode as IGameMode),
 					msg.data.match.players as IPlayer[],
-					PONG.PongState[msg.data.match.state.name].clone(),
+					msg.data.match.matchParameters as IMatchParameters,
+					PONG.PongState[msg.data.match.state.name].clone()
 				);
 				this._teamNames = msg.data.match.team_names as string[];
 				this._stats.score = msg.data.match.score as number[];
@@ -309,7 +309,7 @@ export default class PongClient extends PONG.Pong {
 			if (object instanceof ClientEventBox) {
 				object.disable();
 			}
-			if (object instanceof ClientObstacle && !this._gameMode.match_parameters.obstacles) {
+			if (object instanceof ClientObstacle && !this._matchParameters.obstacles) {
 				object.disable();
 			}
 		});
@@ -333,8 +333,8 @@ export default class PongClient extends PONG.Pong {
 		this.updateOverlay();
 	}
 	
-	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], state?: PONG.PongState) {
-		this.onlineSetup(match_id, gamemode, players, state);
+	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state?: PONG.PongState) {
+		this.onlineSetup(match_id, gamemode, players, matchParameters, state);
 		
 		this._babylonScene.clearColor = Color4.FromColor3(Color3.FromInts(0, 255, 255)); // debug
 		

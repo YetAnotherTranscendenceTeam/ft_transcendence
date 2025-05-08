@@ -36,6 +36,12 @@ export default class ClientEventBox extends AObject {
 	}
 
 	public update(dt: number): void {
+		const physicsBody = this._physicsBody as PONG.EventBox;
+		if (physicsBody.active) {
+			this.enable();
+		} else {
+			this.disable();
+		}
 		if (!this._isEnabled) return;
 		const goalPos = this._physicsBody.interpolatePosition(dt) as Vec2;
 		this._mesh.position.x = goalPos.x;

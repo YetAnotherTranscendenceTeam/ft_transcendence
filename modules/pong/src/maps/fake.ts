@@ -6,6 +6,7 @@ import Ball from "../core/Ball.js";
 import Paddle from "../core/Paddle.js";
 import Goal from "../core/Goal.js";
 import Wall from "../core/Wall.js";
+import EventBox from "../core/EventBox.js";
 
 export const playGround = {
 	width: 14,
@@ -49,6 +50,9 @@ export function createMap(): IPongMap {
 				...this.obstacles,
 				...this.eventboxes
 			];
+		},
+		getEventBoxes(): EventBox[] {
+			return this.eventboxes;
 		},
 		clone: createMap
 	}

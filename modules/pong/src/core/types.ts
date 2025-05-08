@@ -140,6 +140,7 @@ export interface IPongMap {
 	eventboxes: EventBox[];
 
 	getObjects: () => Body[];
+	getEventBoxes: () => EventBox[];
 	clone: () => IPongMap;
 }
 

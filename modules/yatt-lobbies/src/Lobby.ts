@@ -32,6 +32,22 @@ export interface ILobbyState {
   match?: number
 }
 
+
+export enum PongEventType {
+	MULTIBALL,
+	ATTRACTOR,
+	BIGPADDLE,
+	SMALLPADDLE,
+	ICE
+}
+
+export interface IMatchParameters {
+  obstacles: boolean;
+  events: PongEventType[];
+  ball_speed: number;
+  point_to_win: number;
+};
+
 export interface ILobby {
   join_secret: string;
   team_names: string[];
@@ -39,15 +55,51 @@ export interface ILobby {
   mode: IGameMode;
   state: ILobbyState,
   leader_account_id: number | null;
+  match_parameters: IMatchParameters;
+}
+
+export const matchParametersSchema = {
+  type: "object",
+  required: ["obstacles", "events", "ball_speed", "point_to_win"],
+  additionalProperties: false,
+  properties: {
+    obstacles: {
+      type: "boolean"
+    },
+    events: {
+      type: "array",
+      items: {
+        type: "number",
+        enum: Object.values(PongEventType)
+      }
+    },
+    ball_speed: { type: "number", minimum: 0 },
+    point_to_win: { type: "number", minimum: 1 },
+  },
+}
+
+export const defaultMatchParameters: IMatchParameters = {
+  obstacles: true,
+  events: [
+    PongEventType.MULTIBALL,
+    PongEventType.ATTRACTOR,
+    PongEventType.BIGPADDLE,
+    PongEventType.SMALLPADDLE,
+    PongEventType.ICE
+  ],
+  ball_speed: 1,
+  point_to_win: 5
 }
 
 export class Lobby implements ILobby {
+
   join_secret: string;
   team_names: string[];
   players: IPlayer[];
   mode: GameMode;
   state: ILobbyState;
   leader_account_id: number | null;
+  match_parameters: IMatchParameters;
 
   constructor(join_secret: string, mode: IGameMode);
   constructor(data: ILobby);
@@ -62,6 +114,7 @@ export class Lobby implements ILobby {
       this.team_names = new Array<string>(this.getTeamCount());
       this.state = {type: LobbyStateType.WAITING, joinable: true};
       this.leader_account_id = null;
+      this.match_parameters = defaultMatchParameters;
       return;
     }
     this.join_secret = data.join_secret;
@@ -70,6 +123,7 @@ export class Lobby implements ILobby {
     this.mode = new GameMode(data.mode);
     this.state = data.state;
     this.leader_account_id = data.leader_account_id;
+    this.match_parameters = data.match_parameters;
   }
 
   updateTeamNames(new_team_count: number): this {
@@ -158,6 +212,17 @@ export class Lobby implements ILobby {
       this.mode = new GameMode(mode);
     this.updateTeamNames(this.getTeamCount());
     return this;
+  }
+
+  isMatchCustomizable(): boolean {
+    return this.mode.type == GameModeType.CUSTOM || this.mode.type == GameModeType.TOURNAMENT;
+  }
+
+  getFinalMatchParameters(): IMatchParameters {
+    if (this.isMatchCustomizable()) {
+      return this.match_parameters;
+    }
+    return defaultMatchParameters;
   }
 
   setLeader(leader_account_id: number): this {

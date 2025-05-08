@@ -13,6 +13,12 @@ export default class EventBox extends PH2D.Body {
 
 	public activate(): void {
 		this._active = true;
+		this.filter = 0;
+	}
+
+	public deactivate(): void {
+		this._active = false;
+		this.filter = 1;
 	}
 
 	public get active(): boolean {

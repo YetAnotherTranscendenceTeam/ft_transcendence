@@ -1,6 +1,6 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { GameMode, IPlayer } from 'yatt-lobbies'
+import { GameMode, IPlayer, IMatchParameters, PongEventType } from 'yatt-lobbies'
 import * as K from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
@@ -19,6 +19,7 @@ export class Pong {
 
 	protected _matchId: number;
 	protected _gameMode: GameMode;
+	protected _matchParameters: IMatchParameters;
 	protected _players: IPongPlayer[] = [];
 	protected _state: PongState;
 
@@ -87,12 +88,12 @@ export class Pong {
 			this._physicsScene.addBody(this._currentMap.paddleRightFront);
 			this._paddles.set(PlayerID.RIGHT_FRONT, this._currentMap.paddleRightFront);
 		}
-		if (this._gameMode.match_parameters.obstacles) {
+		if (this._matchParameters.obstacles) {
 			this._currentMap.obstacles.forEach((obstacle: Wall) => {
 				this._physicsScene.addBody(obstacle);
 			});
 		}
-		if (this._gameMode.match_parameters.powerups) {
+		if (this._matchParameters.events) {
 			this._currentMap.eventboxes.forEach((eventbox: EventBox) => {
 				this._physicsScene.addBody(eventbox);
 			});
@@ -121,14 +122,16 @@ export class Pong {
 		this._balls.push(new Ball());
 		this._physicsScene.addBody(this._balls[0]);
 		this._balls[0].addEventListener("collision", ballCollision.bind(this));
-		this._stats = new Stats(this._gameMode.team_size, this._gameMode.match_parameters.point_to_win);
+		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
 	}
 
-	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], state: IPongState = PongState.RESERVED.clone()) {
+	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state: IPongState = PongState.RESERVED.clone()) {
 		this.cleanUp();
 		this._matchId = match_id;
 		this._gameMode = gamemode;
 		console.log("Game mode", this._gameMode);
+		console.log({matchParameters});
+		this._matchParameters = matchParameters;
 		if (state instanceof PongState)
 			this._state = state;
 		else
@@ -165,15 +168,20 @@ export class Pong {
 		this._gameMode = new GameMode("local", {
 			type: null,
 			team_size: 1,
-			team_count: 2,
-			match_parameters: {
-				obstacles: false,
-				powerups: false,
-				time_limit: 0,
-				ball_speed: K.defaultBallSpeed,
-				point_to_win: K.defaultPointsToWin,
-			}
+			team_count: 2
 		});
+		this._matchParameters = {
+			obstacles: true,
+			events: [
+				PongEventType.MULTIBALL,
+				PongEventType.ATTRACTOR,
+				PongEventType.BIGPADDLE,
+				PongEventType.SMALLPADDLE,
+				PongEventType.ICE
+			],
+			ball_speed: K.defaultBallSpeed,
+			point_to_win: K.defaultPointsToWin,
+		}
 		this._matchId = -1;
 
 		this.setup();
@@ -186,14 +194,13 @@ export class Pong {
 			type: null,
 			team_size: 0,
 			team_count: 0,
-			match_parameters: {
-				obstacles: false,
-				powerups: false,
-				time_limit: 0,
-				ball_speed: K.defaultBallSpeed,
-				point_to_win: K.defaultPointsToWin,
-			}
 		});
+		this._matchParameters = {
+			obstacles: false,
+			events: [],
+			ball_speed: K.defaultBallSpeed,
+			point_to_win: K.defaultPointsToWin,
+		}
 		this._matchId = -1;
 
 		this.setup();
@@ -213,6 +220,7 @@ export class Pong {
 			paddle.previousPosition.y = 0;
 			paddle.velocity = new Vec2(0, 0);
 		}
+		this.spawnEventBoxes();
 	}
 
 	public shouldUpdate(): boolean {
@@ -249,6 +257,17 @@ export class Pong {
 			}
 		});
 		return scored;
+	}
+
+	private spawnEventBoxes() {
+		if (this._matchParameters.events.length === 0) {
+			return;
+		}
+		const randomEventBox: number = Math.floor(Math.random() * this._currentMap.eventboxes.length);
+		const eventBox: EventBox = this._currentMap.eventboxes[randomEventBox];
+		const randomEvent = Math.floor(Math.random() * this._matchParameters.events.length);
+		// eventBox.setEvent(this._matchParameters.events[randomEvent]);
+		eventBox.activate();
 	}
 
 	private launchBall() {

@@ -1,4 +1,4 @@
-import { GameModeType } from "yatt-lobbies";
+import { GameModeType, defaultMatchParameters } from "yatt-lobbies";
 import { GameModes, GameMode } from "./GameModes.js";
 import YATT from "yatt-utils";
 import db from "./app/database.js";
@@ -47,6 +47,11 @@ export class Match {
   fastify;
 
   /**
+   * @type {IMatchParameters}
+   */
+  match_parameters = defaultMatchParameters;
+
+  /**
    * 
    * @param {Lobby[][]} teams 
    * @param {GameMode} gamemode 
@@ -56,6 +61,7 @@ export class Match {
     this.fastify = fastify;
     this.players = [];
     if (teams.length === 1) {
+      this.match_parameters = teams[0][0].match_parameters;
       this.teams = teams[0][0].getTeams().map((team, team_index) => {
         this.players.push(...team.players);
         return new MatchTeam(this.match_id, team_index, team.players, team.name);
@@ -145,6 +151,7 @@ export class Match {
           players: team.players,
           name: team.name,
         })),
+        match_parameters: this.match_parameters
       })
     });
     console.log("Reserved match for matchid", this.match_id);

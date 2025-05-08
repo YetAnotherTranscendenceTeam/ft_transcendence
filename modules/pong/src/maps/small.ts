@@ -40,11 +40,11 @@ const eventBoxShape: Array<{pos: Vec2, shape: PH2D.CircleShape}> = [ // event bo
 	{ // bottom event box
 		pos: new Vec2(0, -(playGround.height * 0.45)),
 		shape: new PH2D.CircleShape(K.eventboxRadius)
-	},
-	{ // center event box
-		pos: new Vec2(0, 0),
-		shape: new PH2D.CircleShape(K.eventboxRadius)
 	}
+	// { // center event box
+	// 	pos: new Vec2(0, 0),
+	// 	shape: new PH2D.CircleShape(K.eventboxRadius)
+	// }
 ];
 
 const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape}> = [ // non rectangular obstacles
@@ -96,6 +96,9 @@ export function createMap(): IPongMap {
 				...this.obstacles,
 				...this.eventboxes
 			];
+		},
+		getEventBoxes(): EventBox[] {
+			return this.eventboxes;
 		},
 		clone: createMap
 	}
