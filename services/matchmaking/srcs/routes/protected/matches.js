@@ -70,6 +70,17 @@ const update_rating_end = db.prepare(`
     AND matchmaking_users.gamemode = ?
 `);
 
+const update_match_count = db.prepare(`
+  UPDATE matchmaking_users
+    SET
+      match_count = match_count + 1
+  FROM match_players
+  WHERE
+    match_players.match_id = ?
+    AND match_players.account_id = matchmaking_users.account_id
+    AND matchmaking_users.gamemode = ?
+`);
+
 export default function router(fastify, opts, done) {
   fastify.patch(
     "/:match_id",
@@ -126,6 +137,8 @@ export default function router(fastify, opts, done) {
         update_rating.all({winning_team}, request.params.match_id, updated.gamemode);
         update_rating_end.run(request.params.match_id, updated.gamemode);
       }
+      else
+        update_match_count.run(request.params.match_id, updated.gamemode);
       reply.status(200).send(updated);
     }
   );
