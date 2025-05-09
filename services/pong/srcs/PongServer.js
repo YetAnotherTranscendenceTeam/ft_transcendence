@@ -14,6 +14,8 @@ export class PongServer extends Pong {
 	collisions = [];
 	team_names = [];
 
+	close_timeout;
+
 	constructor(match_id, gamemode, teams, manager) {
 		super();
 		this.manager = manager;
@@ -29,6 +31,8 @@ export class PongServer extends Pong {
 	}
 
 	destroy() {
+		if (!this.close_timeout)
+			this.scheduleClose();
 		this.manager.unregisterGame(this._matchId);
 	}
 
@@ -125,7 +129,7 @@ export class PongServer extends Pong {
 	}
 
 	scheduleClose() {
-		setTimeout(() => {
+		this.close_timeout = setTimeout(() => {
 			for (let player of this._players) {
 				if (player.socket) {
 					player.socket.close(1000, "ENDED");
