@@ -41,9 +41,10 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		}
 
 		if (this._stats.lastSideToHit !== other.side()) {
-			// ballEmitter.faster();
+			ballEmitter.faster();
+		} else {
+			ballEmitter.correctSpeed();
 		}
-		ballEmitter.correctSpeed();
 		console.log("ball speed: " + ballEmitter.velocity.magnitude);
 
 		// register the hit
@@ -52,18 +53,24 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			this._stats.hit(playerId, ballEmitter.id, this._tick);
 		}
 		this._eventBoxManager.onBallPaddleCollision();
+		ballEmitter.increaseDamage();
 	}
 
 	if (other instanceof Goal) {
-		this._stats.scoreGoal(other.side(), ballEmitter.id, this._tick);
-		other.score();
+		if (other.score(ballEmitter))
+			this._stats.scoreGoal(other.side(), ballEmitter.id, this._tick);
+		else {
+			ballEmitter.velocity[0] = -ballEmitter.velocity[0];
+		}
 	}
 
 	if (other instanceof EventBox) {
 		if (other.active) {
 			// ballEmitter.setDirection(Vec2.fromValues(ballEmitter.velocity[0], -ballEmitter.velocity[1]));
-			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, -1);
-			ballEmitter.correctSpeed();
+			//Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, -1);
+			//ballEmitter.correctSpeed();
+			console.log(other.event);
+			other.event?.activate(this);
 			other.deactivate();
 		}
 	}

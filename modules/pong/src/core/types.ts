@@ -150,6 +150,7 @@ export interface IBall {
 	angularVelocity: number;
 	orientation: number;
 	speed: number;
+	bounceCount: number;
 }
 
 export interface IPaddle {

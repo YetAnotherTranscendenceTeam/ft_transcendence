@@ -28,7 +28,7 @@ export interface IPongOverlay {
 	lastWinner: number,
 	gameStatus: PONG.PongState,
 	local: boolean,
-	gamemode: GameMode
+	gamemode: GameMode,
 }
 
 export default class PongClient extends PONG.Pong {
@@ -110,14 +110,14 @@ export default class PongClient extends PONG.Pong {
 				players.reverse();
 			return {
 				name: team,
-				players
+				players,
 			}
 		});
 		return {
 			gamemode: this._gameMode,
 			local: this._gameScene !== GameScene.ONLINE,
 			scores: this._stats ? this._stats.score : [0, 0],
-			teams: teams,
+			teams,
 			localPlayer: this._player,
 			time: this._tick * PONG.K.DT,
 			countDown: this._state.frozen_until,
@@ -343,7 +343,7 @@ export default class PongClient extends PONG.Pong {
 		this.loadBalls();
 		this.bindPaddles();
 		this._physicsScene.removeBody(this._ballInstances[0].physicsBody);
-	}
+	}	
 	
 	private loadBalls() {
 		this._balls.forEach((ball: PH2D.Body) => {
@@ -495,6 +495,25 @@ export default class PongClient extends PONG.Pong {
 			const eventBoxSync = eventBoxes[i];
 			const eventBox = this._currentMap.eventboxes[i];
 			eventBox.sync(eventBoxSync);
+		}
+	}
+
+	public addBall(ball: PONG.Ball) {
+		if (this._gameScene !== GameScene.ONLINE) {
+			this._physicsScene.addBody(ball);
+			ball.addEventListener("collision", PONG.ballCollision.bind(this));
+		}
+		this._balls.push(ball);
+		const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
+		this._ballInstances.push(ballInstance);
+	}
+
+	public removeBall(ball: PONG.Ball) {
+		super.removeBall(ball);
+		const ballInstance: ClientBall | undefined = this._ballInstances.find((b: ClientBall) => b.physicsBody === ball);
+		if (ballInstance) {
+			ballInstance.dispose();
+			this._ballInstances = this._ballInstances.filter((b: ClientBall) => b !== ballInstance);
 		}
 	}
 

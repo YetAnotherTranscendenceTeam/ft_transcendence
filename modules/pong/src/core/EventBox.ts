@@ -2,33 +2,38 @@ import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { bounceMaterial } from "./constants.js";
 import { MapSide, IEventBoxSync } from "./types.js";
+import PongEvent from "./PongEvent.js";
 import { PongEventType } from 'yatt-lobbies'
+import MultiBallPongEvent from "./MultiBallPongEvent.js";
 
 export default class EventBox extends PH2D.Body {
+	public static readonly pongEvents = {
+		[PongEventType.MULTIBALL]: new MultiBallPongEvent(),
+	}
+
 	private _active: boolean;
-	private _eventType: PongEventType;
+	private _event?: PongEvent;
 
 	public constructor(shape: PH2D.Shape, position: Vec2) {
 		super(PH2D.PhysicsType.TRIGGER, shape, bounceMaterial, position, Vec2.create());
-		this._active = false;
-		this._eventType = PongEventType.NONE;
+		this.deactivate();
 	}
 	
 	public activate(event: PongEventType): void {
 		this._active = true;
 		this.filter = 0;
-		this._eventType = event;
+		this._event = EventBox.pongEvents[event];
 	}
 
 	public deactivate(): void {
 		this._active = false;
 		this.filter = 1;
-		this._eventType = PongEventType.NONE;
+		this._event = null;
 	}
 
 	public sync(other: IEventBoxSync): void {
 		this._active = other.active;
-		this._eventType = other.eventType;
+		this._event = EventBox.pongEvents[other.eventType];
 		this.filter = this._active ? 0 : 1;
 	}
 
@@ -37,6 +42,10 @@ export default class EventBox extends PH2D.Body {
 	}
 
 	public get eventType(): PongEventType {
-		return this._eventType;
+		return this._event?.type;
+	}
+
+	public get event(): PongEvent | undefined {
+		return this._event;
 	}
 }

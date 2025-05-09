@@ -2,11 +2,15 @@ import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { bounceMaterial } from "./constants.js";
 import { MapSide } from "./types.js";
+import Ball from "./Ball.js";
 
 export default class Goal extends PH2D.Body {
 	private _scored: boolean;
 	private _width: number;
 	private _height: number;
+	// This value is used to determine if the goal protection is destroyed or not.
+	// It is used by the multiball powerup to make sure players don't lose instantly.
+	private _health: number;
 
 	/**
 	 * Create a goal.
@@ -19,6 +23,7 @@ export default class Goal extends PH2D.Body {
 		this._scored = false;
 		this._width = size[0];
 		this._height = size[1];
+		this._health = 0;	
 	}
 
 	/**
@@ -41,6 +46,10 @@ export default class Goal extends PH2D.Body {
 		return this._scored;
 	}
 
+	public get health(): number {
+		return this._health;
+	}
+
 	public side(): MapSide {
 		if (this.position[0] < 0) {
 			return MapSide.LEFT;
@@ -49,8 +58,34 @@ export default class Goal extends PH2D.Body {
 		}
 	}
 
-	public score(): void {
-		this._scored = true;
+	public heal() {
+		this._health = 20;
+	}
+
+	public destroyWall() {
+		this._health = 0;
+	}
+
+	public getDamage(bounce_coun: number): number {
+		return 1 / (1 + Math.exp(-bounce_coun/1.5 + 4.2)) * 8;
+	}
+
+	public score(ball: Ball): boolean {
+		if (this._health <= 0) {
+			this._scored = true;
+			return true;
+		}
+		if (ball.bounceCount > 0) {
+			const damage = this.getDamage(ball.bounceCount);
+			this._health -= damage;
+			// console.log('goal damage', ball.bounceCount, damage);
+			ball.resetDamage();
+			if (this._health <= 0) {
+				this._health = 0;
+			}
+		}
+		// console.log('goal health', this.id, this._health);
+		return false;
 	}
 
 	public resetScore(): void {

@@ -8,12 +8,14 @@ import trunc from "./trunc.js";
 
 export default class Ball extends PH2D.Body {
 	private _speed: number;
+	private _bounceCount: number;
 
 	public constructor(position: Vec2 = Vec2.create(), direction: Vec2 = Vec2.create(), speed: number = 0) {
 		super(PH2D.PhysicsType.DYNAMIC, ballShape, bounceMaterial, position, Vec2.create());
 		this._speed = speed;
 		this.velocity = Vec2.normalize(Vec2.create(), direction) as Vec2;
 		Vec2.scale(this.velocity, this.velocity, this._speed);
+		this._bounceCount = 0;
 	}
 
 	public toJSON(): IBall {
@@ -26,7 +28,8 @@ export default class Ball extends PH2D.Body {
 			//angularVelocity: trunc(this.angularVelocity, 3),
 			orientation: this.orientation,
 			//orientation: trunc(this.orientation, 3),
-			speed: this._speed
+			speed: this._speed,
+			bounceCount: this._bounceCount,
 		};
 	}
 
@@ -54,12 +57,38 @@ export default class Ball extends PH2D.Body {
 		//const compare = Vec2.create();
 		//Vec2.sub(compare, newPos, this.position);
 		//if (Vec2.length(compare) > 0.4)
+		this._bounceCount = ball.bounceCount;
 		this.position = newPos;
 	}
 
 	public setDirection(direction: Vec2) {
 		Vec2.normalize(this.velocity, direction);
 		Vec2.scale(this.velocity, this.velocity, this._speed);
+	}
+
+	public enableDamage() {
+		if (this._bounceCount !== -1) {
+			return;
+		}
+		this._bounceCount = 0;
+	}
+
+	public resetDamage() {
+		this._bounceCount = 0;
+	}
+
+	public disableDamage() {
+		this._bounceCount = -1;
+	}
+
+	public increaseDamage() {
+		if (this._bounceCount !== -1) {
+			this._bounceCount++;
+		}
+	}
+
+	public get bounceCount(): number {
+		return this._bounceCount;
 	}
 
 	public get speed(): number {

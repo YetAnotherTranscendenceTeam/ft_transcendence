@@ -12,6 +12,7 @@ import { MapSide, IPongMap, MapID, PlayerID, PongState, IPongState, PlayerMoveme
 import * as maps from "../maps/index.js";
 import Stats from "./Stats.js";
 import EventBoxManager from "./EventBoxManager.js";
+import PongEvent from "./PongEvent.js";
 
 export class Pong {
 	private _accumulator: number;
@@ -35,6 +36,8 @@ export class Pong {
 	protected _eventBoxManager: EventBoxManager;
 
 	protected _stats: Stats;
+
+	protected _activeEvents: PongEvent[];
 
 	public constructor() {
 		this._physicsScene = new PH2D.Scene(Vec2.create(), K.DT, K.substeps);
@@ -123,12 +126,10 @@ export class Pong {
 		} else {
 			this.switchMap(MapID.FAKE);
 		}
-
-		this._balls.push(new Ball());
-		this._physicsScene.addBody(this._balls[0]);
-		this._balls[0].addEventListener("collision", ballCollision.bind(this));
+		this.addBall(new Ball());
 		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
 		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this._stats);
+		this._activeEvents = [];
 	}
 
 	protected onlineSetup(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state: IPongState = PongState.RESERVED.clone()) {
@@ -180,10 +181,6 @@ export class Pong {
 			obstacles: true,
 			events: [
 				PongEventType.MULTIBALL,
-				PongEventType.ATTRACTOR,
-				PongEventType.BIGPADDLE,
-				PongEventType.SMALLPADDLE,
-				PongEventType.ICE
 			],
 			ball_speed: K.defaultBallSpeed,
 			point_to_win: K.defaultPointsToWin,
@@ -220,6 +217,10 @@ export class Pong {
 	}
 
 	public roundStart() {
+		for (let event of this._activeEvents) {
+			event.deactivate(this);
+		}
+		this._activeEvents.length = 0;
 		this.launchBall();
 		for (const paddle of this._paddles.values()) {
 			paddle.position.y = 0;
@@ -265,22 +266,24 @@ export class Pong {
 	}
 
 	private launchBall() {
-		this._balls[0].position[0] = 0;
-		this._balls[0].position[1] = 0;
-		this._balls[0].previousPosition[0] = 0;
-		this._balls[0].previousPosition[1] = 0;
-		let dir: number;
-		if (this._stats.lastSideToScore === undefined) {
-			dir = Math.floor(Math.random() * 2); // 0 = left, 1 = right
-		} else {
-			dir = this._stats.lastSideToScore === MapSide.LEFT ? 1 : 0; // losing side gets the ball
-		}
-		const angle: number = (Math.random() - 0.5) * 2 * K.launchAngle; // random angle between -20 and 20 degrees
-		const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
-		const y: number = Math.sin(angle); // vertical component of the ball's velocity
-		const ballVelocity: Vec2 = new Vec2(x, y);
-		this._balls[0].speed = K.defaultBallSpeed;
-		this._balls[0].setDirection(ballVelocity);
+		this._balls.forEach((ball: Ball) => {
+			ball.position[0] = 0;
+			ball.position[1] = 0;
+			ball.previousPosition[0] = 0;
+			ball.previousPosition[1] = 0;
+			let dir: number;
+			if (this._stats.lastSideToScore === undefined) {
+				dir = Math.floor(Math.random() * 2); // 0 = left, 1 = right
+			} else {
+				dir = this._stats.lastSideToScore === MapSide.LEFT ? 1 : 0; // losing side gets the ball
+			}
+			const angle: number = (Math.random() - 0.5) * 2 * K.launchAngle; // random angle between -20 and 20 degrees
+			const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
+			const y: number = Math.sin(angle); // vertical component of the ball's velocity
+			const ballVelocity: Vec2 = new Vec2(x, y);
+			ball.speed = K.defaultBallSpeed;
+			ball.setDirection(ballVelocity);
+		});
 	}
 
 	protected ballSync(balls: Array<IBall>, tickDiff: number, dt: number) {
@@ -294,13 +297,12 @@ export class Pong {
 			this._balls[i].sync(balls[i], tickDiff, dt);
 		}
 		for (let i = this._balls.length; i < balls.length; i++) {
-			this._balls.push(new Ball());
-			this._physicsScene.addBody(this._balls[i]);
-			this._balls[i].addEventListener("collision", ballCollision.bind(this));
+			const ball = new Ball();
+			ball.sync(balls[i], tickDiff, dt);
+			this.addBall(ball);
 		}
 		for (let i = this._balls.length - 1; i >= balls.length; i--) {
-			this._physicsScene.removeBody(this._balls[i]);
-			this._balls.splice(i, 1);
+			this.removeBall(this._balls[i]);
 		}
 	}
 
@@ -311,6 +313,21 @@ export class Pong {
 			}
 		}
 		return undefined;
+	}
+
+	public addBall(ball: Ball): void {
+		this._physicsScene.addBody(ball);
+		this._balls.push(ball);
+		ball.addEventListener("collision", ballCollision.bind(this));
+	}
+
+	public removeBall(ball: Ball): void {
+		this._physicsScene.removeBody(ball);
+		this._balls.splice(this._balls.indexOf(ball), 1);
+	}
+
+	public get activeEvents(): PongEvent[] {
+		return this._activeEvents;
 	}
 
 	public get cumulator(): number {
@@ -335,6 +352,14 @@ export class Pong {
 
 	public set lastSideToScore(side: MapSide) {
 		this._stats.lastSideToScore = side;
+	}
+
+	public get balls(): Ball[] {
+		return this._balls;
+	}
+
+	public get goals(): Map<number, Goal> {
+		return this._goals;
 	}
 }
 
