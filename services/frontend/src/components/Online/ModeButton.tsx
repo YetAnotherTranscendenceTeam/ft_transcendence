@@ -46,7 +46,7 @@ export default function ModeButton({
 		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 justify-center'>
 			<h3>{Math.floor(rating)}</h3>
 			<PopHover
-				content='Your current rating'
+				content="Matchmaking Rating is a score that reflects your skill level in the game. It's used to match you with players of similar ability."
 			>
 				<i className="fa-solid fa-circle-info"></i>
 			</PopHover>
