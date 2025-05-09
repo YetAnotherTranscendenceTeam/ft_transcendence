@@ -1,27 +1,29 @@
 import Babact from "babact";
 import { useLobby } from "../../contexts/useLobby";
 import { GameMode, GameModeType } from "yatt-lobbies";
+import PopHover from "../../ui/PopHover";
 
 export default function ModeButton({
 		gamemode,
-		onSelect
+		onSelect,
+		rating = 200,
 	}: {
 		gamemode: GameMode,
-		onSelect: (mode: string) => void
+		onSelect: (mode: string) => void,
+		rating?: number
 	}) {
 
 	const { lobby } = useLobby();
 
 	const getDescription = () => {
 		if (gamemode.type === GameModeType.CUSTOM)
-			return "Custom matches played with friends. No MMR changes";
+			return <>Bring your friends together<br/> Practice in customizable matches</>;
 		if (gamemode.type === GameModeType.TOURNAMENT)
-			return "Clash matches played with friends. No MMR changes";
+			return <>Clash in a tournament-style bracket<br/> From up to 16 teams, one will triumph</>;
 		if (gamemode.type === GameModeType.RANKED)
-			return 'Competitive matches with power-ups enabled. Every match affects your MMR';
+			return <>Face off in competitive matchmaking<br/> Claim victory to climb the leaderboard!</>;
 		if (gamemode.type === GameModeType.UNRANKED)
-			return 'Matches with power-ups enabled. Play freely without affecting your MMR';
-		
+			return <>Train your skills in casual matchmaking<br/> No ranks, just good times!</>;
 	}
 
 	const getIcon = () => {
@@ -35,13 +37,19 @@ export default function ModeButton({
 			return <i className="fa-solid fa-people-group"></i>;
 	}
 
-
-
 	const disabled = (lobby && gamemode?.getLobbyCapacity() < lobby.players.length) || lobby?.mode.name === gamemode.name;
 	return <div
 		className={`mode-button flex flex-col justify-end gap-2 ${gamemode.type} ${disabled ? 'disabled' : ''}`}
 		onClick={() => onSelect(gamemode.name)}
 	>
+		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 justify-center'>
+			<h3>{Math.floor(rating)}</h3>
+			<PopHover
+				content="Matchmaking Rating is a score that reflects your skill level in the game. It's used to match you with players of similar ability."
+			>
+				<i className="fa-solid fa-circle-info"></i>
+			</PopHover>
+		</div>}
 		<div className='flex gap-1 items-end'>
 			<h1>{getIcon()} {gamemode.getDisplayTypeName()}</h1>
 			{(gamemode.type === GameModeType.RANKED || gamemode.type === GameModeType.UNRANKED) && <h2>{gamemode.getDisplayName()}</h2>}
