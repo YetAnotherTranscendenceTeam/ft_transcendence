@@ -23,6 +23,7 @@
 
 .button.disabled, .button.disabled:hover{
 	background-color: var(--bg-2);
+	color: var(--fg-4);
 	cursor: not-allowed;
 }
 

@@ -9,11 +9,15 @@ export default function ProfileGameList({
 		matches,
 		loading,
 		page,
+		totalPages,
+		setPage,
 		onSelectMatch,
 	}: {
 		matches: Match[]
 		loading: boolean,
 		page: number,
+		totalPages: number,
+		setPage: (page: number) => void,
 		onSelectMatch: (match: Match) => void
 	}) {
 
@@ -22,7 +26,7 @@ export default function ProfileGameList({
 			Match History
 		</div>
 		{
-			!loading ? <div className='profile-game-list-body flex flex-col items-center w-full h-full scrollbar gap-2 '>
+			!loading && matches.length > 0 ? <div className='profile-game-list-body flex flex-col items-center w-full h-full scrollbar gap-2 '>
 				{matches.map((match, index) => {
 					return <ProfileGameListItem
 						key={match.match_id}
@@ -32,15 +36,20 @@ export default function ProfileGameList({
 				})}
 			</div>:
 			<div className='profile-game-list-body flex flex-col items-center justify-center w-full h-full '>
-				<Spinner />
+				{ loading ?
+					<Spinner /> :
+					<p>
+						No matches yet.
+					</p>
+				}
 			</div>
 		}
 		<div className='profile-game-list-footer flex flex-row items-center justify-center w-full'>
 			<Pagination
 				page={page}
-				total={1}
+				total={totalPages}
 				setPage={(page) => {
-					console.log(page);
+					setPage(page);
 				}}
 			/>
 		</div>

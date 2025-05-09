@@ -24,7 +24,7 @@ export default function ProfileView() {
 	}, [])
 
 	const [filter, setFilter] = Babact.useState<string>("");
-	const { matches, isLoading, page } = useMatches(userId, 10, filter);
+	const { matches, isLoading, page, setPage, totalPages } = useMatches(userId, 10, filter);
 	const [selectedMatch, setSelectedMatch] = Babact.useState<number>(null);
 	
   	return <div>
@@ -38,6 +38,8 @@ export default function ProfileView() {
 			/>
 			<ProfileGameList
 				page={page}
+				totalPages={totalPages}
+				setPage={setPage}
 				loading={isLoading}
 				matches={matches}
 				onSelectMatch={(match) => {
