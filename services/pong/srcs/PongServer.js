@@ -14,6 +14,8 @@ export class PongServer extends Pong {
 	collisions = [];
 	team_names = [];
 
+	spectators = new Set();
+
 	close_timeout;
 
 	constructor(match_id, gamemode, teams, manager) {
@@ -110,6 +112,14 @@ export class PongServer extends Pong {
 		return this._players.find(player => player.account_id === account_id);
 	}
 
+	spectate(socket) {
+		this.spectators.add(socket);
+
+        socket.on("close", () => {
+			this.spectators.delete(socket);
+		});
+	}
+
 	removeSocket(account_id) {
 		const player = this.getPlayer(account_id);
 		if (player) {
@@ -121,6 +131,9 @@ export class PongServer extends Pong {
 		const messageString = JSON.stringify(message);
 		for (const player of this._players) {
 			player.socket?.send(messageString);
+		}
+		for (const socket of this.spectators) {
+			socket.send(messageString);
 		}
 	}
 
@@ -135,6 +148,9 @@ export class PongServer extends Pong {
 					player.socket.close(1000, "ENDED");
 					player.socket = null;
 				}
+			}
+			for (let socket of this.spectators) {
+				socket.close(1000, "ENDED");
 			}
 		}, 30000);
 	}

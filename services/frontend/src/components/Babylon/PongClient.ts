@@ -209,7 +209,8 @@ export default class PongClient extends PONG.Pong {
 				this._tick = msg.data.match.tick as number;
 				this._stats.lastSideToScore = msg.data.match.lastSide as number;
 				this.ballSync(msg.data.match.balls as PONG.IBall[], 0, 0);
-				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
+				if (msg.data.player)
+					this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				this.updateOverlay();
 			}
 			else if (msg.event === "state") {
@@ -516,7 +517,7 @@ export default class PongClient extends PONG.Pong {
 
 	private playerUpdateOnline() {
 
-		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.playerId);
+		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player?.playerId);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {
