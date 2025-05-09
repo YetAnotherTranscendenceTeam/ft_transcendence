@@ -21,12 +21,9 @@ export default function router(fastify, opts, done) {
         return;
       }
 
-      socket.send(JSON.stringify({
-        event: "sync",
-        data: { match },
-      }));
-
       let player = match.getPlayer(account_id);
+      socket.send(JSON.stringify({ event: "sync", data: { match, player } }));
+
       if (!player) {
         match.spectate(socket);
         return;
