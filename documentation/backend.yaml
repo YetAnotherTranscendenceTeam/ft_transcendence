@@ -1207,7 +1207,23 @@ paths:
                   matchmaking_users:
                     type: array
                     items:
-                      $ref: "#/components/schemas/matchmaking_user"
+                      type: object
+                      properties:
+                        account_id:
+                          $ref: "#/components/schemas/account_id"
+                        gamemode:
+                          $ref: "#/components/schemas/gamemode_name"
+                        rating:
+                          type: number
+                          format: number
+                          example: 1500
+                        match_count:
+                          type: integer
+                          example: 10
+                        elo_datapoints:
+                          type: array
+                          items:
+                            type: number
         404:
           description: User not found
 
