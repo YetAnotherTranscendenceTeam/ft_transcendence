@@ -142,6 +142,27 @@ components:
     light_match:
       $ref: "./asyncapi/matchmaking.yaml#/components/schemas/light_match"
 
+    route_mm_user:
+      type: array
+      items:
+        type: object
+        properties:
+          account_id:
+            $ref: "#/components/schemas/account_id"
+          gamemode:
+            $ref: "#/components/schemas/gamemode_name"
+          rating:
+            type: number
+            format: number
+            example: 1500
+          match_count:
+            type: integer
+            example: 10
+          elo_datapoints:
+            type: array
+            items:
+              type: number
+
     matchmaking_user:
       $ref: "./asyncapi/matchmaking.yaml#/components/schemas/matchmaking_user"
 
@@ -581,7 +602,7 @@ paths:
                   matchmaking_users:
                     type: array
                     items:
-                      $ref: "#/components/schemas/matchmaking_user"
+                      $ref: "#/components/schemas/route_mm_user"
                 required:
                   - account_id
                   - username
@@ -738,6 +759,29 @@ paths:
       responses:
         204:
           description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  account_id:
+                    $ref: "#/components/schemas/account_id"
+                  username:
+                    $ref: "#/components/schemas/username"
+                  avatar:
+                    $ref: "#/components/schemas/avatar"
+                  last_match:
+                    $ref: "#/components/schemas/light_match"
+                  last_tournament:
+                    $ref: "#/components/schemas/light_tournament"
+                  matchmaking_users:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/route_mm_user"
+                required:
+                  - account_id
+                  - username
+                  - avatar
         404:
           $ref: "#/components/responses/AccountNotFound"
       security:
@@ -1207,23 +1251,7 @@ paths:
                   matchmaking_users:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        account_id:
-                          $ref: "#/components/schemas/account_id"
-                        gamemode:
-                          $ref: "#/components/schemas/gamemode_name"
-                        rating:
-                          type: number
-                          format: number
-                          example: 1500
-                        match_count:
-                          type: integer
-                          example: 10
-                        elo_datapoints:
-                          type: array
-                          items:
-                            type: number
+                      $ref: "#/components/schemas/route_mm_user"
         404:
           description: User not found
 
