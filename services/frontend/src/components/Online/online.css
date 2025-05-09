@@ -132,3 +132,27 @@
 .mode-buttons .segmented-control-button {
 	padding: 8px 16px;
 }
+
+.mode-button-mmr {
+	align-self: center;
+	width: fit-content;
+	position: relative;
+}
+
+.mode-button-mmr h3 {
+	font-weight: bold;
+	font-size: 5rem;
+	color: var(--fg-4);
+}
+
+.mode-button-mmr .pop-hover{
+	width: max-content;
+	max-width: 150px;
+}
+
+.mode-button-mmr .pop-hover-container {
+	font-size: medium;
+	position: absolute;
+	right: -16px;
+	bottom: 8px;
+}

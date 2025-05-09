@@ -2,6 +2,7 @@ import Babact from "babact";
 import { useLobby } from "../../contexts/useLobby";
 import { GameMode, GameModeType } from "yatt-lobbies";
 import useMatchmakingUsers from "../../hooks/useMatchmackingUsers";
+import PopHover from "../../ui/PopHover";
 
 export default function ModeButton({
 		gamemode,
@@ -38,12 +39,18 @@ export default function ModeButton({
 	}
 
 	const disabled = (lobby && gamemode?.getLobbyCapacity() < lobby.players.length) || lobby?.mode.name === gamemode.name;
-	// TODO: MMR Style
 	return <div
 		className={`mode-button flex flex-col justify-end gap-2 ${gamemode.type} ${disabled ? 'disabled' : ''}`}
 		onClick={() => onSelect(gamemode.name)}
 	>
-		{gamemode.type === GameModeType.RANKED && `MMR: ${rating}`} 
+		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 justify-center'>
+			<h3>{Math.floor(rating)}</h3>
+			<PopHover
+				content='Your current rating'
+			>
+				<i className="fa-solid fa-circle-info"></i>
+			</PopHover>
+		</div>}
 		<div className='flex gap-1 items-end'>
 			<h1>{getIcon()} {gamemode.getDisplayTypeName()}</h1>
 			{(gamemode.type === GameModeType.RANKED || gamemode.type === GameModeType.UNRANKED) && <h2>{gamemode.getDisplayName()}</h2>}
