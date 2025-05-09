@@ -1,7 +1,6 @@
 import Babact from "babact";
 import { useLobby } from "../../contexts/useLobby";
 import { GameMode, GameModeType } from "yatt-lobbies";
-import useMatchmakingUsers from "../../hooks/useMatchmackingUsers";
 import PopHover from "../../ui/PopHover";
 
 export default function ModeButton({

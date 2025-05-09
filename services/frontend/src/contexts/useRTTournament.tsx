@@ -28,7 +28,6 @@ export const RTTournamentProvider = ({ children } : {children?: any}) => {
 	const navigate = useNavigate();
 
 	const onSync = ({tournament} : {tournament: Tournament}) => {
-		console.log('Tournament sync', tournament);
 		setTournamentEndId(null);
 		tournamentId.current = tournament.id;
 		teamsRef.current = tournament.teams;
@@ -48,7 +47,6 @@ export const RTTournamentProvider = ({ children } : {children?: any}) => {
 
 	const onFinish = () => {
 		setTimeout(() => {
-			console.log('Tournament finished');
 			navigate(`/tournaments/${tournamentId.current}`);
 			setTournamentEndId(tournamentId.current);
 			tournamentId.current = null;

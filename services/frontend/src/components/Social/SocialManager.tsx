@@ -178,6 +178,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 						field='username'
 						placeholder='Username'
 						onInput={handleSearch}
+						autocomplete="off"
 					/>
 					{isLoading && <Spinner />}
 				</Form>

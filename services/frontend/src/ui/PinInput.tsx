@@ -110,6 +110,7 @@ export default function PinInput({
 					onKeyDown={(e) => handleKeyDown(e)}
 					pattern="[0-9]*"
 					inputMode="numeric"
+					autocomplete="off"
 				/>
 			))}
 		</div>
