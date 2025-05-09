@@ -111,7 +111,6 @@ export default function useTournament(tournamentId: number) {
 
 	Babact.useEffect(() => {
 		if (me && RTTournament.tournament_id != tournamentId || RTTournament.matches.length == 0) {
-			console.log('Tournament useEffect', tournamentId, RTTournament);
 			fetchTournament();
 		}
 	}, [me?.account_id, tournamentId, RTTournament.matches]);
