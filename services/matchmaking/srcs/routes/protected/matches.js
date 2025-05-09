@@ -137,7 +137,7 @@ export default function router(fastify, opts, done) {
         update_rating.all({winning_team}, request.params.match_id, updated.gamemode);
         update_rating_end.run(request.params.match_id, updated.gamemode);
       }
-      else
+      else if (request.body.state === MatchState.DONE)
         update_match_count.run(request.params.match_id, updated.gamemode);
       reply.status(200).send(updated);
     }
