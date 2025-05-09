@@ -15,7 +15,7 @@ export default function ProfileView() {
 
 	const { id: userId } = useParams();
 
-	const { user } = useUser(userId);
+	const { user, gamemodes, elos } = useUser(userId);
 
 	const { app } = usePong();
 
@@ -26,13 +26,19 @@ export default function ProfileView() {
 	const [filter, setFilter] = Babact.useState<string>("");
 	const { matches, isLoading, page, setPage, totalPages } = useMatches(userId, 10, filter);
 	const [selectedMatch, setSelectedMatch] = Babact.useState<number>(null);
+
+	Babact.useEffect(() => {
+		console.log('profile view mounted');
+		return () => {
+			console.log('profile view unmounted');
+		}
+	}, []);
 	
   	return <div>
 		<div className='profile-view'>
 			{user && <ProfileHeader user={user} />}
 			<ProfileFilter
 				onChange={(string) => {
-					console.log(string);
 					setFilter(string);
 				}}
 			/>
@@ -46,8 +52,14 @@ export default function ProfileView() {
 					setSelectedMatch(match.match_id);
 				}}
 			/>
-			<ProfilePieChart/>
-			<ProfileLineChart/>
+			{gamemodes && <ProfilePieChart
+				key={'gamemode-chart' + user?.account_id}
+				gamemodes={gamemodes}
+			/>}
+			{elos && <ProfileLineChart
+				key={'elo-chart' + user?.account_id}
+				elos={elos}
+			/>}
 			<ProfileGameDrawer
 				match_id={selectedMatch}
 				onClose={() => {

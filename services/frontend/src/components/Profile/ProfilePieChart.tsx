@@ -1,31 +1,33 @@
 import Babact from "babact";
 import { Chart } from "chart.js/auto";
+import { MatchCount } from "../../hooks/useUser";
 
 
-export default function ProfilePieChart() {
+export default function ProfilePieChart({
+		gamemodes,
+	}: {
+		gamemodes: MatchCount[]
+		[key: string]: any
+	}) {
 
 	const data = {
-		labels: [
-		  'Unranked',
-		  'Ranked',
-		  'Tournament',
-		  'Custom',
-		],
+		labels: gamemodes?.map((item) => item.name) ?? [],
 		datasets: [{
-		  data: [300, 50, 65, 89],
-		  backgroundColor: [
-			'rgb(247, 94, 255)',
-			'rgb(127, 98, 255)',
-			'rgb(50, 255, 115)',
-			'rgb(255, 115, 50)',
-		  ],
+		  data: gamemodes?.map((item) => item.count) ?? [],
+		  backgroundColor: gamemodes?.map((item) => item.color) ?? [],
 		}]
 	};
 
 	Babact.useEffect(() => {
+		console.log('chart mounted');
+		return () => {
+			console.log('chart unmounted');
+		}
+	}, []);
+
+	Babact.useEffect(() => {
 
 		const canvas = document.getElementById('gamemode-chart') as HTMLCanvasElement;
-		const { width, height } = canvas.getBoundingClientRect();
 		const chart = new Chart(
 			canvas,
 			{
@@ -43,8 +45,7 @@ export default function ProfilePieChart() {
 				}
 			}
 		);
-		chart.resize(width, height);
-
+		console.log('chart', chart);
 		return () => {
 			chart.destroy();
 		}
