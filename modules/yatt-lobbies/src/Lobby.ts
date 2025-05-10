@@ -37,9 +37,9 @@ export enum PongEventType {
   NONE = 0,
 	MULTIBALL,
 	ATTRACTOR,
+	ICE,
 	BIGPADDLE,
 	SMALLPADDLE,
-	ICE
 }
 
 export interface IMatchParameters {
@@ -84,9 +84,9 @@ export const defaultMatchParameters: IMatchParameters = {
   events: [
     PongEventType.MULTIBALL,
     PongEventType.ATTRACTOR,
+    // PongEventType.ICE,
     // PongEventType.BIGPADDLE,
     // PongEventType.SMALLPADDLE,
-    // PongEventType.ICE
   ],
   ball_speed: 1,
   point_to_win: 5

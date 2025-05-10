@@ -66,46 +66,46 @@ const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape, rotation: numbe
 		]),
 		rotation: 0
 	},
-	{ // diamond top-left
-		pos: new Vec2(-5, 2),
-		shape: new PH2D.PolygonShape([
-			Vec2.fromValues(0, 0.75),
-			Vec2.fromValues(0.2, 0),
-			Vec2.fromValues(0, -0.75),
-			Vec2.fromValues(-0.2, 0)
-		]),
-		rotation: 1
-	},
-	{ // diamond top-right
-		pos: new Vec2(5, 2),
-		shape: new PH2D.PolygonShape([
-			Vec2.fromValues(0, 0.75),
-			Vec2.fromValues(0.2, 0),
-			Vec2.fromValues(0, -0.75),
-			Vec2.fromValues(-0.2, 0)
-		]),
-		rotation: -1
-	},
-	{ // diamond bottom-right
-		pos: new Vec2(5, -2),
-		shape: new PH2D.PolygonShape([
-			Vec2.fromValues(0, 0.75),
-			Vec2.fromValues(0.2, 0),
-			Vec2.fromValues(0, -0.75),
-			Vec2.fromValues(-0.2, 0)
-		]),
-		rotation: 1
-	},
-	{ // diamond bottom-left
-		pos: new Vec2(-5, -2),
-		shape: new PH2D.PolygonShape([
-			Vec2.fromValues(0, 0.75),
-			Vec2.fromValues(0.2, 0),
-			Vec2.fromValues(0, -0.75),
-			Vec2.fromValues(-0.2, 0)
-		]),
-		rotation: -1
-	}
+	// { // diamond top-left
+	// 	pos: new Vec2(-5, 2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: 1
+	// },
+	// { // diamond top-right
+	// 	pos: new Vec2(5, 2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: -1
+	// },
+	// { // diamond bottom-right
+	// 	pos: new Vec2(5, -2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: 1
+	// },
+	// { // diamond bottom-left
+	// 	pos: new Vec2(-5, -2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: -1
+	// }
 ];
 
 
@@ -116,9 +116,9 @@ export function createMap(): IPongMap {
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),
 		goalRight: new Goal(goalShape, goalRightPosition, goalSize),
-		paddleLeftBack: new Paddle(paddleLeftPosition, Vec2.create(), K.paddleSpeed),
+		paddleLeftBack: new Paddle(paddleLeftPosition, K.paddleSpeed),
 		paddleLeftFront: null,
-		paddleRightBack: new Paddle(paddleRightPosition, Vec2.create(), K.paddleSpeed),
+		paddleRightBack: new Paddle(paddleRightPosition, K.paddleSpeed),
 		paddleRightFront: null,
 		obstacles: obstacleShape.map(({pos, shape, rotation}) => {
 			const wall = new Obstacle(shape, pos, rotation);

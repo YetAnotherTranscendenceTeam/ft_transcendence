@@ -29,8 +29,8 @@ export default class ClientPaddle extends AObject {
 
 	public move(dir: number): void {
 		if (!this._isEnabled) return;
-		const speed = PONG.K.paddleSpeed;
-		this._physicsBody.velocity = new Vec2(0, dir * speed);
+		const paddle: PONG.Paddle = this._physicsBody as PONG.Paddle;
+		paddle.move(dir);
 	}
 
 	public sync(paddleSync: PaddleSync) {
