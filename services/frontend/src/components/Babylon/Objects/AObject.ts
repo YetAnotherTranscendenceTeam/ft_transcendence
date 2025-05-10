@@ -1,5 +1,6 @@
 import { Mesh, Scene} from "@babylonjs/core";
 import * as PH2D from "physics-engine";
+import { Vec2 } from "gl-matrix";
 
 export default abstract class AObject {
 	protected _scene: Scene;
@@ -13,7 +14,13 @@ export default abstract class AObject {
 		this._isEnabled = true;
 	}
 
-	public update(dt: number): void {}
+	public update(dt: number): void {
+		if (!this._isEnabled) return;
+		const wallPos = this._physicsBody.interpolatePosition(dt) as Vec2;
+		this._mesh.position.x = wallPos.x;
+		this._mesh.position.z = wallPos.y;
+		this._mesh.rotation.y = this._physicsBody.orientation;
+	}
 
 	public disable(): void {
 		this._mesh?.setEnabled(false);

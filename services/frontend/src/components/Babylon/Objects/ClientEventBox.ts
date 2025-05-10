@@ -42,10 +42,7 @@ export default class ClientEventBox extends AObject {
 		} else {
 			this.disable();
 		}
-		if (!this._isEnabled) return;
-		const goalPos = this._physicsBody.interpolatePosition(dt) as Vec2;
-		this._mesh.position.x = goalPos.x;
-		this._mesh.position.z = goalPos.y;
+		super.update(dt);
 	}
 
 	public enable(): void {

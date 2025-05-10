@@ -27,13 +27,6 @@ export default class ClientPaddle extends AObject {
 		this._mesh.material = material;
 	}
 
-	public update(dt: number): void {
-		if (!this._isEnabled) return;
-		const paddlePos = this._physicsBody.interpolatePosition(dt) as Vec2;
-		this._mesh.position.x = paddlePos.x;
-		this._mesh.position.z = paddlePos.y;
-	}
-
 	public move(dir: number): void {
 		if (!this._isEnabled) return;
 		const speed = PONG.K.paddleSpeed;

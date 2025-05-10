@@ -326,6 +326,7 @@ export default class PongClient extends PONG.Pong {
 		
 		this.loadBalls();
 		this.bindPaddles();
+		this.updateMeshes();
 	}
 	
 	private localScene() {
@@ -334,6 +335,7 @@ export default class PongClient extends PONG.Pong {
 		
 		this.loadBalls();
 		this.bindPaddles();
+		this.updateMeshes();
 		this.updateOverlay();
 	}
 	
@@ -345,6 +347,7 @@ export default class PongClient extends PONG.Pong {
 		this.loadBalls();
 		this.bindPaddles();
 		this._physicsScene.removeBody(this._ballInstances[0].physicsBody);
+		this.updateMeshes();
 	}	
 	
 	private loadBalls() {
@@ -417,12 +420,7 @@ export default class PongClient extends PONG.Pong {
 		const oldTick = this._tick;
 		this.playerUpdateLocal();
 		dt = this.physicsUpdate(dt);
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.update(dt);
-		});
-		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-			object.update(dt);
-		});
+		this.updateMeshes(dt, dt);
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._stats.score[0] + "-" + this._stats.score[1]);
 			if (this._stats.winner !== undefined) {
@@ -442,11 +440,12 @@ export default class PongClient extends PONG.Pong {
 	private updateOnline() {
 		let dt: number = this._engine.getDeltaTime() / 1000;
 		let ball_interp = dt / PONG.K.DT;
+		let interpolation = 1;
 
 		if (!this._state.isFrozen()) {
 			const oldTick = this._tick;
 			this.playerUpdateOnline();
-			this._interpolation = this.physicsUpdate(dt);
+			interpolation = this.physicsUpdate(dt);
 			for (let i = 0; i < this._balls.length; i++) {
 				this._balls[i].previousPosition = this._balls[i].interpolatePosition(ball_interp);
 			}
@@ -455,7 +454,7 @@ export default class PongClient extends PONG.Pong {
 				&& this._tick > oldTick
 				&& this._ballSteps[0].tick <= this._tick) {
 				const step = this._ballSteps.at(0);
-				this.serverStep(step, this._interpolation, step.collisions > 0);
+				this.serverStep(step, interpolation, step.collisions > 0);
 				this._ballSteps = this._ballSteps.slice(1);
 				lastStep = step;
 			}
@@ -469,15 +468,19 @@ export default class PongClient extends PONG.Pong {
 			}
 		}
 		else {
-			this._interpolation = 1;
+			interpolation = 1;
 			ball_interp = 1;
 		}
 
+		this.updateMeshes(ball_interp, interpolation);
+	}
+
+	private updateMeshes(ball_interp: number = 1, interpolation: number = 1) {
 		this._ballInstances.forEach((ball: ClientBall) => {
 			ball.update(ball_interp);
 		});
 		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-			object.update(this._interpolation);
+			object.update(interpolation);
 		});
 	}
 
