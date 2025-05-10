@@ -128,7 +128,7 @@ export default function useAccount() {
 				403: "Invalid password",
 				409: "Email already in use",
 			},
-			on_error: (res) => {
+			onError: (res) => {
 				if (res.status !== 403)
 					setPayload(null);
 			}

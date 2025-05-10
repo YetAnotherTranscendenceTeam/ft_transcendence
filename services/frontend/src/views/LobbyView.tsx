@@ -3,7 +3,6 @@ import { useParams } from "babact-router-dom";
 import LobbyTeamsList from "../components/Lobby/LobbyTeamsList";
 import { useLobby } from "../contexts/useLobby";
 import './views.css'
-import Overlay from "../templates/Overlay";
 import { usePong } from "../contexts/usePong";
 import { GameScene } from "../components/Babylon/types";
 import { useAuth } from "../contexts/useAuth";
@@ -23,7 +22,7 @@ export default function LobbyView() {
 	}, [])
 
 	Babact.useEffect(() => {
-		if (code && lobby === null && me) {
+		if (code && lobby === null && me && window.location.pathname === `/lobby/${code}`) {
 			join(code);
 		}
 	}, [me, lobby])
@@ -35,8 +34,8 @@ export default function LobbyView() {
 	}, [lobby])
 
 
-	return <Overlay>
+	return <div>
 		{lobby && <LobbyTeamsList lobby={lobby} />}
-	</Overlay>
+	</div>
 
 }

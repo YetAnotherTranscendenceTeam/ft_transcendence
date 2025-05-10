@@ -1,7 +1,7 @@
 import Babact from "babact";
 import { Friend, StatusType } from "../../hooks/useSocials";
 import Button from "../../ui/Button";
-import { GameMode, LobbyStateType } from "yatt-lobbies";
+import { GameMode, ILobbyState, LobbyStateType } from "yatt-lobbies";
 import { useLobby } from "../../contexts/useLobby";
 import useToast, { ToastType } from "../../hooks/useToast";
 import { useAuth } from "../../contexts/useAuth";
@@ -20,6 +20,8 @@ export default function SocialFriendCard({
 	const { createToast } = useToast();
 
 	const isInLobby = (friend.status.type === StatusType.INLOBBY) && friend.status.data && new GameMode(friend.status.data.gamemode);
+	const isInGame = (friend.status.type === StatusType.INGAME) && friend.status.data && new GameMode(friend.status.data.gamemode);
+	const isInTournament = (friend.status.type === StatusType.INTOURNAMENT) && friend.status.data && new GameMode(friend.status.data.gamemode);
 	
 	const { lobby } = useLobby();
 
@@ -29,14 +31,26 @@ export default function SocialFriendCard({
 
 	const [loading, setLoading] = Babact.useState<boolean>(false);
 
+	const getStage = (stage: number) => {
+		if (stage === 0)
+			return 'Final';
+		if (stage === 1)
+			return 'Semi-Final';
+		if (stage === 2)
+			return 'Quarter-Final';
+		else if (stage !== undefined)
+			return `Round of ${2**(stage + 1)}`;
+	}
+
 	const isInvitable = (friend.status.type === StatusType.ONLINE || friend.status.type === StatusType.INACTIVE)
 		&& !lobby?.players.find(p => p.account_id === friend.account_id)
-		&& lobby?.getCapacity() > lobby?.players.length;
+		&& lobby?.getCapacity() > lobby?.players.length
+		&& lobby?.state.joinable === true;
 
 	const isRequestable = isInLobby
 		&& friend.status.data.player_ids.length < isInLobby.getLobbyCapacity()
 		&& !friend.status.data.player_ids.find(account_id => account_id === me.account_id)
-		&& friend.status.data.state.joinable === true
+		&& (friend.status.data.state as ILobbyState).joinable === true
 
 	const handleInvite = (e: MouseEvent) => {
 		e.stopPropagation();
@@ -73,10 +87,10 @@ export default function SocialFriendCard({
 	>
 
 		{ isInLobby &&
-			<div className={`social-friend-card-status flex justify-between ${isRequestable ? 'requestable' : ''}`}>
+			<div className={`social-friend-card-status flex justify-between w-full ${isRequestable ? 'requestable' : ''}  ${friend.status.type}`}>
 				<div className='flex flex-col gap-1'>
 					<h1>{isInLobby.getDisplayName()}</h1>
-					<h2>{isInLobby.type}</h2>
+					<h2>{isInLobby.getDisplayTypeName()}</h2>
 				</div>
 				<p>
 					{friend.status.data.player_ids.length}/{isInLobby.getLobbyCapacity()}
@@ -86,15 +100,33 @@ export default function SocialFriendCard({
 					onClick={(e) => handleRequest(e)}
 					className="social-friend-card-button"
 					>
-						<i className="fa-regular fa-hand"></i> Request to join
+						<i className="fa-regular fa-hand"></i> Request
 					</Button>
 				}
 			</div>
 		}
 
+		{ isInGame &&
+			<div className={`social-friend-card-status flex justify-between w-full ${friend.status.type}`}>
+				<div className='flex flex-col gap-1'>
+					<h1>{isInGame.getDisplayName()}</h1>
+					<h2>{isInGame.getDisplayTypeName()}</h2>
+				</div>
+			</div>
+		}
+
+		{ isInTournament &&
+			<div className={`social-friend-card-status flex justify-between w-full ${friend.status.type}`}>
+				<div className='flex flex-col gap-1'>
+					<h1>{isInTournament.getDisplayName()}</h1>
+					<h2>{getStage(friend.status.data.stage)}</h2>
+				</div>
+			</div>
+		}
+
 		{isInvitable &&
-			<Button className='info' onClick={(e) => handleInvite(e)}>
-				<i className="fa-regular fa-paper-plane"></i> Invite to lobby
+			<Button className='info w-full' onClick={(e) => handleInvite(e)}>
+				<i className="fa-regular fa-paper-plane"></i> Invite
 			</Button>
 		}
 		<Dropdown

@@ -16,9 +16,24 @@
 
 
 .tournament-view {
-	margin-top: var(--header-height);
 	width: 100%;
 	height: calc(100vh - var(--header-height));
 	align-items: stretch;
 	justify-content: center;
+	box-sizing: border-box;
+	padding-right: var(--aside-width);
+}
+
+.profile-view {
+	box-sizing: border-box;
+	padding: 16px;
+	width: 100vw;
+	box-sizing: border-box;
+	padding-right: var(--aside-width);
+	height: calc(100vh - var(--header-height));
+	background-color: color-mix(in srgb, var(--bg-2), transparent 20%);
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	grid-template-rows: repeat(17, 1fr);
+	gap: 8px;
 }

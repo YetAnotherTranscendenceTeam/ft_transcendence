@@ -111,8 +111,8 @@ echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
 
 printf "\n[MISC PARAMETERS] \n"
 if [ -z $1 ]; then
-    generate SOCIAL_OFFLINE_DELAY "10000"
-    generate SOCIAL_INACTIVITY_DELAY "15000"
+    generate_or_use_existing_key SOCIAL_OFFLINE_DELAY "10000"
+    generate_or_use_existing_key SOCIAL_INACTIVITY_DELAY "15000"
     generate IMAGE_PREFIX "dev"
 else
     true

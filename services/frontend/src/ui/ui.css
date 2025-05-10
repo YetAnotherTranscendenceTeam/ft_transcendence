@@ -23,6 +23,7 @@
 
 .button.disabled, .button.disabled:hover{
 	background-color: var(--bg-2);
+	color: var(--fg-4);
 	cursor: not-allowed;
 }
 
@@ -46,7 +47,7 @@
 }
 
 .button.primary.disabled, .button.primary.disabled:hover{
-	background-color: var(--primary-color-40);
+	background-color: var(--primary-color-20);
 }
 
 .button.ghost {
@@ -113,6 +114,48 @@
 
 .button.lobby.disabled, .button.lobby.disabled:hover{
 	background-color: var(--inlobby-color-40);
+}
+
+.button.clear {
+	background-color: transparent;
+	color: var(--fg-1);
+	padding: 0;
+}
+
+.button.clear:hover {
+	background-color: transparent;
+	color: var(--fg-3);
+}
+
+.button.clear.disabled, .button.clear.disabled:hover{
+	background-color: transparent;
+	color: var(--fg-4);
+}
+
+.button.tournament {
+	background-color: var(--intournament-color);
+	color: var(--fg-1);
+}
+
+.button.tournament:hover {
+	background-color: var(--intournament-color-active);
+}
+
+.button.tournament.disabled, .button.tournament.disabled:hover{
+	background-color: var(--intournament-color-40);
+}
+
+.button.game {
+	background-color: var(--ingame-color);
+	color: var(--fg-1);
+}
+
+.button.game:hover {
+	background-color: var(--ingame-color-active);
+}
+
+.button.game.disabled, .button.game.disabled:hover{
+	background-color: var(--ingame-color-40);
 }
 
 /* ================================== */
@@ -215,6 +258,7 @@
 
 .avatar.xs {
 	width: 24px;
+	border-radius: 4px;
 }
 
 .avatar.xs img {
@@ -223,6 +267,7 @@
 
 .avatar.sm {
 	width: 32px;
+	border-radius: 6px;
 }
 
 .avatar.sm img {
@@ -231,6 +276,7 @@
 
 .avatar.md {
 	width: 48px;
+	border-radius: 8px;
 }
 
 .avatar.md img {
@@ -239,10 +285,29 @@
 
 .avatar.lg {
 	width: 64px;
+	border-radius: 12px;
 }
 
 .avatar.lg img {
 	border-radius: 12px;
+}
+
+.avatar.xl {
+	width: 80px;
+	border-radius: 16px;
+}
+
+.avatar.xl img {
+	border-radius: 16px;
+}
+
+.avatar.xxl {
+	width: 96px;
+	border-radius: 20px;
+}
+
+.avatar.xxl img {
+	border-radius: 20px;
 }
 
 .avatar img {
@@ -300,6 +365,14 @@
 
 .avatar-status.inqueue {
 	background-color: var(--inlobby-color-active);
+}
+
+.avatar-status.ingame {
+	background-color: var(--ingame-color);
+}
+
+.avatar-status.intournament {
+	background-color: var(--intournament-color);
 }
 
 /* ================================== */
@@ -491,7 +564,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 9999;
+	z-index: 999;
 }
 
 .modal.overlay {
@@ -687,11 +760,9 @@
 }
 
 .pop-hover {
+	--pop-over-bg: var(--bg-2);
 	position: absolute;
-	top: calc(100% + 8px);
-	left: 50%;
-	transform: translateX(-50%);
-	background-color: var(--bg-2);
+	background-color: var(--pop-over-bg);
 	color: var(--fg-1);
 	border-radius: 4px;
 	padding: 8px;
@@ -699,19 +770,70 @@
 	display: none;
 	z-index: 1000;
 	opacity: 0;
-	transform: opacity 0.3s;
+	transition: opacity 0.3s;
 	font-size: small;
 }
+
+.pop-hover.bottom {
+	top: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.pop-hover.left {
+	top: 50%;
+	left: 0;
+	transform: translate(calc(-100% - 8px), -50%);
+}
+
+.pop-hover.right {
+	top: 50%;
+	right: 0;
+	transform: translate(calc(100% + 8px), -50%);
+}
+
+.pop-hover.top {
+	bottom: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
 
 .pop-hover::after {
 	content: '';
 	position: absolute;
+	border: 8px solid transparent;
+
+}
+
+.pop-hover.bottom::after {
 	top: -16px;
 	left: 50%;
 	transform: translateX(-50%);
-	border: 8px solid transparent;
-	border-bottom-color: var(--bg-2);
+	border-bottom-color: var(--pop-over-bg);
 }
+
+.pop-hover.left::after {
+	top: 50%;
+	right: -16px;
+	transform: translateY(-50%);
+	border-left-color: var(--pop-over-bg);
+}
+
+.pop-hover.right::after {
+	top: 50%;
+	left: -16px;
+	transform: translateY(-50%);
+	border-right-color: var(--pop-over-bg);
+}
+
+.pop-hover.top::after {
+	bottom: -16px;
+	left: 50%;
+	transform: translateX(-50%);
+	border-top-color: var(--pop-over-bg);
+}
+
 
 .pop-hover-container:hover .pop-hover {
 	display: block;
@@ -797,6 +919,7 @@
 	padding: 16px;
 	gap: 16px;
 	border-radius: 8px;
+	line-height: 120%;
 }
 
 .alert.info {
@@ -917,11 +1040,12 @@
 	display: flex;
 	position: relative;
 	color: var(--fg-3);
-	padding: 8px 0;
+	/* padding: 8px 0; */
 	font-size: medium;
-	background-color: var(--bg-3);
+	background-color: var(--bg-1);
 	border-radius: 4px;
 	cursor: pointer;
+	width: max-content;
 }
 
 .segmented-control::before {
@@ -931,7 +1055,7 @@
 	left: var(--segment-translate);
 	width: var(--width);
 	height: 100%;
-	background-color: var(--bg-1);
+	background-color: var(--bg-3);
 	box-shadow: 0px 0px 16px 2px rgba(0, 0, 0, 0.452);
 	border-radius: 4px;
 	z-index: 0;
@@ -941,11 +1065,15 @@
 .segmented-control-button {
 	flex: 1;
 	z-index: 1;
-	padding: 0 8px;
+	padding: 8px;
 	position: relative;
 	transition: 0.3s;
 	display: flex;
 	gap: 8px;
+	justify-content: center;
+	align-items: center;
+	width: var(--width);
+	overflow: hidden;
 }
 
 .segmented-control-button.disabled {
@@ -955,8 +1083,8 @@
 
 .segmented-control-button:not(:last-child)::after {
 	position: absolute;
-	top: 0%;
-	height: 100%;
+	top: 20%;
+	height: 60%;
 	width: 2px;
 	content: "";
 	right: -1px;
@@ -996,9 +1124,6 @@
 
 .dropdown-content {
 	position: absolute;
-	top: 50%;
-	left: 0;
-	transform: translate(-100%, -50%);
 	background-color: var(--bg-1);
 	color: var(--fg-1);
 	border-radius: 4px;
@@ -1008,6 +1133,47 @@
 	display: none;
 }
 
+.dropdown-content.left {
+	top: 50%;
+	left: 0;
+	transform: translate(-100%, -50%);
+}
+
+.dropdown-content.right {
+	top: 50%;
+	right: 0;
+	transform: translate(100%, -50%);
+}
+
+.dropdown-content.top {
+	top: 0;
+	left: 50%;
+	transform: translate(-50%, -100%);
+}
+
+.dropdown-content.bottom {
+	bottom: 0;
+	left: 50%;
+	transform: translate(-50%, 100%);
+}
+
 .dropdown-content.open {
 	display: block;
+}
+
+/* ================================== */
+/* ============ Pagination ========== */
+/* ================================== */
+
+
+.pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+}
+
+.pagination span {
+	color: var(--fg-2);
+	font-size: small;
 }

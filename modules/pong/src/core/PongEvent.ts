@@ -30,7 +30,6 @@ export default class PongEvent {
 			if (this._time <= 0) {
 				this.deactivate(game);
 			}
-			console.log('Event time left:', this._time);
 		}
 	}
 }

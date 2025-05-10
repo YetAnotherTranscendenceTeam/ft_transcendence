@@ -81,5 +81,33 @@ export default function router(fastify, opts, done) {
     res.status(201).send(game);
   });
 
+  fastify.delete("/:match_id", {
+    schema: {
+      params: {
+        type: "object",
+        required: ["match_id"],
+        properties: {
+          match_id: { type: "number" }
+        }
+      }
+    }
+  }, async (req, res) => {
+    try {
+      const jwt = req.headers.authorization.replace("Bearer ", "");
+      fastify.jwt.pong.verify(jwt);
+    }
+    catch(e) {
+      new HttpError.Unauthorized().send(res);
+      return;
+    }
+    const { match_id } = req.params;
+    const game = fastify.games.getGame(match_id);
+    if (!game) {
+      new HttpError.NotFound().send(res);
+      return;
+    }
+    game.destroy();
+  });
+
   done();
 }

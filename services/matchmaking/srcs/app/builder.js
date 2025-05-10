@@ -14,12 +14,13 @@ import db from "./database.js";
 import cors from "@fastify/cors";
 
 import { TournamentManager } from "../TournamentManager.js";
+import { ActiveMatchManager } from "../ActiveMatchManager.js";
 
 export default function build(opts = {}) {
   const app = Fastify({...opts, querystringParser: (str) => qs.parse(str)});
 
   app.register(cors, {
-    origin: new RegExp(process.env.CORS_ORIGIN) || true,
+    origin: process.env.CORS_ORIGIN || false,
     methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
     maxAge: 600,
@@ -56,6 +57,7 @@ export default function build(opts = {}) {
   });
 
   app.decorate("tournaments", new TournamentManager(app));
+  app.decorate("matches", new ActiveMatchManager(app));
   app.register(fastifyFormbody);
   app.register(websocket);
 
@@ -68,6 +70,7 @@ export default function build(opts = {}) {
   app.addHook('onClose', async (instance) => {
     // Cleanup instructions for a graceful shutdown
     await instance.tournaments.cancel();
+    await instance.matches.cancel();
     db.close();
   });
 

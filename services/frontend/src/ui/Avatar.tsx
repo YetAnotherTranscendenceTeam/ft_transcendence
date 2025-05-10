@@ -14,7 +14,7 @@ export default function Avatar({
 		name?: string,
 		status?: string,
 		children?: any,
-		size?: 'xs' | 'sm' | 'md' | 'lg',
+		size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl',
 		[key: string]: any
 	}) {
 
@@ -44,7 +44,6 @@ export default function Avatar({
 		}}/>
 		{status && <span
 			className={`avatar-status ${status}`}
-			// style={`background-color: var(--${status}-color);`}
 		/>}
 		{children && <div  className='avatar-children'>{children}</div>}
 	</div>

@@ -15,7 +15,9 @@ const update_match_state = db.prepare(
 const update_team_score = db.prepare(
   `
   UPDATE match_teams
-  SET score = ?
+  SET
+    score = ?,
+    winning = 0
   WHERE match_id = ? AND team_index = ?
   `
 );
@@ -68,6 +70,17 @@ const update_rating_end = db.prepare(`
     AND matchmaking_users.gamemode = ?
 `);
 
+const update_match_count = db.prepare(`
+  UPDATE matchmaking_users
+    SET
+      match_count = match_count + 1
+  FROM match_players
+  WHERE
+    match_players.match_id = ?
+    AND match_players.account_id = matchmaking_users.account_id
+    AND matchmaking_users.gamemode = ?
+`);
+
 export default function router(fastify, opts, done) {
   fastify.patch(
     "/:match_id",
@@ -93,18 +106,23 @@ export default function router(fastify, opts, done) {
       let updated = {};
       if (request.body.state !== undefined) {
         updated = update_match_state.get(request.body.state, request.params.match_id);
+        if (updated) {
+          fastify.matches.getActiveMatch(request.params.match_id)?.updateMatch({
+            state: updated?.state,
+          });
+        }
       }
       if (!updated) {
         throw new HttpError.NotFound("Match not found");
       }
       const { score_0, score_1} = request.body;
-      if (score_0) {
+      if (score_0 !== undefined) {
         if (score_0 > score_1)
           update_team_score_wining.run(score_0, request.params.match_id, 0);
         else
           update_team_score.run(score_0, request.params.match_id, 0);
       }
-      if (score_1) {
+      if (score_1 !== undefined) {
         if (score_1 > score_0)
           update_team_score_wining.run(score_1, request.params.match_id, 1);
         else
@@ -119,6 +137,8 @@ export default function router(fastify, opts, done) {
         update_rating.all({winning_team}, request.params.match_id, updated.gamemode);
         update_rating_end.run(request.params.match_id, updated.gamemode);
       }
+      else if (request.body.state === MatchState.DONE)
+        update_match_count.run(request.params.match_id, updated.gamemode);
       reply.status(200).send(updated);
     }
   );

@@ -13,6 +13,10 @@
 	color: var(--fg-2);
 }
 
+.lobby-card-body {
+	flex-wrap: wrap;
+}
+
 .lobby-card-body .leader {
 	border: 1px solid var(--primary-color);
 }
@@ -51,6 +55,22 @@
 
 .lobby-card .avatar:hover .kick-button {
 	opacity: 1;
+}
+
+.lobby-card-body .dropdown-content {
+	background-color: var(--bg-2);
+}
+
+.lobby-avatar-dropdown h1 {
+	font-size: small;
+	font-weight: 500;
+	color: var(--fg-1);
+	width: 100%;
+	text-align: center;
+}
+
+.lobby-card-footer .pop-hover {
+	--pop-over-bg: var(--bg-3);
 }
 
 /* =============== List =============== */

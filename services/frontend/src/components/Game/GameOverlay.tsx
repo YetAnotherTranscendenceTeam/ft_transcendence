@@ -35,9 +35,9 @@ export default function GameOverlay({
 			className={`game-overlay-content flex flex-col gap-4 items-center justify-center ${displayBackground ? 'background' : ''}`}
 		>
 			{overlay.lastWinner !== null && <WinnerRoundOverlay />}
-			{overlay.countDown > 0 ? <Timer time={overlay.countDown}/> : ''}
+			{overlay.countDown > 0 && overlay.gameStatus.name !== PongState.RESERVED.name ? <Timer time={overlay.countDown}/> : ''}
 			{overlay.gameStatus.name === PongState.RESERVED.name && !overlay.local && <WaitingPlayerOverlay />}
-			{overlay.gameStatus.name === PongState.ENDED.name && <WinnerMatchOverlay key='match-overlay' onRestart={onRestart}/>}
+			{overlay.gameStatus.name === PongState.ENDED.name && <WinnerMatchOverlay key='match-overlay'/>}
 			{
 				overlay.local && overlay.gameStatus.name === PongState.RESERVED.name &&
 				<Button className="primary" onClick={() => onStart()}>

@@ -41,6 +41,9 @@ export const PongProvider = ({ children } : {children?: any}) => {
 					else if (error.reason === 'ENDED') {
 						createToast('Match is over', ToastType.SUCCESS);
 					}
+					else if (error.reason === "OTHER_LOCATION") {
+						createToast("This game is being played in another location", ToastType.DANGER);
+					}
 					navigate('/');
 				}
 			}

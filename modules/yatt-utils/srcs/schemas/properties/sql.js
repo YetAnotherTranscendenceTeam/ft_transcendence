@@ -31,7 +31,6 @@ const sqlProperties = {
   sort: {
     type: "string",
     enum: ["ASC", "DESC"],
-    default: "DESC",
     description: "Sort order for the results",
   }
 };

@@ -1,7 +1,6 @@
 import Babact from "babact";
 import { GameScene } from "../components/Babylon/types";
 import { usePong } from "../contexts/usePong";
-import Overlay from "../templates/Overlay";
 import useEscape from "../hooks/useEscape";
 import { PongState } from "pong";
 import GameOverlay from "../components/Game/GameOverlay";
@@ -32,17 +31,14 @@ export default function LocalView() {
 
 	useEscape(overlay?.gameStatus.name === PongState.PLAYING.name, () => handlePause())
 
-
 	if (!overlay)
 		return;
 
-	return <Overlay
-		hidden={overlay.gameStatus.name === PongState.PLAYING.name || overlay.gameStatus.name === PongState.FREEZE.name}
-	>
+	return <div>
 		<GameOverlay
 			onStart={handleStart}
 			onResume={handleResume}
 			onRestart={handleRestart}
 		/>
-	</Overlay>
+	</div>
 }

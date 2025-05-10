@@ -1,5 +1,5 @@
 import Babact from "babact";
-import './menu.css'
+import './overlay.css'
 import { useAuth } from "../../contexts/useAuth";
 import Card from "../../ui/Card";
 import { Link } from "babact-router-dom";
@@ -21,7 +21,7 @@ export default function Menu({
 
 	const disabledMessage = () => {
 		if (!me)
-			return <div className='menu-pophover'>You must be logged in</div>;
+			return <div className='menu-pophover'>Log in to play online</div>;
 		if (lobby && lobby.leader_account_id !== me.account_id)
 			return <div className='menu-pophover'>You must be leader of the lobby</div>;
 		if (lobby && !lobby.state?.joinable)

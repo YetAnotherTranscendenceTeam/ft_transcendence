@@ -71,7 +71,6 @@ export class Match {
       this.teams = teams.map((team, team_index) => {
         if (Array.isArray(team)) {
           let name = null;
-          let player_index = 0;
           const players = team.map((lobby) => {
             const lobby_team = lobby.getTeams()[0];
             this.players.push(...lobby_team.players);
@@ -137,8 +136,9 @@ export class Match {
     this.state = MatchState.CANCELLED;
   }
 
-  async reserve() {
-    const res = await YATT.fetch(`http://pong:3000/matches`, {
+  async reserve(lobbyConnection, lobbies) {
+    this.fastify.matches.addMatch(this, lobbies, lobbyConnection);
+    await YATT.fetch(`http://pong:3000/matches`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -8,13 +8,15 @@ import useToast, { ToastType } from "./useToast";
 import { GameMode, IGameMode, ILobbyState } from "yatt-lobbies";
 import Button from "../ui/Button";
 import { useLobby } from "../contexts/useLobby";
+import { MatchState } from "./useTournament";
 
 export enum StatusType {
 	ONLINE = 'online',
 	OFFLINE = 'offline',
 	INGAME = 'ingame',
 	INACTIVE = 'inactive',
-	INLOBBY = 'inlobby'
+	INLOBBY = 'inlobby',
+	INTOURNAMENT = 'intournament',
 }
 
 export type FriendStatus = {
@@ -22,7 +24,11 @@ export type FriendStatus = {
 	data?: {
 		player_ids: number[],
 		gamemode: IGameMode,
-		state: ILobbyState
+		state: ILobbyState | MatchState,
+		match_id?: number,
+		scores?: number[],
+		stage?: number,
+		tournament_id?: number,
 	},
 }
 
@@ -186,7 +192,6 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 			},
 			blocked: IBlockedUser[],
 		}) => {
-
 		setSocials({
 			friends: friends.map((f: IFriend) => new Friend(f, ws, ft_fetch)),
 			pending: {
@@ -442,7 +447,7 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	};
 
 	const onConnect = () => {
-		status({type: StatusType.ONLINE});
+		console.log('Connected to Social WebSocket');
 	};
 
 	const ws = useWebSocket({

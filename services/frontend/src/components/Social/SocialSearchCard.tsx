@@ -55,7 +55,7 @@ export default function SocialSearchCard({
 		const isFriend = socials?.friends?.find(f => f.account_id === user.account_id);
 		if (isFriend) {
 			return <Button
-				className="danger"
+				className="danger w-full"
 				onClick={(e) => handleRemoveFriend(e, isFriend)}
 				loading={isLoading}
 			>
@@ -65,7 +65,7 @@ export default function SocialSearchCard({
 		const isBlocked = socials?.blocked?.find(b => b.account_id === user.account_id);
 		if (isBlocked) {
 			return <Button
-				className="danger"
+				className="danger w-full"
 				onClick={(e) => handleUnblock(e, isBlocked)}
 				loading={isLoading}
 			>
@@ -75,7 +75,7 @@ export default function SocialSearchCard({
 		const isRequestSend = socials?.pending.sent?.find(r => r.account_id === user.account_id);
 		if (isRequestSend) {
 			return <Button
-				className="danger"
+				className="danger w-full"
 				onClick={(e) => handleCancelRequest(e, isRequestSend)}
 				loading={isLoading}
 			>
@@ -85,7 +85,7 @@ export default function SocialSearchCard({
 		const isRequestRecieved = socials?.pending.received?.find(r => r.account_id === user.account_id);
 		if (isRequestRecieved) {
 			return <Button
-				className="success"
+				className="success w-full"
 				onClick={(e) => handleAcceptRequest(e, isRequestRecieved)}
 				loading={isLoading}
 			>
@@ -93,7 +93,7 @@ export default function SocialSearchCard({
 			</Button>
 		}
 		return <Button
-			className="success"
+			className="success w-full"
 			onClick={(e) => handleSendRequest(e)}
 			loading={isLoading}
 		>

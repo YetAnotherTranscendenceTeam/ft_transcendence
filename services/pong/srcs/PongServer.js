@@ -8,15 +8,19 @@ PongState.RESERVED.tickCallback = function (dt, pong) {
 	return false;
 }
 
+PongState.RESERVED.frozen_until = 30;
+
 export class PongServer extends Pong {
 	collisions = [];
 	team_names = [];
+
+	close_timeout;
 
 	constructor(match_id, gamemode, teams, match_parameters, manager) {
 		super();
 		this.manager = manager;
 		this._time = 0;
-		this._lastUpdate = 0;
+		this._lastUpdate = Date.now();
 		this.team_names = teams.map((team) => team.name);
 		this.onlineSetup(match_id, gamemode, teams.map((team) => team.players).flat(), match_parameters, PongState.RESERVED.clone());
 		for (let ball of this._balls) {
@@ -27,6 +31,8 @@ export class PongServer extends Pong {
 	}
 
 	destroy() {
+		if (!this.close_timeout)
+			this.scheduleClose();
 		this.manager.unregisterGame(this._matchId);
 	}
 
@@ -69,6 +75,7 @@ export class PongServer extends Pong {
 	roundStart() {
 		super.roundStart();
 		const back_state = this._stats.winner !== undefined ? 2 : 1;
+		const oldStateName = this._state.name;
 		YATT.fetch(`http://matchmaking:3000/matches/${this._matchId}`, {
 			method: "PATCH",
 			headers: {
@@ -78,7 +85,7 @@ export class PongServer extends Pong {
 			body: JSON.stringify({
 				score_0: this._stats.score[0],
 				score_1: this._stats.score[1],
-				state: back_state
+				state: oldStateName === "RESERVED" || back_state == 2 ? back_state : undefined
 			}),
 		}).catch((err) => {
 			console.error("Error updating match:", err);
@@ -124,7 +131,7 @@ export class PongServer extends Pong {
 	}
 
 	scheduleClose() {
-		setTimeout(() => {
+		this.close_timeout = setTimeout(() => {
 			for (let player of this._players) {
 				if (player.socket) {
 					player.socket.close(1000, "ENDED");

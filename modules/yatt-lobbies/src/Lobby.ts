@@ -92,6 +92,14 @@ export const defaultMatchParameters: IMatchParameters = {
   point_to_win: 5
 }
 
+export enum QueueStatus {
+  CAN_QUEUE = 0,
+  BAD_LOBBY = 1,
+  FEW_TEAMS = 2,
+  NO_OPPONENT = 3,
+  UNCOMPLETE_TEAM = 4,
+}
+
 export class Lobby implements ILobby {
 
   join_secret: string;
@@ -234,5 +242,25 @@ export class Lobby implements ILobby {
   setPlayers(players: IPlayer[]): this {
     this.players = players;
     return this;
+  }
+
+  areTeamsFull(): boolean {
+    return this.players.length % this.mode.team_size === 0;
+  }
+
+  canQueue(): number {
+    if (this.state.type != LobbyStateType.WAITING) {
+      return QueueStatus.BAD_LOBBY;
+    }
+    if (this.mode.type == GameModeType.TOURNAMENT && this.getTeamCount() < 3) {
+      return QueueStatus.FEW_TEAMS;
+    }
+    if (this.mode.type == GameModeType.CUSTOM && this.getTeamCount() != 2) {
+      return QueueStatus.NO_OPPONENT;
+    }
+    if ([GameModeType.TOURNAMENT, GameModeType.CUSTOM].includes(this.mode.type) && !this.areTeamsFull()) {
+      return QueueStatus.UNCOMPLETE_TEAM;
+    }
+    return QueueStatus.CAN_QUEUE;
   }
 }

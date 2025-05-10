@@ -59,7 +59,7 @@
 	transition: border 0.3s, transform 0.3s;
 	cursor: pointer;
 	background-color: color-mix(in srgb, var(--bg-1), transparent 20%);
-	overflow: hidden;
+	/* overflow: hidden; */
 }
 
 .mode-button.disabled {
@@ -80,7 +80,7 @@
 	text-transform: uppercase;
 	display: flex;
 	align-items: center;
-	gap: 4px
+	gap: 4px;
 }
 
 .mode-button h1 i {
@@ -88,7 +88,7 @@
 }
 
 .mode-button.custom h1 i {
-	color: #6fff72;
+	color: rgb(50, 255, 115);
 }
 
 .mode-button.ranked h1 i {
@@ -100,7 +100,7 @@
 }
 
 .mode-button.tournament h1 i {
-	color: #ffb24e;
+	color: var(--intournament-color);
 }
 
 .mode-button h2 {
@@ -113,6 +113,7 @@
 	width: 100%;
 	color: var(--fg-3);
 	font-size: medium;
+	line-height: 1.2;
 }
 
 .online-join-form {
@@ -130,5 +131,33 @@
 }
 
 .mode-buttons .segmented-control-button {
-	padding: 0 16px;
+	padding: 8px 16px;
+}
+
+.mode-button-mmr {
+	align-self: center;
+	width: fit-content;
+	position: relative;
+	height: 100%;
+}
+
+.mode-button-mmr h3 {
+	font-weight: bold;
+	font-size: 5rem;
+	color: var(--fg-2);
+}
+
+.mode-button-mmr .pop-hover{
+	width: max-content;
+	max-width: 200px;
+	line-height: 1.1;
+}
+
+.mode-button-mmr .pop-hover-container {
+	font-size: small;
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 0px;
+	color: var(--fg-3);
 }

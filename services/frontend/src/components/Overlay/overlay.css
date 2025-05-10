@@ -1,3 +1,37 @@
+/* Menu */
+
+.menu {
+	width: 100%;
+	height: 100%;
+	flex-direction: row;
+	gap: 32px;
+	border-radius: 0;
+}
+
+.menu a {
+	text-decoration: none;
+}
+
+.menu .pop-hover-container {
+	gap: 8px;
+}
+
+.menu p {
+	opacity: 1;
+	transition: opacity 0.3s;
+}
+
+.menu .button.active {
+	color: var(--primary-color);
+}
+
+.menu-pophover {
+	width: max-content
+}
+
+
+/* Overlay */
+
 .aside-content > *, .overlay > *, .template-content > * {
 	pointer-events: initial;
 }
@@ -67,6 +101,7 @@
 	position: fixed;
 	top: 0;
 	left: 0;
+	z-index: 3;
 }
 
 .aside-content {
