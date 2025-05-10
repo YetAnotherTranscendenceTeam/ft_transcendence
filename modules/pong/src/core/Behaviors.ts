@@ -40,17 +40,19 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
 		}
 
-		if (this._stats.lastSideToHit !== other.side()) {
-			ballEmitter.faster();
-		} else {
-			ballEmitter.correctSpeed();
-		}
+		// if (this._stats.lastSideToHit !== other.side()) {
+		// 	ballEmitter.faster();
+		// } else {
+		// 	ballEmitter.correctSpeed();
+		// }
+		ballEmitter.correctSpeed();
 		console.log("ball speed: " + ballEmitter.velocity.magnitude);
 
 		// register the hit
 		const playerId: PlayerID = this.getPlayerIdFromBodyId(other.id);
 		if (playerId !== undefined) {
 			this._stats.hit(playerId, ballEmitter.id, this._tick);
+			ballEmitter.playerId = playerId;
 		}
 		this._eventBoxManager.onBallPaddleCollision();
 		ballEmitter.increaseDamage();
@@ -64,13 +66,12 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		}
 	}
 
-	if (other instanceof EventBox) {
+	if (other instanceof EventBox &&
+		ballEmitter.playerId !== undefined &&
+		ballEmitter.playerId !== -1) {
 		if (other.active) {
-			// ballEmitter.setDirection(Vec2.fromValues(ballEmitter.velocity[0], -ballEmitter.velocity[1]));
-			//Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, -1);
-			//ballEmitter.correctSpeed();
 			console.log(other.event);
-			other.event?.activate(this);
+			other.event?.activate(this, ballEmitter.playerId);
 			other.deactivate();
 		}
 	}

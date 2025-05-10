@@ -181,6 +181,7 @@ export class Pong {
 			obstacles: true,
 			events: [
 				PongEventType.MULTIBALL,
+				PongEventType.ATTRACTOR,
 			],
 			ball_speed: K.defaultBallSpeed,
 			point_to_win: K.defaultPointsToWin,
@@ -239,6 +240,9 @@ export class Pong {
 			this._accumulator = 0.2;
 		}
 		while (this._accumulator >= K.DT) {
+			this._activeEvents.forEach((event: PongEvent) => {
+				event.update(this);
+			});
 			this._physicsScene.step();
 			this._accumulator -= K.DT;
 			this._tick++;

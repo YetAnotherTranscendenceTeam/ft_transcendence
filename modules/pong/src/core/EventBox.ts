@@ -5,10 +5,12 @@ import { MapSide, IEventBoxSync } from "./types.js";
 import PongEvent from "./PongEvent.js";
 import { PongEventType } from 'yatt-lobbies'
 import MultiBallPongEvent from "./MultiBallPongEvent.js";
+import AttractorPongEvent from "./AttractorPongEvent.js";
 
 export default class EventBox extends PH2D.Body {
 	public static readonly pongEvents = {
 		[PongEventType.MULTIBALL]: new MultiBallPongEvent(),
+		[PongEventType.ATTRACTOR]: new AttractorPongEvent(),
 	}
 
 	private _active: boolean;

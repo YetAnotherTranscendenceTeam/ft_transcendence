@@ -9,6 +9,7 @@ import trunc from "./trunc.js";
 export default class Ball extends PH2D.Body {
 	private _speed: number;
 	private _bounceCount: number;
+	public playerId: number;
 
 	public constructor(position: Vec2 = Vec2.create(), direction: Vec2 = Vec2.create(), speed: number = 0) {
 		super(PH2D.PhysicsType.DYNAMIC, ballShape, bounceMaterial, position, Vec2.create());
@@ -16,6 +17,7 @@ export default class Ball extends PH2D.Body {
 		this.velocity = Vec2.normalize(Vec2.create(), direction) as Vec2;
 		Vec2.scale(this.velocity, this.velocity, this._speed);
 		this._bounceCount = 0;
+		this.playerId = -1;
 	}
 
 	public toJSON(): IBall {

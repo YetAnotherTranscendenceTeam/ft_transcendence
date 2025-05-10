@@ -4,13 +4,14 @@ import PongEvent from './PongEvent.js';
 import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
+import { PlayerID } from './types.js';
 
 export default class MultiBallPongEvent extends PongEvent {
 	constructor() {
 		super(PongEventType.MULTIBALL);
 	}
 
-	public override activate(game: Pong): void {
+	public override activate(game: Pong, playerId: PlayerID): void {
 		console.log('MULTIBALL');
 		const isFirstMultiBall = game.activeEvents.find((event) => event instanceof MultiBallPongEvent) === undefined;
 		for (let i = 0; i < 3; i++) {
@@ -29,7 +30,7 @@ export default class MultiBallPongEvent extends PongEvent {
 			game.addBall(newBall);
 			ball.enableDamage();
 		}
-		super.activate(game);
+		super.activate(game, playerId);
 		if (isFirstMultiBall) {
 			game.goals.forEach((goal: Goal) => {
 				goal.heal();
