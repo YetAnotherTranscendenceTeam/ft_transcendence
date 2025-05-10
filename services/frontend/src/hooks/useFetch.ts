@@ -6,7 +6,8 @@ export type FetchOptions = {
 	show_error?: boolean
 	success_message?: string,
 	error_messages?: { [key: number | string]: string },
-	onError?: (res: Response) => void
+	onError?: (res: Response) => void,
+	setTotal?: (total: number) => void,
 }
 
 export class HTTPError {
@@ -43,6 +44,10 @@ export default function useFetch() {
 		const response = await APIFetch(url, fetch_options);
 		const data = await handleAPIResponse(response, option);
 		setIsLoading(false);
+		const total = response.headers?.get('X-Total-Count');
+		if (total && option.setTotal) {
+			option.setTotal(parseInt(total));
+		}
 		return data;
 	}
 

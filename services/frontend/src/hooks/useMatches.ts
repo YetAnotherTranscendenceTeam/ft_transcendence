@@ -1,7 +1,7 @@
 import Babact from "babact";
 import useFetch from "./useFetch";
 import config from "../config";
-import { IUser, User } from "./useUsers";
+import { IUser } from "./useUsers";
 
 
 export interface IMatchPlayer {
@@ -169,20 +169,24 @@ export class Match implements IMatch {
 export default function useMatches(account_id: number, pageSize: number = 10, filter?: string) {
 
 	const [matches, setMatches] = Babact.useState<Match[]>([]);
-	const [page, setPage] = Babact.useState(0);
+	const [page, setPage] = Babact.useState(1);
+	const [totalCount, setTotalCount] = Babact.useState(0);
 
 	const { ft_fetch, isLoading }  = useFetch();
 
 	const fetchMatches = async () => {
 		const params = new URLSearchParams();
-		params.append('offset', `${page * pageSize}`);
+		params.append('offset', `${(page - 1) * pageSize}`);
 		params.append('limit', `${pageSize}`);
+		params.append('order[match_id]', 'DESC');
+		params.append('filter[state]', '2');
 		if (filter) {
 			params.append('filter[gamemode]', filter+'_2v2');
 			params.append('filter[gamemode]', filter+'_1v1');
 		}
 		const response = await ft_fetch(`${config.API_URL}/matchmaking/users/${account_id}/matches?${params.toString()}`, {}, {
 			show_error: true,
+			setTotal: setTotalCount,
 		});
 		if (response) {
 			setMatches(response.map((match: IMatch) => new Match(match, account_id)));
@@ -190,13 +194,18 @@ export default function useMatches(account_id: number, pageSize: number = 10, fi
 	}
 
 	Babact.useEffect(() => {
+		if (page >  1)
+			setPage(1);
+	}, [filter]);
+
+	Babact.useEffect(() => {
 		fetchMatches();
 	}, [page, account_id, filter]);
-
 	return {
 		matches,
 		page,
 		setPage,
+		totalPages: Math.ceil(totalCount / pageSize) || 1,
 		isLoading
 	}
 }
