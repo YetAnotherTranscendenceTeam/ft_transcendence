@@ -4,6 +4,7 @@ import { useParams } from "babact-router-dom";
 import GameOverlay from "../components/Game/GameOverlay";
 import { useOverlay } from "../contexts/useOverlay";
 import useEscape from "../hooks/useEscape";
+import { APIRefreshToken } from "../hooks/useAPI";
 
 export default function SpectatorView() {
 
@@ -13,8 +14,13 @@ export default function SpectatorView() {
 
 	useEscape(true, () => toggleOverlay());
 
+	const connect = async () => {
+		await APIRefreshToken();
+		app.connect(id, false);
+	}
+
 	Babact.useEffect(() => {
-		app.connect(id, true);
+		connect();
 	}, [id]);
 
 	const handleClick = () => {
