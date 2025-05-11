@@ -9,11 +9,11 @@ export default function Switch({
 	}) {
 
 
-	return <label class="switch">
+	return <label className="switch">
 		<input type="checkbox"
 			checked={value}
 			onChange={(e) => onChange(e.target.checked)}
 		/>
-		<span class="slider round"></span>
+		<span className="slider round"></span>
   	</label>
 }
