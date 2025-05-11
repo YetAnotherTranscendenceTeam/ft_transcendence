@@ -6,7 +6,8 @@ import jwt from "@fastify/jwt";
 import formbody from "@fastify/formbody";
 import router from "./router.js";
 import websocket from "@fastify/websocket";
-import { AUTHENTICATION_SECRET, PONG_SECRET } from "./env.js";
+import { AUTHENTICATION_SECRET, SPECTATOR_SECRET } from "./env.js";
+import JwtGenerator from "yatt-jwt";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
@@ -19,7 +20,12 @@ export default function build(opts = {}) {
   });
 
   app.register(jwt, { secret: AUTHENTICATION_SECRET, namespace: "authentication" });
-  app.register(jwt, { secret: PONG_SECRET, namespace: "pong"  });
+  app.register(jwt, { secret: SPECTATOR_SECRET, namespace: "spectator" });
+  app.decorate("tokens", new JwtGenerator());
+  app.addHook('onReady', async function () {
+    this.tokens.register(app.jwt.spectator, "spectator");
+  });
+
   app.register(formbody);
   app.register(websocket);
 

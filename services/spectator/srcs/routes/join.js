@@ -29,7 +29,7 @@ export default function router(fastify, opts, done) {
 
     const game = fastify.games.get(match_id) || new GameConnection(match_id, fastify);
     if (game)
-      game.subscribe(socket);
+      await game.subscribe(socket);
   });
 
   done();

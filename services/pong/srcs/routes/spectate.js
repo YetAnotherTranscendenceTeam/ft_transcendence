@@ -1,6 +1,7 @@
 "use strict";
 
 import { WsCloseError } from "yatt-ws";
+import { HttpError } from "yatt-utils";
 
 export default function router(fastify, opts, done) {
   const schema = {
@@ -18,7 +19,7 @@ export default function router(fastify, opts, done) {
     const { match_id, access_token } = request.query;
 
     try {
-      await fastify.jwt.pong.verify(access_token);
+      await fastify.jwt.spectator.verify(access_token);
     }
     catch (err) {
       WsCloseError.Unauthorized.close(socket);
@@ -37,10 +38,24 @@ export default function router(fastify, opts, done) {
       match.setSpectator(null);
     });
 
-    socket.on("message", () => {
-        socket.send(JSON.stringify({ event: "sync", data: { match } }));
-    });
+  });
 
+  fastify.get("/sync", { schema },  async (request, reply) => {
+    const { match_id, access_token } = request.query;
+
+    try {
+      await fastify.jwt.spectator.verify(access_token);
+    }
+    catch (err) {
+      throw new HttpError.Unauthorized();
+    }
+
+    let match = fastify.games.getGame(match_id);
+    if (!match) {
+      throw new HttpError.NotFound();
+    }
+
+    return { event: "sync", data: { match } };
   });
 
   done();
