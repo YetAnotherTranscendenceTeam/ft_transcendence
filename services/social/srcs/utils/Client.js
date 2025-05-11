@@ -45,13 +45,16 @@ export class Client {
   };
 
   async welcome(clients, socket) {
-    // Retreive all friends / pending requests / blocked
+    // Retrieve all friends / blocked / pending requests 
     const friends = dbAction.selectFriendships(this.account_id).map(f => f.account_id);
-    const pending = {
-      sent: dbAction.selectRequestsSent(this.account_id).map(r => r.account_id),
-      received: dbAction.selectRequestsReceived(this.account_id).map(r => r.account_id),
-    };
     const blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
+    const pending = {
+      sent: dbAction.selectRequestsSent(this.account_id)
+        .map(r => r.account_id),
+      received: dbAction.selectRequestsReceived(this.account_id)
+        .map(req => req.account_id)
+        .filter(req => !blocked.includes(req)),
+    };
 
     // Fetch all related profiles
     const profiles = await fetchProfiles([...friends, ...pending.sent, ...pending.received, ...blocked]);
