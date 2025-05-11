@@ -5,13 +5,11 @@ import GameOverlay from "../components/Game/GameOverlay";
 
 export default function OnlineView() {
 
-	const { app } = usePong();
+	const { app, overlay } = usePong();
 	const { id } = useParams();
 
-	const { overlay } = usePong();
-
 	Babact.useEffect(() => {
-		app.connect(id);
+		app.connect(id, window.location.pathname.includes("/spectate"));
 	}, [id]);
 
 	if (!overlay)

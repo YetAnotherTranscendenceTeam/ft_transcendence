@@ -22,23 +22,22 @@ export default function router(fastify, opts, done) {
       }
 
       let player = match.getPlayer(account_id);
-      socket.send(JSON.stringify({ event: "sync", data: { match, player } }));
-
       if (!player) {
-        match.spectate(socket);
+        WsCloseError.Forbidden.close(socket);
         return;
       }
-  
       if (player.socket) {
         WsCloseError.OtherLocation.close(player.socket);
         player.socket = null;
       }
       player.socket = socket;
-
+      socket.send(JSON.stringify({
+        event: "sync",
+        data: {match, player}
+      }));
       socket.on("close", () => {
         player.socket = null;
       });
-
       socket.on("message", (message) => {
         try {
           const msgOBJ = JSON.parse(message)

@@ -1,0 +1,47 @@
+"use strict";
+
+import { WsCloseError } from "yatt-ws";
+
+export default function router(fastify, opts, done) {
+  const schema = {
+    querystring: {
+      type: "object",
+      properties: {
+        match_id: { type: "number" },
+        access_token: { type: "string" }
+      },
+      required: ["match_id", "access_token"],
+    },
+  };
+
+  fastify.get("/", { schema, websocket: true }, async (socket, request) => {
+    const { match_id, access_token } = request.query;
+
+    try {
+      await fastify.jwt.pong.verify(access_token);
+    }
+    catch (err) {
+      WsCloseError.Unauthorized.close(socket);
+      return;
+    }
+
+    let match = fastify.games.getGame(match_id);
+    if (!match) {
+      WsCloseError.NotFound.close(socket);
+      return;
+    }
+
+    match.setSpectator(socket);
+
+    socket.on("close", () => {
+      match.setSpectator(null);
+    });
+
+    socket.on("message", () => {
+        socket.send(JSON.stringify({ event: "sync", data: { match } }));
+    });
+
+  });
+
+  done();
+};

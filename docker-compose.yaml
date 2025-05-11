@@ -15,6 +15,7 @@ services:
     depends_on:
       - avatars
       - social
+      - spectator
 
   frontend:
     build:
@@ -299,6 +300,19 @@ services:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
+      - PONG_SECRET=${PONG_SECRET}
+    networks:
+      - client
+
+  spectator:
+    build:
+      context: services/spectator/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.spectator:latest
+    environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
+      - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - PONG_SECRET=${PONG_SECRET}
     networks:
       - client

@@ -173,12 +173,15 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
-	public connect(match_id: number) {
+	public connect(match_id: number, spectate: boolean = false) {
 		if (this._websocket) {
 			this._websocket.onclose = undefined;
 			this._websocket.close();
 		}
-		this._websocket = new WebSocket(`${config.WS_URL}/pong/join?match_id=${match_id}&access_token=${localStorage.getItem("access_token")}`);
+
+		const service = spectate ? "spectator" : "pong";
+		const uri = `${config.WS_URL}/${service}/join?match_id=${match_id}&access_token=${localStorage.getItem("access_token")}`;
+		this._websocket = new WebSocket(uri);
 		
 		this._websocket.onmessage = (ev) => { // step, state, sync
 			const msg = JSON.parse(ev.data);

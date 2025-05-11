@@ -14,7 +14,6 @@ import JwtGenerator from "yatt-jwt";
 export default function build(opts = {}) {
   const app = Fastify(opts);
 
-  
   app.register(cors, {
     origin: process.env.CORS_ORIGIN || false,
     methods: ["GET", "POST", "PATCH", "DELETE"],
@@ -40,7 +39,6 @@ export default function build(opts = {}) {
       return new HttpError.Unauthorized().json();
     },
   });
-
 
   app.decorate("games", new GameManager(app));
   app.register(jwt, { secret: AUTHENTICATION_SECRET });

@@ -32,6 +32,7 @@ export default function App() {
 		}
 	}, []);
 
+	//TODO /matches/:id/spectate route configuration
 
 	return <Router>
 		<UiProvider>
@@ -45,6 +46,7 @@ export default function App() {
 			<Route path='/lobby/:code' element={<LobbyView key='lobby-view'/>} key='lobby-view'/>
 			<Route path='/profiles/:id' element={<ProfileView key='profiles-view'/>} key='profiles-view'/>
 			<Route path='/local' element={<LocalView key='local-view'/>} key='local-view'/>
+			<Route path='/matches/:id/spectate' element={<OnlineView key='matches-view'/>} key='matches-view'/>
 			<Route path='/matches/:id' element={<OnlineView key='matches-view'/>} key='matches-view'/>
 			<Route path='/tournaments/:id' element={<TournamentView key='tournaments-view'/>} key='tournaments-view'/>
 			<Route path="/*" element={<Home key='home-view'/>} key='home-view'/>

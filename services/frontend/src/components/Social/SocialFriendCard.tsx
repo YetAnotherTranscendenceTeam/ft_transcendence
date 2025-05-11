@@ -113,7 +113,7 @@ export default function SocialFriendCard({
 					<h2>{isInGame.getDisplayTypeName()}</h2>
 				</div>
 				<Button
-					onClick={(e) => navigate(`/matches/${friend.status.data.match_id}`)}
+					onClick={(e) => navigate(`/matches/${friend.status.data.match_id}/spectate`)}
 					className="social-friend-card-button game"
 				>
 					<i className="fa-regular fa-eye"></i>
