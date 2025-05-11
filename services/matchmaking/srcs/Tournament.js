@@ -154,8 +154,13 @@ class TournamentMatch {
     this.tournament.broadcast("match_update", {
       match: this,
     });
+    if (newState == TournamentMatchState.CANCELLED) {
+      this.updateDB();
+      this.tournament.cancel();
+      return;
+    }
     if (newState == TournamentMatchState.DONE && oldState != newState) {
-        this.updateDB();
+      this.updateDB();
       this.tournament.manager.unregisterTournamentMatch(this);
       const winner_team = this.internal_match.teams[0].score > this.internal_match.teams[1].score ? 0 : 1;
       if (!this.nextMatch) {
