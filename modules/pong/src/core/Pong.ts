@@ -181,8 +181,8 @@ export class Pong {
 		this._matchParameters = {
 			obstacles: true,
 			events: [
-				// PongEventType.MULTIBALL,
-				// PongEventType.ATTRACTOR,
+				PongEventType.MULTIBALL,
+				PongEventType.ATTRACTOR,
 				PongEventType.ICE,
 			],
 			ball_speed: K.defaultBallSpeed,
