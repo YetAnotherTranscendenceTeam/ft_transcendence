@@ -1,6 +1,6 @@
 import { PongServer } from './PongServer.js';
 import { K } from "pong"
-import { GameMode, GameModeType } from 'yatt-lobbies';
+import { defaultMatchParameters, GameMode, GameModeType } from 'yatt-lobbies';
 
 export class GameManager {
 
@@ -28,7 +28,7 @@ export class GameManager {
     clearInterval(this.timeout);
   }
 
-  registerGame(match_id, gamemode, teams, match_parameters) {
+  registerGame(match_id, gamemode, teams, match_parameters = defaultMatchParameters) {
     if (this.pongs.has(match_id)) {
       throw new Error(`Match ${match_id} already exists`);
     }
