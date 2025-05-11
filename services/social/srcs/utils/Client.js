@@ -45,7 +45,7 @@ export class Client {
   };
 
   async welcome(clients, socket) {
-    // Retreive all friends / blocked / pending requests 
+    // Retrieve all friends / blocked / pending requests 
     const friends = dbAction.selectFriendships(this.account_id).map(f => f.account_id);
     const blocked = dbAction.selectBlocks(this.account_id).map(b => b.account_id);
     const pending = {
