@@ -89,7 +89,7 @@ export const defaultMatchParameters: IMatchParameters = {
     // PongEventType.ICE
   ],
   ball_speed: 1,
-  point_to_win: 5
+  point_to_win: 3
 }
 
 export enum QueueStatus {
@@ -262,5 +262,10 @@ export class Lobby implements ILobby {
       return QueueStatus.UNCOMPLETE_TEAM;
     }
     return QueueStatus.CAN_QUEUE;
+  }
+
+  setMatchParameters(parameters: IMatchParameters): this {
+    this.match_parameters = parameters;
+    return this;
   }
 }
