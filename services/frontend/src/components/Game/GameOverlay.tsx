@@ -45,7 +45,7 @@ export default function GameOverlay({
 			{overlay.gameStatus.name === PongState.RESERVED.name && !overlay.local && <WaitingPlayerOverlay />}
 			{overlay.gameStatus.name === PongState.ENDED.name && <WinnerMatchOverlay key='match-overlay'/>}
 			{
-				overlay.local && overlay.gameStatus.name === PongState.RESERVED.name &&
+				overlay.local && overlay.gameStatus.name === PongState.RESERVED.name && overlay.spectatorCount === null &&
 				<Button className="primary" onClick={() => onStart()}>
 					<i className="fa-solid fa-play"></i> Start Game
 				</Button>

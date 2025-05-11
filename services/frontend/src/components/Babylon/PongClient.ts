@@ -70,7 +70,7 @@ export default class PongClient extends PONG.Pong {
 		updateOverlay: (params: IPongOverlay) => void,
 	}) {
 		super();
-		this._spectatorCount = 0;
+		this._spectatorCount = null;
 		this.callbacks = callbacks;
 		this._time = 0;
 		this._interpolation = 0;
@@ -183,8 +183,14 @@ export default class PongClient extends PONG.Pong {
 			this._websocket.onclose = undefined;
 			this._websocket.close();
 		}
-
-		const service = spectate ? "spectator" : "pong";
+		
+		let service = "pong";
+		if (spectate) {
+			service = "spectator";
+			this._spectatorCount = 0;
+			this.updateOverlay();
+		}
+		
 		const uri = `${config.WS_URL}/${service}/join?match_id=${match_id}&access_token=${localStorage.getItem("access_token")}`;
 		this._websocket = new WebSocket(uri);
 		
@@ -310,6 +316,7 @@ export default class PongClient extends PONG.Pong {
 			ball.dispose();
 		});
 		this._ballInstances = [];
+		this._spectatorCount = null;
 		this.updateOverlay();
 	}
 	
