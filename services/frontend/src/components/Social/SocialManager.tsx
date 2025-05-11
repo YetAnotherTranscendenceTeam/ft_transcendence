@@ -31,7 +31,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 		timeoutRef.current = window.setTimeout(() => {
 			setLoading(false);
 			search(e.target.value, 20, [me.account_id]);
-		}, 1000)
+		}, 300)
 	};
 
 	Babact.useEffect(() => {
