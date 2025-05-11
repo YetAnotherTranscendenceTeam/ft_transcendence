@@ -32,4 +32,16 @@ export default class PongEvent {
 			}
 		}
 	}
+
+	public get time(): number {
+		return this._time;
+	}
+
+	public get playerId(): PlayerID {
+		return this._playerId;
+	}
+
+	public isGlobal(): boolean {
+		return false;
+	}
 }

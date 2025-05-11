@@ -3,7 +3,7 @@ import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
 import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
-import { GameMode, GameModeType, IGameMode, IPlayer, IMatchParameters } from 'yatt-lobbies'
+import { GameMode, GameModeType, IGameMode, IPlayer, IMatchParameters, PongEventType } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientGoal, ClientEventBox, ClientObstacle } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
@@ -29,7 +29,16 @@ export interface IPongOverlay {
 	gameStatus: PONG.PongState,
 	local: boolean,
 	gamemode: GameMode,
-	pointsToWin: number
+	pointsToWin: number,
+	activeEvents: {
+		type: PongEventType,
+		time: number,
+	}[],
+	goals: {
+		[key: number]: {
+			health: number
+		}
+	}
 }
 
 export default class PongClient extends PONG.Pong {
@@ -125,6 +134,20 @@ export default class PongClient extends PONG.Pong {
 			lastWinner: (this._state.name === "FREEZE" && this._stats) ? this._stats.lastSideToScore : null,
 			gameStatus: this._state,
 			pointsToWin: PONG.K.defaultPointsToWin,
+			activeEvents: this._activeEvents?.filter((event: PONG.PongEvent) => (event.playerId === this._player.playerId || event.isGlobal())).map((event: PONG.PongEvent) => {
+				return {
+					type: event.type,
+					time: event.time,
+				}
+			}) ?? [],
+			goals: {
+				[PONG.MapSide.LEFT]: {
+					health: this._goals.get(PONG.MapSide.LEFT)?.health ?? 0,
+				},
+				[PONG.MapSide.RIGHT]: {
+					health: this._goals.get(PONG.MapSide.RIGHT)?.health ?? 0,
+				}
+			}
 		}
 	}
 

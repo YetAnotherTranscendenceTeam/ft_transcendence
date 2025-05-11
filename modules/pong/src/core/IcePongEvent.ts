@@ -57,4 +57,8 @@ export default class IcePongEvent extends PongEvent {
 	public override update(game: Pong): void {
 		super.update(game);
 	}
+
+	public override isGlobal(): boolean {
+		return true;
+	}
 }

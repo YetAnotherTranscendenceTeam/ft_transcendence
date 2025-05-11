@@ -48,4 +48,8 @@ export default class MultiBallPongEvent extends PongEvent {
 			goal.destroyWall();
 		});
 	}
+
+	public override isGlobal(): boolean {
+		return true;
+	}
 }
