@@ -16,7 +16,7 @@ export default function SpectatorView() {
 
 	const connect = async () => {
 		await APIRefreshToken();
-		app.connect(id, false);
+		app.connect(id, true);
 	}
 
 	Babact.useEffect(() => {

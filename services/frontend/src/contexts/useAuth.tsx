@@ -2,7 +2,7 @@ import Babact from "babact";
 import useFetch from "../hooks/useFetch";
 import config from "../config";
 import { IUser } from "../hooks/useUsers";
-import useSocial, { FriendStatus, ISocials } from "../hooks/useSocials";
+import useSocial, { Friend, FriendStatus, ISocials } from "../hooks/useSocials";
 
 const AuthContext = Babact.createContext<{
 		me: IMe,
@@ -65,8 +65,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			return;
 		const response = await ft_fetch(`${config.API_URL}/me`);
 		if (response) {
-			setMe({...response, status: null});
-			connect();
+			setMe({...response, status: me?.status ?? null});
 		}
 		else{
 			logout();
@@ -102,6 +101,11 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		if (!me && connected)
 			disconnect();
 	}, [me]);
+
+	Babact.useEffect(() => {
+		if (me)
+			connect();
+	}, [me?.account_id]);
 
 	const setMeStatus = (status: FriendStatus) => {
 		setMe(me => ({...me, status}));
