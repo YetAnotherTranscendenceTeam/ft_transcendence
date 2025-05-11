@@ -34,7 +34,7 @@ export interface IPongOverlay {
 		type: PongEventType,
 		time: number,
 		isGlobal: boolean,
-		playerId?: number,
+		team: PONG.MapSide,
 	}[],
 	goals: {
 		[key: number]: {
@@ -136,12 +136,12 @@ export default class PongClient extends PONG.Pong {
 			lastWinner: (this._state.name === "FREEZE" && this._stats) ? this._stats.lastSideToScore : null,
 			gameStatus: this._state,
 			pointsToWin: PONG.K.defaultPointsToWin,
-			activeEvents: this._activeEvents?.filter((event: PONG.PongEvent) => (!this._player || event.playerId === this._player.playerId || event.isGlobal())).map((event: PONG.PongEvent) => {
+			activeEvents: this._activeEvents?.map((event: PONG.PongEvent) => {
 				return {
 					type: event.type,
 					time: event.time,
 					isGlobal: event.isGlobal(),
-					playerId: event.playerId,
+					team: (event.playerId < 2 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT),
 				}
 			}) ?? [],
 			goals: {
