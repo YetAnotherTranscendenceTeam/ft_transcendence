@@ -6,6 +6,7 @@ import Ball from "../core/Ball.js";
 import Paddle from "../core/Paddle.js";
 import Goal from "../core/Goal.js";
 import Wall from "../core/Wall.js";
+import Obstacle from "../core/Obstacle.js";
 import EventBox from "../core/EventBox.js";
 
 export const playGround = {
@@ -37,9 +38,9 @@ export function createMap(): IPongMap {
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: null,
 		goalRight: null,
-		paddleLeftBack: new Paddle(paddleLeftPosition, Vec2.create(), K.paddleSpeed),
+		paddleLeftBack: new Paddle(paddleLeftPosition, K.paddleSpeed),
 		paddleLeftFront: null,
-		paddleRightBack: new Paddle(paddleRightPosition, Vec2.create(), K.paddleSpeed),
+		paddleRightBack: new Paddle(paddleRightPosition, K.paddleSpeed),
 		paddleRightFront: null,
 		obstacles: [],
 		eventboxes: [],
@@ -50,6 +51,9 @@ export function createMap(): IPongMap {
 				...this.obstacles,
 				...this.eventboxes
 			];
+		},
+		getObstacles(): Obstacle[] {
+			return this.obstacles;
 		},
 		getEventBoxes(): EventBox[] {
 			return this.eventboxes;

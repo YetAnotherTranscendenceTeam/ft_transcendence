@@ -47,21 +47,65 @@ const eventBoxShape: Array<{pos: Vec2, shape: PH2D.CircleShape}> = [ // event bo
 	// }
 ];
 
-const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape}> = [ // non rectangular obstacles
+const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape, rotation: number}> = [ // non rectangular obstacles
 	{ // bottom triangle
-		pos: new Vec2(0, -playGround.height * 0.4), shape: new PH2D.PolygonShape([
+		pos: new Vec2(0, -playGround.height * 0.4),
+		shape: new PH2D.PolygonShape([
 			Vec2.fromValues(-playGround.width / 8, 0),
 			Vec2.fromValues(0, playGround.height * 0.1),
 			Vec2.fromValues(playGround.width / 8, 0)
-		])
+		]),
+		rotation: 0
 	},
 	{ // top triangle
-		pos: new Vec2(0, playGround.height * 0.4), shape: new PH2D.PolygonShape([
+		pos: new Vec2(0, playGround.height * 0.4),
+		shape: new PH2D.PolygonShape([
 			Vec2.fromValues(-playGround.width / 8, 0),
 			Vec2.fromValues(0, -playGround.height * 0.1),
 			Vec2.fromValues(playGround.width / 8, 0)
-		])
-	}
+		]),
+		rotation: 0
+	},
+	// { // diamond top-left
+	// 	pos: new Vec2(-5, 2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: 1
+	// },
+	// { // diamond top-right
+	// 	pos: new Vec2(5, 2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: -1
+	// },
+	// { // diamond bottom-right
+	// 	pos: new Vec2(5, -2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: 1
+	// },
+	// { // diamond bottom-left
+	// 	pos: new Vec2(-5, -2),
+	// 	shape: new PH2D.PolygonShape([
+	// 		Vec2.fromValues(0, 0.75),
+	// 		Vec2.fromValues(0.2, 0),
+	// 		Vec2.fromValues(0, -0.75),
+	// 		Vec2.fromValues(-0.2, 0)
+	// 	]),
+	// 	rotation: -1
+	// }
 ];
 
 
@@ -72,12 +116,12 @@ export function createMap(): IPongMap {
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),
 		goalRight: new Goal(goalShape, goalRightPosition, goalSize),
-		paddleLeftBack: new Paddle(paddleLeftPosition, Vec2.create(), K.paddleSpeed),
+		paddleLeftBack: new Paddle(paddleLeftPosition, K.paddleSpeed),
 		paddleLeftFront: null,
-		paddleRightBack: new Paddle(paddleRightPosition, Vec2.create(), K.paddleSpeed),
+		paddleRightBack: new Paddle(paddleRightPosition, K.paddleSpeed),
 		paddleRightFront: null,
-		obstacles: obstacleShape.map(({pos, shape}) => {
-			const wall = new Obstacle(shape, pos);
+		obstacles: obstacleShape.map(({pos, shape, rotation}) => {
+			const wall = new Obstacle(shape, pos, rotation);
 			return wall;
 		}),
 		// obstacles: [],
@@ -96,6 +140,9 @@ export function createMap(): IPongMap {
 				...this.obstacles,
 				...this.eventboxes
 			];
+		},
+		getObstacles(): Obstacle[] {
+			return this.obstacles;
 		},
 		getEventBoxes(): EventBox[] {
 			return this.eventboxes;

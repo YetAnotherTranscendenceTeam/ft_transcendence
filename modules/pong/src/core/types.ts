@@ -1,4 +1,3 @@
-
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
@@ -140,6 +139,7 @@ export interface IPongMap {
 	eventboxes: EventBox[];
 
 	getObjects: () => Body[];
+	getObstacles: () => Obstacle[];
 	getEventBoxes: () => EventBox[];
 	clone: () => IPongMap;
 }

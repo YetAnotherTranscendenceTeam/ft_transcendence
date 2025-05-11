@@ -13,6 +13,7 @@ import * as maps from "../maps/index.js";
 import Stats from "./Stats.js";
 import EventBoxManager from "./EventBoxManager.js";
 import PongEvent from "./PongEvent.js";
+import Obstacle from "./Obstacle.js";
 
 export class Pong {
 	private _accumulator: number;
@@ -96,7 +97,7 @@ export class Pong {
 			this._paddles.set(PlayerID.RIGHT_FRONT, this._currentMap.paddleRightFront);
 		}
 		if (this._matchParameters.obstacles) {
-			this._currentMap.obstacles.forEach((obstacle: Wall) => {
+			this._currentMap.obstacles.forEach((obstacle: Obstacle) => {
 				this._physicsScene.addBody(obstacle);
 			});
 		}
@@ -180,8 +181,9 @@ export class Pong {
 		this._matchParameters = {
 			obstacles: true,
 			events: [
-				PongEventType.MULTIBALL,
-				PongEventType.ATTRACTOR,
+				// PongEventType.MULTIBALL,
+				// PongEventType.ATTRACTOR,
+				PongEventType.ICE,
 			],
 			ball_speed: K.defaultBallSpeed,
 			point_to_win: K.defaultPointsToWin,
@@ -242,6 +244,9 @@ export class Pong {
 		while (this._accumulator >= K.DT) {
 			this._activeEvents.forEach((event: PongEvent) => {
 				event.update(this);
+			});
+			this._currentMap.getObstacles().forEach((obstacle: Obstacle) => {
+				obstacle.update();
 			});
 			this._physicsScene.step();
 			this._accumulator -= K.DT;

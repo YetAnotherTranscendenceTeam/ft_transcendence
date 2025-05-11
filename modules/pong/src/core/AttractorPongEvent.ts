@@ -69,4 +69,8 @@ export default class AttractorPongEvent extends PongEvent {
 			Vec2.scale(ball.velocity, ball.velocity, prevMagnitude);
 		});
 	}
+
+	public override isGlobal(): boolean {
+		return false;
+	}
 }

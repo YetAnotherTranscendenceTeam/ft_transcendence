@@ -6,11 +6,13 @@ import PongEvent from "./PongEvent.js";
 import { PongEventType } from 'yatt-lobbies'
 import MultiBallPongEvent from "./MultiBallPongEvent.js";
 import AttractorPongEvent from "./AttractorPongEvent.js";
+import IcePongEvent from "./IcePongEvent.js";
 
 export default class EventBox extends PH2D.Body {
 	public static readonly pongEvents = {
 		[PongEventType.MULTIBALL]: new MultiBallPongEvent(),
 		[PongEventType.ATTRACTOR]: new AttractorPongEvent(),
+		[PongEventType.ICE]: new IcePongEvent(),
 	}
 
 	private _active: boolean;
