@@ -53,7 +53,7 @@ export class Client {
         .map(r => r.account_id),
       received: dbAction.selectRequestsReceived(this.account_id)
         .map(req => req.account_id)
-        .filter(req => !blocked.find(block => block === req)),
+        .filter(req => !blocked.includes(req)),
     };
 
     // Fetch all related profiles
