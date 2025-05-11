@@ -128,6 +128,7 @@ class TournamentMatch {
       this.tournament.id,
       this.tournament.manager.fastify,
     );
+    this.internal_match.match_parameters = this.tournament.match_parameters;
     this.internal_match.insert();
     await this.internal_match.reserve(this.tournament.lobbyConnection, []);
     this.tournament.manager.registerTournamentMatch(this);
@@ -195,7 +196,7 @@ export class Tournament {
   gamemode;
   lobbyConnection;
 
-  constructor(teams, gamemode, manager, lobbyConnection, lobbySecret) {
+  constructor(teams, gamemode, manager, match_parameters, lobbyConnection, lobbySecret) {
     teams.forEach((team, index) => {
       team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
@@ -204,6 +205,7 @@ export class Tournament {
     );
     this.gamemode = gamemode;
     this.manager = manager;
+    this.match_parameters = match_parameters;
     this.lobbyConnection = lobbyConnection;
     this.lobbySecret = lobbySecret;
   }

@@ -6,8 +6,9 @@ import { MapSide } from "./types.js";
 export default class Paddle extends PH2D.Body {
 	private _speed: number;
 
-	public constructor(position: Vec2, direction: Vec2, speed: number) {
+	public constructor(position: Vec2, speed: number) {
 		super(PH2D.PhysicsType.KINEMATIC, paddleShape, bounceMaterial, position, Vec2.create());
+		this._speed = speed;
 	}
 
 	public get speed(): number {
@@ -17,7 +18,7 @@ export default class Paddle extends PH2D.Body {
 	public set speed(value: number) {
 		this._speed = value;
 	}
-	
+
 	public side(): MapSide {
 		if (this.position[0] < 0) {
 			return MapSide.LEFT;
@@ -25,4 +26,8 @@ export default class Paddle extends PH2D.Body {
 			return MapSide.RIGHT;
 		}
 	}
+
+	public move = (direction: number): void => {
+		this.velocity = new Vec2(0, direction * this._speed)
+	};
 }

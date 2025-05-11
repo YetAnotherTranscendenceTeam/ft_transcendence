@@ -5,6 +5,8 @@ import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import { IPongPlayer, PlayerID } from "./types.js";
+import EventBox from "./EventBox.js";
+import PongEvent from "./PongEvent.js";
 
 export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) {
 	const { emitter, other, manifold } = event.detail;
@@ -38,21 +40,45 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 			Vec2.normalize(ballEmitter.velocity, ballEmitter.velocity);
 			Vec2.scale(ballEmitter.velocity, ballEmitter.velocity, speed);
 		}
-		if (this._stats.lastSideToHit !== other.side()) {
-			ballEmitter.faster();
-		} else {
-			ballEmitter.correctSpeed();
-		}
+
+		// if (this._stats.lastSideToHit !== other.side()) {
+		// 	ballEmitter.faster();
+		// } else {
+		// 	ballEmitter.correctSpeed();
+		// }
+		ballEmitter.correctSpeed();
+		// console.log("ball speed: " + ballEmitter.velocity.magnitude);
 
 		// register the hit
 		const playerId: PlayerID = this.getPlayerIdFromBodyId(other.id);
 		if (playerId !== undefined) {
 			this._stats.hit(playerId, ballEmitter.id, this._tick);
+			ballEmitter.playerId = playerId;
 		}
+		this._eventBoxManager.onBallPaddleCollision();
+		ballEmitter.increaseDamage();
 	}
 
 	if (other instanceof Goal) {
-		this._stats.scoreGoal(other.side(), ballEmitter.id, this._tick);
-		other.score();
+		if (other.score(ballEmitter))
+			this._stats.scoreGoal(other.side(), ballEmitter.id, this._tick);
+		else {
+			ballEmitter.velocity[0] = -ballEmitter.velocity[0];
+		}
+	}
+
+	if (other instanceof EventBox &&
+		ballEmitter.playerId !== undefined &&
+		ballEmitter.playerId !== -1) {
+		if (other.active) {
+			console.log(other.event);
+			const event: PongEvent = this._activeEvents.find((e: PongEvent) => e.type === other.eventType);
+			if (event !== undefined) {
+				event.resetTimer();
+			} else {
+				other.event?.activate(this, ballEmitter.playerId);
+			}
+			other.deactivate();
+		}
 	}
 }

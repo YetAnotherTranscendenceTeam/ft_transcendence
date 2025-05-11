@@ -58,3 +58,9 @@ export class TeamNameMessage extends LobbyMessage {
     super("team_name", {team_index, name});
   }
 }
+
+export class MatchParametersMessage extends LobbyMessage {
+  constructor(match_parameters) {
+    super("match_parameters", {match_parameters});
+  }
+}

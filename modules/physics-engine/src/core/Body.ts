@@ -25,6 +25,7 @@ export class Body extends EventTarget {
 	
 	protected _previousPosition: Vec2;
 	protected _previousOrientation: number;
+	protected _prevVelocity: Vec2;
 
 	public filter: number;
 	
@@ -45,6 +46,7 @@ export class Body extends EventTarget {
 		// console.log("velocity", this._velocity);
 		this._previousPosition = Vec2.clone(position);
 		this._previousOrientation = 0;
+		this._prevVelocity = Vec2.clone(velocity);
 		if (this._type === PhysicsType.DYNAMIC) {
 			this._massData = this._shape.computeMass(this._material.density);
 		} else {
@@ -112,6 +114,7 @@ export class Body extends EventTarget {
 			this._previousPosition = Vec2.clone(this._position);
 			this._previousOrientation = this._orientation;
 		}
+		this._prevVelocity = Vec2.clone(this._velocity);
 		this._position.add(Vec2.scale(Vec2.create(), this._velocity, dt));
 		this._orientation += this._angularVelocity * dt;
 		this.setOrientation(this._orientation);
@@ -135,6 +138,23 @@ export class Body extends EventTarget {
 
 	public interpolateOrientation(alpha: number): number {
 		return this._previousOrientation + alpha * (this._orientation - this._previousOrientation);
+	}
+
+	public changeType(type: PhysicsType): void {
+		if (this._type === type) {
+			return;
+		}
+		this._type = type;
+		if (this._type === PhysicsType.DYNAMIC) {
+			this._massData = this._shape.computeMass(this._material.density);
+		} else {
+			this._massData = {
+				mass: 0,
+				invMass: 0,
+				inertia: 0,
+				invInertia: 0
+			};
+		}
 	}
 
 	public get id(): number {
@@ -183,6 +203,10 @@ export class Body extends EventTarget {
 
 	public get velocity(): Vec2 {
 		return this._velocity;
+	}
+
+	public get previousVelocity(): Vec2 {
+		return this._prevVelocity;
 	}
 
 	public setOrientation(radians: number): void {
