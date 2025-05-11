@@ -26,7 +26,7 @@ export default class EventBox extends PH2D.Body {
 	public activate(event: PongEventType): void {
 		this._active = true;
 		this.filter = 0;
-		this._event = EventBox.pongEvents[event];
+		this._event = EventBox.pongEvents[event].clone();
 	}
 
 	public deactivate(): void {

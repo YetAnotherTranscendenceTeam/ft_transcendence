@@ -14,8 +14,6 @@ import AObject from "./Objects/AObject";
 import config from "../../config";
 import Keyboard from "./Keyboard";
 
-const TICK_PER_SECOND = Math.floor(1 / PONG.K.DT);
-
 export interface IPongOverlay {
 	scores: number[],
 	teams: {
@@ -179,7 +177,7 @@ export default class PongClient extends PONG.Pong {
 		if (this._gameScene !== GameScene.ONLINE && this._websocket) {
 			this._websocket.onclose = undefined;
 			this._websocket.close();
-			this._websocket = null;
+			this._websocket = undefined;
 		}
 	}
 
@@ -219,6 +217,7 @@ export default class PongClient extends PONG.Pong {
 				this._ballSteps.push(serverStep);
 				this._paddleSteps.push(serverStep.paddles);
 				this.eventBoxSync(msg.data.event_boxes as PONG.IEventBoxSync[]);
+				this.eventSync(msg.data.activeEvents as PONG.IEventSync[]);
 			}
 			else if (msg.event === "sync") {
 				console.log("sync", msg.data);
@@ -237,6 +236,7 @@ export default class PongClient extends PONG.Pong {
 				this.ballSync(msg.data.match.balls as PONG.IBall[], 0, 0);
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				this.eventBoxSync(msg.data.match.event_boxes as PONG.IEventBoxSync[]);
+				this.eventSync(msg.data.match.activeEvents as PONG.IEventSync[]);
 				this.updateOverlay();
 			}
 			else if (msg.event === "state") {
@@ -459,7 +459,7 @@ export default class PongClient extends PONG.Pong {
 			}
 			return ;
 		}
-		if (this._tick % TICK_PER_SECOND === 0 && this._tick !== oldTick) {
+		if (this._tick % PONG.K.TICK_PER_SECOND === 0 && this._tick !== oldTick) {
 			this.updateOverlay();
 		}
 	}
@@ -490,7 +490,7 @@ export default class PongClient extends PONG.Pong {
 				this.paddleSync(paddleStep);
 			}
 			this._paddleSteps = [];
-			if (this._tick % TICK_PER_SECOND === 0 && this._tick !== oldTick) {
+			if (this._tick % PONG.K.TICK_PER_SECOND === 0 && this._tick !== oldTick) {
 				this.updateOverlay();
 			}
 		}
@@ -527,6 +527,29 @@ export default class PongClient extends PONG.Pong {
 			const eventBoxSync = eventBoxes[i];
 			const eventBox = this._currentMap.eventboxes[i];
 			eventBox.sync(eventBoxSync);
+		}
+	}
+
+	private eventSync(eventSyncs: PONG.IEventSync[]) {
+		for (let i = this._activeEvents.length - 1; i >= 0; i--) {
+			const event = this._activeEvents[i];
+			if (!eventSyncs.some((eventSync: PONG.IEventSync) => eventSync.id === event.id)) {
+				if (event.activationSide === PONG.PongEventActivationSide.BOTH) {
+					event.deactivate(this);
+				}
+				else
+					this._activeEvents.splice(i, 1);
+			}
+		}
+		for (let i = 0; i < eventSyncs.length; i++) {
+			const eventSync = eventSyncs[i];
+			let event = this._activeEvents.find((event: PONG.PongEvent) => event.id === eventSync.id);
+			if (!event) {
+				event = PONG.EventBox.pongEvents[eventSync.type].clone();
+				if (event.activationSide === PONG.PongEventActivationSide.BOTH)
+					event.activate(this, eventSync.playerId);
+			}
+			event.sync(eventSync);
 		}
 	}
 
@@ -588,7 +611,6 @@ export default class PongClient extends PONG.Pong {
 			}
 			paddle.move(moveDirection);
 			if (moveDirection !== this._player.movement) {
-				console.log("send move", moveDirection);
 				this._websocket.send(JSON.stringify({
 					event: "movement",
 					data: {
@@ -630,5 +652,9 @@ export default class PongClient extends PONG.Pong {
 
 	get player() {
 		return this._player;
+	}
+
+	public override isServer(): boolean {
+		return this._websocket === undefined;
 	}
 }

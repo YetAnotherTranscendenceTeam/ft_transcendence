@@ -19,7 +19,6 @@ export default class AttractorPongEvent extends PongEvent {
 	}
 
 	public override activate(game: Pong, playerId: PlayerID): void {
-		console.log('ATTRACTOR');
 		super.activate(game, playerId, ATTRACTION_TIME);
 		this._target = game.paddles.get(playerId);
 		if (!this._target) {

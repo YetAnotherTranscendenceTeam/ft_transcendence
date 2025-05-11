@@ -4,23 +4,26 @@ import PongEvent from './PongEvent.js';
 import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
-import { PlayerID, IPongPlayer } from './types.js';
+import { PlayerID, IPongPlayer, PongEventActivationSide } from './types.js';
 import * as PH2D from "physics-engine";
 import Paddle from './Paddle.js';
 
-const ICE_TIME = 20;
+const ICE_TIME = 30;
 const ICE_INERTIA_PREV = 0.95;
 const ICE_INERTIA = 0.3;
 
 export default class IcePongEvent extends PongEvent {
+	private _moveBackup: ((direction: number) => void)[];
+
 	constructor() {
-		super(PongEventType.ICE);
+		super(PongEventType.ICE, PongEventActivationSide.BOTH);
+		this._moveBackup = [];
 	}
 
 	public override activate(game: Pong, playerId: PlayerID): void {
-		console.log('ICE');
 		super.activate(game, playerId, ICE_TIME);
 		game.paddles.forEach((paddle: Paddle) => {
+			this._moveBackup.push(paddle.move);
 			// paddle.changeType(PH2D.PhysicsType.DYNAMIC);
 			paddle.move = (direction: number): void => {
 				// paddle.velocity = new Vec2(0, direction * paddle.speed);
@@ -44,18 +47,17 @@ export default class IcePongEvent extends PongEvent {
 	}
 
 	public override deactivate(game: Pong): void {
-		console.log('ICE DEACTIVATED');
 		super.deactivate(game);
 		game.paddles.forEach((paddle: Paddle) => {
-			paddle.changeType(PH2D.PhysicsType.KINEMATIC);
-			paddle.move = (direction: number): void => {
-				paddle.velocity = new Vec2(0, direction * paddle.speed);
+			paddle.move = this._moveBackup.shift();
+			if (paddle.move === undefined) {
+				console.error('move function is undefined');
+				paddle.move = (direction: number): void => {
+					paddle.velocity = new Vec2(0, direction * paddle.speed);
+				}
 			}
+			paddle.changeType(PH2D.PhysicsType.KINEMATIC);
 		});
-	}
-
-	public override update(game: Pong): void {
-		super.update(game);
 	}
 
 	public override isGlobal(): boolean {

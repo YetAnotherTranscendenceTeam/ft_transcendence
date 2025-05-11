@@ -12,7 +12,6 @@ export default class MultiBallPongEvent extends PongEvent {
 	}
 
 	public override activate(game: Pong, playerId: PlayerID): void {
-		console.log('MULTIBALL');
 		const isFirstMultiBall = game.activeEvents.find((event) => event instanceof MultiBallPongEvent) === undefined;
 		for (let i = 0; i < 3; i++) {
 			const ball = game.balls[Math.floor(Math.random() * game.balls.length)];

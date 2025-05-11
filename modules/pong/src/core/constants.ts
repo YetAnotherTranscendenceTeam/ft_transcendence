@@ -1,7 +1,9 @@
 import * as PH2D from 'physics-engine';
 import { Vec2 } from "gl-matrix";
 
-export const DT = 1 / 30;
+export const TICK_PER_SECOND = 30;
+export const DT = 1 / TICK_PER_SECOND;
+
 export const substeps = 2;
 
 export const bounceMaterial = {

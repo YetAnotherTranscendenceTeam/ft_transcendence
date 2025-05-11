@@ -1,22 +1,40 @@
 import { PongEventType } from 'yatt-lobbies';
 import { Pong } from './Pong.js';
 import * as K from './constants.js';
-import { PlayerID } from './types.js';
+import { IEventSync, PlayerID, PongEventActivationSide } from './types.js';
 
 export default class PongEvent {
+	private static counter = 0;
+	
 	public readonly type: PongEventType;
+	public readonly activationSide: PongEventActivationSide;
 	protected _time: number;
+	protected _startTime: number;
 	protected _playerId: PlayerID;
+	protected _id: number;
 
-	protected constructor(type?: PongEventType) {
+	protected constructor(type?: PongEventType, activationSide: PongEventActivationSide = PongEventActivationSide.SERVER) {
 		this.type = type;
 		this._time = -1;
+		this._startTime = -1;
+		this.activationSide = activationSide;
+		this._id = PongEvent.counter++;
+	}
+
+	public toJSON(): IEventSync {
+		return {
+			type: this.type,
+			time: this._time,
+			playerId: this._playerId,
+			id: this._id
+		}
 	}
 
 	public activate(game: Pong, playerID: PlayerID, time?: number): void {
 		game.activeEvents.push(this);
 		this._playerId = playerID;
 		this._time = time ?? -1;
+		this._startTime = this._time;
 		// Override in subclasses
 	}
 
@@ -24,13 +42,45 @@ export default class PongEvent {
 		game.activeEvents.splice(game.activeEvents.indexOf(this), 1);
 	}
 
-	public update(game: Pong): void {
+	public shouldUpdate(game: Pong): boolean {
+		if (this.activationSide === PongEventActivationSide.SERVER && game.isServer())
+			return true;
+		return this.activationSide === PongEventActivationSide.BOTH;
+	}
+
+	public shouldDeactivate(game: Pong): boolean {
 		if (this._time > 0) {
 			this._time -= K.DT;
 			if (this._time <= 0) {
-				this.deactivate(game);
+				return true;
 			}
 		}
+		return false;
+	}
+
+	public update(game: Pong): void {
+	}
+
+	public clone(): PongEvent {
+		const clone = new (this.constructor as any)();
+		clone._time = this._time;
+		clone._playerId = this._playerId;
+		clone._id = this._id;
+		return clone;
+	}
+
+	public sync(other: IEventSync): void {
+		this._time = other.time;
+		this._playerId = other.playerId;
+		this._id = other.id;
+	}
+
+	public resetTimer(): void {
+		this._time = this._startTime;
+	}
+
+	public get id(): number {
+		return this._id;
 	}
 
 	public get time(): number {
