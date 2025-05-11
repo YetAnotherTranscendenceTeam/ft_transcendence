@@ -29,7 +29,8 @@ export interface IPongOverlay {
 	gameStatus: PONG.PongState,
 	local: boolean,
 	gamemode: GameMode,
-	pointsToWin: number
+	pointsToWin: number,
+	spectatorCount: number,
 }
 
 export default class PongClient extends PONG.Pong {
@@ -56,6 +57,8 @@ export default class PongClient extends PONG.Pong {
 
 	private _player: PONG.IPongPlayer;
 
+	private _spectatorCount: number;
+
 	// public scoreUpdateCallback: (score: ScoredEvent) => void;
 	public callbacks: {
 		onConnectionError?: (this: WebSocket, error: CloseEvent) => void,
@@ -67,6 +70,7 @@ export default class PongClient extends PONG.Pong {
 		updateOverlay: (params: IPongOverlay) => void,
 	}) {
 		super();
+		this._spectatorCount = 0;
 		this.callbacks = callbacks;
 		this._time = 0;
 		this._interpolation = 0;
@@ -125,7 +129,8 @@ export default class PongClient extends PONG.Pong {
 			lastWinner: (this._state.name === "FREEZE" && this._stats) ? this._stats.lastSideToScore : null,
 			gameStatus: this._state,
 			pointsToWin: PONG.K.defaultPointsToWin,
-		}
+			spectatorCount: this._spectatorCount,
+		};
 	}
 
 	public setGameScene(scene: GameScene) {
@@ -236,6 +241,10 @@ export default class PongClient extends PONG.Pong {
 				) {
 					this.updateOverlay();
 				}
+			}
+			else if (msg.event === "spectator_count") {
+				this._spectatorCount = msg.data.count;
+				this.updateOverlay();
 			}
 		}
 		this._websocket.onopen = (ev) => {
