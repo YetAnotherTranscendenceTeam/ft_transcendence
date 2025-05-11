@@ -17,10 +17,14 @@ export default function SpectatorView() {
 		app.connect(id, true);
 	}, [id]);
 
+	const handleClick = () => {
+		toggleOverlay();
+	}
+
+
 	if (!overlay)
 		return;
-	return <div>
+	return <div onClick={handleClick}>
 		<GameOverlay/>
-		<p>Spectating Mode</p>
 	</div>
 }

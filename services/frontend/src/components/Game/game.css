@@ -206,3 +206,17 @@
 .game-overlay-content.background {
 	background-color: color-mix(in srgb, var(--bg-1), transparent 50%);
 }
+
+/* Spectator count */
+
+.spectator-count {
+	position: absolute;
+	right: 0;
+	margin: 16px;
+	width: fit-content;
+	color: var(--fg-3);
+	flex-direction: row;
+	background-color: var(--bg-1);
+	padding: 8px;
+	box-shadow: 0px 0px 20px 0px var(--ingame-color);
+}

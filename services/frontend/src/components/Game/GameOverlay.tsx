@@ -7,6 +7,7 @@ import Timer from './Timer';
 import WinnerRoundOverlay from './WinnerRoundOverlay';
 import WinnerMatchOverlay from './WinnerMatchOverlay';
 import WaitingPlayerOverlay from './WaitingPlayerOverlay';
+import Card from '../../ui/Card';
 
 export default function GameOverlay({
 		onResume,
@@ -26,11 +27,16 @@ export default function GameOverlay({
 	const displayBackground = overlay.gameStatus.isFrozen();
 
 	return <div
-		className='game-overlay'
+		className='game-overlay flex '
 	>
 		<div className='flex items-center justify-center w-full'>
 			<Scores />
 		</div>
+		{ overlay.spectatorCount > 0 && 
+				<Card className="spectator-count flex flex-row gap-2">
+					<i className="fa-solid fa-eye"></i> {overlay.spectatorCount}
+				</Card>
+		}
 		<div
 			className={`game-overlay-content flex flex-col gap-4 items-center justify-center ${displayBackground ? 'background' : ''}`}
 		>
