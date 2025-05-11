@@ -7,10 +7,14 @@ export default function Home() {
 	const { app } = usePong();
 
 	Babact.useEffect(() => {
+		console.log('Home mounted');
 		app.setGameScene(GameScene.MENU);
+		return () => {
+			console.log('Home unmounted');
+		}
 	}, [])
 
-	return <div>
+	return <div key="home">
 		<h1>Home</h1>
 	</div>
 }

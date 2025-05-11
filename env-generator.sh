@@ -64,7 +64,8 @@ secret_keys=( \
     "MATCH_MANAGEMENT_SECRET" \
     "TWO_FA_SECRET" \
     "ACTIVITY_SSE_SECRET" \
-)  
+    "SPECTATOR_SECRET" \
+)
 
 echo "[SECRETS]"
 # Loop through the secret keys

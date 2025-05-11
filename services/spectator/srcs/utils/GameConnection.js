@@ -28,7 +28,7 @@ export class GameConnection {
 
     this.socket.addEventListener("close", () => {
       console.log(`LEAVING ${match_id}`);
-      this.subscriptions.forEach(client => { client.socket.close() });
+      this.subscriptions.forEach(socket => { socket.close() });
       fastify.games.delete(match_id);
     });
   };

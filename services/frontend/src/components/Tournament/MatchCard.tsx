@@ -43,7 +43,7 @@ export default function MatchCard({
 			>
 				{match.state === MatchState.PLAYING && !match.isPlayerIn(me?.account_id) && <Button
 					onClick={() => {
-						navigate(`/matches/${match.match_id}`);
+						navigate(`/spectate/${match.match_id}`);
 					}}
 					className="clear"
 				>

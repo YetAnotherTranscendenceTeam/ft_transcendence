@@ -21,6 +21,9 @@ export default function PlayAgainButton() {
 		if (overlay.local && restartGame) {
 			restartGame();
 		}
+		else if (window.location.pathname.startsWith('/spectate/')) {
+			navigate('/');
+		}
 		else if (RTTournament.tournament_id) {
 			navigate(`/tournaments/${RTTournament.tournament_id}`);
 		}
@@ -33,11 +36,14 @@ export default function PlayAgainButton() {
 	}
 
 	const getButtonText = () => {
-		if (disabled) {
-			return 'waiting for lobby leader...';
-		}
 		if (RTTournament.tournament_id) {
 			return 'Go back to clash';
+		}
+		if (window.location.pathname.startsWith('/spectate/')) {
+			return 'Leave spectator mode';
+		}
+		if (disabled) {
+			return 'waiting for lobby leader...';
 		}
 		return 'Play again';
 	}
