@@ -1,14 +1,17 @@
 import request from "superwstest";
-import { MATCHMAKING_SECRET } from "./env";
+import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env";
 import { matchmaking_tests } from "./matches-tests";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { createUsers, users } from "../../dummy/dummy-account";
 
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
+import { finishMatch } from "./finishmatch";
 
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
+app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
+app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
 
 beforeAll(async () => {
   await app.ready();
@@ -45,6 +48,7 @@ describe("direct match making", () => {
       let user_index = 0;
       const lobbies = lobby_player_count.map((player_count, index) => ({
         players: Array.from({ length: player_count }, () => ({ account_id: users[user_index++].account_id })),
+        team_names: [],
         mode: GameModes[gamemode],
         join_secret: `${gamemode}_${index}`,
       }));
@@ -57,19 +61,22 @@ describe("direct match making", () => {
             data: { lobby },
           })
           .expectJson((message) => {
-            if (message.event != "confirm_queue") {
-              console.log("not confirm_queue", message);
-            }
             expect(message.event).toBe("confirm_queue");
             player_count += lobby.players.length;
             expect(message.data.queue_stats.players).toBe(player_count);
             expect(message.data.queue_stats.lobbies).toBe(++lobby_count);
           });
       }
+      let messagedata;
+      const expectMatchUpdate = async (message, state=1, scores = [0,0]) => {
+        expect(message.event).toBe("match_update");
+        expect(message.data.match_id).toBeDefined();
+        expect(message.data.state).toBe(state);
+        expect(message.data.tournament_id).toBe(null);
+      }
       for (let i = 0; i < expected_matches.length; i++) {
         const expected_match = expected_matches[i];
         const expected_tolerance = expected_tolerances[i];
-        let messagedata;
         await ws.expectJson((message) => {
           expect(message.event).toBe("match");
           expect(message.data.lobbies.length).toBe(expected_match.length);
@@ -77,17 +84,21 @@ describe("direct match making", () => {
             expect(lobby.tolerance).toBe(expected_tolerance);
           }
           messagedata = message.data;
+          expected_match.match = message.data.match.match;
           for (let i of expected_match) {
             expect(
               message.data.lobbies.find((other) => other.join_secret == lobbies[i].join_secret)
             ).toBeDefined();
           }
         });
-        const res = await request(matchmakingURL)
-        .patch(`/matches/${messagedata.match.match.match_id}`)
-        .set("Authorization", `Bearer ${app.jwt.sign({})}`)
-        .send({ state: 2 });
-        expect(res.statusCode).toBe(200);
+        messagedata = null;
+      }
+      for (let match of expected_matches) {
+        await finishMatch(app, match.match.match_id, 1);
+        ws.expectJson((message) => {
+          expect(message.event).toBe("match_update");
+          expectMatchUpdate(message, 2, [0, 1]);
+        });
       }
     }
   );

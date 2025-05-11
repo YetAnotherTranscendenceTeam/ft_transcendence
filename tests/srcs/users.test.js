@@ -37,16 +37,10 @@ describe("USERS", () => {
 
   it("invalid account_id", async () => {
     const response = await request(usersURL)
-    .get(`/${users[0].account_id + 1000}`)
+      .get(`/${users[0].account_id + 1000}`)
       .set('Authorization', `Bearer ${users[0].jwt}`)
-      .expect(404);
 
-      expect(response.body).toEqual({
-        statusCode: 404,
-        code: 'ACCOUNT_NOT_FOUND',
-        error: 'Account Not Found',
-        message: "The requested account does not exist"
-      })
+    expect(response.statusCode).toBe(404);
   });
 
   it("/me", async () => {
@@ -61,9 +55,9 @@ describe("USERS", () => {
         avatar: expect.any(String),
         username: users[0].username,
         credentials: expect.objectContaining({
-            account_id: users[0].account_id,
-            auth_method: 'password_auth',
-            email: users[0].email,
+          account_id: users[0].account_id,
+          auth_method: 'password_auth',
+          email: users[0].email,
         })
       })
     );

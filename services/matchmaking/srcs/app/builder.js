@@ -5,35 +5,22 @@ import fastifyFormbody from "@fastify/formbody";
 import websocket from '@fastify/websocket';
 import sse from "yatt-sse"
 import router from "./router.js";
-import YATT from "yatt-utils";
+import JwtGenerator from "yatt-jwt";
 import jwt from "@fastify/jwt";
-import { AUTHENTICATION_SECRET, MATCHMAKING_SECRET } from "./env.js";
+import { AUTHENTICATION_SECRET, MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env.js";
 import bearerAuth from "@fastify/bearer-auth";
 import qs from "qs";
 import db from "./database.js";
 import cors from "@fastify/cors";
 
 import { TournamentManager } from "../TournamentManager.js";
+import { ActiveMatchManager } from "../ActiveMatchManager.js";
 
 export default function build(opts = {}) {
   const app = Fastify({...opts, querystringParser: (str) => qs.parse(str)});
 
-  if (process.env.ENV !== "production") {
-    YATT.setUpSwagger(app, {
-      info: {
-        title: "Matching",
-        description: "Service for matching game lobbies",
-        version: "1.0.0",
-      },
-      servers: [
-        { url: "http://localhost:4044", description: "Development network" },
-        { url: "http://matchmaking:3000", description: "Containers network" },
-      ],
-    });
-  }
-
   app.register(cors, {
-    origin: new RegExp(process.env.CORS_ORIGIN) || true,
+    origin: process.env.CORS_ORIGIN || false,
     methods: ["GET", "POST", "PATCH", "DELETE"],
     credentials: true,
     maxAge: 600,
@@ -41,6 +28,12 @@ export default function build(opts = {}) {
 
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
   app.register(jwt, { secret: MATCHMAKING_SECRET, namespace: "matchmaking" });
+  app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
+  app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
+  app.decorate("tokens", new JwtGenerator());
+  app.addHook('onReady', async function () {
+    this.tokens.register(app.jwt.pong, "pong");
+  });
 
   app.register(sse);
   
@@ -63,7 +56,8 @@ export default function build(opts = {}) {
     },
   });
 
-  app.decorate("tournaments", new TournamentManager());
+  app.decorate("tournaments", new TournamentManager(app));
+  app.decorate("matches", new ActiveMatchManager(app));
   app.register(fastifyFormbody);
   app.register(websocket);
 
@@ -73,9 +67,10 @@ export default function build(opts = {}) {
     reply.code(204).send();
   });
 
-  app.addHook('onClose', (instance) => {
+  app.addHook('onClose', async (instance) => {
     // Cleanup instructions for a graceful shutdown
-    instance.tournaments.cancel();
+    await instance.tournaments.cancel();
+    await instance.matches.cancel();
     db.close();
   });
 

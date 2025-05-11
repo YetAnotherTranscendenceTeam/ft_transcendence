@@ -63,6 +63,7 @@ secret_keys=( \
     "PONG_SECRET"
     "MATCH_MANAGEMENT_SECRET" \
     "TWO_FA_SECRET" \
+    "ACTIVITY_SSE_SECRET" \
 )  
 
 echo "[SECRETS]"
@@ -110,12 +111,20 @@ echo  ${API42_REDIRECT_URI} | xclip -selection clipboard
 
 printf "\n[MISC PARAMETERS] \n"
 if [ -z $1 ]; then
-    generate SOCIAL_OFFLINE_DELAY "10000"
-    generate SOCIAL_INACTIVITY_DELAY "15000"
+    generate_or_use_existing_key SOCIAL_OFFLINE_DELAY "10000"
+    generate_or_use_existing_key SOCIAL_INACTIVITY_DELAY "15000"
+    generate IMAGE_PREFIX "dev"
 else
     true
 fi
 
 generate MATCHMAKING_SCHEDULER_DELAY "100"
+
+if [[ "$1" = "evaluation" ]]; then
+    printf "\n[PRODUCTION CONFIG] \n"
+    generate IMAGE_PREFIX "eval"
+    generate BASE_IMAGE "yatt-modules:latest"
+    generate NGINX_CONF_FILE "default.conf"
+fi
 
 mv $TMP_FILE $ENV_FILE

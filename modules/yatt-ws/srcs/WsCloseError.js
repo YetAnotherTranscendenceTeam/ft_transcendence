@@ -16,4 +16,5 @@ export default class WsCloseErrorClass {
 	static InvalidFormat = new WsCloseErrorClass(4004, "INVALID_FORMAT");
 	static InvalidMode = new WsCloseErrorClass(4005, "INVALID_MODE");
 	static Kicked = new WsCloseErrorClass(4006, "KICKED");
+	static Forbidden = new WsCloseErrorClass(4007, "FORBIDDEN");
 }

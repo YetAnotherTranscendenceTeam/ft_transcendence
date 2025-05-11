@@ -1,94 +1,75 @@
 import Babact from "babact";
 import useToast, { ToastType } from "./useToast";
-import config from "../config";
+import { APIFetch } from "./useAPI";
+
+export type FetchOptions = {
+	show_error?: boolean
+	success_message?: string,
+	error_messages?: { [key: number | string]: string },
+	onError?: (res: Response) => void,
+	setTotal?: (total: number) => void,
+}
+
+export class HTTPError {
+	message: string;
+	statusCode: number;
+	code: number;
+
+	constructor({
+		message,
+		statusCode,
+		code
+	}: {
+		message: string,
+		statusCode: number,
+		code: number
+	}) {
+		this.message = message;
+		this.statusCode = statusCode;
+		this.code = code;
+	}
+}
 
 export default function useFetch() {
 
 	const {createToast} = useToast();
 	const [isLoading, setIsLoading] = Babact.useState<boolean>(false);
 
-	const forceRefresh = async () => {
-		const response = await ft_fetch(`${config.API_URL}/token/refresh`, {
-			method: 'POST',
-			credentials: 'include'
-		}, {
-			disable_bearer: true,
-			show_error: true,
-			success_message: 'Refreshed token'
-		});
-		if (response) {
-			localStorage.setItem('access_token', response.access_token);
-			localStorage.setItem('expire_at', response.expire_at);
-		}
-	}
-
-
-	const refreshToken = async () => {
-		const expired_at = localStorage.getItem('expire_at');
-		if (!expired_at)
-			return;
-		const expired_at_date = new Date(expired_at);
-		if (expired_at_date > new Date())
-			return;
-		const response = await ft_fetch(`${config.API_URL}/token/refresh`, {
-			method: 'POST',
-			credentials: 'include'
-		}, {
-			disable_bearer: true
-		});
-		if (response) {
-			localStorage.setItem('access_token', response.access_token);
-			localStorage.setItem('expire_at', response.expire_at);
-		}
-	};
-
 	const ft_fetch = async (
 		url: string,
 		fetch_options?: RequestInit,
-		option: {
-			show_error?: boolean
-			success_message?: string,
-			error_messages?: { [key: number | string]: string },
-			disable_bearer?: boolean,
-			on_error?: (res: Response) => void
-		} = {}
+		option: FetchOptions = {}
 	) => {
 		setIsLoading(true);
-		try {
-			if (!option.disable_bearer)
-				await refreshToken();
-			const headers = fetch_options?.headers || {};
-			const token = localStorage.getItem('access_token');
-			if (!option.disable_bearer && token) {
-				headers['Authorization'] = `Bearer ${token}`;
-			}
-			const response = await fetch(url, {
-				...fetch_options,
-				headers
-			});
-			if (response.ok) {
-				let data = true;
-				if (response.status !== 204) {
-					data = await response.json();
-				}
-				if (option.success_message)
-					createToast(option.success_message, ToastType.SUCCESS, 7000);
-				setIsLoading(false);
-				return data as any;
-			}
-			else {
-				if (option.on_error)
-					option.on_error(response);
-				const { message, statusCode, code } = await response.json();
-				throw new Error(option.error_messages?.[code] || option.error_messages?.[statusCode] || message);
-			}
+		const response = await APIFetch(url, fetch_options);
+		const data = await handleAPIResponse(response, option);
+		setIsLoading(false);
+		const total = response.headers?.get('X-Total-Count');
+		if (total && option.setTotal) {
+			option.setTotal(parseInt(total));
 		}
-		catch (error) {
+		return data;
+	}
+
+	const handleAPIResponse = async (response: Response, option: FetchOptions) => {
+		if (response.ok) {
+			if (option.success_message)
+				createToast(option.success_message, ToastType.SUCCESS, 7000);
+			if (response.status === 204) {
+				return {};
+			}
+			return await response.json();
+		}
+		else {
+			if (option.onError) option.onError(response);
+			const error = await response.json();
+			const { message, statusCode, code } = error;
+			const error_message = option.error_messages?.[code] || option.error_messages?.[statusCode] || message;
 			if (option.show_error)
-				createToast(error.message, ToastType.DANGER, 7000);
-			setIsLoading(false);
+				createToast(error_message, ToastType.DANGER, 7000);
+			return null;
 		}
 	}
 
-	return { ft_fetch, isLoading, refreshToken, forceRefresh };
+	return { ft_fetch, isLoading, handleAPIResponse };
 }

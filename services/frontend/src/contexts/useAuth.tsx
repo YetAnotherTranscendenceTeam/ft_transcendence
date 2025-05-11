@@ -2,14 +2,13 @@ import Babact from "babact";
 import useFetch from "../hooks/useFetch";
 import config from "../config";
 import { IUser } from "../hooks/useUsers";
-import useSocial, { Friend, FriendStatus, ISocials } from "../hooks/useSocials";
-import { GameModeType } from "yatt-lobbies";
+import useSocial, { FriendStatus, ISocials } from "../hooks/useSocials";
 
 const AuthContext = Babact.createContext<{
 		me: IMe,
 		socials: ISocials,
 		connected: boolean,
-		auth: (token: string, expire_at: number) => void,
+		auth: (token: string, expire_at: string) => void,
 		logout: () => void,
 		refresh: () => void,
 		ping: () => void,
@@ -23,12 +22,7 @@ const AuthContext = Babact.createContext<{
 			onError: () => void,
 			onSuccess: (access_token: string, expire_at: string) => void,
 			login?: boolean,
-		) => Promise<Response | null>,
-		setLastTournament: (tournament: {
-			tournament_id: number,
-			gamemode: GameModeType,
-			active: number,
-		}) => void,
+		) => Promise<any>,
 	}>();
 
 export enum AuthMethod {
@@ -69,8 +63,8 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	const fetchMe = async () => {
 		if (!localStorage.getItem('access_token'))
 			return;
-		const response = await ft_fetch(`${config.API_URL}/me`, {});
-		if (response){
+		const response = await ft_fetch(`${config.API_URL}/me`);
+		if (response) {
 			setMe({...response, status: null});
 			connect();
 		}
@@ -79,22 +73,20 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		}
 	};
 
-	const auth = async (token, expire_at) => {
+	const auth = async (token: string, expire_at: string) => {
 		localStorage.setItem('access_token', token);
 		localStorage.setItem('expire_at', expire_at);
 		fetchMe();
 	};
 
 	const logout = async () => {
+		localStorage.removeItem('access_token');
+		localStorage.removeItem('expire_at');
 		await ft_fetch(`${config.API_URL}/token/revoke`, {
 			method: "POST",
 			credentials: "include",
-		}, {
-			disable_bearer: true,
 		})
 		setMe(null);
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('expire_at');
 	};
 
 	const refresh = () => {
@@ -138,7 +130,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			body: JSON.stringify(body)
 		}, {
 			show_error: true,
-			on_error: (res) => {
+			onError: (res) => {
 				if (res.status !== 403)
 					onError();
 			},
@@ -156,16 +148,6 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		return response;
 	}
 
-	const setLastTournament = async (tournament: {
-			tournament_id: number,
-			gamemode: string,
-			active: number,
-	}) => {
-		if (!me)
-			return;
-		setMe(me => ({...me, last_tournament: tournament}));
-	}
-
 	const { connect, socials, ping, status, connected, disconnect } = useSocial(setMeStatus, getMe);
 
 	return (
@@ -179,8 +161,7 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 				refresh,
 				ping,
 				status,
-				confirm2FA,
-				setLastTournament,
+				confirm2FA
 			}}
 		>
 			{children}

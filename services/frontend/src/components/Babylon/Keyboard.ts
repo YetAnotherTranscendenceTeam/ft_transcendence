@@ -47,6 +47,8 @@ export default class Keyboard {
 	}
 
 	public keyDown(key: string): void {
+		if (!key)
+			return;
 		const loweredKey = key.toLowerCase();
 		this._downKeys.add(loweredKey);
 		if (this._autoRegister && !this._keys.has(loweredKey)) {
@@ -55,6 +57,8 @@ export default class Keyboard {
 	}
 
 	public keyUp(key: string): void {
+		if (!key)
+			return;
 		const loweredKey = key.toLowerCase();
 		this._downKeys.delete(loweredKey);
 	}

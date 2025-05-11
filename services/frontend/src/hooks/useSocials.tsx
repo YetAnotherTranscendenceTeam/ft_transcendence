@@ -5,9 +5,10 @@ import useFetch from "./useFetch";
 import config from "../config";
 import { IMe } from "../contexts/useAuth";
 import useToast, { ToastType } from "./useToast";
-import { GameMode, IGameMode } from "yatt-lobbies";
+import { GameMode, IGameMode, ILobbyState } from "yatt-lobbies";
 import Button from "../ui/Button";
 import { useLobby } from "../contexts/useLobby";
+import { MatchState } from "./useTournament";
 
 export enum StatusType {
 	ONLINE = 'online',
@@ -15,11 +16,20 @@ export enum StatusType {
 	INGAME = 'ingame',
 	INACTIVE = 'inactive',
 	INLOBBY = 'inlobby',
+	INTOURNAMENT = 'intournament',
 }
 
 export type FriendStatus = {
 	type: StatusType,
-	data?: any,
+	data?: {
+		player_ids: number[],
+		gamemode: IGameMode,
+		state: ILobbyState | MatchState,
+		match_id?: number,
+		scores?: number[],
+		stage?: number,
+		tournament_id?: number,
+	},
 }
 
 export interface IFriend {
@@ -182,7 +192,6 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 			},
 			blocked: IBlockedUser[],
 		}) => {
-
 		setSocials({
 			friends: friends.map((f: IFriend) => new Friend(f, ws, ft_fetch)),
 			pending: {
@@ -438,13 +447,13 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	};
 
 	const onConnect = () => {
-		status({type: StatusType.ONLINE});
+		console.log('Connected to Social WebSocket');
 	};
 
 	const ws = useWebSocket({
 		onEvent: {
 			'welcome': onWelcome,
-			'status': onStatusChange,
+			'recv_status': onStatusChange,
 			'recv_new_friend_request': onNewFriendRequest,
 			'recv_delete_friend_request': onDeleteFriendRequest,
 			'recv_new_friend': onNewFriend,
@@ -472,6 +481,18 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 	const disconnect = () => {
 		ws.close();
 	};
+
+	Babact.useEffect(() => {
+		if (ws.connected) {
+			const interval = setInterval(() => {
+				if (navigator.userActivation && navigator.userActivation.isActive)
+					ping();
+			}, 2000);
+			return () => {
+				clearInterval(interval);
+			}
+		}
+	}, [ws.connected]);
 
 	return {
 		socials,

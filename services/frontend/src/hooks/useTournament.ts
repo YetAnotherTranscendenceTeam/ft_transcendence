@@ -1,9 +1,9 @@
 import Babact from "babact";
 import { IGameMode, ITeam } from "yatt-lobbies";
 import { useAuth } from "../contexts/useAuth";
-import useSSE from "./useSSE";
 import config from "../config";
 import useFetch from "./useFetch";
+import { useRTTournament } from "../contexts/useRTTournament";
 
 export enum MatchState {
 	WAITING = 'waiting',
@@ -11,7 +11,7 @@ export enum MatchState {
 	DONE = 'done'
 }
 
-export interface IMatch {
+export interface ITournamentMatch {
 	team_ids: number[]
 	scores: number[]
 	match_id?: number
@@ -21,7 +21,7 @@ export interface IMatch {
 }
 
 export interface Tournament {
-	matches: Match[]
+	matches: TournamentMatch[]
 	teams: ITeam[]
 	gamemode: IGameMode
 	id: number
@@ -36,17 +36,19 @@ export class Team implements ITeam {
 		this.name = team.name;
 	}
 
-	getDisplayName() {
+	public getDisplayName() {
 		if (this.name)
 			return this.name;
-		if (this.players.length > 0)
+		if (this.players.length > 1)
 			return this.players[0].profile.username + "'s team";
+		if (this.players.length === 1)
+			return this.players[0].profile.username;
 		return 'Unknown';
 	}
 
 }
 
-export class Match implements IMatch {
+export class TournamentMatch implements ITournamentMatch {
 	team_ids: number[];
 	scores: number[];
 	teams: Team[];
@@ -55,7 +57,7 @@ export class Match implements IMatch {
 	stage: number;
 	index: number;
 
-	constructor(match: IMatch, teams: ITeam[]) {
+	constructor(match: ITournamentMatch, teams: ITeam[]) {
 		this.team_ids = match.team_ids;
 		this.scores = match.scores;
 		this.match_id = match.match_id;
@@ -90,67 +92,30 @@ export class Match implements IMatch {
 	}
 }
 
-export default function useTournament(tournamentId: number, onFinishCallback: (isOpen: boolean) => void) {
+export default function useTournament(tournamentId: number) {
 
-	const teamsRef = Babact.useRef<ITeam[]>([]);
-	const [matches, setMatches] = Babact.useState<Match[]>([]);
-	const [currentMatch, setCurrentMatch] = Babact.useState<Match>(null);
+	const [matches, setMatches] = Babact.useState<TournamentMatch[]>([]);
 	const { me } = useAuth();
 	const { ft_fetch } = useFetch();
+	const RTTournament = useRTTournament();
 
 	const fetchTournament = async () => {
-		const response = await ft_fetch(`${config.API_URL}/matchmaking/tournaments/${tournamentId}`, {}, {
-			show_error: true
-		});
-		if (response)
-			onSync({tournament: response});
-		if (response?.active === 1)
-			sse.connect(`${config.API_URL}/matchmaking/tournaments/${tournamentId}/notify`, true);
+		const response = await ft_fetch(`${config.API_URL}/matchmaking/tournaments/${tournamentId}`, {});
+		if (response) {
+			const matches = response.matches.map((match) => (
+				new TournamentMatch(match, response.teams)
+			));
+			setMatches(matches);
+		}
 	}
-
-	const onSync = ({tournament} : {tournament: Tournament}) => {
-		teamsRef.current = tournament.teams;
-		const matches = tournament.matches.map((match) => (
-			new Match(match, tournament.teams)
-		));
-		setMatches(matches);
-	}
-
-	const onMatchUpdate = ({match}: {match: IMatch}) => {
-		setMatches((prevMatches) => {
-			const newMatch = new Match(match, teamsRef.current);
-			prevMatches[match.index] = newMatch;
-			return [...prevMatches];
-		})
-	}
-
-	const onFinish = () => {
-		onFinishCallback(true);
-	}
-
-	const sse = useSSE({
-		onEvent: {
-			sync: onSync,
-			match_update: onMatchUpdate,
-			finish: onFinish
-		},
-	});
 
 	Babact.useEffect(() => {
-		if (me) {
-			onFinishCallback(false);
+		if (me && RTTournament.tournament_id != tournamentId || RTTournament.matches.length == 0) {
 			fetchTournament();
 		}
-	}, [me?.account_id, tournamentId]);
-
-	Babact.useEffect(() => {
-		const newCurrentMatch = matches.find((match) => match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id)) ?? null;
-		setCurrentMatch(newCurrentMatch);
-	}, [matches?.length, ...matches?.map((match) => match.state)]);
+	}, [me?.account_id, tournamentId, RTTournament.matches]);
 
 	return {
-		matches,
-		currentMatch,
-		sse
+		matches: RTTournament.tournament_id == tournamentId ? RTTournament.matches : matches,
 	}
 }

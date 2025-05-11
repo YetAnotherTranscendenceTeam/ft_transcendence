@@ -1,5 +1,4 @@
 import Babact from "babact"
-import Overlay from "../templates/Overlay"
 import { usePong } from "../contexts/usePong"
 import { GameScene } from "../components/Babylon/types";
  
@@ -11,8 +10,7 @@ export default function Home() {
 		app.setGameScene(GameScene.MENU);
 	}, [])
 
-	return <Overlay>
+	return <div>
 		<h1>Home</h1>
-
-	</Overlay>
+	</div>
 }

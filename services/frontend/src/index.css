@@ -21,12 +21,18 @@
 	--bg-5: #adb5bd;
 	--shadow: 0px 0px 16px 4px var(--primary-color);
 	--team-1-color: #ff3c3c;
+	--team-1-color-active: color-mix(in srgb, var(--team-1-color) 80%, white);
 	--team-2-color: #1b99ff;
+	--team-2-color-active: color-mix(in srgb, var(--team-2-color) 80%, white);
 	--offline-color: #b3b3b3;
 	--online-color: #39df5d;
-	--inactive-color: #ff9f32;
+	--inactive-color: #ff7221;
 	--inlobby-color: #9c52fd;
-	--ingame-color: #9048f0;
+	--inlobby-color-active: #a76cff;
+	--ingame-color: #4660f7;
+	--ingame-color-active: #4f7bff;
+	--intournament-color: #ffb24e;
+	--intournament-color-active: #ffcc7a;
 }
 
 :root {
@@ -57,6 +63,8 @@
 	--success-color-10: color-mix(in srgb, var(--success-color), transparent 10%);
 	--team-1-color-60: color-mix(in srgb, var(--team-1-color), transparent 60%);
 	--team-2-color-60: color-mix(in srgb, var(--team-2-color), transparent 60%);
+	--ingame-color-40: color-mix(in srgb, var(--ingame-color), transparent 40%);
+	--intournament-color-40: color-mix(in srgb, var(--intournament-color), transparent 40%);
 }
 
 .flex {
@@ -121,6 +129,22 @@
 
 .gap-0 {
 	gap: 0;
+}
+
+.flex-1 {
+	flex: 1;
+}
+
+.flex-2 {
+	flex: 2;
+}
+
+.flex-3 {
+	flex: 3;
+}
+
+.flex-4 {
+	flex: 4;
 }
 
 .w-full {

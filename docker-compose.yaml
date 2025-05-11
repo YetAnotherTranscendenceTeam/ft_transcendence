@@ -1,119 +1,96 @@
 services:
   nginx:
-    build: services/nginx/
+    build:
+      context: services/nginx/
+      args:
+        - CONF_FILE=${NGINX_CONF_FILE}
+    image: ${IMAGE_PREFIX}/transcendence.nginx:latest
     ports:
-      - "8080:8080"
-      - "7979:7979"
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:7979:7979"
     environment:
       - DOMAIN_NAME=${DOMAIN_NAME}
     networks:
-      - frontend
-      - avatars
-      - settings
-      - social
-    secrets:
-      - ssl-crt
-      - ssl-key
+      - client
     depends_on:
       - avatars
+      - social
 
   frontend:
     build:
       context: services/frontend/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/frontend/src:/services/frontend/src
-      - ./services/frontend/public:/services/frontend/public
-      - ./modules/:/modules:ro
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-      - WS_URL=${WS_URL}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - PASSWORD_REGEX=^.{8,24}$
-    ports:
-      - "127.0.0.1:4242:8080"
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+        - BACKEND_URL=${BACKEND_URL}
+        - WS_URL=${WS_URL}
+        - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+    image: ${IMAGE_PREFIX}/transcendence.frontend:latest
     networks:
-      - frontend
+      - client
 
   credentials:
-    build:
+    build: 
       context: services/credentials/
-      dockerfile: Dockerfile.dev
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.credentials:latest
     volumes:
-      - ./services/credentials/srcs:/services/credentials/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
-    ports:
-      - "127.0.0.1:7002:3000"
     networks:
-      - credentials
-      - db-profiles
+      - private
 
   token-manager:
-    build:
+    build: 
       context: services/token-manager/
-      dockerfile: Dockerfile.dev
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.token-manager:latest
     volumes:
-      - ./services/token-manager/srcs:/services/token-manager/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
-    ports:
-      - 127.0.0.1:4002:3000
     networks:
-      - frontend
-      - tokens
+      - client
 
   registration:
-    build:
+    build: 
       context: services/registration/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/registration/srcs:/services/registration/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.registration:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
-      - PASSWORD_REGEX=^.{8,24}$
-    ports:
-      - "127.0.0.1:4012:3000"
     networks:
-      - credentials
-      - frontend
-
+      - client
+      - private
+    
   password-auth:
-    build:
+    build: 
       context: services/password-auth/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/password-auth/srcs:/services/password-auth/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.password-auth:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - TWO_FA_SECRET=${TWO_FA_SECRET}
       - AUTH_2FA_SECRET=${AUTH_2FA_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
-      - PASSWORD_REGEX=^.{8,24}$
-    ports:
-      - "127.0.0.1:4022:3000"
     networks:
-      - credentials
-      - frontend
-      - tokens
+      - client
+      - private
   
   fortytwo-auth:
-    build:
+    build: 
       context: services/fortytwo-auth/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/fortytwo-auth/srcs:/services/fortytwo-auth/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.fortytwo-auth:latest
     environment:
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
@@ -123,284 +100,217 @@ services:
       - API42_CLIENT_ID=${API42_CLIENT_ID}
       - API42_SECRET=${API42_SECRET}
       - API42_REDIRECT_URI=${API42_REDIRECT_URI}
-    ports:
-      - "127.0.0.1:4042:3000"
     networks:
-      - credentials
-      - frontend
-      - tokens
-      - db-profiles
-      - avatars
+      - client
+      - private
 
   google-auth:
-    build:
+    build: 
       context: services/google-auth/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/google-auth/srcs:/services/google-auth/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.google-auth:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - AUTH_2FA_SECRET=${AUTH_2FA_SECRET}
       - FRONTEND_URL=${FRONTEND_URL}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-    ports:
-      - "127.0.0.1:4032:3000"
     networks:
-      - credentials
-      - frontend
-      - tokens
-      - db-profiles
-      - avatars
+      - client
+      - private
 
   2fa:
     build:
       context: services/2fa/
-      dockerfile: Dockerfile.dev
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.2fa:latest
     volumes:
       - sqlite:/database
-      - ./services/2fa/srcs:/services/2fa/srcs
-      - ./modules/:/modules:ro
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TWO_FA_SECRET=${TWO_FA_SECRET}
-    ports:
-      - 127.0.0.1:4052:3000
     networks:
-      - frontend
-      - credentials
+      - client
+      - private
 
   lobbies:
-    build:
+    build: 
       context: services/lobbies/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/lobbies/srcs:/services/lobbies/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.lobbies:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
-    ports:
-      - "127.0.0.1:4043:3000"
+      - ACTIVITY_SSE_SECRET=${ACTIVITY_SSE_SECRET}
     networks:
-      - frontend
-      - db-profiles
+      - client
+      - private
     depends_on:
-      - matchmaking
+      matchmaking:
+        condition: service_healthy
 
   matchmaking:
-    build:
+    build: 
       context: services/matchmaking/
-      dockerfile: Dockerfile.dev
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.matchmaking:latest
     volumes:
-      - ./services/matchmaking/srcs:/services/matchmaking/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCHMAKING_SECRET=${MATCHMAKING_SECRET}
+      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
       - PONG_SECRET=${PONG_SECRET}
       - MATCHMAKING_SCHEDULER_DELAY=${MATCHMAKING_SCHEDULER_DELAY}
-      - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
-    ports:
-      - "127.0.0.1:4044:3000"
     networks:
-      - frontend
-      - db-profiles
+      - client
+      - private
 
-  db-profiles:
-    build:
-      context: services/db-profiles/
-      dockerfile: Dockerfile.dev
+  profiles:
+    build: 
+      context: services/profiles/
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.profiles:latest
     volumes:
-      - ./services/db-profiles/srcs:/services/db-profiles/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - CDN_SECRET=${CDN_SECRET}
       - CDN_URL=${CDN_URL}
-    ports:
-      - 127.0.0.1:7001:3000
     networks:
-      - db-profiles
+      - private
 
   users:
-    build:
+    build: 
       context: services/users/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/users/srcs:/services/users/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.users:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
-    ports:
-      - 127.0.0.1:4003:3000
     networks:
-     - frontend
-     - db-profiles
+     - client
+     - private
 
   settings:
-    build:
+    build: 
       context: services/settings/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/settings/srcs:/services/settings/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.settings:latest
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - TOKEN_MANAGER_SECRET=${TOKEN_MANAGER_SECRET}
       - TWO_FA_SECRET=${TWO_FA_SECRET}
       - PASSWORD_PEPPER=${PASSWORD_PEPPER}
-      - PASSWORD_REGEX=^.{8,24}$
-    ports:
-      - 127.0.0.1:4004:3000
     networks:
-      - settings
-      - avatars
-      - db-profiles
-      - credentials
-      - tokens
+      - client
+      - private
 
   avatars:
-    build:
+    build: 
       context: services/avatars/
-      dockerfile: Dockerfile.dev
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.avatars:latest
     volumes:
-      - ./services/avatars/srcs:/services/avatars/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
-      - NODE_TLS_REJECT_UNAUTHORIZED=0
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - CDN_SECRET=${CDN_SECRET}
       - CDN_URL=${CDN_URL}
-    ports:
-      - 127.0.0.1:4113:3000
     networks:
-      - avatars
-      - cdn-test
+      - client
     depends_on:
       cdn-nginx:
         condition: service_healthy
 
   social:
-    build:
+    build: 
       context: services/social/
-      dockerfile: Dockerfile.dev
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.social:latest
     volumes:
-      - ./services/social/srcs:/services/social/srcs
-      - ./modules/:/modules:ro
       - sqlite:/database
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
+      - ACTIVITY_SSE_SECRET=${ACTIVITY_SSE_SECRET}
       - SOCIAL_OFFLINE_DELAY=${SOCIAL_OFFLINE_DELAY}
       - SOCIAL_INACTIVITY_DELAY=${SOCIAL_INACTIVITY_DELAY}
-    ports:
-      - 127.0.0.1:4123:3000
     networks:
-      - social
-      - db-profiles
-      - settings
+      - client
+      - private
+    depends_on:
+      lobbies:
+        condition: service_healthy
 
   cdn-nginx:
     build:
       context: services/CDN/nginx/
       args:
-        - CDN_AUTOINDEX=on
+        - CONF_FILE=${NGINX_CONF_FILE}
+    image: ${IMAGE_PREFIX}/transcendence.cdn-nginx:latest
     ports:
-      - "8181:8181"
+      - "127.0.0.1:8181:8181"
     volumes:
       - avatars:/app/avatars/users/:ro
       - ./services/CDN/.avatars:/app/avatars/default/:ro
     networks:
-      - cdn-api
-      - cdn-test
-    secrets:
-      - ssl-crt
-      - ssl-key
+      - cdn
     depends_on:
       cdn-api:
         condition: service_healthy
 
   cdn-api:
-    build:
-      context: services/CDN/api/
-      dockerfile: Dockerfile.dev
+    build: 
+      context: services/CDN/api
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.cdn-api:latest
     volumes:
       - avatars:/app/avatars/users/
       - ./services/CDN/.avatars:/app/avatars/default/:ro
-      - ./services/CDN/api/srcs:/services/CDN/api/srcs
-      - ./modules/:/modules:ro
     environment:
       - CORS_ORIGIN=${FRONTEND_URL}
       - CDN_SECRET=${CDN_SECRET}
     networks:
-     - cdn-api
-  
-  documentation:
-    build:
-      context: services/documentation/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./documentation/:/documentation/:ro
-      - ./services/documentation/srcs:/services/documentation/srcs
-      - ./modules/:/modules:ro
-    environment:
-      - BACKEND_URL=${BACKEND_URL}
-    ports:
-      - 42000:3000
+     - cdn
 
+    
   pong:
     build:
       context: services/pong/
-      dockerfile: Dockerfile.dev
-    volumes:
-      - ./services/pong/srcs:/services/pong/srcs
-      - ./modules/:/modules:ro
+      args:
+        - BASE_IMAGE=${BASE_IMAGE}
+    image: ${IMAGE_PREFIX}/transcendence.pong:latest
     environment:
+      - CORS_ORIGIN=${FRONTEND_URL}
       - AUTHENTICATION_SECRET=${AUTHENTICATION_SECRET}
       - MATCH_MANAGEMENT_SECRET=${MATCH_MANAGEMENT_SECRET}
-    ports:
-      - 4124:3000
-    # networks:
+      - PONG_SECRET=${PONG_SECRET}
+    networks:
+      - client
 
 networks:
-  frontend:
+  client:
     driver: bridge
-  credentials:
+  private:
     driver: bridge
-  db-profiles:
-    driver: bridge
-  tokens:
-    driver: bridge
-  settings:
-    driver: bridge
-  avatars:
-    driver: bridge
-  social:
-    driver: bridge
-  cdn-api:
-    driver: bridge
-  swagger:
-    driver: bridge
-
-  cdn-test:
+  cdn:
     driver: bridge
     
 volumes:
   avatars:
   sqlite:
-
-secrets:
-  ssl-crt: 
-    file: ./secrets/localhost.crt
-  ssl-key: 
-    file: ./secrets/localhost.key

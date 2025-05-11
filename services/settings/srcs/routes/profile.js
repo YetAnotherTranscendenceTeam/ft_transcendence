@@ -26,7 +26,7 @@ export default function router(fastify, opts, done) {
         // Check that the requested avatar is available to the access_token bearer
         const available = await YATT.fetch(`http://avatars:3000/`, {
           headers: {
-            "Authorization": `Bearer ${request.access_token}`,
+            "Authorization": request.headers.authorization,
           },
         });
         if (!available.default.find(e => e === avatar) && !available.user.find(e => e === avatar)) {
@@ -34,7 +34,7 @@ export default function router(fastify, opts, done) {
         }
       }
       // Update the profile database
-      await YATT.fetch(`http://db-profiles:3000/${request.account_id}`, {
+      await YATT.fetch(`http://profiles:3000/${request.account_id}`, {
         method: "PATCH",
         headers: {
           "Content-type": "application/json",

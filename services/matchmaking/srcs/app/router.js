@@ -14,7 +14,7 @@ function protected_router(fastify, opts, done) {
   
   const serviceAuthorization = (token, request) => {
     try {
-      fastify.jwt.matchmaking.verify(token);
+      fastify.jwt.match_management.verify(token);
       request.token = token;
     } catch (err) {
       return false;

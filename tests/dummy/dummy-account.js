@@ -4,17 +4,18 @@ import crypto from "crypto";
 import request from "supertest";
 import Fastify from "fastify";
 import jwt from "@fastify/jwt"
-import { apiURL } from "../URLs";
+import { apiURL, avatarsURL, credentialsURL, profilesURL, tokenManagerURL } from "../URLs";
 
 export const app = Fastify();
-app.register(jwt, { secret: process.env.AUTHENTICATION_SECRET })
-app.register(jwt, { secret: process.env.TWO_FA_SECRET, namespace: "two_fa" })
+app.register(jwt, { secret: process.env.AUTHENTICATION_SECRET });
+app.register(jwt, { secret: process.env.TWO_FA_SECRET, namespace: "two_fa" });
+app.register(jwt, { secret: process.env.TOKEN_MANAGER_SECRET, namespace: "token_manager" });
+app.register(jwt, { secret: process.env.ACTIVITY_SSE_SECRET, namespace: "activity_sse" })
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
 const registerUrL = "http://127.0.0.1:4012";
 const authUrl = "http://127.0.0.1:4022";
-const dbprofilesUrL = "http://127.0.0.1:7001"
 
 export let users = [];
 
@@ -23,10 +24,44 @@ const CREATION_TIMEOUT = 60000;
 export function createUsers(count=10) {
   afterAll(async () => {
     for (const user of users) {
-      await request(apiURL)
-        .delete(`/settings/account`)
-        .set("Authorization", `Bearer ${user.jwt}`)
-        .expect(204);
+      // Delete account from credentials database
+      let response = await request(credentialsURL)
+        .delete(`/${user.account_id}`)
+        .set("Authorization", `Bearer ${user.jwt}`);
+
+      expect(response.statusCode).toBe(204);
+
+      // Revoke all refresh_tokens for this account
+      response = await request(tokenManagerURL)
+        .delete(`/${user.account_id}`)
+        .set("Authorization", `Bearer ${app.jwt.token_manager.sign({})}`);
+
+      expect(response.statusCode).toBe(204);
+
+      // Get avatars
+      const avatars = await request(avatarsURL)
+        .get("/")
+        .set("Authorization", `Bearer ${user.jwt}`);
+
+      expect(avatars.statusCode).toBe(200);
+      expect(avatars.body).toEqual({
+        default: expect.any(Array),
+        user: expect.any(Array),
+      });
+
+      // Delete avatars uploaded by this account
+      for (const url of avatars.body.user) {
+        response = await request(apiURL)
+          .delete(`/avatars?url=${url}`)
+          .set("Authorization", `Bearer ${user.jwt}`);
+
+        expect(response.statusCode).toBe(204);
+      }
+
+      response = await request(profilesURL)
+        .delete(`/${user.account_id}`);
+
+      expect(response.statusCode).toBe(204);
     }
   });
   const USER_COUNT = count;
@@ -55,7 +90,7 @@ export function createUsers(count=10) {
         .expect("Content-Type", /json/);
       dummy.jwt = response.body.access_token;
 
-      response = await request(dbprofilesUrL)
+      response = await request(profilesURL)
         .patch(`/${dummy.account_id}`)
         .send({ username: dummy.username })
         .set('Authorization', `Bearer ${dummy.jwt}`)

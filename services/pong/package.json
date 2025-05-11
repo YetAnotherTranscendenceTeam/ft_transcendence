@@ -6,10 +6,14 @@
     "@fastify/jwt": "^9.0.4",
     "@fastify/websocket": "^11.0.2",
     "fastify": "^5.2.1",
+    "pong": "file:../../modules/pong",
+    "yatt-jwt": "file:../../modules/yatt-jwt",
     "yatt-lobbies": "file:../../modules/yatt-lobbies",
     "yatt-utils": "file:../../modules/yatt-utils",
-    "yatt-ws": "file:../../modules/yatt-ws",
-    "pong": "file:../../modules/pong"
+    "yatt-ws": "file:../../modules/yatt-ws"
   },
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "start": "node ./srcs/index.js"
+  }
 }

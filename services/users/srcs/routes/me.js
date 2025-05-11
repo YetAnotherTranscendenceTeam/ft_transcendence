@@ -1,27 +1,36 @@
 "use strict";
 
-import { HttpError, objects, properties } from "yatt-utils";
-import getInfos from "../utils/getInfos.js";
+import YATT from "yatt-utils";
 
 export default function router(fastify, opts, done) {
   fastify.get("/me", async function handler(request, reply) {
     const account_id = request.account_id;
 
+    // Get base profile
+    const profile = await YATT.fetch(`http://profiles:3000/${account_id}`);
+
+    // Add credentials
+    profile.credentials = await YATT.fetch(`http://credentials:3000/${account_id}`);
     try {
-      const user = await getInfos(account_id, true);
-      reply.send(user);
-    } catch (err) {
-      console.log(err);
-      if (err instanceof HttpError) {
-        if (err.statusCode === 404) {
-          reply.code(404).send(objects.accountNotFound);
-        } else {
-          err.send(reply);
+      // Add game related infos
+      const { last_match, last_tournament, matchmaking_users } = await YATT.fetch(`http://matchmaking:3000/users/${account_id}`,
+        {
+          headers: {
+            Authorization: request.headers.authorization,
+          },
         }
-      } else {
-        throw err;
-      }
+      );
+
+      profile.last_match = last_match;
+      profile.last_tournament = last_tournament;
+      profile.matchmaking_users = matchmaking_users;
+    } catch (err) {
+      profile.last_match = null;
+      profile.last_tournament = null;
+      profile.matchmaking_users = [];
     }
+
+    reply.send(profile);
   });
 
   done();

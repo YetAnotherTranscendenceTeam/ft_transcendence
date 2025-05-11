@@ -2,15 +2,13 @@ import Babact from "babact";
 import './online.css'
 import ModeButton from "./ModeButton";
 import { useLobby } from "../../contexts/useLobby";
-import { Form } from "../../contexts/useForm";
-import Input from "../../ui/Input";
-import Submit from "../../ui/Submit";
 import useEscape from "../../hooks/useEscape";
 import Button from "../../ui/Button";
 import useGamemodes from "../../hooks/useGamemodes";
-import { GameMode, GameModeType } from "yatt-lobbies";
+import { GameMode } from "yatt-lobbies";
 import SegmentedControl from "../../ui/SegmentedControl";
 import Separator from "../../ui/Separator";
+import useMatchmakingUsers from "../../hooks/useMatchmackingUsers";
 
 export default function SelectModeOverlay({
 		isOpen,
@@ -21,8 +19,9 @@ export default function SelectModeOverlay({
 		[key: string]: any
 	}) {
 
-	const {create, join, lobby } = useLobby();
+	const {create, lobby } = useLobby();
 
+	const { matchmakingUsers, refresh } = useMatchmakingUsers();
 
 	const onSelect = (mode) => {
 		if (lobby)
@@ -36,7 +35,13 @@ export default function SelectModeOverlay({
 
 
 	const gamemodes: GameMode[] = useGamemodes();
-	
+
+	Babact.useEffect(() => {
+		if (isOpen) {
+		  refresh();
+		}
+	  }, [isOpen]);
+
 	if (!gamemodes) return <div>Loading...</div>;
 
 	const [mode, setMode] = Babact.useState<string>('1v1');
@@ -65,7 +70,7 @@ export default function SelectModeOverlay({
 					className="w-fit"
 				/>
 				<div className='flex flex-row gap-4'>
-					{ranked && <ModeButton gamemode={ranked} onSelect={onSelect} />}
+					{ranked && <ModeButton gamemode={ranked} onSelect={onSelect} rating={matchmakingUsers.find((mu) => mu.gamemode === ranked.name)?.rating} />}
 					{unranked && <ModeButton gamemode={unranked} onSelect={onSelect} />}
 				</div>
 			</div>

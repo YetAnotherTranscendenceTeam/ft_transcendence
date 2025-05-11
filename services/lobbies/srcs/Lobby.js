@@ -10,7 +10,8 @@ import {
 } from "./LobbyMessages.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
-import { LobbyStateType, Lobby as LobbyBase, GameModeType} from "yatt-lobbies";
+import { LobbyStateType, Lobby as LobbyBase, QueueStatus } from "yatt-lobbies";
+import { activityEvents } from "./ActivityEvents.js";
 
 export const LobbyState = {
   waiting: () => ({ type: LobbyStateType.WAITING, joinable: true }),
@@ -100,6 +101,7 @@ export class Lobby extends LobbyBase {
     this.broadbast(new LobbyJoinMessage(player));
     super.addPlayer(player);
     player.syncLobby();
+    activityEvents.update(this);
   }
 
   removePlayer(player) {
@@ -110,6 +112,7 @@ export class Lobby extends LobbyBase {
     if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
     this.broadbast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
+    activityEvents.leave(this, player.account_id);
   }
 
   // swaps the positions of 2 players
@@ -151,11 +154,13 @@ export class Lobby extends LobbyBase {
     super.setMode(mode);
     this.team_names.length = lobby_capacity / mode.team_size;
     this.broadbast(new LobbyModeMessage(mode));
+    activityEvents.update(this);
   }
 
   setState(state) {
     this.state = state;
     this.broadbast(new LobbyStateMessage(state));
+    activityEvents.update(this);
   }
 
   isFull() {
@@ -177,9 +182,9 @@ export class Lobby extends LobbyBase {
   }
 
   queue() {
-    if (this.state.type != LobbyStateType.WAITING) throw new Error("Lobby is not waiting");
-    if (this.mode.type == GameModeType.TOURNAMENT && this.getTeamCount() < 3) throw new Error("Lobby requires at least 3 teams to start a tournament");
-    if (this.mode.type == GameModeType.CUSTOM && this.getTeamCount() != 2) throw new Error("Custom lobbies require 2 teams to start");
+    if (this.canQueue() !== QueueStatus.CAN_QUEUE) {
+      throw new Error("Lobby does not meet queue requirements");
+    }
     if (!MatchmakingConnection.getInstance().isReady) {
       throw new Error("Matchmaking service is currently not available");
     }

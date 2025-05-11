@@ -22,7 +22,7 @@ export default function router(fastify, opts, done) {
 
       const tokens = generateTokens(fastify, account_id);
       reply.send(tokens);
-      console.log("AUTH:", { account_id });
+      //console.log("AUTH:", { account_id });
     }
   );
 

@@ -110,8 +110,6 @@ components:
         - gamemode
         - gamemode_name
         - state
-        - score_0
-        - score_1
         - match_id
         - created_at
         - updated_at
@@ -127,12 +125,6 @@ components:
           description: The name of the gamemode
         state:
           $ref: "#/components/schemas/match_state"
-        score_0:
-          type: integer
-          description: The score of team 0
-        score_1:
-          type: integer
-          description: The score of team 1
         match_id:
           type: number
           description: The id of the match
@@ -161,12 +153,6 @@ components:
           description: The name of the gamemode
         state:
           $ref: "#/components/schemas/match_state"
-        score_0:
-          type: integer
-          description: The score of team 0
-        score_1:
-          type: integer
-          description: The score of team 1
         match_id:
           type: number
           description: The id of the match

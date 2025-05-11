@@ -5,6 +5,10 @@ export default function SocialTypeText({type} : { type: StatusType}) {
 
 	if (type === StatusType.INLOBBY)
 		return <h2>in a lobby</h2>;
+	if (type === StatusType.INGAME)
+		return <h2>ponging</h2>;
+	if (type === StatusType.INTOURNAMENT)
+		return <h2>clashing</h2>;
 
 	return <h2>{type}</h2>;
 }

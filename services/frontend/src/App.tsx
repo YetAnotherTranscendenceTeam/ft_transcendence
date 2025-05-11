@@ -10,6 +10,9 @@ import ProfileView from "./views/ProfileView";
 import { PongProvider } from "./contexts/usePong";
 import LocalView from "./views/LocalView";
 import TournamentView from "./views/TournamentView";
+import OnlineView from "./views/OnlineView";
+import { OverlayProvider } from "./contexts/useOverlay";
+import { RTTournamentProvider } from "./contexts/useRTTournament";
 
 export default function App() {
 
@@ -21,28 +24,34 @@ export default function App() {
 	}
 
 	Babact.useEffect(() => {
+		if (process.env.NODE_ENV !== 'production')
+			return;
 		window.addEventListener('beforeunload', handleReload);
 		return () => {
 			window.removeEventListener('beforeunload', handleReload);
 		}
 	}, []);
 
+
 	return <Router>
 		<UiProvider>
 		<PongProvider>
 		<AuthProvider>
+		<RTTournamentProvider>
 		<LobbyProvider>
-			<div style="width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; pointer-events: none;">
-				<Routes>
-					<Route path="/fortytwo" element={<FortytwoView/>} />
-					<Route path='/lobby/:code' element={<LobbyView/>} />
-					<Route path='/profiles/:id' element={<ProfileView/>} />
-					<Route path='/local' element={<LocalView/>} />
-					<Route path='/tournaments/:id' element={<TournamentView/>} />
-					<Route path="/*" element={<Home />} />
-				</Routes>
-			</div>
+		<OverlayProvider>
+		<Routes>
+			<Route path="/fortytwo" element={<FortytwoView key='fortytwo-view'/>} key='fortytwo-view' />
+			<Route path='/lobby/:code' element={<LobbyView key='lobby-view'/>} key='lobby-view'/>
+			<Route path='/profiles/:id' element={<ProfileView key='profiles-view'/>} key='profiles-view'/>
+			<Route path='/local' element={<LocalView key='local-view'/>} key='local-view'/>
+			<Route path='/matches/:id' element={<OnlineView key='matches-view'/>} key='matches-view'/>
+			<Route path='/tournaments/:id' element={<TournamentView key='tournaments-view'/>} key='tournaments-view'/>
+			<Route path="/*" element={<Home key='home-view'/>} key='home-view'/>
+		</Routes>
+		</OverlayProvider>
 		</LobbyProvider>
+		</RTTournamentProvider>
 		</AuthProvider>
 		</PongProvider>
 		</UiProvider>

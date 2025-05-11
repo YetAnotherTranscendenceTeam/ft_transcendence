@@ -23,6 +23,7 @@ jobs:
       MATCH_MANAGEMENT_SECRET: ZmCCT7xAT8mEx4N7gQcVlLggpH/41ctm1HXDvjz5f5/Wb+HPSenhnTQQkB1XoAdQFHBGkjtCQVRuUDP6WCrYtQ==
       TWO_FA_SECRET: bS68olbRIYXn9iWa7W9JWXwgEWrhtc0rAtXWnypPcXgsUDjcjDRf+PJLbSlkY1rxA9HIOX4TPsd2l2tu9XRoZw==
       AUTH_2FA_SECRET: UktfTf6mPDdfz3Z7BS96NP6GUX490X1K8fBSVX/JIy97HMMtSGkSsVuO1hZQy2F0cKdRQVeSwdgG4G/U9O6Q1w==
+      ACTIVITY_SSE_SECRET: BhuGqohNMlnR/4l6pPIZdczyhGRWBNLVWR0DoSrt+DbGgVvjc22UcTfHnKG+B+3Dw4ITPRJA/j9RQ++Bg1vByg==
       FRONTEND_URL: https://localhost:8080
       BACKEND_URL: https://localhost:7979
       CDN_URL: https://cdn-nginx:8181
@@ -34,6 +35,7 @@ jobs:
       SOCIAL_OFFLINE_DELAY: 10000
       SOCIAL_INACTIVITY_DELAY: 15000
       DOMAIN_NAME: localhost
+      IMAGE_PREFIX: tests
 
     steps:
       - name: Checkout repository
@@ -48,7 +50,7 @@ jobs:
           node-version: '23.3.0'
 
       - name: Install dependencies
-        run: make
+        run: make cert deps
 
       - name: Install test dependencies
         run: npm install

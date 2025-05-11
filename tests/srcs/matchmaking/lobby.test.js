@@ -1,15 +1,19 @@
 import { createLobby, joinLobby } from "../../dummy/lobbies-player";
 import { createUsers, users } from "../../dummy/dummy-account";
 import { matchmaking_tests } from "./matches-tests";
-import { MATCHMAKING_SECRET } from "./env";
+import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import request from "superwstest";
 
 import Fastify from "fastify";
 import jwt from "@fastify/jwt";
+import { finishMatch } from "./finishmatch";
+import { apiURL } from "../../URLs";
 
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
+app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
+app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
 
 beforeAll(async () => {
   await app.ready();
@@ -126,7 +130,7 @@ describe.each(matchmaking_tests)(
       for (let match of matches.values()) {
         promises.push(request(matchmakingURL)
           .patch(`/matches/${match.match.match_id}`)
-          .set("Authorization", `Bearer ${app.jwt.sign({})}`)
+          .set("Authorization", `Bearer ${app.jwt.match_management.sign({})}`)
           .send({ state: 2 })
           .then((response) => {
             expect(response.status).toBe(200);
@@ -137,6 +141,12 @@ describe.each(matchmaking_tests)(
     it("close lobbies", async () => {
       await Promise.all(
         lobbies.map(async (lobby) => {
+          for (let player of lobby) {
+            await player.ws.expectJson((message) => {
+              expect(message.event).toBe("state_change");
+              expect(message.data.state.type).toBe("waiting");
+            });
+          }
           while (lobby.length > 0) {
             let player = lobby.pop();
             await player.close();
@@ -201,3 +211,62 @@ describe("Lobby unqueue on leave", () => {
     }
   });
 });
+
+describe("Tournament", () => {
+  let lobby;
+  let players = [];
+  let tournament;
+  it("create lobby", async () => {
+    lobby = await createLobby(users[0], {
+      name: "tournament_2v2",
+      team_size: 2,
+      team_count: 16,
+      type: "tournament",
+    });
+    players.push(lobby);
+    for (let i = 1; i <= 5; i++) {
+      let player = await joinLobby(users[i], lobby);
+      await Promise.all(players.map((p) => p.expectJoin(users[i].account_id)));
+      players.push(player);
+    }
+  });
+  it("queue lobby", async () => {
+    await lobby.ws.sendJson({ event: "queue_start" })
+    await Promise.all(players.map((p) => p.ws.expectJson((message) => {
+      expect(message.event).toBe("state_change");
+      expect(message.data.state.type).toBe("queued");
+    })));
+  });
+  it("expect tournament", () => {
+    return Promise.all(players.map((p) => p.ws.expectJson((message) => {
+      expect(message.event).toBe("state_change");
+      expect(message.data.state.type).toBe("playing");
+      expect(message.data.state.match).toBeDefined();
+      tournament = message.data.state.match.tournament;
+    })));
+  });
+  it("finish tournament", async () => {
+    await finishMatch(app, tournament.matches[1].match_id, 1);
+    const res = await request(apiURL)
+      .get(`/matchmaking/tournaments/${tournament.id}`)
+      .set("Authorization", `Bearer ${users[0].jwt}`);
+    tournament = res.body;
+    await finishMatch(app, tournament.matches[0].match_id, 1);
+	});
+  it("expect state change", async () => {
+    await Promise.all(players.map((p) => p.ws.expectJson((message) => {
+      expect(message.event).toBe("state_change");
+      expect(message.data.state.type).toBe("waiting");
+    })));
+  });
+
+  it("close lobby", async () => {
+    while (players.length > 0) {
+      let player = players.pop();
+      await player.close();
+      for (let other of players) {
+        await other.expectLeave(player.user.account_id);
+      }
+    }
+  });
+})

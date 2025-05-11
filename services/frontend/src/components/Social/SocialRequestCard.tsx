@@ -44,7 +44,7 @@ export default function SocialRequestCard({
 		user={request.profile}
 	>
 		{requestType === 'recieved' && <div
-			className='flex flex-row items-center gap-2'
+			className='flex flex-row items-center justify-end gap-2'
 			>
 			<Button
 				className='success icon'
