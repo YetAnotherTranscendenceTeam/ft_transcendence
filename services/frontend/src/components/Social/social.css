@@ -163,6 +163,10 @@
 	transform: translateX(0);
 }
 
+.social-manager-disconnected {
+	min-height: 400px;
+}
+
 /* ============================== */
 /* =========== Search =========== */
 /* ============================== */

@@ -22,7 +22,7 @@ export default function SocialManager({ className = '', children, ...props }: { 
 
 	const {users, search} = useUsers();
 
-	const { me, socials } = useAuth();
+	const { me, socials, connected, socialConnect } = useAuth();
 
 	const handleSearch = (e) => {
 		if (timeoutRef.current)
@@ -46,8 +46,19 @@ export default function SocialManager({ className = '', children, ...props }: { 
 		});
 	};
 
-	if (!socials)
-		return null;
+	if (!socials || !connected)
+		return <div className={`social-manager-disconnected ${className}`} {...props}>
+			<div className='flex flex-col w-full items-center justify-center h-full gap-4'>
+				<i className="fa-solid fa-plug"></i>
+				<h2>Connection lost</h2>
+				<Button className="primary" onClick={() => {
+					socialConnect();
+				}}>
+					<i className="fa-solid fa-rotate-right"></i>
+					Retry
+				</Button>
+			</div>
+		</div>;
 	return <div className={`social-manager ${className}`} {...props}>
 
 		<div className='social-manager-tabbar flex flex-row'>
