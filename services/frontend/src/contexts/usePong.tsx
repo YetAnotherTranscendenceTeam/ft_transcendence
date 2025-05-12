@@ -10,7 +10,8 @@ const PongContext = Babact.createContext<{
 		overlay: PongOverlay,
 		togglePause: (paused: boolean) => void,
 		startGame: () => void,
-		restartGame: () => void
+		restartGame: () => void,
+		resetOverlay: () => void
 	}>();
 
 export type PongOverlay = IPongOverlay & {
@@ -74,6 +75,14 @@ export const PongProvider = ({ children } : {children?: any}) => {
 		appRef.current?.restartGame();
 	}
 
+	const resetOverlay = () => {
+		setOverlay(null);
+	}
+
+	Babact.useEffect(() => {
+		resetOverlay();
+	}, [window.location.pathname]);
+
 	return (
 		<PongContext.Provider
 			value={{
@@ -81,7 +90,8 @@ export const PongProvider = ({ children } : {children?: any}) => {
 				overlay,
 				togglePause,
 				startGame,
-				restartGame
+				restartGame,
+				resetOverlay
 			}}
 		>
 			<Babylon key="babylon" app={appRef.current}/>
