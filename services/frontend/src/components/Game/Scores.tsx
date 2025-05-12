@@ -16,7 +16,7 @@ export default function Scores() {
 	const goldenGoal = overlay.scores[0] === pointToWin - 1  || overlay.scores[1] === pointToWin - 1 || overlay.gameStatus.name === PongState.ENDED.name;
 
 	const generateScores = () => {
-		if (!overlay.scores || overlay.scores[0] || overlay.scores[1]) return;
+		if (!overlay.scores || overlay.scores[0] == undefined || overlay.scores[1] == undefined) return;
 		const newScores = new Array(overlay.scores[0]).fill('team-1').concat(
 			new Array(bestOf - overlay.scores[0] - overlay.scores[1]).fill('')
 		).concat(

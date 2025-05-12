@@ -12,8 +12,6 @@ export class GameConnection {
 
     this.socket = new WebSocket(`ws://pong:3000/spectate?match_id=${this.match_id}&access_token=${this.tokens.get("spectator")}`);
 
-    fastify.games.set(match_id, this);
-
     this.socket.addEventListener("message", (message) => {
       this.#broadcast(message.data);
     });
@@ -22,15 +20,13 @@ export class GameConnection {
       console.log(`SPECTATING ${match_id}`);
     });
 
-    this.socket.addEventListener("error", (err) => {
-      console.log(`Failed Spectating game ${match_id}:`, err);
-    });
-
     this.socket.addEventListener("close", () => {
       console.log(`LEAVING ${match_id}`);
       this.subscriptions.forEach(socket => { socket.close() });
       fastify.games.delete(match_id);
     });
+
+    fastify.games.set(match_id, this);
   };
 
   async subscribe(socket) {
