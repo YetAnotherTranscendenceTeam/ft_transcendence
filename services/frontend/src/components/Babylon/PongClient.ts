@@ -297,22 +297,38 @@ export default class PongClient extends PONG.Pong {
 			this._babylonScene,
 			null,
 			false,
-			null,
-			() => {
-				this._babylonScene.environmentTexture = hdrTexture;
-				// Display in the background for visual reference
-				this._skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 500.0 }, this._babylonScene);
-				const skyboxMaterial = new BABYLON.PBRMaterial('skyBox', this._babylonScene);
-				skyboxMaterial.backFaceCulling = false;
-				skyboxMaterial.disableLighting = true;
-				this._skybox.material = skyboxMaterial;
-				this._skybox.infiniteDistance = true;
-				skyboxMaterial.disableLighting = true;
-				skyboxMaterial.reflectionTexture = hdrTexture.clone();
-				skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-				skyboxMaterial.roughness = 0.075;
-			}
+			null
 		);
+
+		// Environment texture
+		this._babylonScene.environmentTexture = hdrTexture;
+
+
+		// Skybox
+		this._skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 500.0, sideOrientation: BABYLON.Mesh.BACKSIDE }, this._babylonScene);
+		// this._skybox.infiniteDistance = true;
+		// this._skybox.position.y = 0;
+		this._skybox.receiveShadows = true;
+
+		// Skybox material
+		// const skyboxMaterial = new BABYLON.PBRMaterial('skyBox', this._babylonScene);
+		// skyboxMaterial.backFaceCulling = false;
+		// skyboxMaterial.disableLighting = true;
+		// skyboxMaterial.disableLighting = true;
+		// skyboxMaterial.reflectionTexture = hdrTexture.clone();
+		// skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+		// skyboxMaterial.roughness = 0.075;
+
+		// Skydome material
+		const skydomeMaterial = new BABYLON.BackgroundMaterial('skydome', this._babylonScene);
+		skydomeMaterial.enableGroundProjection = true;
+		skydomeMaterial.projectedGroundRadius = 50;
+		skydomeMaterial.projectedGroundHeight = 15;
+		skydomeMaterial.reflectionTexture = hdrTexture.clone();
+		// skydomeMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+		// skydomeMaterial.roughness = 0.075;
+
+		this._skybox.material = skydomeMaterial;
 		
 		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
 		light.intensity = 0.7;
@@ -392,19 +408,19 @@ export default class PongClient extends PONG.Pong {
 			this._meshMap.set(mapId, mapMesh);
 		});
 
-		// for each map, add every object to every other object probe
-		this._meshMap.forEach((map: Array<AObject>) => {
-			map.forEach((object: AObject) => {
-				map.forEach((otherObject: AObject) => {
-					if (object !== otherObject) {
-						console.log("adding to probe: " + object.mesh.name + " -> " + otherObject.mesh.name);
-						object.addToProbe(otherObject);
-					}
-				});
-				// add skybox to probe
-				object.addToProbe(this._skybox);
-			});
-		});
+		// // for each map, add every object to every other object probe
+		// this._meshMap.forEach((map: Array<AObject>) => {
+		// 	map.forEach((object: AObject) => {
+		// 		map.forEach((otherObject: AObject) => {
+		// 			if (object !== otherObject) {
+		// 				console.log("adding to probe: " + object.mesh.name + " -> " + otherObject.mesh.name);
+		// 				object.addToProbe(otherObject);
+		// 			}
+		// 		});
+		// 		// add skybox to probe
+		// 		object.addToProbe(this._skybox);
+		// 	});
+		// });
 	}
 
 	public cleanUp(): void {
@@ -475,9 +491,9 @@ export default class PongClient extends PONG.Pong {
 			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
 			this._ballInstances.push(ballInstance);
 			// add ball to all objects probe and objects to ball probe
-			this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-				map.addToProbe(ballInstance);
-				ballInstance.addToProbe(map);
+			this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
+				// object.addToProbe(ballInstance);
+				ballInstance.addToProbe(object);
 			}
 			);
 		});
