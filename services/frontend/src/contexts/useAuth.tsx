@@ -4,6 +4,7 @@ import config from "../config";
 import { IUser } from "../hooks/useUsers";
 import useSocial, { FriendStatus, ISocials } from "../hooks/useSocials";
 import { useNavigate } from "babact-router-dom";
+import { APIClearToken, APISetToken } from "../hooks/useAPI";
 
 const AuthContext = Babact.createContext<{
 		me: IMe,
@@ -87,19 +88,19 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	};
 
 	const auth = async (token: string, expire_at: string) => {
-		localStorage.setItem('access_token', token);
-		localStorage.setItem('expire_at', expire_at);
+		await APISetToken(token, expire_at);
 		fetchMe();
 	};
 
 	const logout = async () => {
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('expire_at');
+		await APIClearToken();
 		await ft_fetch(`${config.API_URL}/token/revoke`, {
 			method: "POST",
 			credentials: "include",
 		})
 		setMe(null);
+		if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/local'))
+			navigate('/');
 	};
 
 	const refresh = () => {
