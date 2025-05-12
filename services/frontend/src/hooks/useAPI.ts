@@ -59,3 +59,17 @@ export async function APIRefreshToken() {
 	}
 	release();
 }
+
+export async function APIClearToken() {
+	const release = await refreshMutex.acquire();
+	localStorage.removeItem('access_token');
+	localStorage.removeItem('expire_at');
+	release();
+}
+
+export async function APISetToken(access_token: string, expire_at: string) {
+	const release = await refreshMutex.acquire();
+	localStorage.setItem('access_token', access_token);
+	localStorage.setItem('expire_at', expire_at);
+	release();
+}
