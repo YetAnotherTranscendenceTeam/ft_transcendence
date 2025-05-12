@@ -6,6 +6,8 @@ import Ball from "../core/Ball.js";
 import Paddle from "../core/Paddle.js";
 import Goal from "../core/Goal.js";
 import Wall from "../core/Wall.js";
+import Obstacle from "../core/Obstacle.js";
+import EventBox from "../core/EventBox.js";
 
 export const playGround = {
 	width: 20,
@@ -39,11 +41,12 @@ export function createMap(): IPongMap {
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),
 		goalRight: new Goal(goalShape, goalRightPosition, goalSize),
-		paddleLeftBack: new Paddle(paddleLeftBackPosition, Vec2.create(), K.paddleSpeed),
-		paddleLeftFront: new Paddle(paddleLeftFrontPosition, Vec2.create(), K.paddleSpeed),
-		paddleRightBack: new Paddle(paddleRightBackPosition, Vec2.create(), K.paddleSpeed),
-		paddleRightFront: new Paddle(paddleRightFrontPosition, Vec2.create(), K.paddleSpeed),
+		paddleLeftBack: new Paddle(paddleLeftBackPosition, K.paddleSpeed),
+		paddleLeftFront: new Paddle(paddleLeftFrontPosition, K.paddleSpeed),
+		paddleRightBack: new Paddle(paddleRightBackPosition, K.paddleSpeed),
+		paddleRightFront: new Paddle(paddleRightFrontPosition, K.paddleSpeed),
 		obstacles: [],
+		eventboxes: [],
 		getObjects(): PH2D.Body[] {
 			return [
 				this.wallTop,
@@ -54,7 +57,15 @@ export function createMap(): IPongMap {
 				this.paddleLeftFront,
 				this.paddleRightBack,
 				this.paddleRightFront,
-			].concat(this.obstacles);
+				...this.obstacles,
+				...this.eventboxes
+			];
+		},
+		getObstacles(): Obstacle[] {
+			return this.obstacles;
+		},
+		getEventBoxes(): EventBox[] {
+			return this.eventboxes;
 		},
 		clone: createMap
 	}

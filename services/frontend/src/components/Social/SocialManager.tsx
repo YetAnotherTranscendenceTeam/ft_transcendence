@@ -12,17 +12,26 @@ import Label from "../../ui/Label";
 import SocialRequestCard from "./SocialRequestCard";
 import SocialBlockedCard from "./SocialBlockCard";
 import SocialFriendCard from "./SocialFriendCard";
+import Spinner from "../../ui/Spinner";
 
 export default function SocialManager({ className = '', children, ...props }: { className?: string, children?: any, [key: string]: any }) {
 
 	const [selected, setSelected] = Babact.useState<string>('follow');
+	const timeoutRef = Babact.useRef<number>(null);
+	const [isLoading, setLoading] = Babact.useState<boolean>(false);
 
 	const {users, search} = useUsers();
 
 	const { me, socials } = useAuth();
 
 	const handleSearch = (e) => {
-		search(e.target.value, 20, [me.account_id]);
+		if (timeoutRef.current)
+			clearTimeout(timeoutRef.current);
+		setLoading(true);
+		timeoutRef.current = window.setTimeout(() => {
+			setLoading(false);
+			search(e.target.value, 20, [me.account_id]);
+		}, 300)
 	};
 
 	Babact.useEffect(() => {
@@ -164,12 +173,14 @@ export default function SocialManager({ className = '', children, ...props }: { 
 				</Accordion>
 			</div>
 			<div className={`social-manager-tab social-manager-add flex flex-col gap-2 ${selected === 'search' ? 'open' : ''}`}>
-				<Form formFields={['username']}>
+				<Form formFields={['username']} className="social-manager-search-form">
 					<Input
 						field='username'
 						placeholder='Username'
 						onInput={handleSearch}
+						autocomplete="off"
 					/>
+					{isLoading && <Spinner />}
 				</Form>
 				<div className='social-manager-add-list flex scrollbar flex-col gap-1 h-full'>
 					{

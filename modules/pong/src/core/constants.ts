@@ -1,8 +1,10 @@
 import * as PH2D from 'physics-engine';
 import { Vec2 } from "gl-matrix";
 
-export const DT = 1 / 30;
-export const substeps = 5;
+export const TICK_PER_SECOND = 30;
+export const DT = 1 / TICK_PER_SECOND;
+
+export const substeps = 2;
 
 export const bounceMaterial = {
 	density: 1,
@@ -26,6 +28,7 @@ export const ballMaxAngle = Math.PI / 3; // 60 degrees
 export const launchAngle = 20 * Math.PI / 180; // 20 degrees
 export const paddleSpeed = 4;
 export const defaultPointsToWin = 5;
+export const eventboxRadius = 0.3;
 
 export const ballShape: PH2D.CircleShape = new PH2D.CircleShape(ballRadius);
 export const paddleShape: PH2D.PolygonShape = new PH2D.PolygonShape(paddleSize[0] / 2, paddleSize[1] / 2);

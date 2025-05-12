@@ -23,6 +23,7 @@
 
 .button.disabled, .button.disabled:hover{
 	background-color: var(--bg-2);
+	color: var(--fg-4);
 	cursor: not-allowed;
 }
 
@@ -46,7 +47,7 @@
 }
 
 .button.primary.disabled, .button.primary.disabled:hover{
-	background-color: var(--primary-color-40);
+	background-color: var(--primary-color-20);
 }
 
 .button.ghost {
@@ -129,6 +130,32 @@
 .button.clear.disabled, .button.clear.disabled:hover{
 	background-color: transparent;
 	color: var(--fg-4);
+}
+
+.button.tournament {
+	background-color: var(--intournament-color);
+	color: var(--fg-1);
+}
+
+.button.tournament:hover {
+	background-color: var(--intournament-color-active);
+}
+
+.button.tournament.disabled, .button.tournament.disabled:hover{
+	background-color: var(--intournament-color-40);
+}
+
+.button.game {
+	background-color: var(--ingame-color);
+	color: var(--fg-1);
+}
+
+.button.game:hover {
+	background-color: var(--ingame-color-active);
+}
+
+.button.game.disabled, .button.game.disabled:hover{
+	background-color: var(--ingame-color-40);
 }
 
 /* ================================== */
@@ -340,6 +367,14 @@
 	background-color: var(--inlobby-color-active);
 }
 
+.avatar-status.ingame {
+	background-color: var(--ingame-color);
+}
+
+.avatar-status.intournament {
+	background-color: var(--intournament-color);
+}
+
 /* ================================== */
 /* =========== Separator ============ */
 /* ================================== */
@@ -394,6 +429,7 @@
 	font-size: medium;
 	font-weight: 500;
 	color: var(--fg-1);
+	user-select: none;
 }
 
 .input-container label span {
@@ -446,6 +482,7 @@
 
 .checkbox input[type="checkbox"]:checked {
 	border: 1px solid var(--fg-3);
+	background-color: var(--primary-color);
 }
 
 .checkbox input[type="checkbox"]:checked::after {
@@ -529,7 +566,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	z-index: 9999;
+	z-index: 999;
 }
 
 .modal.overlay {
@@ -725,11 +762,9 @@
 }
 
 .pop-hover {
+	--pop-over-bg: var(--bg-2);
 	position: absolute;
-	top: calc(100% + 8px);
-	left: 50%;
-	transform: translateX(-50%);
-	background-color: var(--bg-2);
+	background-color: var(--pop-over-bg);
 	color: var(--fg-1);
 	border-radius: 4px;
 	padding: 8px;
@@ -737,19 +772,70 @@
 	display: none;
 	z-index: 1000;
 	opacity: 0;
-	transform: opacity 0.3s;
+	transition: opacity 0.3s;
 	font-size: small;
 }
+
+.pop-hover.bottom {
+	top: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.pop-hover.left {
+	top: 50%;
+	left: 0;
+	transform: translate(calc(-100% - 8px), -50%);
+}
+
+.pop-hover.right {
+	top: 50%;
+	right: 0;
+	transform: translate(calc(100% + 8px), -50%);
+}
+
+.pop-hover.top {
+	bottom: calc(100% + 8px);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
 
 .pop-hover::after {
 	content: '';
 	position: absolute;
+	border: 8px solid transparent;
+
+}
+
+.pop-hover.bottom::after {
 	top: -16px;
 	left: 50%;
 	transform: translateX(-50%);
-	border: 8px solid transparent;
-	border-bottom-color: var(--bg-2);
+	border-bottom-color: var(--pop-over-bg);
 }
+
+.pop-hover.left::after {
+	top: 50%;
+	right: -16px;
+	transform: translateY(-50%);
+	border-left-color: var(--pop-over-bg);
+}
+
+.pop-hover.right::after {
+	top: 50%;
+	left: -16px;
+	transform: translateY(-50%);
+	border-right-color: var(--pop-over-bg);
+}
+
+.pop-hover.top::after {
+	bottom: -16px;
+	left: 50%;
+	transform: translateX(-50%);
+	border-top-color: var(--pop-over-bg);
+}
+
 
 .pop-hover-container:hover .pop-hover {
 	display: block;
@@ -835,6 +921,7 @@
 	padding: 16px;
 	gap: 16px;
 	border-radius: 8px;
+	line-height: 120%;
 }
 
 .alert.info {
@@ -1076,10 +1163,10 @@
 	display: block;
 }
 
+
 /* ================================== */
 /* ============ Pagination ========== */
 /* ================================== */
-
 
 .pagination {
 	display: flex;
@@ -1092,3 +1179,87 @@
 	color: var(--fg-2);
 	font-size: small;
 }
+
+
+/* ================================== */
+/* ============== Switch ============ */
+/* ================================== */
+
+.switch {
+	position: relative;
+	display: inline-block;
+	height: 24px;
+	aspect-ratio: 3.5/2;
+}
+
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--bg-1);
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+.slider:before {
+	position: absolute;
+	content: "";
+	height: 16px;
+	aspect-ratio: 1/1;
+	left: 4px;
+	bottom: 4px;
+	background-color: var(--bg-5);
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+input:checked + .slider {
+	background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+	background-color: var(--fg-2);
+	-webkit-transform: translateX(18px);
+	-ms-transform: translateX(18px);
+	transform: translateX(18px);
+}
+
+.slider.round {
+	border-radius: 12px;
+}
+
+.slider.round:before {
+	border-radius: 50%;
+}
+
+/* ================================== */
+/* ============== Range ============= */
+/* ================================== */
+
+input[type="range"] {
+	appearance: none;
+	width: 100%;
+	height: 8px;
+	background: var(--bg-3);
+	border-radius: 4px;
+	outline: none;
+}
+
+.range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 16px;
+	aspect-ratio: 1/1;
+	background: var(--fg-1);
+	cursor: pointer;
+	border-radius: 50%;
+  }

@@ -42,6 +42,14 @@ describe("Social Websocket Welcome", () => {
       });
     };
 
+    it("One blocked request me", async () => {
+      const friendRequest = await request(apiURL)
+        .post(`/social/requests/${mainUser.account_id}`)
+        .set("Authorization", `Bearer ${users[7].jwt}`)
+
+      expect(friendRequest.statusCode).toEqual(204);
+    });
+
     for (let i = 9; i < 12; ++i) {
       it("Get blocked", async () => {
         const friendRequest = await request(apiURL)
@@ -95,6 +103,7 @@ describe("Social Websocket Welcome", () => {
           expect(item).not.toHaveProperty('status');
         });
 
+        expect(message.data.pending.received.length).toEqual(3);
         expect(message.data.pending.received).toEqual(
           expect.arrayContaining(users.slice(12, 15).map(u => {
             return expect.objectContaining({ account_id: u.account_id });

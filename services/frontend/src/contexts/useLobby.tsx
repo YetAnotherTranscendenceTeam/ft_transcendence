@@ -3,10 +3,11 @@ import useWebSocket, { WebSocketHook } from "../hooks/useWebSocket";
 import config from "../config";
 import useToast, { ToastType } from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
-import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
+import { GameMode, ILobby, IMatchParameters, IPlayer, Lobby, PongEventType } from "yatt-lobbies";
 import { useAuth } from "./useAuth";
 import { Team } from "../hooks/useTournament";
 import ConfirmLobbyLeaveModal from "../components/Lobby/ConfirmLobbyLeaveModal";
+import { useRTTournament } from "./useRTTournament";
 
 export class LobbyClient extends Lobby {
 
@@ -82,9 +83,19 @@ export class LobbyClient extends Lobby {
 		});
 	};
 
+	changeParameters(parameter: IMatchParameters) {
+		this.ws.send({
+			event: 'match_parameters',
+			data: {
+				...parameter
+			}
+		});
+	}
+
 	override getTeams(): Team[] {
 		return super.getTeams().map(team => new Team(team));
 	}
+
 }
 
 const LobbyContext = Babact.createContext<{
@@ -99,6 +110,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const [lobby, setLobby] = Babact.useState<LobbyClient>(null);
 	const [onLeave, setOnLeave] = Babact.useState<() => void>(null);
 	const { createToast } = useToast();
+	const { connect } = useRTTournament()
 
 	const { me } = useAuth();
 
@@ -116,11 +128,10 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 	const onStateChange = (state: any) => {
 		if (state.type === 'playing') {
 			if (state.match.type === 'tournament') {
-				createToast('Tournament created', ToastType.INFO);	
 				navigate(`/tournaments/${state.match.tournament.id}`);
+				connect(state.match.tournament.id);
 			}
 			else if (state.match.type === 'match') {
-				createToast('Match found', ToastType.INFO);	
 				navigate(`/matches/${state.match.match.match_id}`);
 			}
 		}
@@ -166,6 +177,10 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			navigate(`/lobby/${lobby.join_secret}`);
 	}
 
+	const onMatchParametersChange = (parameters: IMatchParameters) => {
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setMatchParameters(parameters)));
+	}
+
 	const onMessage = (message: string) => {
 		const msg = JSON.parse(message);
 		if (msg.event === 'lobby') {
@@ -194,6 +209,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}
 		else if (msg.event === 'team_name') {
 			onTeamNameChange(msg.data.team_index, msg.data.name);
+		}
+		else if (msg.event === 'match_parameters') {
+			onMatchParametersChange(msg.data.match_parameters);
 		}
 	};
 

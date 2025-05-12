@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET } from "./env";
+import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { createUsers, users } from "../../dummy/dummy-account";
 
@@ -11,6 +11,7 @@ import { apiURL } from "../../URLs";
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
 app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
+app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
 
 beforeAll(async () => {
   await app.ready();
@@ -216,13 +217,18 @@ describe.each(tests)("#$# match $lobbies.length lobbies, team $winner wins", (te
   });
   it("finish match", async () => {
     await finishMatch(app, match.match_id, test.winner);
+    await ws.expectJson((message) => {
+      expect(message.event).toBe("match_update");
+      expect(message.data.match_id).toBe(match.match_id);
+      expect(message.data.state).toBe(2);
+    });
   });
   it.each(test.lobbies.flat())("check for rating update on player $#", async (player) => {
     const is_winner = test.lobbies[test.winner].includes(player)
     const user = users[player.user_index];
     const res = await request(apiURL)
       .get(`/matchmaking/users/${user.account_id}`)
-      .set("Authorization", `Bearer ${app.jwt.sign({})}`);
+      .set("Authorization", `Bearer ${user.jwt}`);
     expect(res.status).toBe(200);
     expect(res.body.last_match.match_id).toBe(match.match_id);
     const matchmaking_user = res.body.matchmaking_users.find(

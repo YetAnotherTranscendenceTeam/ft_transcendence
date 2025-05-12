@@ -1,4 +1,4 @@
-import { GameModeType } from "yatt-lobbies";
+import { GameModeType, matchParametersSchema } from "yatt-lobbies";
 import { GameManager } from "../GameManager.js";
 import { HttpError } from "yatt-utils";
 
@@ -53,7 +53,8 @@ export default function router(fastify, opts, done) {
               name: { type: "string" },
             }
           }
-        }
+        },
+        match_parameters: matchParametersSchema
       }
     }
   };
@@ -67,16 +68,45 @@ export default function router(fastify, opts, done) {
       new HttpError.Unauthorized().send(res);
       return;
     }
-    const { match_id, gamemode, teams } = req.body;
+    const { match_id, gamemode, teams, match_parameters } = req.body;
     let game;
     try {
-      game = fastify.games.registerGame(match_id, gamemode, teams);
+      game = fastify.games.registerGame(match_id, gamemode, teams, match_parameters);
     }
     catch(e) {
       res.status(400).send({ error: e.message });
+      console.error(e);
       return;
     }
     res.status(201).send(game);
+  });
+
+  fastify.delete("/:match_id", {
+    schema: {
+      params: {
+        type: "object",
+        required: ["match_id"],
+        properties: {
+          match_id: { type: "number" }
+        }
+      }
+    }
+  }, async (req, res) => {
+    try {
+      const jwt = req.headers.authorization.replace("Bearer ", "");
+      fastify.jwt.pong.verify(jwt);
+    }
+    catch(e) {
+      new HttpError.Unauthorized().send(res);
+      return;
+    }
+    const { match_id } = req.params;
+    const game = fastify.games.getGame(match_id);
+    if (!game) {
+      new HttpError.NotFound().send(res);
+      return;
+    }
+    game.destroy();
   });
 
   done();

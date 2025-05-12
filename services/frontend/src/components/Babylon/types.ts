@@ -1,4 +1,5 @@
 import { IBall, PlayerMovement } from "pong";
+import { PongEventType } from 'yatt-lobbies'
 
 export enum KeyState {
 	IDLE = 0,
@@ -9,7 +10,6 @@ export enum KeyState {
 
 export enum GameScene {
 	MENU,
-	LOBBY,
 	ONLINE,
 	LOCAL,
 }

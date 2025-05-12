@@ -46,6 +46,7 @@ export default function router(fastify, opts, done) {
   fastify.get(
     "/:match_id",
     {
+      preHandler: fastify.verifyBearerAuth,
       schema: {
         params: {
           type: "object",

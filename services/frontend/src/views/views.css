@@ -20,6 +20,8 @@
 	height: calc(100vh - var(--header-height));
 	align-items: stretch;
 	justify-content: center;
+	box-sizing: border-box;
+	padding-right: var(--aside-width);
 }
 
 .profile-view {

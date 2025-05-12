@@ -13,6 +13,10 @@
 	color: var(--fg-2);
 }
 
+.lobby-card-body {
+	flex-wrap: wrap;
+}
+
 .lobby-card-body .leader {
 	border: 1px solid var(--primary-color);
 }
@@ -63,6 +67,10 @@
 	color: var(--fg-1);
 	width: 100%;
 	text-align: center;
+}
+
+.lobby-card-footer .pop-hover {
+	--pop-over-bg: var(--bg-3);
 }
 
 /* =============== List =============== */
@@ -203,4 +211,22 @@
 	background-color: var(--bg-4);
 	padding: 8px;
 	box-sizing: border-box;
+	max-height: 150px;
+}
+
+.lobby-settings-row, .lobby-settings-row-powerup p {
+	min-height: 32px;
+}
+
+.lobby-settings-row-powerup {
+	min-height: unset;
+}
+
+.lobby-settings-row-powerup .form {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.lobby-settings-row-powerup .form .input-container div{
+	justify-content: end;
 }

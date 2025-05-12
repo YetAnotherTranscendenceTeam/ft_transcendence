@@ -22,8 +22,6 @@ const data_schema = {
 gameEvents.register("movement", {
 	schema: data_schema,
 	handler: (socket, payload, game, player) => {
-		const paddle = game.paddles.get(player.playerId);
-		paddle.velocity.y = payload.data.movement * K.paddleSpeed;
 		player.movement = payload.data.movement;
 	}
 })

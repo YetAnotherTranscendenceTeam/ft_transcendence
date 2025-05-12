@@ -220,8 +220,19 @@
 	grid-row: span 8;
 	padding: 16px;
 	color: var(--fg-1);
+	position: relative;
 }
 
+.profile-chart h2 {
+	position: absolute;
+	top: 16px;
+	left: 16px;
+}
+
+.profile-chart-container {
+	aspect-ratio: 1;
+	flex: 1;
+}
 
 /* Profile Game drawer */
 

@@ -33,7 +33,7 @@ export async function APIRefreshToken() {
 	if (!expired_at)
 		return;
 	const expired_at_date = new Date(expired_at);
-	if (expired_at_date > new Date())
+	if (expired_at_date > new Date(new Date().getTime() + 1000 * 60 * 2))
 		return;
 	const response = await fetch(`${config.API_URL}/token/refresh`, {
 		method: 'POST',

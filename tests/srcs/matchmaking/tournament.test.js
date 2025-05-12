@@ -1,5 +1,5 @@
 import request from "superwstest";
-import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET } from "./env";
+import { MATCH_MANAGEMENT_SECRET, MATCHMAKING_SECRET, PONG_SECRET } from "./env";
 import { GameModes, matchmakingURL } from "./gamemodes";
 import { apiURL } from "../../URLs.js";
 import { createUsers, users } from "../../dummy/dummy-account";
@@ -14,6 +14,7 @@ import jwt from "@fastify/jwt";
 const app = Fastify();
 app.register(jwt, { secret: MATCHMAKING_SECRET });
 app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
+app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
 
 beforeAll(async () => {
   await app.ready();
@@ -96,13 +97,13 @@ it("connect to matchmaking websocket", async () => {
     });
 });
 
-const tournaments = Array.from({ length: 14 }, (_, index) => ({
+let tournaments = Array.from({ length: 14 }, (_, index) => ({
   player_count: index + 3,
   gamemode: "tournament_1v1",
   team_size: 1,
 })).concat(
-  Array.from({ length: 28 }, (_, index) => ({
-    player_count: index + 5,
+  Array.from({ length: 28 / 2 }, (_, index) => ({
+    player_count: (index * 2) + 6,
     gamemode: "tournament_2v2",
     team_size: 2,
   }))
@@ -131,9 +132,11 @@ describe.each(tests)(
   ({ player_count, gamemode, team_size, match_it_start, match_it_end, match_it_inc }) => {
     let team_count = Math.ceil(player_count / team_size);
     let tournament;
+    let lobby;
+
     let sse;
     it("create lobby and queue for tournament", async () => {
-      const lobby = {
+      lobby = {
         team_names: [],
         players: Array.from({ length: player_count }, (_, index) => ({
           account_id: users[index].account_id,
@@ -148,12 +151,16 @@ describe.each(tests)(
           event: "queue_lobby",
           data: { lobby },
         })
-        .expectJson((message) => {
-          expect(message.event).toBe("confirm_queue");
-          expect(message.data.queue_stats.players).toBe(player_count);
-          expect(message.data.queue_stats.lobbies).toBe(1);
-        });
     });
+
+    it("expect confirm queue", async () => {
+      await ws.expectJson((message) => {
+        expect(message.event).toBe("confirm_queue");
+        expect(message.data.queue_stats.players).toBe(player_count);
+        expect(message.data.queue_stats.lobbies).toBe(1);
+      });
+    });
+
     it("expect tournament start", async () => {
       await ws.expectJson((message) => {
         expect(message.event).toBe("match");
@@ -164,6 +171,7 @@ describe.each(tests)(
         tournament = message.data.match.tournament;
       });
     });
+
     it("connect to SSE and expect tournament sync", async () => {
       sse = await createTestSSE(
         `${apiURL}/matchmaking/tournaments/${tournament.id}/notify?access_token=${users[0].jwt}`
@@ -206,6 +214,17 @@ describe.each(tests)(
           expect(match.match_id).toBeDefined();
           expect(match.team_ids.every((id) => id !== null)).toBe(true);
           await finishMatch(app, match.match_id, winnerIndex);
+          await ws.expectJson((event) => {
+            expect(event.event).toBe("match_update");
+            expect(event.data.match_id).toBe(match.match_id);
+            expect(event.data.state).toBe(2);
+          });
+          await ws.expectJson((event) => {
+            expect(event.event).toBe("tournament_update");
+            expect(event.data.tournament_id).toBe(tournament.id);
+            expect(event.data.team_count).toBe(team_count);
+            expect(event.data.players.length).toBe(player_count);
+          });
           await sse.expectJson("match_update", (event) => {
             expect(event.match.match_id).toBe(match.match_id);
             expect(event.match.index).toBe(match.index);
@@ -245,8 +264,8 @@ describe.each(tests)(
             match_update.scores = event.match.scores;
           });
           const res = await request(apiURL)
-          .get(`/matchmaking/tournaments/${tournament.id}`)
-          .set("Authorization", `Bearer ${users[0].jwt}`)
+            .get(`/matchmaking/tournaments/${tournament.id}`)
+            .set("Authorization", `Bearer ${users[0].jwt}`)
           expect(res.body).toMatchObject({
             matches: tournament.matches,
             teams: tournament.teams.map((team) => ({

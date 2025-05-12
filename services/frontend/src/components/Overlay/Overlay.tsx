@@ -1,14 +1,14 @@
 import Babact from "babact";
-import LobbyCard from "../components/Lobby/LobbyCard";
-import { useAuth } from "../contexts/useAuth";
-import ProfileCard from "../components/Profile/ProfileCard";
-import AuthCard from "../components/Auth/AuthCard";
-import Settings from "../components/Settings/Settings";
-import { useLobby } from "../contexts/useLobby";
-import Menu from "../components/Menu/Menu";
-import SelectModeOverlay from "../components/Online/SelectModeOverlay";
-import './templates.css'
-import TournamentCard from "../components/Tournament/TournamentCard";
+import LobbyCard from "../Lobby/LobbyCard";
+import { useAuth } from "../../contexts/useAuth";
+import ProfileCard from "../Profile/ProfileCard";
+import AuthCard from "../Auth/AuthCard";
+import Settings from "../Settings/Settings";
+import { useLobby } from "../../contexts/useLobby";
+import Menu from "./Menu";
+import SelectModeOverlay from "../Online/SelectModeOverlay";
+import './overlay.css'
+import TournamentCard from "../Tournament/TournamentCard";
 
 export default function Overlay({
 		hidden = false,
@@ -29,6 +29,13 @@ export default function Overlay({
 			setSelected(null);
 		}
 	}, [hidden]);
+
+	Babact.useEffect(() => {
+		console.log('overlay mounted');
+		return () => {
+			console.log('overlay unmounted');
+		}
+	}, [])
 
 	return <div className={`overlay flex ${hidden ? 'hidden' : ''}`} key='overlay'>
 			<Settings

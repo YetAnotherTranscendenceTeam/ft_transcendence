@@ -37,11 +37,4 @@ export default class ClientWall extends AObject {
 		material.specularColor = new Color3(0, 0, 0);
 		this._mesh.material = material;
 	}
-
-	public update(dt: number): void {
-		if (!this._isEnabled) return;
-		const wallPos = this._physicsBody.interpolatePosition(dt) as Vec2;
-		this._mesh.position.x = wallPos.x;
-		this._mesh.position.z = wallPos.y;
-	}
 };

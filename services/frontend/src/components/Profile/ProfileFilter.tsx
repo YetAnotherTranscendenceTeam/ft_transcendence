@@ -13,11 +13,11 @@ export default function ProfileFilter({
 	>
 		<SegmentedControl
 			buttons={[
-				{ label: 'All modes', value: '' },
-				{ label: 'Ranked', value: 'ranked' },
-				{ label: 'Unranked', value: 'unranked' },
-				{ label: 'Custom', value: 'custom' },
-				{ label: 'Tournament', value: 'tournament' },
+				{ label: 'No filter', value: '' },
+				{ label: <><i className="fa-solid fa-trophy"></i> Ranked</>, value: 'ranked' },
+				{ label: <><i className="fa-solid fa-gamepad"></i> Unranked</>, value: 'unranked' },
+				{ label: <><i className="fa-solid fa-users"></i> Custom</>, value: 'custom' },
+				{ label: <><i className="fa-solid fa-people-group"></i> Clash</>, value: 'tournament' },
 			]}
 			onChange={(value) => {
 				onChange(value);

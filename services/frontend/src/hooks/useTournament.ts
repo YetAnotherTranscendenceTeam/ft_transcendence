@@ -1,9 +1,9 @@
 import Babact from "babact";
 import { IGameMode, ITeam } from "yatt-lobbies";
 import { useAuth } from "../contexts/useAuth";
-import useSSE from "./useSSE";
 import config from "../config";
 import useFetch from "./useFetch";
+import { useRTTournament } from "../contexts/useRTTournament";
 
 export enum MatchState {
 	WAITING = 'waiting',
@@ -92,67 +92,30 @@ export class TournamentMatch implements ITournamentMatch {
 	}
 }
 
-export default function useTournament(tournamentId: number, onFinishCallback: (isOpen: boolean) => void) {
+export default function useTournament(tournamentId: number) {
 
-	const teamsRef = Babact.useRef<ITeam[]>([]);
 	const [matches, setMatches] = Babact.useState<TournamentMatch[]>([]);
-	const [currentMatch, setCurrentMatch] = Babact.useState<TournamentMatch>(null);
 	const { me } = useAuth();
 	const { ft_fetch } = useFetch();
+	const RTTournament = useRTTournament();
 
 	const fetchTournament = async () => {
-		const response = await ft_fetch(`${config.API_URL}/matchmaking/tournaments/${tournamentId}`, {}, {
-			show_error: true
-		});
-		if (response)
-			onSync({tournament: response});
-		if (response?.active === 1)
-			sse.connect(`${config.API_URL}/matchmaking/tournaments/${tournamentId}/notify`, true);
+		const response = await ft_fetch(`${config.API_URL}/matchmaking/tournaments/${tournamentId}`, {});
+		if (response) {
+			const matches = response.matches.map((match) => (
+				new TournamentMatch(match, response.teams)
+			));
+			setMatches(matches);
+		}
 	}
-
-	const onSync = ({tournament} : {tournament: Tournament}) => {
-		teamsRef.current = tournament.teams;
-		const matches = tournament.matches.map((match) => (
-			new TournamentMatch(match, tournament.teams)
-		));
-		setMatches(matches);
-	}
-
-	const onMatchUpdate = ({match}: {match: ITournamentMatch}) => {
-		setMatches((prevMatches) => {
-			const newMatch = new TournamentMatch(match, teamsRef.current);
-			prevMatches[match.index] = newMatch;
-			return [...prevMatches];
-		})
-	}
-
-	const onFinish = () => {
-		onFinishCallback(true);
-	}
-
-	const sse = useSSE({
-		onEvent: {
-			sync: onSync,
-			match_update: onMatchUpdate,
-			finish: onFinish
-		},
-	});
 
 	Babact.useEffect(() => {
-		if (me) {
-			onFinishCallback(false);
+		if (me && RTTournament.tournament_id != tournamentId || RTTournament.matches.length == 0) {
 			fetchTournament();
 		}
-	}, [me?.account_id, tournamentId]);
-
-	Babact.useEffect(() => {
-		const newCurrentMatch = matches.find((match) => match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id)) ?? null;
-		setCurrentMatch(newCurrentMatch);
-	}, [matches?.length, ...matches?.map((match) => match.state)]);
+	}, [me?.account_id, tournamentId, RTTournament.matches]);
 
 	return {
-		matches,
-		currentMatch,
-		sse
+		matches: RTTournament.tournament_id == tournamentId ? RTTournament.matches : matches,
 	}
 }

@@ -1,12 +1,13 @@
-
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
 import Goal from "./Goal.js";
 import Wall from "./Wall.js";
+import Obstacle from "./Obstacle.js";
+import EventBox from "./EventBox.js";
 import * as K from "./constants.js";
 import { Body } from "physics-engine"
 import { Pong } from "./Pong.js";
-import { IPlayer } from 'yatt-lobbies'
+import { IPlayer, PongEventType } from 'yatt-lobbies'
 
 export class IPongState {
 	name: "PLAYING" | "FREEZE" | "RESERVED" | "PAUSED" | "ENDED";
@@ -120,6 +121,11 @@ export enum MapID {
 	FAKE = 2
 }
 
+export enum PongEventActivationSide {
+	SERVER,
+	BOTH
+}
+
 export interface IPongMap {
 	mapId: MapID;
 
@@ -134,8 +140,12 @@ export interface IPongMap {
 	paddleRightBack: Paddle;
 	paddleRightFront: Paddle;
 
-	obstacles: Wall[];
+	obstacles: Obstacle[];
+	eventboxes: EventBox[];
+
 	getObjects: () => Body[];
+	getObstacles: () => Obstacle[];
+	getEventBoxes: () => EventBox[];
 	clone: () => IPongMap;
 }
 
@@ -145,10 +155,23 @@ export interface IBall {
 	angularVelocity: number;
 	orientation: number;
 	speed: number;
+	bounceCount: number;
 }
 
 export interface IPaddle {
 	id: PlayerID;
 	position: number;
 	movement: PlayerMovement;
+}
+
+export interface IEventBoxSync {
+	eventType: PongEventType;
+	active: boolean;
+}
+
+export interface IEventSync {
+	type: PongEventType;
+	playerId: PlayerID;
+	time: number;
+	id: number;
 }

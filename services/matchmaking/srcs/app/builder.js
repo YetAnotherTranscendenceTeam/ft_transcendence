@@ -17,6 +17,7 @@ import { SimpleIntervalJob, AsyncTask } from 'toad-scheduler';
 
 import { TournamentManager } from "../TournamentManager.js";
 import { computeLeaderboards } from "../computeLeaderboards.js";
+import { ActiveMatchManager } from "../ActiveMatchManager.js";
 
 export default function build(opts = {}) {
   const app = Fastify({ ...opts, querystringParser: (str) => qs.parse(str) });
@@ -59,6 +60,7 @@ export default function build(opts = {}) {
   });
 
   app.decorate("tournaments", new TournamentManager(app));
+  app.decorate("matches", new ActiveMatchManager(app));
   app.register(fastifyFormbody);
   app.register(websocket);
 
@@ -92,6 +94,7 @@ export default function build(opts = {}) {
   app.addHook('onClose', async (instance) => {
     // Cleanup instructions for a graceful shutdown
     await instance.tournaments.cancel();
+    await instance.matches.cancel();
     db.close();
   });
 

@@ -157,44 +157,30 @@
 }
 
 
-/* ==== Join Button ==== */
-
-.match-join-button {
-	position: absolute;
-	top: calc(var(--header-height) + 16px);
-	left: 50%;
-	transform: translateX(-50%);
-	width: fit-content;
-	z-index: 10;
-	font-size: medium;
-}
-
 /* ===== Modal ====== */
 
 .tournament-end-modal {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: color-mix(in srgb, var(--bg-1), transparent 40%);
-	color: var(--fg-1);
+	padding: 32px;
+}
+
+.tournament-end-modal .button {
+	margin-top: 64px;
 }
 
 .tournament-end-modal h2 {
-	font-size: xx-large;
+	font-size: x-large;
 }
 
 .tournament-end-modal h2 i{
 	color: var(--warning-color);
 }
 
-.tournament-end-modal .button{
-	margin-top: 20vh;
-}
-
 
 /* ===== Tournament Card ====== */
+
+.tournament-card {
+	backdrop-filter: none;
+}
 
 .tournament-card h1{
 	font-size: medium;
