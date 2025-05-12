@@ -7,6 +7,7 @@ import {
   SwapPlayersMessage,
   LobbyLeaderMessage,
   TeamNameMessage,
+  MatchParametersMessage,
 } from "./LobbyMessages.js";
 import { GameModes } from "./GameModes.js";
 import MatchmakingConnection from "./MatchmakingConnection.js";
@@ -55,6 +56,7 @@ export class Lobby extends LobbyBase {
       state: this.state,
       leader_account_id: this.leader_account_id,
       team_names: this.team_names,
+      match_parameters: this.match_parameters,
     };
   }
 
@@ -63,7 +65,7 @@ export class Lobby extends LobbyBase {
     if (index == -1) throw new Error("Player not in lobby");
     const team_index = index % this.getTeamCount();
     this.team_names[team_index] = name;
-    this.broadbast(new TeamNameMessage(team_index, name));
+    this.broadcast(new TeamNameMessage(team_index, name));
   }
 
   isLeader(player) {
@@ -73,7 +75,7 @@ export class Lobby extends LobbyBase {
   setLeader(player) {
     if (!player) this.leader_account_id = null;
     else this.leader_account_id = player.account_id;
-    this.broadbast(new LobbyLeaderMessage(this.leader_account_id));
+    this.broadcast(new LobbyLeaderMessage(this.leader_account_id));
   }
 
   shouldScheduleDestruction() {
@@ -98,7 +100,7 @@ export class Lobby extends LobbyBase {
       this.destruction_timeout = null;
     }
     if (this.leader_account_id === null) this.setLeader(player);
-    this.broadbast(new LobbyJoinMessage(player));
+    this.broadcast(new LobbyJoinMessage(player));
     super.addPlayer(player);
     player.syncLobby();
     activityEvents.update(this);
@@ -110,7 +112,7 @@ export class Lobby extends LobbyBase {
     if (this.isLeader(player)) this.setLeader(rm_index == 0 ? this.players[1] : this.players[0]);
     super.removePlayer(rm_index);
     if (this.state.type == LobbyStateType.QUEUED) this.unqueue();
-    this.broadbast(new LobbyLeaveMessage(player));
+    this.broadcast(new LobbyLeaveMessage(player));
     if (this.shouldScheduleDestruction()) this.scheduleDestruction();
     activityEvents.leave(this, player.account_id);
   }
@@ -133,10 +135,10 @@ export class Lobby extends LobbyBase {
     let player = this.players[indexes[0]];
     this.players[indexes[0]] = this.players[indexes[1]];
     this.players[indexes[1]] = player;
-    this.broadbast(new SwapPlayersMessage(account_ids));
+    this.broadcast(new SwapPlayersMessage(account_ids));
   }
 
-  broadbast(message) {
+  broadcast(message) {
     for (let player of this.players) {
       player.send(message);
     }
@@ -153,14 +155,20 @@ export class Lobby extends LobbyBase {
       throw new Error("Too many players in lobby to change to this gamemode");
     super.setMode(mode);
     this.team_names.length = lobby_capacity / mode.team_size;
-    this.broadbast(new LobbyModeMessage(mode));
+    this.broadcast(new LobbyModeMessage(mode));
     activityEvents.update(this);
   }
 
   setState(state) {
     this.state = state;
-    this.broadbast(new LobbyStateMessage(state));
+    this.broadcast(new LobbyStateMessage(state));
     activityEvents.update(this);
+  }
+
+  setMatchParameters(params) {
+    if (this.state.type !== LobbyStateType.WAITING) throw new Error("Lobby is not waiting");
+    this.match_parameters = params;
+    this.broadcast(new MatchParametersMessage(params));
   }
 
   isFull() {
@@ -177,7 +185,7 @@ export class Lobby extends LobbyBase {
   }
 
   forcedUnqueue(reason) {
-    this.broadbast(new LobbyErrorMessage(reason));
+    this.broadcast(new LobbyErrorMessage(reason));
     this.setState(LobbyState.waiting());
   }
 
@@ -203,7 +211,7 @@ export class Lobby extends LobbyBase {
 
   confirmUnqueue(reason) {
     if (reason) {
-      this.broadbast(new LobbyErrorMessage(reason));
+      this.broadcast(new LobbyErrorMessage(reason));
     }
     this.setState(LobbyState.waiting());
   }

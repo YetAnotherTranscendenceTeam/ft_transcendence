@@ -8,8 +8,8 @@ import { Vec2 } from "gl-matrix";
 import { glV2ArrayToBabylonV3Array } from "../vectorUtils";
 import earcut from "earcut";
 
-export default class ClientWall extends AObject {
-	public constructor(scene: Scene, name: string, physicsBody: PONG.Wall) {
+export default class ClientObstacle extends AObject {
+	public constructor(scene: Scene, name: string, physicsBody: PONG.Obstacle) {
 		super(scene, physicsBody);
 
 		const vertices: Vec2[]= (physicsBody.shape as PH2D.PolygonShape).vertices;
@@ -31,7 +31,8 @@ export default class ClientWall extends AObject {
 			0.25,
 			this._physicsBody.position.y
 		);
-		this._material = ClientWall.template.clone("wallMaterial");
+
+		this._material = ClientObstacle.template.clone("obstacleMaterial");
 		this._mesh.material = this._material;
 	}
 };

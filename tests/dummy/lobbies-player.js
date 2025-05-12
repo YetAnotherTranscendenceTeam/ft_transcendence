@@ -45,6 +45,15 @@ export class Player {
     });
   }
 
+  expectMatchParameters(params) {
+    return this.ws.expectJson((message) => {
+      expect(message.event).toBe("match_parameters");
+      expect(message.data.match_parameters).toBeDefined();
+      expect(message.data.match_parameters).toMatchObject(params);
+      this.lobby.match_parameters = message.data.match_parameters;
+    });
+  }
+
   join(user) {
     return joinLobby(user, this);
   }

@@ -23,11 +23,4 @@ export default class ClientBall extends AObject {
 		this._material = ClientBall.template.clone("ballMaterial");
 		this._mesh.material = this._material;
 	}
-
-	public update(dt: number): void {
-		if (!this._isEnabled) return;
-		const ballPos = this._physicsBody.interpolatePosition(dt) as Vec2;
-		this._mesh.position.x = ballPos.x;
-		this._mesh.position.z = ballPos.y;
-	}
 };

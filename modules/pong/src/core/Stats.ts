@@ -13,6 +13,7 @@ interface IPlayerStats {
 
 interface IHit {
 	playerId: PlayerID;
+	isTrade: boolean;
 	ballId: number;
 	tick: number;
 }
@@ -22,6 +23,8 @@ interface ILastGoal {
 	ballId: number;
 	tick: number;
 }
+
+
 
 export default class Stats {
 	private _pointToWin: number;
@@ -37,7 +40,8 @@ export default class Stats {
 	private _lastGoal: ILastGoal
 	private _lastSideToScore: MapSide;
 	private _lastSideToHit: MapSide;
-
+	private _ballTradeCount: number;
+	
 	constructor(teamSize: number, pointToWin: number) {
 		this._pointToWin = pointToWin;
 		this._winner = undefined;
@@ -76,6 +80,7 @@ export default class Stats {
 		}
 		this._lastHit = {
 			playerId: undefined,
+			isTrade: false,
 			ballId: 0,
 			tick: 0
 		};
@@ -86,7 +91,7 @@ export default class Stats {
 		};
 		this._lastSideToScore = undefined;
 		this._lastSideToHit = undefined;
-		
+		this._ballTradeCount = 0;
 	}
 
 	public get winner(): MapSide {
@@ -123,6 +128,10 @@ export default class Stats {
 
 	public get lastSideToHit(): MapSide {
 		return this._lastSideToHit;
+	}
+
+	public get ballTradeCount(): number {
+		return this._ballTradeCount;
 	}
 
 	public set score(score: number[]) {
@@ -165,8 +174,12 @@ export default class Stats {
 		this._lastHit = {
 			playerId: playerId,
 			ballId: ballId,
-			tick: tick
+			tick: tick,
+			isTrade: this._lastSideToHit !== side
 		};
+		if (this._lastSideToHit !== side) {
+			this._ballTradeCount++;
+		}
 		this._lastSideToHit = side;
 	}
 }

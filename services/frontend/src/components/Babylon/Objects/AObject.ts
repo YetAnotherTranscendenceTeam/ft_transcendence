@@ -1,6 +1,7 @@
 import { Mesh, Scene, PBRMaterial, ReflectionProbe } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import * as PH2D from "physics-engine";
+import { Vec2 } from "gl-matrix";
 
 export default abstract class AObject {
 	protected _scene: Scene;
@@ -8,16 +9,23 @@ export default abstract class AObject {
 	protected _material: PBRMaterial;
 	protected _probe: ReflectionProbe;
 	protected _physicsBody: PH2D.Body;
-	protected _isEnabled: boolean = true;
+	protected _isEnabled: boolean;
 
 	public static template: PBRMaterial;
 
 	public constructor(scene: Scene, physicsBody: PH2D.Body) {
 		this._scene = scene;
 		this._physicsBody = physicsBody;
+		this._isEnabled = true;
 	}
 
-	public update(dt: number): void {}
+	public update(dt: number): void {
+		if (!this._isEnabled) return;
+		const wallPos = this._physicsBody.interpolatePosition(dt) as Vec2;
+		this._mesh.position.x = wallPos.x;
+		this._mesh.position.z = wallPos.y;
+		this._mesh.rotation.y = this._physicsBody.orientation;
+	}
 
 	private generateProbe(): void {
 		if (!this._mesh || this._probe || !this._mesh.material) {
@@ -47,11 +55,13 @@ export default abstract class AObject {
 	public disable(): void {
 		this._mesh?.setEnabled(false);
 		this._isEnabled = false;
+		this._physicsBody.filter = 1;
 	}
 
 	public enable(): void {
 		this._mesh?.setEnabled(true);
 		this._isEnabled = true;
+		this._physicsBody.filter = 0;
 	}
 
 	public get mesh(): Mesh {

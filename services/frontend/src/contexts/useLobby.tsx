@@ -3,7 +3,7 @@ import useWebSocket, { WebSocketHook } from "../hooks/useWebSocket";
 import config from "../config";
 import useToast, { ToastType } from "../hooks/useToast";
 import { useNavigate } from "babact-router-dom";
-import { GameMode, ILobby, IPlayer, Lobby } from "yatt-lobbies";
+import { GameMode, ILobby, IMatchParameters, IPlayer, Lobby, PongEventType } from "yatt-lobbies";
 import { useAuth } from "./useAuth";
 import { Team } from "../hooks/useTournament";
 import ConfirmLobbyLeaveModal from "../components/Lobby/ConfirmLobbyLeaveModal";
@@ -82,6 +82,15 @@ export class LobbyClient extends Lobby {
 			}
 		});
 	};
+
+	changeParameters(parameter: IMatchParameters) {
+		this.ws.send({
+			event: 'match_parameters',
+			data: {
+				...parameter
+			}
+		});
+	}
 
 	override getTeams(): Team[] {
 		return super.getTeams().map(team => new Team(team));
@@ -168,6 +177,10 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			navigate(`/lobby/${lobby.join_secret}`);
 	}
 
+	const onMatchParametersChange = (parameters: IMatchParameters) => {
+		setLobby((lobby: LobbyClient) => new LobbyClient(lobby?.setMatchParameters(parameters)));
+	}
+
 	const onMessage = (message: string) => {
 		const msg = JSON.parse(message);
 		if (msg.event === 'lobby') {
@@ -196,6 +209,9 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 		}
 		else if (msg.event === 'team_name') {
 			onTeamNameChange(msg.data.team_index, msg.data.name);
+		}
+		else if (msg.event === 'match_parameters') {
+			onMatchParametersChange(msg.data.match_parameters);
 		}
 	};
 

@@ -72,6 +72,10 @@
 	transform: scale(1.05);
 }
 
+.mode-button.selected {
+	border: 2px solid var(--inlobby-color);
+}
+
 
 .mode-button h1 {
 	font-size: xx-large;

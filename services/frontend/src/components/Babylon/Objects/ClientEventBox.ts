@@ -8,30 +8,38 @@ import { Vec2 } from "gl-matrix";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-export default class ClientGoal extends AObject {
+export default class ClientEventBox extends AObject {
 
-	public constructor(scene: Scene, name: string, physicsBody: PONG.Goal) {
+	public constructor(scene: Scene, name: string, physicsBody: PONG.EventBox) {
 		super(scene, physicsBody);
-		if (!isDevelopment) {
-			this._isEnabled = false;
-			return;
-		}
-		this._mesh = MeshBuilder.CreateBox(
+		this._isEnabled = false;
+		this._mesh = MeshBuilder.CreateCylinder(
 			name,
 			{
-				width: physicsBody.width,
+				diameter: (physicsBody.shape as PH2D.CircleShape).radius * 2,
 				height: 0.1,
-				depth: physicsBody.height,
+				tessellation: 6,
+				sideOrientation: Mesh.DOUBLESIDE,
 			},
 			this._scene
-		);
+		)
 		this._mesh.position = new BABYLON.Vector3(
 			this._physicsBody.position.x,
 			0.05,
 			this._physicsBody.position.y
 		);
-		this._material = ClientGoal.template.clone("goalMaterial");
+		this._material = ClientEventBox.template.clone("eventBoxMaterial");
 		this._mesh.material = this._material;
+	}
+
+	public update(dt: number): void {
+		const physicsBody = this._physicsBody as PONG.EventBox;
+		if (physicsBody.active) {
+			this.enable();
+		} else {
+			this.disable();
+		}
+		super.update(dt);
 	}
 
 	public enable(): void {

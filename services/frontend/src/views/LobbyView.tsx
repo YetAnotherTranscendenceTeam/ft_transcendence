@@ -18,7 +18,7 @@ export default function LobbyView() {
 	const { me } = useAuth();
 
 	Babact.useEffect(() => {
-		app.setGameScene(GameScene.LOBBY);
+		app.setGameScene(GameScene.MENU);
 	}, [])
 
 	Babact.useEffect(() => {

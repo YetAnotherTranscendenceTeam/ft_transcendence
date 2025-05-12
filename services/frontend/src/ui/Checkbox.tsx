@@ -5,12 +5,14 @@ export default function Checkbox({
 		label,
 		field,
 		required,
+		value,
 		onChange,
 		...props 
 	}: {
 		label?: string,
 		field: string
 		required?: boolean,
+		value?: boolean,
 		onChange?: Function,
 		[key: string]: any
 	}) {
@@ -29,13 +31,18 @@ export default function Checkbox({
 	Babact.useEffect(() => {
 		(document.getElementById(field) as HTMLInputElement).checked = fields[field].value === true;
 	}, [fields[field]]);
+
+	Babact.useEffect(() => {
+		(document.getElementById(field) as HTMLInputElement).checked = value ?? false;
+	}, [value]);
 	
 	const isFieldValid = fields[field]?.isValid;
 
+	console.log(value)
 	return <div className={`input-container checkbox`}>
 		<div className='flex w-full gap-2 items-center'>
-			<input type="checkbox" onChange={handleChange} id={field} className={!isFieldValid ? 'invalid' : ''} {...props}/>
 			{label && <label for={field}>{label}</label>}
+			<input type="checkbox" onChange={handleChange} id={field} className={!isFieldValid ? 'invalid' : ''} {...props}/>
 		</div>
 	</div>
 }
