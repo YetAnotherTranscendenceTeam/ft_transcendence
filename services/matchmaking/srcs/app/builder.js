@@ -69,7 +69,6 @@ export default function build(opts = {}) {
   app.decorate("leaderboards", new Array());
   const task = new AsyncTask('compute-leaderboards', async () => {
     app.leaderboards = await computeLeaderboards();
-    // console.log(`SCHEDULE: Leaderboard updated`);
   });
 
   const updateLeaderboards = new SimpleIntervalJob(

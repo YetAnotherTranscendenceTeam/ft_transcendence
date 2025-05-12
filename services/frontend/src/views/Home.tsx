@@ -14,20 +14,23 @@ export default function Home() {
 		app.setGameScene(GameScene.MENU);
 	}, [])
 
-	const { leaderboards, isLoading, refresh } = useLeaderboard();
+	const { leaderboards, isLoading, canUpdate, update } = useLeaderboard();
+
+	if (!leaderboards.length)
+		return;
 
 	return <div className='home-view flex flex-col items-center justify-center h-full gap-4 w-fit'>
 		<Card className='leaderboards-title flex-row items-center justify-between gap-4 flex-1 w-full bottom'>
 			<p>Leaderboards</p>
-			<Button
+			{canUpdate && <Button
 				loading={isLoading}
 				className="icon"
 				onClick={() => {
-					refresh();
+					update();
 				}}
 			>
 				<i className="fa-solid fa-arrow-rotate-right"></i>
-			</Button>
+			</Button>}
 		</Card>
 		{leaderboards && leaderboards?.map((leaderboard, index) => (
 			<LeaderBoard key={index} leaderboard={leaderboard} className="flex-10"/>

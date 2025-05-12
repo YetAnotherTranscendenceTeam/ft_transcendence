@@ -1,7 +1,7 @@
 import db from './app/database.js';
 import YATT from 'yatt-utils';
 
-const LEADERBOARD_SIZE = 20;
+const LEADERBOARD_SIZE = 50;
 
 const rankedModes = ["ranked_1v1", "ranked_2v2"];
 
@@ -21,23 +21,26 @@ export async function computeLeaderboards() {
     const players = selectModeRankings.all(mode);
 
     // Fetch all profiles at once
-    const url = `http://profiles:3000/?filter[account_id]=${players.map(p => p.account_id).join(",")}`;
-    const profiles = await YATT.fetch(url);
+    
+    let profiles;
+    try {
+      profiles = await YATT.fetch(`http://profiles:3000/?filter[account_id]=${players.map(p => p.account_id).join(",")}`);
+    } catch (err) {
+      profiles = [];
+    }
 
-    // Associate each player with their profile
-    const rankings = players.map(p => {
+    // Associate each player with their username
+    const rankings = players.map(player => {
       return {
-        ...p,
-        profile: profiles.find(profile => profile.account_id == p.account_id) || null
+        account_id: player.account_id,
+        username: profiles.find(profile => profile.account_id == player.account_id)?.username || null,
+        rating: Math.floor(player.rating),
       };
-    });
+    }).filter(player => player.username);
 
     // Push this mode's leaderboard
     leaderboards.push({ mode, rankings });
   }
 
-  return leaderboards;
+  return { leaderboards, update_after: Date.now() + 21000 };
 };
-
-
-

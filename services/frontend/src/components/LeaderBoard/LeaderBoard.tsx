@@ -29,7 +29,7 @@ export default function LeaderBoard({
 			{leaderboard.rankings.map((user, index) => (
 				<div className='row' key={user.account_id}>
 					<span>#{index + 1}</span>
-					<span>{user.profile.username}</span>
+					<span>{user.username}</span>
 					<span>{user.rating}</span>
 				</div>
 			))}
