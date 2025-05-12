@@ -133,7 +133,7 @@ export default class PongClient extends PONG.Pong {
 			countDown: this._state.frozen_until,
 			lastWinner: (this._state.name === "FREEZE" && this._stats) ? this._stats.lastSideToScore : null,
 			gameStatus: this._state,
-			pointsToWin: PONG.K.defaultPointsToWin,
+			pointsToWin: this._matchParameters.point_to_win,
 			activeEvents: this._activeEvents?.filter((event: PONG.PongEvent) => (!this._player || event.playerId === this._player.playerId || event.isGlobal())).map((event: PONG.PongEvent) => {
 				return {
 					type: event.type,
@@ -237,6 +237,7 @@ export default class PongClient extends PONG.Pong {
 				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				this.eventBoxSync(msg.data.match.event_boxes as PONG.IEventBoxSync[]);
 				this.eventSync(msg.data.match.activeEvents as PONG.IEventSync[]);
+				console.log("matchPrams", this._matchParameters);
 				this.updateOverlay();
 			}
 			else if (msg.event === "state") {
@@ -328,7 +329,7 @@ export default class PongClient extends PONG.Pong {
 			ball.dispose();
 		});
 		this._ballInstances = [];
-		this.updateOverlay();
+		// this.updateOverlay();
 	}
 	
 	protected switchMap(mapId: PONG.MapID) {
