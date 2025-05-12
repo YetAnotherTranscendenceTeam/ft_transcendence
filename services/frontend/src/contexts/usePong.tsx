@@ -35,6 +35,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 					});
 				},
 				onConnectionError: (error) => {
+					console.error('pong ws error', error);
 					if (error.reason === 'UNAUTHORIZED' || error.reason === 'NOT_FOUND' || error.reason === 'FORBIDDEN') {
 						createToast('This game is not available', ToastType.DANGER);
 					}

@@ -1,6 +1,6 @@
 "use strict";
 
-import { GameConnection } from "../utils/GameConnection.js";
+import { SpectateMatch } from "../utils/SpectateMatch.js";
 import { Mutex } from 'async-mutex';
 import { WsCloseError } from "yatt-ws";
 
@@ -31,11 +31,24 @@ export default function router(fastify, opts, done) {
 
     const release = await mutex.acquire();
 
-    const game = fastify.games.get(match_id) || new GameConnection(match_id, fastify);
-    if (game)
+    let game = fastify.games.get(match_id);
+    if (game) {
       await game.subscribe(socket);
+      release();
+    } else {
+      const newGame = new SpectateMatch(match_id, fastify);
 
-    release();
+      try {
+        await newGame.connect();
+        fastify.games.set(match_id, newGame);
+        release();
+        await newGame.subscribe(socket);
+      } catch (err) {
+        console.error(err);
+        socket.close(4502, "BAD_GATEWAY");
+        release();
+      }
+    }
   });
 
   done();
