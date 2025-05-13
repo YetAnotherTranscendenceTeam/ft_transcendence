@@ -53,11 +53,11 @@ export default function GameOverlay({
 					<i className="fa-solid fa-play"></i> Resume
 				</Button>
 			}
-			{globalEvents.length > 0 && globalEvents.map((e) => <div
-				className='game-overlay-powerups flex items-center justify-center gap-2'
-			>
-				<PowerUpIcon powerUp={e} />
-			</div>)}
+			{globalEvents.length > 0 &&
+				<div className='game-overlay-powerups flex items-center justify-center gap-2'>
+					{globalEvents.map((p) => <PowerUpIcon powerUp={p} key={p.type} />)}
+				</div>
+			}
 		</div>
 	</div>
 

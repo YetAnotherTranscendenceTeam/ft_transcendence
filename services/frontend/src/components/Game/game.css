@@ -230,6 +230,7 @@
 	width: 64px;
 	border-radius: 8px;
 	background-color: var(--bg-1);
+	font-size: x-large;
 }
 
 .powerup.hidden {
@@ -238,6 +239,10 @@
 
 .powerup.warning {
 	animation: fadeInOut 1s ease-in-out infinite;
+}
+
+.powerup.warning.hidden {
+	animation: none;
 }
 
 @keyframes fadeInOut {

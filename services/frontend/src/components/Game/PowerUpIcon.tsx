@@ -26,8 +26,9 @@ export default function PowerUpIcon({ powerUp, hidden }: { powerUp: PowerUp, [ke
 		}
 	}
 
-	return <div className={`powerup flex items-center justify-center ${hidden ? 'hidden' : ''} ${powerUp.isGlobal ? 'global' : ''} ${powerUp.team === MapSide.LEFT ? 'left' : 'right'} ${powerUp.time < 5 ? 'warning' : ''}`}>
+	const warning = powerUp.time < 5 && powerUp.time >= 0;
+
+	return <div className={`powerup flex items-center justify-center ${hidden ? 'hidden' : ''} ${powerUp.isGlobal ? 'global' : ''} ${powerUp.team === MapSide.LEFT ? 'left' : 'right'} ${warning ? 'warning' : ''}`}>
 		{getPowerUpIcon()}
-		{Math.floor(powerUp.time)}
 	</div>
 }
