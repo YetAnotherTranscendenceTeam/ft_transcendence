@@ -11,7 +11,11 @@ export default function Home() {
 	const { app } = usePong();
 
 	Babact.useEffect(() => {
+		console.log('Home mounted');
 		app.setGameScene(GameScene.MENU);
+		return () => {
+			console.log('Home unmounted');
+		}
 	}, [])
 
 	const { leaderboards, isLoading, canUpdate, update } = useLeaderboard();

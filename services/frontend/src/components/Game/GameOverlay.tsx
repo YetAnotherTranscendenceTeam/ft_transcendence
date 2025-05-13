@@ -8,6 +8,7 @@ import WinnerRoundOverlay from './WinnerRoundOverlay';
 import WinnerMatchOverlay from './WinnerMatchOverlay';
 import WaitingPlayerOverlay from './WaitingPlayerOverlay';
 import PowerUpIcon from './PowerUpIcon';
+import Card from '../../ui/Card';
 
 export default function GameOverlay({
 		onResume,
@@ -29,11 +30,16 @@ export default function GameOverlay({
 	const globalEvents = overlay.activeEvents.filter(e => e.isGlobal);
 
 	return <div
-		className='game-overlay'
+		className='game-overlay flex '
 	>
 		<div className='flex items-center justify-center w-full'>
 			<Scores />
 		</div>
+		{ overlay.spectatorCount > 0 && 
+				<Card className="spectator-count flex flex-row gap-2">
+					<i className="fa-solid fa-eye"></i> {overlay.spectatorCount}
+				</Card>
+		}
 		<div
 			className={`game-overlay-content flex flex-col gap-4 items-center justify-center ${displayBackground ? 'background' : ''}`}
 		>
@@ -42,7 +48,7 @@ export default function GameOverlay({
 			{overlay.gameStatus.name === PongState.RESERVED.name && !overlay.local && <WaitingPlayerOverlay />}
 			{overlay.gameStatus.name === PongState.ENDED.name && <WinnerMatchOverlay key='match-overlay'/>}
 			{
-				overlay.local && overlay.gameStatus.name === PongState.RESERVED.name &&
+				overlay.local && overlay.gameStatus.name === PongState.RESERVED.name && overlay.spectatorCount === null &&
 				<Button className="primary" onClick={() => onStart()}>
 					<i className="fa-solid fa-play"></i> Start Game
 				</Button>

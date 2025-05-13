@@ -3,6 +3,8 @@ import { HPosition, VPosition } from "./Stage";
 import Avatar from "../../ui/Avatar";
 import { useAuth } from "../../contexts/useAuth";
 import { TournamentMatch, MatchState } from "../../hooks/useTournament";
+import { useNavigate } from "babact-router-dom";
+import Button from "../../ui/Button";
 
 export default function MatchCard({
 		match,
@@ -27,6 +29,7 @@ export default function MatchCard({
 	}
 
 	const { me } = useAuth();
+	const navigate = useNavigate();
 
 	const isFocused = window.location.search.includes(`match_id=${match.match_id}`);
 
@@ -36,12 +39,26 @@ export default function MatchCard({
 			{...props}
 		>
 			<div
-				className={`match-card flex flex-col items-center justify-between ${match.state} ${isFocused ? 'focused' : ''}`}
+				className={`match-card flex flex-col items-center justify-between ${match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id) ? 'self' : match.state} ${isFocused ? 'focused' : ''}`}
+			>
+				{match.state === MatchState.PLAYING && !match.isPlayerIn(me?.account_id) && <Button
+					onClick={() => {
+						navigate(`/spectate/${match.match_id}`);
+					}}
+					className="clear"
 				>
+					<i className="fa-solid fa-eye"></i>
+					Spectate
+				</Button>}
 				{match.teams.map((team, i) =>
 					team ? <div
 						key={i}
-						className={`match-card-team flex items-center justify-between gap-4 w-full ${getWinnerIndex() === i  ? 'winner' : ''} ${match.state === MatchState.PLAYING && match.playerTeamIndex(me?.account_id) === i ? 'playing' : ''}`}
+						className={`match-card-team 
+							flex items-center
+							justify-between gap-4 w-full
+							${getWinnerIndex() === i  ? 'winner' : ''}
+							${match.state === MatchState.PLAYING && match.playerTeamIndex(me?.account_id) === i ? 'playing' : ''}
+						`}
 					>
 						<div className='flex items-center gap-2'>
 							{team.players.map((player, i) =>
@@ -55,7 +72,6 @@ export default function MatchCard({
 					<div key={'noteam' + i} className='match-card-team flex justify-between gap-4 w-full'>
 						<h3>...</h3>
 					</div>
-
 				)}
 			</div>
 		</div>

@@ -76,11 +76,10 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			return;
 		const response = await ft_fetch(`${config.API_URL}/me`);
 		if (response) {
-			setMe({...response, status: null});
+			setMe({...response, status: me?.status ?? null});
 			if (response.last_match && response.last_match.state < 2 && window.location.pathname !== `/matches/${response.last_match.match_id}`) {
 				navigate(`/matches/${response.last_match.match_id}`);
 			}
-			connect();
 		}
 		else{
 			logout();
@@ -116,6 +115,11 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		if (!me && connected)
 			disconnect();
 	}, [me]);
+
+	Babact.useEffect(() => {
+		if (me)
+			connect();
+	}, [me?.account_id]);
 
 	const setMeStatus = (status: FriendStatus) => {
 		setMe(me => ({...me, status}));

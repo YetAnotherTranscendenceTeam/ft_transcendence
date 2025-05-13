@@ -13,7 +13,6 @@ export default function LeaderBoard({
 	}) {
 
 	if (!leaderboard) return null;
-	console.log('leaderboard', 	leaderboard);
 
 	return <Card className={`leaderboard right ${className}`}>
 		<h1>{leaderboard.mode.split('_')[1]}</h1>
