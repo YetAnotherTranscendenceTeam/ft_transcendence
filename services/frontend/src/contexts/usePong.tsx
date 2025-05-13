@@ -35,16 +35,16 @@ export const PongProvider = ({ children } : {children?: any}) => {
 					});
 				},
 				onConnectionError: (error) => {
-					console.error('pong ws error', error);
-					if (error.reason === 'UNAUTHORIZED' || error.reason === 'NOT_FOUND' || error.reason === 'FORBIDDEN') {
-						createToast('This game is not available', ToastType.DANGER);
+					let errors = {
+						'UNAUTHORIZED': 'You are not authorized to join this game',
+						'NOT_FOUND': 'Game not found',
+						'FORBIDDEN': 'You are not allowed to join this game',
+						'OTHER_LOCATION': 'This game is being played in another location',
+						'BAD_GATEWAY': 'Spectator mode is unavailable',
+						'CONNECTION_LOST': 'Connection lost with spectator service',
 					}
-					else if (error.reason === 'ENDED') {
-						createToast('Match is over', ToastType.SUCCESS);
-					}
-					else if (error.reason === "OTHER_LOCATION") {
-						createToast("This game is being played in another location", ToastType.DANGER);
-					}
+					if (errors[error.reason])
+						createToast(errors[error.reason], ToastType.DANGER);
 					navigate('/');
 				}
 			}

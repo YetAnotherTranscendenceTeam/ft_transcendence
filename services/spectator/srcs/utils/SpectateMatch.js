@@ -26,6 +26,7 @@ export class SpectateMatch {
 
       this.socket.addEventListener("open", () => {
         console.log(`SPECTATING ${this.match_id}`);
+        this.fastify.games.set(this.match_id, this);
         resolve();
       });
 
@@ -33,11 +34,13 @@ export class SpectateMatch {
         reject(err);
       });
 
-      this.socket.addEventListener("close", () => {
+      this.socket.addEventListener("close", (event) => {
         console.log(`LEAVING ${this.match_id}`);
 
-        this.subscriptions.forEach(subscription => { subscription.close(4500, "CONNECTION_LOST"); });
-        fastify.games.delete(this.match_id);
+        const { code, reason } = event.reason === "ENDED" ? event : { code: 4500, reason: "CONNECTION_LOST" }
+
+        this.subscriptions.forEach(subscription => { subscription.close(code, reason); });
+        this.fastify.games.delete(this.match_id);
       });
     });
   };
@@ -54,7 +57,6 @@ export class SpectateMatch {
       const sync = await YATT.fetch(url);
       socket.send(JSON.stringify(sync));
     } catch (err) {
-      console.error(err);
       WsCloseError.BadGateway.close(socket);
       return;
     }

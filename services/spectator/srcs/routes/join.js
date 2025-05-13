@@ -40,12 +40,10 @@ export default function router(fastify, opts, done) {
 
       try {
         await newGame.connect();
-        fastify.games.set(match_id, newGame);
         release();
         await newGame.subscribe(socket);
       } catch (err) {
-        console.error(err);
-        socket.close(4502, "BAD_GATEWAY");
+        WsCloseError.BadGateway.close(socket);
         release();
       }
     }
