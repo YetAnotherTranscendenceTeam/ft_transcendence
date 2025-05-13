@@ -121,6 +121,11 @@ export enum MapID {
 	FAKE = 2
 }
 
+export enum PongEventActivationSide {
+	SERVER,
+	BOTH
+}
+
 export interface IPongMap {
 	mapId: MapID;
 
@@ -162,4 +167,11 @@ export interface IPaddle {
 export interface IEventBoxSync {
 	eventType: PongEventType;
 	active: boolean;
+}
+
+export interface IEventSync {
+	type: PongEventType;
+	playerId: PlayerID;
+	time: number;
+	id: number;
 }

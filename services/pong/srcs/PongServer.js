@@ -50,6 +50,7 @@ export class PongServer extends Pong {
 			balls: this._balls,
 			tick: this.tick,
 			matchParameters: this._matchParameters,
+			activeEvents: this._activeEvents,
 		};
 	}
 
@@ -184,6 +185,10 @@ export class PongServer extends Pong {
 			}
 		}
 		this._time += dt;
+		for (let player of this._players) {
+			const paddle = this._paddles.get(player.playerId);
+			paddle.move(player.movement, dt);
+		}
 		dt = this.physicsUpdate(dt);
 		if (this.scoreUpdate()) {
 			let newstate = PongState.FREEZE;
@@ -200,6 +205,7 @@ export class PongServer extends Pong {
 				collisions: this.collisions.length,
 				balls: this._balls,
 				paddles: this.getPaddlePositions(),
+				activeEvents: this._activeEvents,
 				tick: this.tick,
 			}
 		});

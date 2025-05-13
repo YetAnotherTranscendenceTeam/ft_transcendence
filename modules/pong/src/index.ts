@@ -1,5 +1,5 @@
 export { Pong } from './core/Pong.js';
-export { PlayerID, IPongMap, MapSide, MapID, PlayerMovement, IBall, IPongPlayer, PongState, IPongState, IEventBoxSync } from './core/types.js';
+export { PlayerID, IPongMap, MapSide, MapID, PlayerMovement, IBall, IPongPlayer, PongState, IPongState, IEventBoxSync, IEventSync, PongEventActivationSide } from './core/types.js';
 export { ballCollision } from "./core/Behaviors.js";
 export { default as Ball } from './core/Ball.js';
 export { default as Paddle } from './core/Paddle.js';

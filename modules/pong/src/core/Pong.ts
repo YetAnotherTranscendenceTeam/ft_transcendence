@@ -30,7 +30,7 @@ export class Pong {
 	protected _currentMap: IPongMap;
 
 	protected _balls: Ball[] = [];
-	protected _paddles: Map<number, PH2D.Body>;
+	protected _paddles: Map<number, Paddle>;
 	protected _goals: Map<number, Goal>;
 	protected _eventBoxes: Map<number, EventBox>;
 	protected _teamNames: string[] = [];
@@ -220,10 +220,10 @@ export class Pong {
 	}
 
 	public roundStart() {
-		for (let event of this._activeEvents) {
+		for (let i = this._activeEvents.length - 1; i >= 0; i--) {
+			const event: PongEvent = this._activeEvents[i];
 			event.deactivate(this);
 		}
-		this._activeEvents.length = 0;
 		this.launchBall();
 		for (const paddle of this._paddles.values()) {
 			paddle.position.y = 0;
@@ -232,7 +232,7 @@ export class Pong {
 		}
 	}
 
-	public shouldUpdate(): boolean {
+	public isServer(): boolean {
 		return true;
 	}
 
@@ -243,7 +243,12 @@ export class Pong {
 		}
 		while (this._accumulator >= K.DT) {
 			this._activeEvents.forEach((event: PongEvent) => {
-				event.update(this);
+				if (this.isServer() && event.shouldDeactivate(this)) {
+					event.deactivate(this);
+					return;
+				}
+				if (event.shouldUpdate(this))
+					event.update(this);
 			});
 			this._currentMap.getObstacles().forEach((obstacle: Obstacle) => {
 				obstacle.update();
@@ -351,7 +356,7 @@ export class Pong {
 		return this._players;
 	}
 
-	public get paddles(): Map<number, PH2D.Body> {
+	public get paddles(): Map<number, Paddle> {
 		return this._paddles;
 	}
 

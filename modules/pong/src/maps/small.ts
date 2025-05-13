@@ -40,6 +40,14 @@ const eventBoxShape: Array<{pos: Vec2, shape: PH2D.CircleShape}> = [ // event bo
 	{ // bottom event box
 		pos: new Vec2(0, -(playGround.height * 0.45)),
 		shape: new PH2D.CircleShape(K.eventboxRadius)
+	},
+	{
+		pos: new Vec2(0, -2),
+		shape: new PH2D.CircleShape(K.eventboxRadius)
+	},
+	{
+		pos: new Vec2(0, 2),
+		shape: new PH2D.CircleShape(K.eventboxRadius)
 	}
 	// { // center event box
 	// 	pos: new Vec2(0, 0),

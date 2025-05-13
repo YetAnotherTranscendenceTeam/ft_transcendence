@@ -17,7 +17,7 @@ export default function Range({
 	}) {
 
 	return <input
-		class={`range ${className}`}
+		className={`range ${className}`}
 		type="range"
 		min={min}
 		max={max}
