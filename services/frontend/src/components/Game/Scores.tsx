@@ -3,7 +3,8 @@ import Card from "../../ui/Card";
 import './game.css'
 import { usePong } from "../../contexts/usePong";
 import Avatar from "../../ui/Avatar";
-import { PongState } from "pong";
+import { MapSide, PongState } from "pong";
+import PowerUpIcon from "./PowerUpIcon";
 
 export default function Scores() {
 
@@ -32,7 +33,15 @@ export default function Scores() {
 		}
 	}, [overlay.scores[0], overlay.scores[1]]);
 
-	return <Card className='scores'>
+	const leftEvent = overlay.activeEvents.filter(e => e.team === MapSide.LEFT && !e.isGlobal);
+	const rightEvent = overlay.activeEvents.filter(e => e.team === MapSide.RIGHT && !e.isGlobal);
+
+	return <div className='scores-container flex items-center justify-center gap-4'>
+		<div className='score-events left flex items-center justify-center gap-2'>
+			{leftEvent.map((event) => <PowerUpIcon powerUp={event}/>)}
+			{rightEvent.map((event) => <PowerUpIcon powerUp={event} hidden/>)}
+		</div>
+		<Card className='scores'>
 		<div className="flex flex-row gap-2 items-center flex-1">
 			{ overlay.teams.length > 1 &&
 				<div className="flex items-center gap-2">
@@ -48,7 +57,7 @@ export default function Scores() {
 			<div className='score flex flex-col gap-2 justify-center items-center'>
 				<div
 					className='flex gap-2 justify-center items-center w-full'
-				>
+					>
 					{overlay.teams.length > 1 &&<div className="score-team-name flex flex-col">
 						<p>{overlay.teams[0].getDisplayName()}</p>
 						<p>{overlay.teams[1].getDisplayName()}</p>
@@ -63,7 +72,7 @@ export default function Scores() {
 					{scores && scores.map((_, index) => <span
 						className={`score-frame ${index === goal ? 'goal' : ''} ${_} ${index === pulseIndex ? 'pulse' : ''}`}
 						key={index}
-					/>)}
+						/>)}
 				</div>
 			</div>
 			{ overlay.teams.length > 1 &&
@@ -82,4 +91,9 @@ export default function Scores() {
 			{Math.round(overlay.time / 60).toString().padStart(2, '0')} : {Math.round(overlay.time % 60).toString().padStart(2, '0')}
 		</Card>
 	</Card>
+		<div className='score-events right flex items-center justify-center gap-2'>
+			{rightEvent.map((event) => <PowerUpIcon powerUp={event}/>)}
+			{leftEvent.map((event) => <PowerUpIcon powerUp={event} hidden/>)}
+		</div>
+	</div>
 }
