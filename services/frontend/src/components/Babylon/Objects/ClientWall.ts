@@ -28,7 +28,7 @@ export default class ClientWall extends AObject {
 
 		this._mesh.position = new BABYLON.Vector3(
 			this._physicsBody.position.x,
-			0.25,
+			0.5,
 			this._physicsBody.position.y
 		);
 		this._material = ClientWall.template.clone("wallMaterial");
