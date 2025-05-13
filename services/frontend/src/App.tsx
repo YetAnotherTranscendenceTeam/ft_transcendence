@@ -13,6 +13,7 @@ import TournamentView from "./views/TournamentView";
 import OnlineView from "./views/OnlineView";
 import { OverlayProvider } from "./contexts/useOverlay";
 import { RTTournamentProvider } from "./contexts/useRTTournament";
+import SpectatorView from "./views/SpectatorView";
 
 export default function App() {
 
@@ -32,6 +33,7 @@ export default function App() {
 		}
 	}, []);
 
+	//TODO /matches/:id/spectate route configuration
 
 	return <Router>
 		<UiProvider>
@@ -41,13 +43,14 @@ export default function App() {
 		<LobbyProvider>
 		<OverlayProvider>
 		<Routes>
-			<Route path="/fortytwo" element={<FortytwoView key='fortytwo-view'/>} key='fortytwo-view' />
-			<Route path='/lobby/:code' element={<LobbyView key='lobby-view'/>} key='lobby-view'/>
-			<Route path='/profiles/:id' element={<ProfileView key='profiles-view'/>} key='profiles-view'/>
-			<Route path='/local' element={<LocalView key='local-view'/>} key='local-view'/>
-			<Route path='/matches/:id' element={<OnlineView key='matches-view'/>} key='matches-view'/>
-			<Route path='/tournaments/:id' element={<TournamentView key='tournaments-view'/>} key='tournaments-view'/>
-			<Route path="/*" element={<Home key='home-view'/>} key='home-view'/>
+			<Route path="/fortytwo" element={<FortytwoView />} />
+			<Route path='/lobby/:code' element={<LobbyView />} />
+			<Route path='/profiles/:id' element={<ProfileView />} />
+			<Route path='/local' element={<LocalView />} />
+			<Route path='/spectate/:id' element={<SpectatorView />} />
+			<Route path='/matches/:id' element={<OnlineView />} />
+			<Route path='/tournaments/:id' element={<TournamentView />} />
+			<Route path="/*" element={<Home />} />
 		</Routes>
 		</OverlayProvider>
 		</LobbyProvider>

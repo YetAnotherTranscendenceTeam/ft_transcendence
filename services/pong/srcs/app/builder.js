@@ -7,14 +7,13 @@ import bearerAuth from "@fastify/bearer-auth";
 import websocket from '@fastify/websocket'
 import formbody from "@fastify/formbody";
 import router from "./router.js";
-import { AUTHENTICATION_SECRET, MATCH_MANAGEMENT_SECRET, PONG_SECRET } from "./env.js";
+import { AUTHENTICATION_SECRET, MATCH_MANAGEMENT_SECRET, PONG_SECRET, SPECTATOR_SECRET } from "./env.js";
 import { GameManager } from "../GameManager.js";
 import JwtGenerator from "yatt-jwt";
 
 export default function build(opts = {}) {
   const app = Fastify(opts);
 
-  
   app.register(cors, {
     origin: process.env.CORS_ORIGIN || false,
     methods: ["GET", "POST", "PATCH", "DELETE"],
@@ -41,11 +40,11 @@ export default function build(opts = {}) {
     },
   });
 
-
   app.decorate("games", new GameManager(app));
   app.register(jwt, { secret: AUTHENTICATION_SECRET });
   app.register(jwt, { secret: MATCH_MANAGEMENT_SECRET, namespace: "match_management" });
   app.register(jwt, { secret: PONG_SECRET, namespace: "pong" });
+  app.register(jwt, { secret: SPECTATOR_SECRET, namespace: "spectator" });
   app.decorate("tokens", new JwtGenerator());
   app.addHook('onReady', async function () {
     this.tokens.register(app.jwt.match_management, "match_management");

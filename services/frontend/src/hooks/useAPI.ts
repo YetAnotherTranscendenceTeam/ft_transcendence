@@ -1,3 +1,4 @@
+import { Mutex } from "async-mutex";
 import config from "../config";
 
 export async function APIFetch(url: string, fetch_options?: RequestInit) {
@@ -28,24 +29,47 @@ export async function APIFetch(url: string, fetch_options?: RequestInit) {
 	}
 }
 
+const refreshMutex = new Mutex();
+
 export async function APIRefreshToken() {
+	const release = await refreshMutex.acquire();
+
 	const expired_at = localStorage.getItem('expire_at');
-	if (!expired_at)
+	if (!expired_at || new Date(expired_at) > new Date(new Date().getTime() + 1000 * 60 * 2)) {
+		release();
 		return;
-	const expired_at_date = new Date(expired_at);
-	if (expired_at_date > new Date(new Date().getTime() + 1000 * 60 * 2))
-		return;
-	const response = await fetch(`${config.API_URL}/token/refresh`, {
-		method: 'POST',
-		credentials: 'include'
-	});
-	if (response.ok) {
+	}
+
+	try {
+
+		const response = await fetch(`${config.API_URL}/token/refresh`, {
+			method: 'POST',
+			credentials: 'include'
+		});
+		if (!response.ok)
+			throw new Error('Failed to refresh token');
 		const data = await response.json();
 		localStorage.setItem('access_token', data.access_token);
 		localStorage.setItem('expire_at', data.expire_at);
 	}
-	else {
+	catch (e: unknown) {
+		console.error('Error refreshing token', e);
 		localStorage.removeItem('access_token');
 		localStorage.removeItem('expire_at');
 	}
+	release();
+}
+
+export async function APIClearToken() {
+	const release = await refreshMutex.acquire();
+	localStorage.removeItem('access_token');
+	localStorage.removeItem('expire_at');
+	release();
+}
+
+export async function APISetToken(access_token: string, expire_at: string) {
+	const release = await refreshMutex.acquire();
+	localStorage.setItem('access_token', access_token);
+	localStorage.setItem('expire_at', expire_at);
+	release();
 }
