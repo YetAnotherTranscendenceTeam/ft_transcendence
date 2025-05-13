@@ -13,6 +13,7 @@ export default function LeaderBoard({
 	}) {
 
 	if (!leaderboard) return null;
+	console.log('leaderboard', 	leaderboard);
 
 	return <Card className={`leaderboard right ${className}`}>
 		<h1>{leaderboard.mode.split('_')[1]}</h1>
@@ -27,7 +28,7 @@ export default function LeaderBoard({
 				No data available
 			</p>}
 			{leaderboard.rankings.map((user, index) => (
-				<div className='row' key={user.account_id}>
+				<div className='row' key={index}>
 					<span>#{index + 1}</span>
 					<span>{user.username}</span>
 					<span>{user.rating}</span>

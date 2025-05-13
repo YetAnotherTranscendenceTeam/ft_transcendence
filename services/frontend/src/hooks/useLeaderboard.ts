@@ -14,17 +14,15 @@ export interface Leaderboard {
 export default function useLeaderboard() {
 
 	const [leaderboards, setLeaderboards] = Babact.useState<Leaderboard[]>([]);
-	const [updateAfter, setUpdateAfter] = Babact.useState<number | null>(null);
-	const [canUpdate, setCanUpdate] = Babact.useState(false);
+	const [updateTimeout, setUpdateTimeout] = Babact.useState<number>(null);
 
 	const { ft_fetch, isLoading } = useFetch();
 
 	const fetchLeaderboard = async () => {
 		const response = await ft_fetch(`${config.API_URL}/matchmaking/leaderboards`);
 		if (response) {
-			setCanUpdate(false);
 			setLeaderboards(response.leaderboards);
-			setUpdateAfter(response.update_after);
+			setUpdateTimeout(response.update_after);
 		}
 	};
 
@@ -33,18 +31,15 @@ export default function useLeaderboard() {
 	}, []);
 
 	Babact.useEffect(() => {
-		if (updateAfter === null)
-			return;
-	
-		const now = Date.now();
-		if (now > updateAfter) {
-			setCanUpdate(true);
-		} else {
-			setTimeout(() => {
-				setCanUpdate(true);
-			}, updateAfter - now);
-		}
-	}, [updateAfter]);
+		if (updateTimeout) {
 
-	return { leaderboards, isLoading, canUpdate, update: fetchLeaderboard };
+			const timer = setTimeout(() => {
+				setUpdateTimeout(null);
+			}, updateTimeout - Date.now());
+
+			return () => clearTimeout(timer);
+		}
+	}, [updateTimeout]);
+
+	return { leaderboards, isLoading, canUpdate: !updateTimeout, update: fetchLeaderboard };
 };
