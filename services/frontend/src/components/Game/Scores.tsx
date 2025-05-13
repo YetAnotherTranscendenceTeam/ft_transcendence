@@ -33,8 +33,8 @@ export default function Scores() {
 		}
 	}, [overlay.scores[0], overlay.scores[1]]);
 
-	const leftEvent = overlay.activeEvents.filter(e => e.team === MapSide.LEFT).filter(e => !e.isGlobal);
-	const rightEvent = overlay.activeEvents.filter(e => e.team === MapSide.RIGHT).filter(e => !e.isGlobal);
+	const leftEvent = overlay.activeEvents.filter(e => e.team === MapSide.LEFT && !e.isGlobal);
+	const rightEvent = overlay.activeEvents.filter(e => e.team === MapSide.RIGHT && !e.isGlobal);
 
 	return <div className='scores-container flex items-center justify-center gap-4'>
 		<div className='score-events left flex items-center justify-center gap-2'>
