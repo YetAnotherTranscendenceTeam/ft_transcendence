@@ -15,6 +15,7 @@
     "@babylonjs/loaders": "^7.54.3",
     "@babylonjs/materials": "^7.54.3",
     "@types/qrcode": "^1.5.5",
+    "async-mutex": "^0.5.0",
     "babact": "file:../../modules/babact",
     "babact-router-dom": "file:../../modules/babact-router-dom",
     "chart.js": "^4.4.9",

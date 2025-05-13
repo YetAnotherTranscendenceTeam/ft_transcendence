@@ -5,13 +5,52 @@ import db from "../app/database.js";
 import YATT from "yatt-utils";
 import { MatchState } from "../Match.js";
 import { GameModes } from "../GameModes.js";
+import { GameModeType } from "yatt-lobbies";
+
+// get elo datapoints per gamemode for a user based on match history
+// limit to n datapoints that are evenly spaced
+const getEloDatapoints = db.prepare(
+`
+  WITH ranked_matches AS (
+    SELECT
+      begin_rating,
+      end_rating,
+      matches.match_id,
+      matches.gamemode,
+      matches.created_at,
+      matches.updated_at,
+      NTILE(20) OVER win AS rn
+    FROM matches
+    JOIN match_players
+    ON matches.match_id = match_players.match_id
+    WHERE
+      match_players.account_id = ?
+      AND match_players.end_rating IS NOT NULL
+    WINDOW win AS (PARTITION BY matches.gamemode ORDER BY matches.match_id DESC)
+  ),
+  LAGGED_RANKED_MATCHES AS (
+    SELECT
+      *,
+      LAG(rn, 1, 0) OVER (PARTITION BY gamemode ORDER BY match_id DESC) AS prev_rn,
+      LEAD(rn, 1, 0) OVER (PARTITION BY gamemode ORDER BY match_id DESC) AS next_rn,
+      LAST_VALUE(rn) OVER (PARTITION BY gamemode ORDER BY match_id DESC) AS last_rn
+    FROM ranked_matches
+  )
+  SELECT end_rating as rating, gamemode
+  FROM LAGGED_RANKED_MATCHES
+  WHERE
+   (rn = last_rn AND next_rn = 0)
+    OR (NOT rn = prev_rn)
+  ORDER BY match_id DESC
+`
+)
 
 export default function router(fastify, opts, done) {
   fastify.get("/:account_id", {
     preHandler: fastify.verifyBearerAuth,
   }, function handler(request, reply) {
     const matchmaking_users = db
-      .prepare("SELECT gamemode, rating, created_at, updated_at FROM matchmaking_users WHERE account_id = ?")
+      .prepare("SELECT gamemode, rating, match_count, created_at, updated_at FROM matchmaking_users WHERE account_id = ?")
       .all(request.params.account_id);
     let last_match = db
       .prepare(`
@@ -41,6 +80,14 @@ export default function router(fastify, opts, done) {
       ORDER BY tournaments.tournament_id DESC
       LIMIT 1
     `).get(request.params.account_id) || null;
+
+    const elo_datapoints = getEloDatapoints.all(request.params.account_id);
+    for (let user of matchmaking_users) {
+      if (GameModes[user.gamemode]?.type === GameModeType.RANKED) {
+        user.elo_datapoints = elo_datapoints.filter((datapoint) => datapoint.gamemode === user.gamemode)
+        .map((datapoint) => Math.floor(datapoint.rating));
+      }
+    }
     reply.send({matchmaking_users, last_match, last_tournament});
   });
   fastify.get("/:account_id/matches", {

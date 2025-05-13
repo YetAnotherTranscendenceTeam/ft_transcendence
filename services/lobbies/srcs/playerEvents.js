@@ -1,5 +1,6 @@
 import { EventManager, WsCloseError } from "yatt-ws";
 import { GameModes } from "./GameModes.js";
+import { PongEventType } from "yatt-lobbies";
 
 export const events = new EventManager();
 
@@ -92,3 +93,28 @@ events.register("swap_players", {
     client.lobby.swapPlayers(client, payload.data);
   },
 });
+events.register("match_parameters", {
+  schema: {
+    type: "object",
+    required: ["obstacles", "events", "ball_speed", "point_to_win"],
+    additionalProperties: false,
+    properties: {
+      obstacles: {
+        type: "boolean"
+      },
+      events: {
+        type: "array",
+        items: {
+          type: "number",
+          enum: Object.values(PongEventType)
+        }
+      },
+      ball_speed: { type: "number", minimum: 0 },
+      point_to_win: { type: "number", minimum: 1 },
+    },
+  },
+  handler: (socket, payload, client) => {
+    assertLeader(client);
+    client.lobby.setMatchParameters(payload.data);
+  },
+})

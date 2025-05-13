@@ -55,7 +55,6 @@ evaluation:
 	(cd modules && docker compose build)
 	docker compose -f docker-compose.yaml -f docker-compose.eval.yaml up -d --build --wait
 
-
 cert: $(SSL_CERTIFICATE)
 
 deps: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS)
@@ -80,11 +79,10 @@ clean-db:
 	-rm $$HOME/goinfre/docker/volumes/ft_transcendence_sqlite/_data/*
 
 fclean:
+	docker compose down
 	$(MAKE) clean-deps
 	$(MAKE) clean-db
-	rm -f $(SSL_CERTIFICATE)
 
 re:
-	docker compose down
 	$(MAKE) fclean
 	$(MAKE) dev

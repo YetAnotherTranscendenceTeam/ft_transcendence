@@ -7,6 +7,7 @@ import Timer from './Timer';
 import WinnerRoundOverlay from './WinnerRoundOverlay';
 import WinnerMatchOverlay from './WinnerMatchOverlay';
 import WaitingPlayerOverlay from './WaitingPlayerOverlay';
+import PowerUpIcon from './PowerUpIcon';
 import Card from '../../ui/Card';
 
 export default function GameOverlay({
@@ -25,6 +26,8 @@ export default function GameOverlay({
 		return;
 
 	const displayBackground = overlay.gameStatus.isFrozen();
+
+	const globalEvents = overlay.activeEvents.filter(e => e.isGlobal);
 
 	return <div
 		className='game-overlay flex '
@@ -55,6 +58,11 @@ export default function GameOverlay({
 				<Button className="primary" onClick={() => onResume()}>
 					<i className="fa-solid fa-play"></i> Resume
 				</Button>
+			}
+			{globalEvents.length > 0 &&
+				<div className='game-overlay-powerups flex items-center justify-center gap-2'>
+					{globalEvents.map((p) => <PowerUpIcon powerUp={p} key={p.type} />)}
+				</div>
 			}
 		</div>
 	</div>

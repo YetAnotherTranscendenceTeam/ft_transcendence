@@ -1,7 +1,11 @@
-.scores {
-	padding: 0;
+.scores-container {
+	position: relative;
 	margin-top: 16px;
 	z-index: 10;
+}
+
+.scores {
+	padding: 0;
 	padding: 16px;
 	border-left: 4px solid var(--team-1-color);
 	border-right: 4px solid var(--team-2-color);
@@ -92,6 +96,18 @@
 .scores p {
 	font-size: large;
 	width: 100%;
+}
+
+.score-events {
+
+}
+
+.score-events.left {
+	
+}
+
+.score-events.right {
+	
 }
 
 /* local start modal */
@@ -205,6 +221,47 @@
 
 .game-overlay-content.background {
 	background-color: color-mix(in srgb, var(--bg-1), transparent 50%);
+}
+
+/* PowerUp */
+
+.powerup {
+	aspect-ratio: 1;
+	width: 64px;
+	border-radius: 8px;
+	background-color: var(--bg-1);
+	font-size: x-large;
+}
+
+.powerup.hidden {
+	opacity: 0;
+}
+
+.powerup.warning {
+	animation: fadeInOut 1s ease-in-out infinite;
+}
+
+.powerup.warning.hidden {
+	animation: none;
+}
+
+@keyframes fadeInOut {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.game-overlay-powerups {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	padding: 8px;
 }
 
 /* Spectator count */

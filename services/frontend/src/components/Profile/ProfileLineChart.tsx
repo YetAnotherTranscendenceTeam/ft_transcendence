@@ -1,21 +1,27 @@
 import Babact from "babact";
 import { Chart } from "chart.js";
+import { EloDataPoints } from "../../hooks/useUser";
 
-export default function ProfileLineChart() {
+export default function ProfileLineChart({
+		elos,
+	}: {
+		elos: EloDataPoints
+		[key: string]: any
+	}) {
 
 	const data = {
-	labels: ['6', '5', '4', '3', '2', '1', '0'],
+	labels: new Array(Math.max(elos["1v1"]?.length, elos["2v2"].length) ?? 10).fill(''),
 	datasets: [
 		{
 			label: '1v1',
-			data: [65, 59, 80, 81, 56, 55, 40],
+			data: elos["1v1"] ?? [],
 			fill: false,
 			borderColor: 'rgb(127, 98, 255)',
 			tension: 0
 		},
 		{
 			label: '2v2',
-			data: [34, 53, 43, 58, 83, 70, 87],
+			data: elos["2v2"] ?? [],
 			fill: false,
 			borderColor: 'rgb(255, 115, 50)',
 			tension: 0
@@ -24,9 +30,9 @@ export default function ProfileLineChart() {
 	};
 
 	Babact.useEffect(() => {
-
+		if (elos["1v1"]?.length === 0 && elos["2v2"]?.length === 0)
+			return;
 		const canvas = document.getElementById('mmr-chart') as HTMLCanvasElement;
-		const { width, height } = canvas.getBoundingClientRect();
 		const chart = new Chart(
 			canvas,
 			{
@@ -73,8 +79,6 @@ export default function ProfileLineChart() {
 				}
 			}
 		);
-		chart.resize(width, height);
-
 		return () => {
 			chart.destroy();
 		}
@@ -84,8 +88,11 @@ export default function ProfileLineChart() {
 	return <div className='profile-chart flex flex-col items-center w-full h-full gap-2'>
 		<h2 className='w-full'>MMR Evolution</h2>
 		<div className='flex justify-center items-center flex-1'>
-			<canvas className='w-full h-full' id="mmr-chart"></canvas>
-		</div>
+		{ elos["1v1"]?.length > 0 || elos["2v2"]?.length > 0 ?
+			<canvas className='w-full h-full' id="mmr-chart"></canvas>:
+			<p className='text-white'>No data available</p>
+		}
+		</div>	
 	</div>
 
 }

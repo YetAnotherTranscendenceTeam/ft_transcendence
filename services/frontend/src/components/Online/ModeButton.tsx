@@ -38,8 +38,9 @@ export default function ModeButton({
 	}
 
 	const disabled = (lobby && gamemode?.getLobbyCapacity() < lobby.players.length) || lobby?.mode.name === gamemode.name;
+	const selected = lobby?.mode.name === gamemode.name || (lobby?.mode.type === gamemode.type && (gamemode.type === GameModeType.CUSTOM || gamemode.type === GameModeType.TOURNAMENT));
 	return <div
-		className={`mode-button flex flex-col justify-end gap-2 ${gamemode.type} ${disabled ? 'disabled' : ''}`}
+		className={`mode-button flex flex-col justify-end gap-2 ${gamemode.type} ${disabled ? 'disabled' : ''} ${selected ? 'selected' : ''}`}
 		onClick={() => onSelect(gamemode.name)}
 	>
 		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 justify-center'>

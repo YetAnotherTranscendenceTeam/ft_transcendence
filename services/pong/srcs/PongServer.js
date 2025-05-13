@@ -18,13 +18,13 @@ export class PongServer extends Pong {
 
 	close_timeout;
 
-	constructor(match_id, gamemode, teams, manager) {
+	constructor(match_id, gamemode, teams, match_parameters, manager) {
 		super();
 		this.manager = manager;
 		this._time = 0;
 		this._lastUpdate = Date.now();
 		this.team_names = teams.map((team) => team.name);
-		this.onlineSetup(match_id, gamemode, teams.map((team) => team.players).flat(), PongState.RESERVED.clone());
+		this.onlineSetup(match_id, gamemode, teams.map((team) => team.players).flat(), match_parameters, PongState.RESERVED.clone());
 		for (let ball of this._balls) {
 			ball.addEventListener("collision", (event) => {
 				this.collisions.push(event.detail);
@@ -47,9 +47,12 @@ export class PongServer extends Pong {
 			lastSide: this._stats.lastSideToScore,
 			state: this._state,
 			score: this._stats.score,
+			event_boxes: this.getEventBoxes(),
 			paddles: this.getPaddlePositions(),
 			balls: this._balls,
 			tick: this.tick,
+			matchParameters: this._matchParameters,
+			activeEvents: this._activeEvents,
 		};
 	}
 
@@ -163,6 +166,16 @@ export class PongServer extends Pong {
 		});
 	}
 
+	getEventBoxes() {
+		const event_boxes = this._currentMap.getEventBoxes().map((box) => {
+			return {
+				active: box.active,
+				type: box.type,
+			}
+		});
+		return event_boxes;
+	}
+
 	update() {
 		let dt = (Date.now() - this._lastUpdate) / 1000;
 		if (this._state.tick(dt, this)) {
@@ -181,6 +194,10 @@ export class PongServer extends Pong {
 			}
 		}
 		this._time += dt;
+		for (let player of this._players) {
+			const paddle = this._paddles.get(player.playerId);
+			paddle.move(player.movement, dt);
+		}
 		dt = this.physicsUpdate(dt);
 		if (this.scoreUpdate()) {
 			let newstate = PongState.FREEZE;
@@ -193,9 +210,11 @@ export class PongServer extends Pong {
 		this.broadcast({
 			event: "step",
 			data: {
+				event_boxes: this.getEventBoxes(),
 				collisions: this.collisions.length,
 				balls: this._balls,
 				paddles: this.getPaddlePositions(),
+				activeEvents: this._activeEvents,
 				tick: this.tick,
 			}
 		});

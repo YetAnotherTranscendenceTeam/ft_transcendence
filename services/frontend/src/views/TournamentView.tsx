@@ -19,7 +19,7 @@ export default function TournamentView() {
 	const { app } = usePong();
 
 	Babact.useEffect(() => {
-		app.setGameScene(GameScene.LOBBY);
+		app.setGameScene(GameScene.MENU);
 	}, [])
 
 	Babact.useEffect(() => {

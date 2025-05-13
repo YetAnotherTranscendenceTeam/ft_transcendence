@@ -37,13 +37,6 @@ export default class ClientGoal extends AObject {
 		this._mesh.material = material;
 	}
 
-	public update(dt: number): void {
-		if (!this._isEnabled) return;
-		const goalPos = this._physicsBody.interpolatePosition(dt) as Vec2;
-		this._mesh.position.x = goalPos.x;
-		this._mesh.position.z = goalPos.y;
-	}
-
 	public enable(): void {
 		if (!isDevelopment) {
 			return;

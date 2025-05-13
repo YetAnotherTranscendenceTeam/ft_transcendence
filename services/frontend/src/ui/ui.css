@@ -23,6 +23,7 @@
 
 .button.disabled, .button.disabled:hover{
 	background-color: var(--bg-2);
+	color: var(--fg-4);
 	cursor: not-allowed;
 }
 
@@ -428,6 +429,7 @@
 	font-size: medium;
 	font-weight: 500;
 	color: var(--fg-1);
+	user-select: none;
 }
 
 .input-container label span {
@@ -480,6 +482,7 @@
 
 .checkbox input[type="checkbox"]:checked {
 	border: 1px solid var(--fg-3);
+	background-color: var(--primary-color);
 }
 
 .checkbox input[type="checkbox"]:checked::after {
@@ -1160,10 +1163,10 @@
 	display: block;
 }
 
+
 /* ================================== */
 /* ============ Pagination ========== */
 /* ================================== */
-
 
 .pagination {
 	display: flex;
@@ -1176,3 +1179,87 @@
 	color: var(--fg-2);
 	font-size: small;
 }
+
+
+/* ================================== */
+/* ============== Switch ============ */
+/* ================================== */
+
+.switch {
+	position: relative;
+	display: inline-block;
+	height: 24px;
+	aspect-ratio: 3.5/2;
+}
+
+.switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: var(--bg-1);
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+.slider:before {
+	position: absolute;
+	content: "";
+	height: 16px;
+	aspect-ratio: 1/1;
+	left: 4px;
+	bottom: 4px;
+	background-color: var(--bg-5);
+	-webkit-transition: .4s;
+	transition: .4s;
+}
+
+input:checked + .slider {
+	background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+	background-color: var(--fg-2);
+	-webkit-transform: translateX(18px);
+	-ms-transform: translateX(18px);
+	transform: translateX(18px);
+}
+
+.slider.round {
+	border-radius: 12px;
+}
+
+.slider.round:before {
+	border-radius: 50%;
+}
+
+/* ================================== */
+/* ============== Range ============= */
+/* ================================== */
+
+input[type="range"] {
+	appearance: none;
+	width: 100%;
+	height: 8px;
+	background: var(--bg-3);
+	border-radius: 4px;
+	outline: none;
+}
+
+.range::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 16px;
+	aspect-ratio: 1/1;
+	background: var(--fg-1);
+	cursor: pointer;
+	border-radius: 50%;
+  }

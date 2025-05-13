@@ -37,3 +37,15 @@
 	grid-template-rows: repeat(17, 1fr);
 	gap: 8px;
 }
+
+.home-view {
+	padding: 32px;
+	box-sizing: border-box;
+}
+
+.leaderboards-title {
+	flex-direction: row;
+	justify-content: space-between;
+	font-size: x-large;
+	font-weight: bold;
+}

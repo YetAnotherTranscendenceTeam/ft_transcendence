@@ -1,2 +1,2 @@
 export { IGameMode, GameMode, GameModeType } from './GameMode';
-export { ILobbyState, ILobby, Lobby, ITeam, IPlayer, LobbyStateType, QueueStatus } from './Lobby';
+export { ILobbyState, ILobby, Lobby, ITeam, IPlayer, LobbyStateType, PongEventType, IMatchParameters, QueueStatus, defaultMatchParameters, matchParametersSchema } from './Lobby';
