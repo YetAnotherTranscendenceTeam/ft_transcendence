@@ -38,7 +38,6 @@ export default function Checkbox({
 	
 	const isFieldValid = fields[field]?.isValid;
 
-	console.log(value)
 	return <div className={`input-container checkbox`}>
 		<div className='flex w-full gap-2 items-center'>
 			{label && <label for={field}>{label}</label>}
