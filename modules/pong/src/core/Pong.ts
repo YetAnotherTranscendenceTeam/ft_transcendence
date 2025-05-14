@@ -123,6 +123,7 @@ export class Pong {
 		if (this._gameMode.team_size === 2) {
 			this.switchMap(MapID.BIG);
 		} else if (this._gameMode.team_size === 1) {
+			// this.switchMap(MapID.BIG);
 			this.switchMap(MapID.SMALL);
 		} else {
 			this.switchMap(MapID.FAKE);
