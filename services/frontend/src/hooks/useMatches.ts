@@ -132,6 +132,8 @@ export class Match implements IMatch {
 
 	public getGameModeName(): string {
 		const gamemode = this.gamemode.split('_')[0];
+		if (gamemode === 'tournament')
+			return 'Clash';
 		if (gamemode)
 			return gamemode;
 		return 'Unknown';
