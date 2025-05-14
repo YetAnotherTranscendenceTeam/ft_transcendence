@@ -15,3 +15,9 @@ if (!PONG_SECRET) {
   console.error("Missing environment variable: PONG_SECRET");
   process.exit(1);
 }
+
+export const SPECTATOR_SECRET = process.env.SPECTATOR_SECRET;
+if (!SPECTATOR_SECRET) {
+  console.error("Missing environment variable: SPECTATOR_SECRET");
+  process.exit(1);
+}

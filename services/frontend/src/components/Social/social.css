@@ -91,8 +91,6 @@
 
 .social-friend-card-button {
 	position: absolute;
-	/* background: var(--inlobby-color); */
-	background: var(--inlobby-color-active);
 	padding: 8px;
 	flex: 1;
 	box-sizing: border-box;
@@ -103,6 +101,14 @@
 	width: 100%;
 	border-radius: 0;
 	transition: transform 0.3s ease;
+}
+
+.social-friend-card-button.lobby {
+	background-color: var(--inlobby-color-active);
+}
+
+.social-friend-card-button.game {
+	background-color: var(--ingame-color);
 }
 
 .social-friend-card-status:hover .social-friend-card-button {

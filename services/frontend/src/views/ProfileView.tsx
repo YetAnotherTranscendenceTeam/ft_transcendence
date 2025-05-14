@@ -26,13 +26,6 @@ export default function ProfileView() {
 	const [filter, setFilter] = Babact.useState<string>("");
 	const { matches, isLoading, page, setPage, totalPages } = useMatches(userId, 10, filter);
 	const [selectedMatch, setSelectedMatch] = Babact.useState<number>(null);
-
-	Babact.useEffect(() => {
-		console.log('profile view mounted');
-		return () => {
-			console.log('profile view unmounted');
-		}
-	}, []);
 	
   	return <div>
 		<div className='profile-view'>

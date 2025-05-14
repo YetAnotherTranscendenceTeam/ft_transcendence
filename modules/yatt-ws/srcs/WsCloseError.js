@@ -17,4 +17,6 @@ export default class WsCloseErrorClass {
 	static InvalidMode = new WsCloseErrorClass(4005, "INVALID_MODE");
 	static Kicked = new WsCloseErrorClass(4006, "KICKED");
 	static Forbidden = new WsCloseErrorClass(4007, "FORBIDDEN");
+	static BadGateway = new WsCloseErrorClass(4502, "BAD_GATEWAY");
+	static ConnectionLost = new WsCloseErrorClass(4500, "CONNECTION_LOST");
 }

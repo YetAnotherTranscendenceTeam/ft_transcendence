@@ -147,6 +147,10 @@
 	flex: 4;
 }
 
+.flex-10 {
+	flex: 10;
+}
+
 .w-full {
 	width: 100%;
 }

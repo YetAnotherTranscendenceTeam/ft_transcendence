@@ -4,6 +4,7 @@ import config from "../config";
 import { IUser } from "../hooks/useUsers";
 import useSocial, { FriendStatus, ISocials } from "../hooks/useSocials";
 import { useNavigate } from "babact-router-dom";
+import { APIClearToken, APISetToken } from "../hooks/useAPI";
 
 const AuthContext = Babact.createContext<{
 		me: IMe,
@@ -75,11 +76,10 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 			return;
 		const response = await ft_fetch(`${config.API_URL}/me`);
 		if (response) {
-			setMe({...response, status: null});
+			setMe({...response, status: me?.status ?? null});
 			if (response.last_match && response.last_match.state < 2 && window.location.pathname !== `/matches/${response.last_match.match_id}`) {
 				navigate(`/matches/${response.last_match.match_id}`);
 			}
-			connect();
 		}
 		else{
 			logout();
@@ -87,19 +87,19 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 	};
 
 	const auth = async (token: string, expire_at: string) => {
-		localStorage.setItem('access_token', token);
-		localStorage.setItem('expire_at', expire_at);
+		await APISetToken(token, expire_at);
 		fetchMe();
 	};
 
 	const logout = async () => {
-		localStorage.removeItem('access_token');
-		localStorage.removeItem('expire_at');
+		await APIClearToken();
 		await ft_fetch(`${config.API_URL}/token/revoke`, {
 			method: "POST",
 			credentials: "include",
 		})
 		setMe(null);
+		if (window.location.pathname !== '/' && !window.location.pathname.startsWith('/local'))
+			navigate('/');
 	};
 
 	const refresh = () => {
@@ -115,6 +115,11 @@ export const AuthProvider = ({ children } : {children?: any}) => {
 		if (!me && connected)
 			disconnect();
 	}, [me]);
+
+	Babact.useEffect(() => {
+		if (me)
+			connect();
+	}, [me?.account_id]);
 
 	const setMeStatus = (status: FriendStatus) => {
 		setMe(me => ({...me, status}));
