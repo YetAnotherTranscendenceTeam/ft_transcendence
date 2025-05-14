@@ -13,7 +13,7 @@ export default function ProfileFilter({
 	>
 		<SegmentedControl
 			buttons={[
-				{ label: 'No filter', value: '' },
+				{ label: 'All', value: '' },
 				{ label: <><i className="fa-solid fa-trophy"></i> Ranked</>, value: 'ranked' },
 				{ label: <><i className="fa-solid fa-gamepad"></i> Unranked</>, value: 'unranked' },
 				{ label: <><i className="fa-solid fa-users"></i> Custom</>, value: 'custom' },
