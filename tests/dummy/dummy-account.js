@@ -10,7 +10,9 @@ export const app = Fastify();
 app.register(jwt, { secret: process.env.AUTHENTICATION_SECRET });
 app.register(jwt, { secret: process.env.TWO_FA_SECRET, namespace: "two_fa" });
 app.register(jwt, { secret: process.env.TOKEN_MANAGER_SECRET, namespace: "token_manager" });
-app.register(jwt, { secret: process.env.ACTIVITY_SSE_SECRET, namespace: "activity_sse" })
+app.register(jwt, { secret: process.env.ACTIVITY_SSE_SECRET, namespace: "activity_sse" });
+app.register(jwt, { secret: process.env.PONG_SECRET, namespace: "pong" });
+app.register(jwt, { secret: process.env.SPECTATOR_SECRET, namespace: "spectator" });
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 

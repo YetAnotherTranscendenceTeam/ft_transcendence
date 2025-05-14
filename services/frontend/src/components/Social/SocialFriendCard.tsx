@@ -98,7 +98,7 @@ export default function SocialFriendCard({
 				{isRequestable &&
 					<Button
 					onClick={(e) => handleRequest(e)}
-					className="social-friend-card-button"
+					className="social-friend-card-button lobby"
 					>
 						<i className="fa-regular fa-hand"></i> Request
 					</Button>
@@ -112,6 +112,13 @@ export default function SocialFriendCard({
 					<h1>{isInGame.getDisplayName()}</h1>
 					<h2>{isInGame.getDisplayTypeName()}</h2>
 				</div>
+				<Button
+					onClick={(e) => navigate(`/spectate/${friend.status.data.match_id}`)}
+					className="social-friend-card-button game"
+				>
+					<i className="fa-regular fa-eye"></i>
+					Spectate
+				</Button>
 			</div>
 		}
 

@@ -218,6 +218,10 @@
 	min-height: 32px;
 }
 
+.lobby-settings-row-powerup label {
+	text-align: right;
+}
+
 .lobby-settings-row-powerup {
 	min-height: unset;
 }

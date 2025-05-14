@@ -28,11 +28,12 @@ export interface IPongOverlay {
 	local: boolean,
 	gamemode: GameMode,
 	pointsToWin: number,
+	spectatorCount: number,
 	activeEvents: {
 		type: PongEventType,
 		time: number,
 		isGlobal: boolean,
-		playerId?: number,
+		team: PONG.MapSide,
 	}[],
 	goals: {
 		[key: number]: {
@@ -65,6 +66,8 @@ export default class PongClient extends PONG.Pong {
 
 	private _player: PONG.IPongPlayer;
 
+	private _spectatorCount: number;
+
 	// public scoreUpdateCallback: (score: ScoredEvent) => void;
 	public callbacks: {
 		onConnectionError?: (this: WebSocket, error: CloseEvent) => void,
@@ -76,6 +79,7 @@ export default class PongClient extends PONG.Pong {
 		updateOverlay: (params: IPongOverlay) => void,
 	}) {
 		super();
+		this._spectatorCount = null;
 		this.callbacks = callbacks;
 		this._time = 0;
 		this._interpolation = 0;
@@ -134,12 +138,12 @@ export default class PongClient extends PONG.Pong {
 			lastWinner: (this._state.name === "FREEZE" && this._stats) ? this._stats.lastSideToScore : null,
 			gameStatus: this._state,
 			pointsToWin: this._matchParameters.point_to_win,
-			activeEvents: this._activeEvents?.filter((event: PONG.PongEvent) => (!this._player || event.playerId === this._player.playerId || event.isGlobal())).map((event: PONG.PongEvent) => {
+			activeEvents: this._activeEvents?.map((event: PONG.PongEvent) => {
 				return {
 					type: event.type,
 					time: event.time,
 					isGlobal: event.isGlobal(),
-					playerId: event.playerId,
+					team: (event.playerId < 2 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT),
 				}
 			}) ?? [],
 			goals: {
@@ -149,8 +153,9 @@ export default class PongClient extends PONG.Pong {
 				[PONG.MapSide.RIGHT]: {
 					health: this._goals.get(PONG.MapSide.RIGHT)?.health ?? 0,
 				}
-			}
-		}
+			},
+			spectatorCount: this._spectatorCount,
+		};
 	}
 
 	public setGameScene(scene: GameScene) {
@@ -196,12 +201,20 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
-	public connect(match_id: number) {
+	public connect(match_id: number, spectate: boolean = false) {
 		if (this._websocket) {
 			this._websocket.onclose = undefined;
 			this._websocket.close();
 		}
-		this._websocket = new WebSocket(`${config.WS_URL}/pong/join?match_id=${match_id}&access_token=${localStorage.getItem("access_token")}`);
+		
+		let service = "pong";
+		if (spectate) {
+			service = "spectator";
+			this._spectatorCount = 0;
+		}
+		
+		const uri = `${config.WS_URL}/${service}/join?match_id=${match_id}&access_token=${localStorage.getItem("access_token")}`;
+		this._websocket = new WebSocket(uri);
 		
 		this._websocket.onmessage = (ev) => { // step, state, sync
 			const msg = JSON.parse(ev.data);
@@ -234,10 +247,11 @@ export default class PongClient extends PONG.Pong {
 				this._tick = msg.data.match.tick as number;
 				this._stats.lastSideToScore = msg.data.match.lastSide as number;
 				this.ballSync(msg.data.match.balls as PONG.IBall[], 0, 0);
-				this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
+				if (msg.data.player) {
+					this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
+				}
 				this.eventBoxSync(msg.data.match.event_boxes as PONG.IEventBoxSync[]);
 				this.eventSync(msg.data.match.activeEvents as PONG.IEventSync[]);
-				console.log("matchPrams", this._matchParameters);
 				this.updateOverlay();
 			}
 			else if (msg.event === "state") {
@@ -260,6 +274,10 @@ export default class PongClient extends PONG.Pong {
 				) {
 					this.updateOverlay();
 				}
+			}
+			else if (msg.event === "spectator_count") {
+				this._spectatorCount = msg.data.count;
+				this.updateOverlay();
 			}
 		}
 		this._websocket.onopen = (ev) => {
@@ -329,7 +347,7 @@ export default class PongClient extends PONG.Pong {
 			ball.dispose();
 		});
 		this._ballInstances = [];
-		// this.updateOverlay();
+		this._spectatorCount = null;
 	}
 	
 	protected switchMap(mapId: PONG.MapID) {
@@ -601,7 +619,7 @@ export default class PongClient extends PONG.Pong {
 
 	private playerUpdateOnline() {
 
-		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.playerId);
+		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player?.playerId);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {

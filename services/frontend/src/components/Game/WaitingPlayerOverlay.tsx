@@ -11,7 +11,11 @@ export default function WaitingPlayerOverlay() {
 	return <div className="flex flex-col gap-4 items-center justify-center">
 		<div className="flex gap-2 items-center justify-center">
 			<Spinner />
-			<p>Waiting for other players...</p>
+			{
+				window.location.pathname.startsWith('/spectate/') ?
+				<p>Waiting for game to start...</p>:
+				<p>Waiting for other players...</p>
+			}
 		</div>
 		{overlay.countDown > 0 && <p className="auto-start">Automatic start in {Math.floor(overlay.countDown)}s</p>}
 	</div>

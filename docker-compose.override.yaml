@@ -187,6 +187,16 @@ services:
     ports:
       - 127.0.0.1:4124:3000
 
+  spectator:
+    build:
+      context: services/spectator/
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./services/spectator/srcs:/services/spectator/srcs
+      - ./modules/:/modules:ro
+    ports:
+      - 127.0.0.1:4125:3000
+
   cdn-nginx:
     build:
       context: services/CDN/nginx/

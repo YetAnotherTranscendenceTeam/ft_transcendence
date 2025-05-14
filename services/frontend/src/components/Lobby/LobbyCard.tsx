@@ -12,12 +12,14 @@ import LobbySettings from "./LobbySettings";
 import { GameModeType, QueueStatus } from "yatt-lobbies";
 import PopHover from "../../ui/PopHover";
 import Dropdown from "../../ui/Dropdown";
+import { useRTTournament } from "../../contexts/useRTTournament";
 
 export default function LobbyCard() {
 
 	const { lobby, setOnLeave } = useLobby();
 
 	const navigate = useNavigate();
+	const { tournament_id } = useRTTournament();
 	const [queueSince, setQueueSince] = Babact.useState<number>(0);
 	const [queueTime, setQueueTime] = Babact.useState<number>(0);
 
@@ -49,7 +51,7 @@ export default function LobbyCard() {
 		}
 	}, [queueSince]);
 
-	if (!me || !lobby)
+	if (!me || !lobby || tournament_id)
 		return;
 
 	const copyText = `**Join me in _YetAnotherPong_!** 🎮  \nClick the link to enter the game lobby: [Join the game](${window.location.origin}/lobby/${lobby.join_secret}?username=${me.username}&avatar=${me.avatar}&gamemode=${lobby.mode.type}%20${lobby.mode.getDisplayName()})`
