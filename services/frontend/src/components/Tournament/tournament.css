@@ -81,6 +81,7 @@
 	background-color: var(--bg-3);
 	color: var(--fg-1);
 	position: relative;
+	overflow: hidden;
 }
 
 .match-card.focused {

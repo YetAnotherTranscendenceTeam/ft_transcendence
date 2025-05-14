@@ -267,6 +267,7 @@
 /* Spectator count */
 
 .spectator-count {
+	z-index: 2;
 	position: absolute;
 	right: 0;
 	margin: 16px;

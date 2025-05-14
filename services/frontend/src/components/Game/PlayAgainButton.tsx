@@ -21,11 +21,11 @@ export default function PlayAgainButton() {
 		if (overlay.local && restartGame) {
 			restartGame();
 		}
-		else if (window.location.pathname.startsWith('/spectate/')) {
-			navigate('/');
-		}
 		else if (RTTournament.tournament_id) {
 			navigate(`/tournaments/${RTTournament.tournament_id}`);
+		}
+		else if (window.location.pathname.startsWith('/spectate/')) {
+			navigate('/');
 		}
 		else if (lobby && lobby.state.joinable) {
 			lobby.queueStart();

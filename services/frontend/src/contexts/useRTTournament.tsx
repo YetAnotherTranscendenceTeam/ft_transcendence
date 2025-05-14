@@ -79,7 +79,9 @@ export const RTTournamentProvider = ({ children } : {children?: any}) => {
 
 	Babact.useEffect(() => {
 		const newCurrentMatch = matches.find((match) => match.state === MatchState.PLAYING && match.isPlayerIn(me?.account_id)) ?? null;
-		setCurrentMatch(newCurrentMatch);
+		if (newCurrentMatch !== currentMatch) {
+			setCurrentMatch(newCurrentMatch);
+		}
 		if (newCurrentMatch) {
 			createToast(`Match started against ${newCurrentMatch.getOpponentTeamName(me?.account_id)}`, ToastType.INFO);
 		}
