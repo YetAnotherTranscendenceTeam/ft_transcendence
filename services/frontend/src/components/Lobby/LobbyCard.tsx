@@ -18,12 +18,36 @@ export default function LobbyCard() {
 	const { lobby, setOnLeave } = useLobby();
 
 	const navigate = useNavigate();
+	const [queueSince, setQueueSince] = Babact.useState<number>(0);
+	const [queueTime, setQueueTime] = Babact.useState<number>(0);
+
+	Babact.useEffect(() => {
+		if (lobby && lobby.state.type === 'queued') {
+			setQueueSince(Date.now());
+		}
+		else if (queueSince) {
+			setQueueSince(0);
+			setQueueTime(null)
+		}
+	}, [lobby?.state.type])
 
 	const { me } = useAuth();
 
 	const onLeave = () => {
 		setOnLeave(() => (() => {}));
 	}
+
+	Babact.useEffect(() => {
+		if (!queueSince)
+			return;
+
+		const interval = setInterval(() => {
+			setQueueTime(Date.now() - queueSince);
+		}, 1000);
+		return () => {
+			clearInterval(interval);
+		}
+	}, [queueSince]);
 
 	if (!me || !lobby)
 		return;
@@ -43,7 +67,7 @@ export default function LobbyCard() {
 			<div className='flex gap-4'>
 				<div className='flex flex-col gap-1'>
 					<h1>{lobby.mode.getDisplayName()}</h1>
-					<h2>{lobby.mode.type}</h2>
+					<h2>{lobby.mode.getDisplayTypeName()}</h2>
 				</div>
 				{ !window.location.pathname.startsWith('/lobby') &&
 					<Button
@@ -55,7 +79,7 @@ export default function LobbyCard() {
 				}
 			</div>
 			<div className='flex flex-col gap-2 items-end'>
-				<LobbyStatus state={lobby.state} />
+				<LobbyStatus state={lobby.state} timer={queueTime / 1000}/>
 				<h2>
 					{lobby.players.length}/{lobby.getCapacity()} Players
 				</h2>
@@ -116,7 +140,7 @@ export default function LobbyCard() {
 						onClick={() => lobby.queueStop()}	
 					>
 						<i className="fa-solid fa-stop"></i>
-						Stop
+						{lobby.mode.type === GameModeType.CUSTOM || lobby.mode.type === GameModeType.TOURNAMENT ? 'Stop' : 'Unqueue'}
 					</Button> 
 				) ||
 				(lobby.state.type === 'waiting' &&
@@ -130,7 +154,7 @@ export default function LobbyCard() {
 							disabled={queueStatus !== QueueStatus.CAN_QUEUE}
 						>
 							<i className="fa-solid fa-play"></i>
-							Start
+							{lobby.mode.type === GameModeType.CUSTOM || lobby.mode.type === GameModeType.TOURNAMENT ? 'Start' : 'Queue'}
 						</Button>
 					</PopHover>
 				))

@@ -53,7 +53,6 @@ export async function APIRefreshToken() {
 		localStorage.setItem('expire_at', data.expire_at);
 	}
 	catch (e: unknown) {
-		console.error('Error refreshing token', e);
 		localStorage.removeItem('access_token');
 		localStorage.removeItem('expire_at');
 	}
