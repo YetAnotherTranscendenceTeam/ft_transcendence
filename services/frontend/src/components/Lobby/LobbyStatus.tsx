@@ -14,7 +14,7 @@ export default function LobbyStatus({
 
 	if (state.type === LobbyStateType.QUEUED)
 		return <div className='flex gap-2 items-center'>
-			<p>{Math.floor(timer / 60 ).toString().padStart(2, '0')}:{Math.floor(timer % 60).toString().padStart(2, '0')}</p>
+			<p>{Math.floor((timer ?? 0) / 60).toString().padStart(2, '0')}:{Math.floor((timer ?? 0) % 60).toString().padStart(2, '0')}</p>
 			<Spinner />
 			<p>In Queue</p>
 		</div>
