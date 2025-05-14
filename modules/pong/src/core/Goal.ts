@@ -67,7 +67,7 @@ export default class Goal extends PH2D.Body {
 	}
 
 	public getDamage(bounce_coun: number): number {
-		return 1 / (1 + Math.exp(-bounce_coun/1.5 + 4.2)) * 8;
+		return 1 / (1 + Math.exp(-bounce_coun/1.5 + 4.2)) * 8 + 1;
 	}
 
 	public score(ball: Ball): boolean {

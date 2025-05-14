@@ -14,6 +14,7 @@ import AObject from "./Objects/AObject";
 import config from "../../config";
 import Keyboard from "./Keyboard";
 import DirectionalLightHelper from "./DirectionalLightHelper";
+import PongScene from "./PongScene";
 
 let temporary_falg: boolean = true;
 
@@ -49,25 +50,14 @@ export default class PongClient extends PONG.Pong {
 	private _websocket?: WebSocket;
 	private _engine: Engine;
 	private _keyboard: Keyboard;
-	private _babylonScene: Scene;
 	private _gameScene: GameScene;
-
-	private _skybox: Mesh;
-	private _camera: ArcRotateCamera;
-	private _light: HemisphericLight;
-
-	private _meshMap: Map<PONG.MapID, Array<AObject>>;
-	private _shadowGenerator: BABYLON.ShadowGenerator;
-	private _ground: Mesh; // TEST
+	private _babylonScene: PongScene;
 
 	private _ballSteps: Array<IServerStep>;
 	private _paddleSteps: Array<PaddleSyncs>;
 
-	private _ballInstances: Array<ClientBall>;
-	private _paddleInstance: Map<number, ClientPaddle>;
 
 	private _time: number;
-	private _interpolation: number;
 
 	private _player: PONG.IPongPlayer;
 
@@ -84,24 +74,12 @@ export default class PongClient extends PONG.Pong {
 		super();
 		this.callbacks = callbacks;
 		this._time = 0;
-		this._interpolation = 0;
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
-		this._meshMap = new Map<PONG.MapID, Array<AObject>>();
 		this._keyboard = new Keyboard();
 
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
-		
-		this._babylonScene = new Scene(this._engine);
-		// Optimize for performance
-		this._babylonScene.performancePriority = BABYLON.ScenePerformancePriority.Intermediate;
-		// this._babylonScene.collisionsEnabled = false;
-		this._babylonScene.autoClear = true;
-		this._babylonScene.clearColor = new Color4(0, 0, 0, 1);
-		// this._babylonScene.autoClearDepthAndStencil = false;
-		
-		this.sceneSetup();
+
+		this._babylonScene = new PongScene(this._canvas, this._engine, this);
 		
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
@@ -164,17 +142,11 @@ export default class PongClient extends PONG.Pong {
 		if (this._gameScene === scene) {
 			return;
 		}
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.dispose();
-		});
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
+		this._babylonScene.removeAllBalls();
+		this._babylonScene.paddleInstance = new Map<number, ClientPaddle>();
 		// disable active map
-		if (this._currentMap) {
-			this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-				map.disable();
-			});
-		}
+		this._babylonScene.disableMap(this._currentMap?.mapId);
+	
 		this._gameScene = scene;
 		if (this._gameScene === GameScene.MENU) {
 			this.menuScene();
@@ -286,224 +258,15 @@ export default class PongClient extends PONG.Pong {
 		this.setState(PONG.PongState.FREEZE.clone());
 	}
 
-	private sceneSetup() {
-		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 20, Vector3.Zero(), this._babylonScene);
-		camera.inputs.clear();
-		camera.inputs.addMouseWheel();
-		camera.inputs.addPointers();
-		// camera.inputs.attached.pointers.buttons = [0, 1];
-		camera.attachControl(this._canvas, true);
-		camera.lowerRadiusLimit = 1.5;
-		camera.upperRadiusLimit = 300;
-		camera.wheelPrecision = 50;
-		camera.minZ = 0.1;
-
-		const hdrTexture = new BABYLON.CubeTexture(
-			"/assets/images/disco_4k.env",
-			this._babylonScene,
-			null,
-			false,
-			null
-		);
-
-		// Environment texture
-		// this._babylonScene.environmentTexture = hdrTexture;
-
-
-		// // Skybox
-		// this._skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 500.0, sideOrientation: BABYLON.Mesh.BACKSIDE }, this._babylonScene);
-		// // this._skybox.infiniteDistance = true;
-		// this._skybox.position.y = 250;
-		// this._skybox.receiveShadows = true;
-
-		// // // Skybox material
-		// // // const skyboxMaterial = new BABYLON.PBRMaterial('skyBox', this._babylonScene);
-		// // // skyboxMaterial.backFaceCulling = false;
-		// // // skyboxMaterial.disableLighting = true;
-		// // // skyboxMaterial.reflectionTexture = hdrTexture.clone();
-		// // // skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-		// // // skyboxMaterial.roughness = 0.075;
-
-		// // Skydome material
-		// const skydomeMaterial = new BABYLON.BackgroundMaterial('skydome', this._babylonScene);
-		// skydomeMaterial.enableGroundProjection = true;
-		// skydomeMaterial.projectedGroundRadius = 50;
-		// skydomeMaterial.projectedGroundHeight = 15;
-		// skydomeMaterial.reflectionTexture = hdrTexture.clone();
-		// skydomeMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-		// // skydomeMaterial.roughness = 0.075;
-
-		// this._skybox.material = skydomeMaterial;
-
-		const light = new BABYLON.DirectionalLight("light", new Vector3(-1, -1, 2), this._babylonScene);
-		light.intensity = 1;
-		light.diffuse = new Color3(1, 1, 1);
-		light.specular = new Color3(1, 1, 1);
-		// light.position = new Vector3(1, 1, -2);
-		// light.shadowMinZ = -5.5;
-		// light.shadowMaxZ = 11.5;
-		light.shadowMinZ = -7.5;
-		light.shadowMaxZ = 15;
-
-		const lightGizmo = new BABYLON.LightGizmo();
-		lightGizmo.light = light;
-
-
-		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._babylonScene);
-		ballMaterial.metallic = 1;
-		ballMaterial.roughness = 1;
-		ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._babylonScene);
-		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._babylonScene);
-		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.png", this._babylonScene);
-		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.png", this._babylonScene);
-		// ballMaterial.reflectionTexture = hdrTexture;
-		// ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
-		ClientBall.template = ballMaterial;
-
-		const wallMaterial = new BABYLON.PBRMaterial("wallMaterial", this._babylonScene);
-		wallMaterial.metallic = 0;
-		wallMaterial.roughness = 0.5;
-		wallMaterial.albedoColor = new Color3(0.25, 0.5, 0.62);
-		ClientWall.template = wallMaterial;
-
-		const obstacleMaterial = new BABYLON.PBRMaterial("obstacleMaterial", this._babylonScene);
-		obstacleMaterial.metallic = 0;
-		obstacleMaterial.roughness = 0.5;
-		obstacleMaterial.albedoColor = new Color3(0.25, 0.5, 0.62);
-		// obstacleMaterial.alpha = 0.5;
-		ClientObstacle.template = obstacleMaterial;
-
-		const paddleMaterial = new BABYLON.PBRMaterial("paddleMaterial", this._babylonScene);
-		paddleMaterial.metallic = 0;
-		paddleMaterial.roughness = 0.5;
-		paddleMaterial.albedoColor = Color3.White();
-		ClientPaddle.template = paddleMaterial;
-
-		const goalMaterial = new BABYLON.PBRMaterial("goalMaterial", this._babylonScene);
-		goalMaterial.metallic = 0;
-		goalMaterial.roughness = 0.5;
-		goalMaterial.albedoColor = Color3.Red();
-		goalMaterial.alpha = 0.5;
-		ClientGoal.template = goalMaterial;
-
-		const eventBoxMaterial = new BABYLON.PBRMaterial("eventBoxMaterial", this._babylonScene);
-		eventBoxMaterial.metallic = 0;
-		eventBoxMaterial.roughness = 0.5;
-		eventBoxMaterial.albedoColor = Color3.Green();
-		eventBoxMaterial.alpha = 0.5;
-		ClientEventBox.template = eventBoxMaterial;
-		
-		PONG.Pong._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
-			const mapMesh: Array<AObject> = [];
-			let counter: number = 0;
-
-			const objects: PH2D.Body[] = map.getObjects();
-			objects.forEach((object: PH2D.Body) => {
-				let clientObject: AObject | undefined;
-				if (object instanceof PONG.Wall) {
-					clientObject = new ClientWall(this._babylonScene, ("wall" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.Goal) {
-					clientObject = new ClientGoal(this._babylonScene, ("goal" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.Paddle) {
-					clientObject = new ClientPaddle(this._babylonScene, ("paddle" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.Obstacle) {
-					clientObject = new ClientObstacle(this._babylonScene, ("obstacle" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.EventBox) {
-					clientObject = new ClientEventBox(this._babylonScene, ("eventbox" + map.mapId.toString() + counter.toPrecision(2)), object);
-				}
-				if (clientObject !== undefined) {
-					clientObject.disable();
-					mapMesh.push(clientObject);
-				}
-				counter++;
-			});
-			
-			this._meshMap.set(mapId, mapMesh);
-		});
-
-		// // Test Cube
-		// const cube = MeshBuilder.CreateBox("cube", { size: 1 }, this._babylonScene);
-		// cube.position = new Vector3(0, 3, 0);
-		// cube.rotation = new Vector3(1, 2, 3);
-
-		// const pbr = new BABYLON.PBRMaterial("pbr", this._babylonScene);
-		// pbr.albedoColor = new BABYLON.Color3(0.7, 0.8, 0.3);
-		// pbr.metallic = 0.0;
-		// pbr.roughness = 1.0;
-		// cube.material = pbr;
-		// cube.receiveShadows = true;
-
-		// // // Test Sphere
-		// const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this._babylonScene);
-		// sphere.position = new Vector3(0, 1, 0);
-
-		// const pbr = new BABYLON.PBRMaterial("pbr", this._babylonScene);
-		// pbr.albedoColor = new BABYLON.Color3(0.7, 0.8, 0.3);
-		// pbr.metallic = 0.0;
-		// pbr.roughness = 1.0;
-		// sphere.material = pbr;
-		// sphere.receiveShadows = true;
-
-		this._shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
-
-		// this._shadowGenerator.useBlurCloseExponentialShadowMap = true;
-		// this._shadowGenerator.useBlurExponentialShadowMap = true;
-		// this._shadowGenerator.usePoissonSampling = true;
-		// this._shadowGenerator.useExponentialShadowMap = true;
-		this._shadowGenerator.useContactHardeningShadow = true;
-		// this._shadowGenerator.usePercentageCloserFiltering = true;
-		// this._shadowGenerator.useKernelBlur = true;
-		// this._shadowGenerator.blurKernel = 32;
-		this._shadowGenerator.bias = 0.003;
-		this._shadowGenerator.normalBias = 0.02;
-		// this._shadowGenerator.debug = true;
-		this._shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
-		this._shadowGenerator.contactHardeningLightSizeUVRatio = 0.03;
-		this._shadowGenerator.setDarkness(0.5);
-		// this._shadowGenerator.getShadowMap().refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
-
-		// Shadow
-		this._meshMap.forEach((map: Array<AObject>, mapID: PONG.MapID) => {
-			// this._shadowGenerator.getShadowMap().renderList.push(...map.map((object: AObject) => object.mesh));
-			map.forEach((object: AObject) => {
-				this._shadowGenerator.getShadowMap().renderList.push(object.mesh);
-				object.mesh.receiveShadows = true;
-			});
-		});
-
-		this._ground = MeshBuilder.CreateGround("ground", { width: 30, height: 30, subdivisions: 50 }, this._babylonScene);
-		const groundMaterial = new BABYLON.PBRMaterial("groundMaterial", this._babylonScene);
-		groundMaterial.metallic = 0;
-		groundMaterial.roughness = 0.5;
-		groundMaterial.albedoColor = new Color3(0.7, 0.55, 0.3);
-		groundMaterial.ambientColor = new Color3(1, 1, 1);
-		this._ground.material = groundMaterial;
-		this._ground.receiveShadows = true;
-
-		// var dlh = new DirectionalLightHelper(light, camera);
-
-		// window.setTimeout(() => {
-		// 	this._babylonScene.onAfterRenderObservable.add(() => dlh.buildLightHelper());
-		// }, 500);
-
-		this._babylonScene.registerBeforeRender(() => {
-			// console.log("light shadow", light.shadowMinZ, light.shadowMaxZ);
-		});
-	}
-
 	public cleanUp(): void {
 		super.cleanUp();
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.dispose();
-		});
-		this._ballInstances = [];
-		// this.updateOverlay();
+		this._babylonScene.removeAllBalls();
 	}
 	
 	protected switchMap(mapId: PONG.MapID) {
 		super.switchMap(mapId);
 		const objects: PH2D.Body[] = this._currentMap.getObjects();
-		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject, index: number) => {
+		this._babylonScene.meshMap.get(this._currentMap.mapId)?.forEach((object: AObject, index: number) => {
 			object.updateBodyReference(objects[index]);
 			object.enable();
 			if (object instanceof ClientEventBox) {
@@ -513,76 +276,40 @@ export default class PongClient extends PONG.Pong {
 				object.disable();
 			}
 		});
-		// this._shadowGenerator.getShadowMap().resetRefreshCounter();
+		// this._babylonScene.shadowGenerator.getShadowMap().resetRefreshCounter();
 	}
 
 	private menuScene() {
 		this.menuSetup();
 
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.enable();
-		});
+		this._babylonScene.enableMap(this._currentMap.mapId);
 
-		// this.loadBalls();
 		this.bindPaddles();
-		this.updateMeshes();
+		this._babylonScene.updateMeshes();
 	}
 	
 	private localScene() {
 		this.localSetup();
 
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.enable();
-		});
-		
-		// this.loadBalls();
+		this._babylonScene.enableMap(this._currentMap.mapId);
+
 		this.bindPaddles();
-		this.updateMeshes();
+		this._babylonScene.updateMeshes();
 		this.updateOverlay();
 	}
 	
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, matchParameters, state);
 
-		this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-			map.enable();
-		});
+		this._babylonScene.enableMap(this._currentMap.mapId);
 	
-		// this.loadBalls();
 		this.bindPaddles();
-		this._physicsScene.removeBody(this._ballInstances[0].physicsBody);
-		this.updateMeshes();
-	}	
-	
-	private loadBalls() {
-		// this._balls.forEach((ball: PH2D.Body) => {
-		// 	const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
-		// 	this._ballInstances.push(ballInstance);
-		// 	// add ball to all objects probe and objects to ball probe
-		// 	this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-		// 		// object.addToProbe(ballInstance);
-		// 		ballInstance.addToProbe(object);
-		// 	}
-		// 	);
-		// });
-		// // add ball to all balls probe
-		// this._ballInstances.forEach((ball: ClientBall) => {
-		// 	this._ballInstances.forEach((otherBall: ClientBall) => {
-		// 		if (ball !== otherBall) {
-		// 			ball.addToProbe(otherBall);
-		// 		}
-		// 	});
-		// 	// add skybox to probe
-		// 	ball.addToProbe(this._skybox);
-		// 	this._shadowGenerator.get(this._currentMap.mapId)?.getShadowMap()?.renderList.push(ball.mesh);
-		// 	ball.mesh.receiveShadows = true;
-		// }
-		// );
+		this._babylonScene.updateMeshes();
 	}
 	
 	private bindPaddles() {
 		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-			const paddleInstance: ClientPaddle | undefined = this._meshMap.get(this._currentMap.mapId)?.find((object: AObject) => {
+			const paddleInstance: ClientPaddle | undefined = this._babylonScene.meshMap.get(this._currentMap.mapId)?.find((object: AObject) => {
 				if (object instanceof ClientPaddle) {
 					return object.physicsBody === paddle;
 				}
@@ -590,7 +317,7 @@ export default class PongClient extends PONG.Pong {
 			}
 			) as ClientPaddle;
 			if (paddleInstance) {
-				this._paddleInstance.set(playerId, paddleInstance);
+				this._babylonScene.paddleInstance.set(playerId, paddleInstance);
 				paddleInstance.update(1);
 			}
 		});
@@ -646,7 +373,7 @@ export default class PongClient extends PONG.Pong {
 		const oldTick = this._tick;
 		this.playerUpdateLocal();
 		dt = this.physicsUpdate(dt);
-		this.updateMeshes(dt, dt);
+		this._babylonScene.updateMeshes(dt, dt);
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._stats.score[0] + "-" + this._stats.score[1]);
 			if (this._stats.winner !== undefined) {
@@ -697,16 +424,7 @@ export default class PongClient extends PONG.Pong {
 			ball_interp = 1;
 		}
 
-		this.updateMeshes(ball_interp, interpolation);
-	}
-
-	private updateMeshes(ball_interp: number = 1, interpolation: number = 1) {
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.update(ball_interp);
-		});
-		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-			object.update(interpolation);
-		});
+		this._babylonScene.updateMeshes(ball_interp, interpolation);
 	}
 
 	private serverStep(data: IServerStep, dt: number, forced: boolean = false) {
@@ -715,7 +433,7 @@ export default class PongClient extends PONG.Pong {
 
 	private paddleSync(paddles: PaddleSyncs) {
 		for (let paddlesync of Object.values(paddles)) {
-			const paddle = this._paddleInstance.get(paddlesync.id);
+			const paddle = this._babylonScene.paddleInstance.get(paddlesync.id);
 			paddle.sync(paddlesync);
 		}
 	}
@@ -757,38 +475,32 @@ export default class PongClient extends PONG.Pong {
 			ball.addEventListener("collision", PONG.ballCollision.bind(this));
 		}
 		this._balls.push(ball);
-		const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
-		this._ballInstances.push(ballInstance);
-		// ballInstance.addToProbe(this._skybox);
-		// ballInstance.addToProbe(this._ground);
-		// this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-		// 	ballInstance.addToProbe(object);
-		// });
-		// this._ballInstances.forEach((otherBall: ClientBall) => {
-		// 	if (ballInstance !== otherBall) {
-		// 		ballInstance.addToProbe(otherBall);
-		// 		console.log("adding to probe: " + ballInstance.mesh.name + " -> " + otherBall.mesh.name);
-		// 		otherBall.addToProbe(ballInstance);
-		// 		console.log("adding to probe: " + otherBall.mesh.name + " -> " + ballInstance.mesh.name);
-		// 	}
-		// }
-		// );
-		// this._shadowGenerator.get(this._currentMap.mapId)?.getShadowMap()?.renderList.push(ballInstance.mesh);
-		this._shadowGenerator.getShadowMap().renderList.push(ballInstance.mesh);
-		ballInstance.mesh.receiveShadows = true;
+		// const ballInstance: ClientBall = new ClientBall(this._babylonScene.scene, "ball", ball);
+		// this._babylonScene.ballInstances.push(ballInstance);
+		// // ballInstance.addToProbe(this._skybox);
+		// // ballInstance.addToProbe(this._ground);
+		// // this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
+		// // 	ballInstance.addToProbe(object);
+		// // });
+		// // this._ballInstances.forEach((otherBall: ClientBall) => {
+		// // 	if (ballInstance !== otherBall) {
+		// // 		ballInstance.addToProbe(otherBall);
+		// // 		console.log("adding to probe: " + ballInstance.mesh.name + " -> " + otherBall.mesh.name);
+		// // 		otherBall.addToProbe(ballInstance);
+		// // 		console.log("adding to probe: " + otherBall.mesh.name + " -> " + ballInstance.mesh.name);
+		// // 	}
+		// // }
+		// // );
+		this._babylonScene.addBall(ball);
 	}
 
 	public removeBall(ball: PONG.Ball) {
 		super.removeBall(ball);
-		const ballInstance: ClientBall | undefined = this._ballInstances.find((b: ClientBall) => b.physicsBody === ball);
-		if (ballInstance) {
-			ballInstance.dispose();
-			this._ballInstances = this._ballInstances.filter((b: ClientBall) => b !== ballInstance);
-		}
+		this._babylonScene.removeBall(ball);
 	}
 
 	private playerUpdateLocal() {
-		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PlayerID.RIGHT_BACK);
+		let paddle: ClientPaddle | undefined = this._babylonScene.paddleInstance.get(PONG.PlayerID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {
@@ -800,7 +512,7 @@ export default class PongClient extends PONG.Pong {
 			paddle.move(moveDirection);
 		}
 
-		paddle = this._paddleInstance.get(PONG.PlayerID.LEFT_BACK);
+		paddle = this._babylonScene.paddleInstance.get(PONG.PlayerID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.W)) {
@@ -815,7 +527,7 @@ export default class PongClient extends PONG.Pong {
 
 	private playerUpdateOnline() {
 
-		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player.playerId);
+		const paddle: ClientPaddle | undefined = this._babylonScene.paddleInstance.get(this._player.playerId);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {
@@ -841,11 +553,7 @@ export default class PongClient extends PONG.Pong {
 	private handleKeyDown = (ev: KeyboardEvent) => {
 		// Shift+Ctrl+Alt+I
 		if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
-			if (this._babylonScene.debugLayer.isVisible()) {
-				this._babylonScene.debugLayer.hide();
-			} else {
-				this._babylonScene.debugLayer.show();
-			}
+			this._babylonScene.toogleDebug();
 		}
 
 		this._keyboard.keyDown(ev.key);

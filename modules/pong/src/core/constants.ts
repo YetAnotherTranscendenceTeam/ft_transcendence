@@ -29,6 +29,7 @@ export const launchAngle = 20 * Math.PI / 180; // 20 degrees
 export const paddleSpeed = 4;
 export const defaultPointsToWin = 5;
 export const eventboxRadius = 0.3;
+export const maxBallAmount = 4;
 
 export const ballShape: PH2D.CircleShape = new PH2D.CircleShape(ballRadius);
 export const paddleShape: PH2D.PolygonShape = new PH2D.PolygonShape(paddleSize[0] / 2, paddleSize[1] / 2);

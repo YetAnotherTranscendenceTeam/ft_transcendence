@@ -376,6 +376,18 @@ export class Pong {
 	public get goals(): Map<number, Goal> {
 		return this._goals;
 	}
+
+	public get maps(): Map<MapID, IPongMap> {
+		return Pong._map;
+	}
+
+	public get currentMap(): IPongMap {
+		return this._currentMap;
+	}
+
+	public get matchParameters(): IMatchParameters {
+		return this._matchParameters;
+	}
 }
 
 

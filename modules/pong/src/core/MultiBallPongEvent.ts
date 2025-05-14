@@ -5,6 +5,7 @@ import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
 import { PlayerID } from './types.js';
+import * as K from './constants.js';
 
 export default class MultiBallPongEvent extends PongEvent {
 	constructor() {
@@ -13,7 +14,7 @@ export default class MultiBallPongEvent extends PongEvent {
 
 	public override activate(game: Pong, playerId: PlayerID): void {
 		const isFirstMultiBall = game.activeEvents.find((event) => event instanceof MultiBallPongEvent) === undefined;
-		for (let i = 0; i < 3; i++) {
+		for (let i = 0; i < K.maxBallAmount - 1; i++) {
 			const ball = game.balls[Math.floor(Math.random() * game.balls.length)];
 			const newBall: Ball = new Ball(
 				ball.position,
