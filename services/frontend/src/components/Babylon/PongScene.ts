@@ -9,6 +9,7 @@ import ClientWall from "./Objects/ClientWall";
 import ClientObstacle from "./Objects/ClientObstacle";
 import ClientGoal from "./Objects/ClientGoal";
 import ClientEventBox from "./Objects/ClientEventBox";
+import DirectionalLightHelper from "./DirectionalLightHelper";
 
 export default class PongScene {
 	private _canvas: HTMLCanvasElement;
@@ -18,11 +19,12 @@ export default class PongScene {
 
 	public skybox: BABYLON.Mesh;
 	public camera: BABYLON.ArcRotateCamera;
-	public light: BABYLON.DirectionalLight[];
+	public stadiumLights: BABYLON.DirectionalLight[]; // 4 lights
 	public lightGizmo: BABYLON.LightGizmo;
 
 	public meshMap: Map<PONG.MapID, Array<AObject>>;
-	public shadowGenerator: BABYLON.ShadowGenerator;
+	// public shadowGenerator: BABYLON.ShadowGenerator;
+	public stadiumShadowGenerator: BABYLON.ShadowGenerator[];
 	public ground: BABYLON.Mesh; // TEST
 
 	public ballInstances: Array<ClientBall>;
@@ -37,6 +39,8 @@ export default class PongScene {
 		this.ballInstances = [];
 		this.paddleInstance = new Map<number, ClientPaddle>();
 		this._ballUsed = 0;
+		this.stadiumShadowGenerator = [];
+		this.stadiumLights = [];
 
 		this._scene = new BABYLON.Scene(this._engine);
 		// Optimize for performance
@@ -93,23 +97,44 @@ export default class PongScene {
 
 		// this._skybox.material = skydomeMaterial;
 
-		const light = new BABYLON.DirectionalLight("light", new BABYLON.Vector3(-1, -1, 2), this._scene);
-		light.intensity = 1;
-		light.diffuse = new BABYLON.Color3(1, 1, 1);
-		light.specular = new BABYLON.Color3(1, 1, 1);
-		// light.position = new BABYLON.Vector3(1, 1, -2);
-		// light.shadowMinZ = -5.5;
-		// light.shadowMaxZ = 11.5;
-		light.shadowMinZ = -7.5;
-		light.shadowMaxZ = 15;
+		// const dlh: DirectionalLightHelper[] = [];
 
-		// const testLight = new BABYLON.PointLight("testLight", new BABYLON.Vector3(0, 0.5, -3), this._scene);
-		// testLight.intensity = 1;
-		// testLight.diffuse = new BABYLON.Color3(1, 0, 0);
-		// testLight.specular = new BABYLON.Color3(1, 0, 0);
+		for (let i = 0; i < 4; i++) { // direction: (1, -2, 1) (-1, -2, 1) (-1, -2, -1) (1, -2, -1)
+			const light = new BABYLON.DirectionalLight("stadiumLight" + i, new BABYLON.Vector3(
+				(i % 2 === 0 ? 1 : -1),
+				-2,
+				(i < 2 ? 1 : -1)
+			), this._scene);
+			light.intensity = 0.5;
+			light.diffuse = new BABYLON.Color3(1, 1, 1);
+			light.specular = new BABYLON.Color3(1, 1, 1);
+			light.shadowMinZ = -5;
+			light.shadowMaxZ = 9.5;
+			light.autoCalcShadowZBounds = true;
+			
+			this.stadiumLights.push(light);
+			this.stadiumShadowGenerator.push(new BABYLON.ShadowGenerator(2048, light));
+			this.stadiumShadowGenerator[i].useContactHardeningShadow = true;
+			this.stadiumShadowGenerator[i].bias = 0.003;
+			this.stadiumShadowGenerator[i].normalBias = 0.01;
+			this.stadiumShadowGenerator[i].filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
+			this.stadiumShadowGenerator[i].contactHardeningLightSizeUVRatio = 0.03;
+			this.stadiumShadowGenerator[i].setDarkness(0.25);
+			this.stadiumShadowGenerator[i].useKernelBlur = true;
+			this.stadiumShadowGenerator[i].blurKernel = 32;
+			// this.stadiumShadowGenerator[i].getShadowMap().refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
 
-		const lightGizmo = new BABYLON.LightGizmo();
-		lightGizmo.light = light;
+			const lightGizmo = new BABYLON.LightGizmo();
+			lightGizmo.light = light;
+
+			// dlh.push(new DirectionalLightHelper(light, lightGizmo));
+		}
+
+		const testLight = new BABYLON.PointLight("testLight", new BABYLON.Vector3(0, 0.5, -3), this._scene);
+		testLight.intensity = 1;
+		testLight.diffuse = new BABYLON.Color3(1, 0, 0);
+		testLight.specular = new BABYLON.Color3(1, 0, 0);
+
 
 
 		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._scene);
@@ -207,24 +232,12 @@ export default class PongScene {
 		// sphere.material = pbr;
 		// sphere.receiveShadows = true;
 
-		this.shadowGenerator = new BABYLON.ShadowGenerator(1024, light);
-
-		this.shadowGenerator.useContactHardeningShadow = true;
-		// this.shadowGenerator.useKernelBlur = true;
-		// this.shadowGenerator.blurKernel = 32;
-		this.shadowGenerator.bias = 0.003;
-		this.shadowGenerator.normalBias = 0.02;
-		// this.shadowGenerator.debug = true;
-		this.shadowGenerator.filteringQuality = BABYLON.ShadowGenerator.QUALITY_MEDIUM;
-		this.shadowGenerator.contactHardeningLightSizeUVRatio = 0.03;
-		this.shadowGenerator.setDarkness(0.5);
-		// this.shadowGenerator.getShadowMap().refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
-
 		// Shadow
 		this.meshMap.forEach((map: Array<AObject>, mapID: PONG.MapID) => {
-			// this._shadowGenerator.getShadowMap().renderList.push(...map.map((object: AObject) => object.mesh));
 			map.forEach((object: AObject) => {
-				this.shadowGenerator.getShadowMap().renderList.push(object.mesh);
+				this.stadiumShadowGenerator.forEach((shadowGenerator: BABYLON.ShadowGenerator) => {
+					shadowGenerator.getShadowMap().renderList.push(object.mesh);
+				});
 				object.mesh.receiveShadows = true;
 			});
 		});
@@ -246,23 +259,25 @@ export default class PongScene {
 			const ball = new ClientBall(this._scene, "ball" + i, undefined);
 			ball.disable();
 			this.ballInstances.push(ball);
-			this.shadowGenerator.getShadowMap().renderList.push(ball.mesh);
+			this.stadiumShadowGenerator.forEach((shadowGenerator: BABYLON.ShadowGenerator) => {
+				shadowGenerator.getShadowMap().renderList.push(ball.mesh);
+			});
 			ball.mesh.receiveShadows = true;
 		}
 
 		console.log("All ClientBall instances", this.ballInstances);
 
-		// var dlh = new DirectionalLightHelper(light, camera);
-
 		// window.setTimeout(() => {
-		// 	this._scene.onAfterRenderObservable.add(() => dlh.buildLightHelper());
+		// 	this._scene.onAfterRenderObservable.add(() => dlh.forEach((dlh: DirectionalLightHelper) => {
+		// 		dlh.buildLightHelper();
+		// 	}));
 		// }, 500);
 
 		this._scene.registerBeforeRender(() => {
 			// console.log("light shadow", light.shadowMinZ, light.shadowMaxZ);
-			// if (this.ballInstances.length > 0) {
-			// 	testLight.position = this.ballInstances[0].mesh.position;
-			// }
+			if (this.ballInstances.length > 0) {
+				testLight.position = this.ballInstances[0].mesh.position;
+			}
 		});
 
 		console.log("PongScene created");
@@ -290,7 +305,6 @@ export default class PongScene {
 		console.log("clientBall", clientBall);
 		clientBall.updateBodyReference(ball);
 		clientBall.enable();
-		// clientBall.mesh.position = new BABYLON.Vector3(ball.position.x, PONG.K.ballRadius, ball.position.y);
 		this._ballUsed++;
 	}
 
@@ -310,7 +324,6 @@ export default class PongScene {
 	}
 
 	public updateMeshes(ball_interp: number = 1, interpolation: number = 1) {
-		// console.log("updateMeshes", ball_interp, interpolation);
 		this.ballInstances.forEach((ball: ClientBall) => {
 			ball.update(ball_interp);
 		});
