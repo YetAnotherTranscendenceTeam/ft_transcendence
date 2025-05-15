@@ -6,7 +6,7 @@ import PopHover from "../../ui/PopHover";
 export default function ModeButton({
 		gamemode,
 		onSelect,
-		rating = 200,
+		rating,
 	}: {
 		gamemode: GameMode,
 		onSelect: (mode: string) => void,
@@ -44,7 +44,7 @@ export default function ModeButton({
 		onClick={() => onSelect(gamemode.name)}
 	>
 		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 justify-center'>
-			<h3>{Math.floor(rating)}</h3>
+			<h3>{Math.floor(rating) || "unranked"}</h3>
 			<PopHover
 				content="Matchmaking Rating is a score that reflects your skill level in the game. It's used to match you with players of similar ability."
 			>
