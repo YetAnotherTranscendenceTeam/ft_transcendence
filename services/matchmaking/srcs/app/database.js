@@ -31,8 +31,7 @@ db.exec(`
     gamemode TEXT NOT NULL,
     state INTEGER NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id)
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
 db.exec(`
@@ -52,7 +51,7 @@ db.exec(`
     score INTEGER NOT NULL DEFAULT 0,
     winning INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (match_id, team_index),
-    FOREIGN KEY (match_id) REFERENCES matches(match_id),
+    FOREIGN KEY (match_id) REFERENCES matches(match_id) ON DELETE CASCADE,
     UNIQUE (match_id, team_index)
   )`)
 
@@ -69,8 +68,8 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (match_id, account_id),
-    FOREIGN KEY (match_id) REFERENCES matches(match_id),
-    FOREIGN KEY (match_id, team_index) REFERENCES match_teams(match_id, team_index),
+    FOREIGN KEY (match_id) REFERENCES matches(match_id) ON DELETE CASCADE,
+    FOREIGN KEY (match_id, team_index) REFERENCES match_teams(match_id, team_index) ON DELETE CASCADE,
     UNIQUE (match_id, account_id),
     UNIQUE (match_id, team_index, player_index)
   )`);
@@ -109,7 +108,7 @@ db.exec(`
     team_index INTEGER NOT NULL,
     name TEXT,
     PRIMARY KEY (tournament_id, team_index),
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id)
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id) ON DELETE CASCADE
   )`);
 
 db.exec(`
@@ -120,7 +119,7 @@ db.exec(`
     player_index INTEGER NOT NULL,
     PRIMARY KEY (tournament_id, account_id),
     FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
-    FOREIGN KEY (tournament_id, team_index) REFERENCES tournament_teams(tournament_id, team_index)
+    FOREIGN KEY (tournament_id, team_index) REFERENCES tournament_teams(tournament_id, team_index) ON DELETE CASCADE
   )`);
 
 db.exec(`
@@ -134,7 +133,7 @@ db.exec(`
     team_1_index INTEGER,
     PRIMARY KEY (tournament_id, match_id),
     UNIQUE (tournament_id, match_index),
-    FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id),
+    FOREIGN KEY (tournament_id) REFERENCES tournaments(tournament_id) ON DELETE CASCADE,
     FOREIGN KEY (match_id) REFERENCES matches(match_id)
   )`)
 
