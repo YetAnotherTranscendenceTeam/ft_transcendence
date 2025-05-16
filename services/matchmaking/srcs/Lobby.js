@@ -10,6 +10,8 @@ const WEIGHT_PLAYER_COUNT_DIFF = 1.0;
 const rank_gamemode_remap = {
   "custom_1v1": "ranked_1v1",
   "custom_2v2": "ranked_2v2",
+  "tournament_1v1": "ranked_1v1",
+  "tournament_2v2": "ranked_2v2",
 }
 
 export class Lobby extends LobbyBase {
