@@ -82,6 +82,8 @@ export default class PongClient extends PONG.Pong {
 
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
 		this._engine = new Engine(this._canvas, true);
+		// this._engine = new BABYLON.WebGPUEngine(this._canvas);
+		// this._engine.initAsync();
 
 		this._babylonScene = new PongScene(this._canvas, this._engine, this);
 		
@@ -227,6 +229,7 @@ export default class PongClient extends PONG.Pong {
 				if (msg.data.player) {
 					this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				}
+				this._babylonScene.switchCamera();
 				this.eventBoxSync(msg.data.match.event_boxes as PONG.IEventBoxSync[]);
 				this.eventSync(msg.data.match.activeEvents as PONG.IEventSync[]);
 				this.updateOverlay();
@@ -300,11 +303,13 @@ export default class PongClient extends PONG.Pong {
 
 	private menuScene() {
 		this.menuSetup();
-
+		
 		this._babylonScene.enableMap(this._currentMap.mapId);
-
+		
+		this._player = undefined;
 		this.bindPaddles();
 		this._babylonScene.updateMeshes();
+		this._babylonScene.switchCamera();
 	}
 	
 	private localScene() {
@@ -312,8 +317,10 @@ export default class PongClient extends PONG.Pong {
 
 		this._babylonScene.enableMap(this._currentMap.mapId);
 
+		this._player = undefined;
 		this.bindPaddles();
 		this._babylonScene.updateMeshes();
+		this._babylonScene.switchCamera();
 		this.updateOverlay();
 	}
 	
@@ -343,15 +350,17 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private loop = () => {
+		let dt: number = this._engine.getDeltaTime() / 1000;
 		this._keyboard.update();
 		if (this._keyboard.isPressed(" ")) {
 			temporary_falg = !temporary_falg;
 		}
+		this._babylonScene.updateCamera(dt);
 		if (this._gameScene && temporary_falg) {
 			if (this._gameScene === GameScene.ONLINE) {
-				this.updateOnline();
+				this.updateOnline(dt);
 			} else {
-				this.updateLocal();
+				this.updateLocal(dt);
 			}
 		}
 		// this.update();
@@ -371,8 +380,8 @@ export default class PongClient extends PONG.Pong {
 			this.updateOverlay();
 	}
 
-	private updateLocal() {
-		let dt: number = this._engine.getDeltaTime() / 1000;
+	private updateLocal(dt: number) {
+		// let dt: number = this._engine.getDeltaTime() / 1000;
 		const oldFreeze = this._state.frozen_until;
 		if (this._state.tick(dt, this)) {
 			if (this._state.frozen_until != -1 && Math.floor(this._state.frozen_until) !== Math.floor(oldFreeze))
@@ -408,8 +417,8 @@ export default class PongClient extends PONG.Pong {
 		}
 	}
 
-	private updateOnline() {
-		let dt: number = this._engine.getDeltaTime() / 1000;
+	private updateOnline(dt: number) {
+		// let dt: number = this._engine.getDeltaTime() / 1000;
 		let ball_interp = dt / PONG.K.DT;
 		let interpolation = 1;
 
