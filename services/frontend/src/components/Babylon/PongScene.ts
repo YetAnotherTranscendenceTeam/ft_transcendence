@@ -11,6 +11,8 @@ import ClientGoal from "./Objects/ClientGoal";
 import ClientEventBox from "./Objects/ClientEventBox";
 import DirectionalLightHelper from "./DirectionalLightHelper";
 import PongClient from "./PongClient";
+import { createShieldMaterial } from "./ShieldMaterial";
+import { addGlow, updateInputBlock } from "./Materials/utils";
 
 
 const spinTo = function (camera: BABYLON.ArcRotateCamera, whichprop: string, targetval: number, speed: number) {
@@ -240,16 +242,25 @@ export default class PongScene {
 		});
 
 		// // Test Cube
-		// const cube = MeshBuilder.CreateBox("cube", { size: 1 }, this._scene);
-		// cube.position = new BABYLON.Vector3(0, 3, 0);
-		// cube.rotation = new BABYLON.Vector3(1, 2, 3);
+		const cube = BABYLON.MeshBuilder.CreateBox("cube", { size: 1 }, this._scene);
+		cube.position = new BABYLON.Vector3(0, 3, 0);
+		cube.rotation = new BABYLON.Vector3(1, 2, 3);
 
 		// const pbr = new BABYLON.PBRMaterial("pbr", this._scene);
 		// pbr.albedoColor = new BABYLON.BABYLON.Color3(0.7, 0.8, 0.3);
 		// pbr.metallic = 0.0;
 		// pbr.roughness = 1.0;
-		// cube.material = pbr;
-		// cube.receiveShadows = true;
+		const shieldMat = createShieldMaterial(this._scene);
+		cube.material = shieldMat;
+		cube.receiveShadows = true;
+
+		addGlow(this._scene, cube);
+		updateInputBlock(shieldMat, {
+			baseColor: BABYLON.Color3.FromHexString("#0077ff"),
+			baseColorStrength: 0.75,
+			bias: 0,
+		});
+
 
 		// // // Test Sphere
 		// const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this._scene);
