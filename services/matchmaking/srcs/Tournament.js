@@ -208,11 +208,41 @@ export class Tournament {
     this.teams = teams.sort(
       (a, b) => a.players.reduce((a, b) => a + b.rating, 0) - b.players.reduce((a, b) => a + b.rating, 0)
     );
+    const goodHalf = Tournament.sortGoodHalf(
+      this.teams
+        .slice(0, Math.ceil(this.teams.length / 2))
+    );
+    const badHalf = this.teams
+      .slice(goodHalf.length)
+      .sort(
+        () => Math.random() - 0.5
+      );
+    this.teams = goodHalf.concat(badHalf);
+    
     this.gamemode = gamemode;
     this.manager = manager;
     this.match_parameters = match_parameters;
     this.lobbyConnection = lobbyConnection;
     this.lobbySecret = lobbySecret;
+  }
+
+  // sorts the good half of the teams
+  // the 2 best teams will play against each other in the final
+  static sortGoodHalf(goodHalf) {
+    let newGoodHalf = [];
+
+    const half = Math.ceil(goodHalf.length / 2);
+    const fourth = Math.ceil(goodHalf.length / 4);
+    const firstHalf = goodHalf.slice(0, half);
+    const secondHalf = goodHalf.slice(half);
+
+    newGoodHalf.push(firstHalf[0]);
+    newGoodHalf = newGoodHalf.concat(secondHalf.slice(0, fourth));
+    newGoodHalf.push(firstHalf[3]);
+    newGoodHalf.push(firstHalf[2]);
+    newGoodHalf = newGoodHalf.concat(secondHalf.slice(fourth));
+    newGoodHalf.push(firstHalf[1]);
+    return newGoodHalf.filter((team) => team !== undefined);
   }
 
   async insert() {

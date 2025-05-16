@@ -94,6 +94,8 @@ export default function build(opts = {}) {
     // Cleanup instructions for a graceful shutdown
     await instance.tournaments.cancel();
     await instance.matches.cancel();
+    for (let client of instance.websocketServer.clients)
+      client.close();
     db.close();
   });
 
