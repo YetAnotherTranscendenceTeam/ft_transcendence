@@ -5,6 +5,7 @@ import * as PH2D from "physics-engine";
 import * as PONG from "pong";
 import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
+import createBallMaterial from "../Materials/ballMaterial";
 
 export default class ClientBall extends AObject {
 	private _used: boolean;
@@ -27,7 +28,7 @@ export default class ClientBall extends AObject {
 		} else {
 			this._mesh.position = new BABYLON.Vector3(0, PONG.K.ballRadius, 0);
 		}
-		this._material = ClientBall.template.clone("ballMaterial");
+		this._material = createBallMaterial(name + "Mat", this._scene);
 		this._mesh.material = this._material;
 	}
 

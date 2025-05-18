@@ -7,6 +7,7 @@ import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 import { glV2ArrayToBabylonV3Array } from "../vectorUtils";
 import earcut from "earcut";
+import createWallMaterial from "../Materials/wallMaterial";
 
 export default class ClientWall extends AObject {
 	public constructor(scene: Scene, name: string, physicsBody: PONG.Wall) {
@@ -31,7 +32,7 @@ export default class ClientWall extends AObject {
 			0.5,
 			this._physicsBody.position.y
 		);
-		this._material = ClientWall.template.clone("wallMaterial");
+		this._material = createWallMaterial(name + "Mat", this._scene);
 		this._mesh.material = this._material;
 	}
 };

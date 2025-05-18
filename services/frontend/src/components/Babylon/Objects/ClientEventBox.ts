@@ -5,6 +5,7 @@ import * as PH2D from "physics-engine";
 import * as PONG from "pong";
 import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
+import createEventBoxMaterial from "../Materials/eventBoxMaterial";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
@@ -28,7 +29,7 @@ export default class ClientEventBox extends AObject {
 			0.05,
 			this._physicsBody.position.y
 		);
-		this._material = ClientEventBox.template.clone("eventBoxMaterial");
+		this._material = createEventBoxMaterial(name + "Mat", this._scene);
 		this._mesh.material = this._material;
 	}
 

@@ -7,6 +7,7 @@ import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 import { glV2ArrayToBabylonV3Array } from "../vectorUtils";
 import earcut from "earcut";
+import createObstacleMaterial from "../Materials/obstacleMaterial";
 
 export default class ClientObstacle extends AObject {
 	public constructor(scene: Scene, name: string, physicsBody: PONG.Obstacle) {
@@ -32,7 +33,7 @@ export default class ClientObstacle extends AObject {
 			this._physicsBody.position.y
 		);
 
-		this._material = ClientObstacle.template.clone("obstacleMaterial");
+		this._material =createObstacleMaterial(name + "Mat", this._scene);
 		this._mesh.material = this._material;
 	}
 };

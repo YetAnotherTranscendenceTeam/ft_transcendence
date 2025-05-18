@@ -11,7 +11,7 @@ import ClientGoal from "./Objects/ClientGoal";
 import ClientEventBox from "./Objects/ClientEventBox";
 import DirectionalLightHelper from "./DirectionalLightHelper";
 import PongClient from "./PongClient";
-import { createShieldMaterial } from "./ShieldMaterial";
+import { createShieldMaterial } from "./Materials/createShieldMaterial";
 import { addGlow, updateInputBlock } from "./Materials/utils";
 
 
@@ -169,49 +169,52 @@ export default class PongScene {
 
 
 
-		const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._scene);
-		ballMaterial.metallic = 1;
-		ballMaterial.roughness = 1;
-		ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._scene);
-		ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._scene);
-		ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.png", this._scene);
-		ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.png", this._scene);
-		// ballMaterial.reflectionTexture = hdrTexture;
-		// ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
-		ClientBall.template = ballMaterial;
+		// const shieldMat: BABYLON.NodeMaterial = createShieldMaterial(this._scene);
 
-		const wallMaterial = new BABYLON.PBRMaterial("wallMaterial", this._scene);
-		wallMaterial.metallic = 0;
-		wallMaterial.roughness = 0.5;
-		wallMaterial.albedoColor = new BABYLON.Color3(0.25, 0.5, 0.62);
-		ClientWall.template = wallMaterial;
+		// // addGlow(this._scene, cube);
+		// updateInputBlock(shieldMat, {
+		// 	baseColor: BABYLON.Color3.FromHexString("#0077ff"),
+		// 	baseColorStrength: 0.75,
+		// 	bias: 0,
+		// });
 
-		const obstacleMaterial = new BABYLON.PBRMaterial("obstacleMaterial", this._scene);
-		obstacleMaterial.metallic = 0;
-		obstacleMaterial.roughness = 0.5;
-		obstacleMaterial.albedoColor = new BABYLON.Color3(0.25, 0.5, 0.62);
-		// obstacleMaterial.alpha = 0.5;
-		ClientObstacle.template = obstacleMaterial;
+		// const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._scene);
+		// ballMaterial.metallic = 1;
+		// ballMaterial.roughness = 1;
+		// ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._scene);
+		// ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._scene);
+		// ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.png", this._scene);
+		// ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.png", this._scene);
+		// // ballMaterial.reflectionTexture = hdrTexture;
+		// // ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
+		// ClientBall.template = ballMaterial;
 
-		const paddleMaterial = new BABYLON.PBRMaterial("paddleMaterial", this._scene);
-		paddleMaterial.metallic = 0;
-		paddleMaterial.roughness = 0.5;
-		paddleMaterial.albedoColor = BABYLON.Color3.White();
-		ClientPaddle.template = paddleMaterial;
+		// const obstacleMaterial = new BABYLON.PBRMaterial("obstacleMaterial", this._scene);
+		// obstacleMaterial.metallic = 0;
+		// obstacleMaterial.roughness = 0.5;
+		// obstacleMaterial.albedoColor = new BABYLON.Color3(0.25, 0.5, 0.62);
+		// // obstacleMaterial.alpha = 0.5;
+		// ClientObstacle.template = obstacleMaterial;
 
-		const goalMaterial = new BABYLON.PBRMaterial("goalMaterial", this._scene);
-		goalMaterial.metallic = 0;
-		goalMaterial.roughness = 0.5;
-		goalMaterial.albedoColor = BABYLON.Color3.Red();
-		goalMaterial.alpha = 0.5;
-		ClientGoal.template = goalMaterial;
+		// const paddleMaterial = new BABYLON.PBRMaterial("paddleMaterial", this._scene);
+		// paddleMaterial.metallic = 0;
+		// paddleMaterial.roughness = 0.5;
+		// paddleMaterial.albedoColor = BABYLON.Color3.White();
+		// ClientPaddle.template = paddleMaterial;
 
-		const eventBoxMaterial = new BABYLON.PBRMaterial("eventBoxMaterial", this._scene);
-		eventBoxMaterial.metallic = 0;
-		eventBoxMaterial.roughness = 0.5;
-		eventBoxMaterial.albedoColor = BABYLON.Color3.Green();
-		eventBoxMaterial.alpha = 0.5;
-		ClientEventBox.template = eventBoxMaterial;
+		// const goalMaterial = new BABYLON.PBRMaterial("goalMaterial", this._scene);
+		// goalMaterial.metallic = 0;
+		// goalMaterial.roughness = 0.5;
+		// goalMaterial.albedoColor = BABYLON.Color3.Red();
+		// goalMaterial.alpha = 0.5;
+		// ClientGoal.template = shieldMat.clone("goalMaterial");
+
+		// const eventBoxMaterial = new BABYLON.PBRMaterial("eventBoxMaterial", this._scene);
+		// eventBoxMaterial.metallic = 0;
+		// eventBoxMaterial.roughness = 0.5;
+		// eventBoxMaterial.albedoColor = BABYLON.Color3.Green();
+		// eventBoxMaterial.alpha = 0.5;
+		// ClientEventBox.template = eventBoxMaterial;
 		
 		pong.maps.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
 			const mapMesh: Array<AObject> = [];
@@ -241,25 +244,25 @@ export default class PongScene {
 			this.meshMap.set(mapId, mapMesh);
 		});
 
-		// // Test Cube
-		const cube = BABYLON.MeshBuilder.CreateBox("cube", { size: 1 }, this._scene);
-		cube.position = new BABYLON.Vector3(0, 3, 0);
-		cube.rotation = new BABYLON.Vector3(1, 2, 3);
+		// // // Test Cube
+		// const cube = BABYLON.MeshBuilder.CreateBox("cube", { size: 1 }, this._scene);
+		// cube.position = new BABYLON.Vector3(0, 3, 0);
+		// cube.rotation = new BABYLON.Vector3(1, 2, 3);
 
 		// const pbr = new BABYLON.PBRMaterial("pbr", this._scene);
 		// pbr.albedoColor = new BABYLON.BABYLON.Color3(0.7, 0.8, 0.3);
 		// pbr.metallic = 0.0;
 		// pbr.roughness = 1.0;
-		const shieldMat = createShieldMaterial(this._scene);
-		cube.material = shieldMat;
-		cube.receiveShadows = true;
+		// const shieldMat = createShieldMaterial(this._scene);
+		// cube.material = shieldMat;
+		// cube.receiveShadows = true;
 
-		addGlow(this._scene, cube);
-		updateInputBlock(shieldMat, {
-			baseColor: BABYLON.Color3.FromHexString("#0077ff"),
-			baseColorStrength: 0.75,
-			bias: 0,
-		});
+		// addGlow(this._scene, cube);
+		// updateInputBlock(shieldMat, {
+		// 	baseColor: BABYLON.Color3.FromHexString("#0077ff"),
+		// 	baseColorStrength: 0.75,
+		// 	bias: 0,
+		// });
 
 
 		// // // Test Sphere

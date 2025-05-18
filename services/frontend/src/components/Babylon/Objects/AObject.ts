@@ -6,12 +6,12 @@ import { Vec2 } from "gl-matrix";
 export default abstract class AObject {
 	protected _scene: Scene;
 	protected _mesh: Mesh;
-	protected _material: PBRMaterial;
+	protected _material: PBRMaterial | BABYLON.NodeMaterial;
 	protected _probe: ReflectionProbe;
 	protected _physicsBody: PH2D.Body;
 	protected _isEnabled: boolean;
 
-	public static template: PBRMaterial;
+	// public static template: BABYLON.Material;
 
 	public constructor(scene: Scene, physicsBody: PH2D.Body) {
 		this._scene = scene;
@@ -28,12 +28,12 @@ export default abstract class AObject {
 	}
 
 	private generateProbe(): void {
-		if (!this._mesh || this._probe || !this._mesh.material) {
+		if (!this._mesh || this._probe || !this._mesh.material || !(this._mesh.material instanceof PBRMaterial)) {
 			return;
 		}
 
 		this._probe = new ReflectionProbe("probe" + this._mesh.name, 512, this._scene);
-		this._material.reflectionTexture = this._probe.cubeTexture;
+		(this._material as PBRMaterial).reflectionTexture = this._probe.cubeTexture;
 		this._probe.attachToMesh(this._mesh);
 		// this._probe.cubeTexture.onBeforeRenderObservable.add(() => {
 		// 	this._scene.activeCamera.minZ = 0.1;
@@ -43,7 +43,7 @@ export default abstract class AObject {
 	}
 
 	public addToProbe(object: AObject | Mesh): void {
-		if (!this._mesh) {
+		if (!this._mesh || !(this._mesh.material instanceof PBRMaterial)) {
 			return;
 		}
 		if (!this._probe) {
