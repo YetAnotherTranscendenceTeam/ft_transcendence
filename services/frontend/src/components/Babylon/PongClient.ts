@@ -308,7 +308,7 @@ export default class PongClient extends PONG.Pong {
 		
 		this._player = undefined;
 		this.bindPaddles();
-		this._babylonScene.updateMeshes();
+		this._babylonScene.updateMeshes(0);
 		this._babylonScene.switchCamera();
 	}
 	
@@ -319,7 +319,7 @@ export default class PongClient extends PONG.Pong {
 
 		this._player = undefined;
 		this.bindPaddles();
-		this._babylonScene.updateMeshes();
+		this._babylonScene.updateMeshes(0);
 		this._babylonScene.switchCamera();
 		this.updateOverlay();
 	}
@@ -330,7 +330,7 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.enableMap(this._currentMap.mapId);
 	
 		this.bindPaddles();
-		this._babylonScene.updateMeshes();
+		this._babylonScene.updateMeshes(0);
 	}
 	
 	private bindPaddles() {
@@ -344,7 +344,7 @@ export default class PongClient extends PONG.Pong {
 			) as ClientPaddle;
 			if (paddleInstance) {
 				this._babylonScene.paddleInstance.set(playerId, paddleInstance);
-				paddleInstance.update(1);
+				paddleInstance.update(1, 1);
 			}
 		});
 	}
@@ -400,8 +400,8 @@ export default class PongClient extends PONG.Pong {
 		this._time += dt;
 		const oldTick = this._tick;
 		this.playerUpdateLocal();
-		dt = this.physicsUpdate(dt);
-		this._babylonScene.updateMeshes(dt, dt);
+		const interpolation = this.physicsUpdate(dt);
+		this._babylonScene.updateMeshes(dt, interpolation, interpolation);
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._stats.score[0] + "-" + this._stats.score[1]);
 			if (this._stats.winner !== undefined) {
@@ -452,7 +452,7 @@ export default class PongClient extends PONG.Pong {
 			ball_interp = 1;
 		}
 
-		this._babylonScene.updateMeshes(ball_interp, interpolation);
+		this._babylonScene.updateMeshes(dt, ball_interp, interpolation);
 	}
 
 	private serverStep(data: IServerStep, dt: number, forced: boolean = false) {

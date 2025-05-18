@@ -364,12 +364,12 @@ export default class PongScene {
 		this._ballUsed = 0;
 	}
 
-	public updateMeshes(ball_interp: number = 1, interpolation: number = 1) {
+	public updateMeshes(dt:number, ball_interp: number = 1, interpolation: number = 1) {
 		this.ballInstances.forEach((ball: ClientBall) => {
-			ball.update(ball_interp);
+			ball.update(dt, ball_interp);
 		});
 		this.meshMap.get(this._pong.currentMap.mapId)?.forEach((object: AObject) => {
-			object.update(interpolation);
+			object.update(dt, interpolation);
 		});
 	}
 

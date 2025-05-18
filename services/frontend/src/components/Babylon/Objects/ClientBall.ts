@@ -32,11 +32,11 @@ export default class ClientBall extends AObject {
 		this._mesh.material = this._material;
 	}
 
-	public update(dt: number): void {
+	public update(dt: number, interpolation: number): void {
 		if (!this._used) {
 			return;
 		}
-		super.update(dt);
+		super.update(dt, interpolation);
 	}
 	
 	public disable(): void {

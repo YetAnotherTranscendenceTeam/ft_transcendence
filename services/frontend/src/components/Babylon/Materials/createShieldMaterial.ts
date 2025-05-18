@@ -242,6 +242,25 @@ export const createShieldMaterial = () => {
 	Add.visibleOnFrame = false;
 	Add.target = 4;
 
+	// AddBlock
+	var Add1 = new BABYLON.AddBlock("Add");
+	Add1.visibleInInspector = false;
+	Add1.visibleOnFrame = false;
+	Add1.target = 4;
+
+	// InputBlock
+	var treshold = new BABYLON.InputBlock("treshold");
+	treshold.visibleInInspector = false;
+	treshold.visibleOnFrame = false;
+	treshold.target = 1;
+	treshold.value = 0;
+	treshold.min = 0;
+	treshold.max = 0;
+	treshold.isBoolean = false;
+	treshold.matrixMode = 0;
+	treshold.animationType = BABYLON.AnimatedInputBlockTypes.None;
+	treshold.isConstant = false;
+
 	// InputBlock
 	var Float = new BABYLON.InputBlock("Float");
 	Float.visibleInInspector = false;
@@ -281,17 +300,17 @@ export const createShieldMaterial = () => {
 	Multiply6.target = 4;
 
 	// InputBlock
-	var treshold = new BABYLON.InputBlock("treshold");
-	treshold.visibleInInspector = false;
-	treshold.visibleOnFrame = false;
-	treshold.target = 1;
-	treshold.value = 10;
-	treshold.min = 1;
-	treshold.max = 50;
-	treshold.isBoolean = false;
-	treshold.matrixMode = 0;
-	treshold.animationType = BABYLON.AnimatedInputBlockTypes.None;
-	treshold.isConstant = false;
+	var endMultiplier = new BABYLON.InputBlock("endMultiplier");
+	endMultiplier.visibleInInspector = false;
+	endMultiplier.visibleOnFrame = false;
+	endMultiplier.target = 1;
+	endMultiplier.value = 10;
+	endMultiplier.min = 1;
+	endMultiplier.max = 50;
+	endMultiplier.isBoolean = false;
+	endMultiplier.matrixMode = 0;
+	endMultiplier.animationType = BABYLON.AnimatedInputBlockTypes.None;
+	endMultiplier.isConstant = false;
 
 	// FragmentOutputBlock
 	var FragmentOutput = new BABYLON.FragmentOutputBlock("FragmentOutput");
@@ -314,13 +333,35 @@ export const createShieldMaterial = () => {
 	Pow.visibleOnFrame = false;
 	Pow.target = 4;
 
+	// // InputBlock
+	// var baseColor = new BABYLON.InputBlock("baseColor");
+	// baseColor.visibleInInspector = false;
+	// baseColor.visibleOnFrame = false;
+	// baseColor.target = 1;
+	// baseColor.value = new BABYLON.Color3(0.06274509803921569, 0.396078431372549, 0.9725490196078431);
+	// baseColor.isConstant = false;
+
+	// GradientBlock
+	var Gradient = new BABYLON.GradientBlock("Gradient");
+	Gradient.visibleInInspector = false;
+	Gradient.visibleOnFrame = false;
+	Gradient.target = 4;
+	Gradient.colorSteps = [];
+	Gradient.colorSteps.push(new BABYLON.GradientBlockColorStep(0, new BABYLON.Color3(0.06274509803921569, 0.396078431372549, 0.9725490196078431)));
+	Gradient.colorSteps.push(new BABYLON.GradientBlockColorStep(1, new BABYLON.Color3(1, 0, 0)));
+
 	// InputBlock
-	var baseColor = new BABYLON.InputBlock("baseColor");
-	baseColor.visibleInInspector = false;
-	baseColor.visibleOnFrame = false;
-	baseColor.target = 1;
-	baseColor.value = new BABYLON.Color3(0.06274509803921569, 0.396078431372549, 0.9725490196078431);
-	baseColor.isConstant = false;
+	var colorBlend = new BABYLON.InputBlock("colorBlend");
+	colorBlend.visibleInInspector = false;
+	colorBlend.visibleOnFrame = false;
+	colorBlend.target = 1;
+	colorBlend.value = 0;
+	colorBlend.min = 0;
+	colorBlend.max = 1;
+	colorBlend.isBoolean = false;
+	colorBlend.matrixMode = 0;
+	colorBlend.animationType = BABYLON.AnimatedInputBlockTypes.None;
+	colorBlend.isConstant = false;
 
 	// ScaleBlock
 	var Scale = new BABYLON.ScaleBlock("Scale");
@@ -443,13 +484,16 @@ export const createShieldMaterial = () => {
 	WorldPos.output.connectTo(WorldPosViewProjectionTransform.vector);
 	ViewProjection.output.connectTo(WorldPosViewProjectionTransform.transform);
 	WorldPosViewProjectionTransform.output.connectTo(VertexOutput.vector);
-	baseColor.output.connectTo(Pow.value);
+	colorBlend.output.connectTo(Gradient.gradient);
+	Gradient.output.connectTo(Pow.value);
+	// baseColor.output.connectTo(Pow.value);
 	baseColorStrength.output.connectTo(VectorMerger.x);
 	baseColorStrength.output.connectTo(VectorMerger.y);
 	baseColorStrength.output.connectTo(VectorMerger.z);
 	VectorMerger.xyz.connectTo(Pow.power);
 	Pow.output.connectTo(Multiply7.left);
-	baseColor.output.connectTo(Scale.input);
+	// baseColor.output.connectTo(Scale.input);
+	Gradient.output.connectTo(Scale.input);
 	emisiveStrength.output.connectTo(Scale.factor);
 	Scale.output.connectTo(Lerp.left);
 	glowColor.output.connectTo(Lerp.right);
@@ -464,7 +508,10 @@ export const createShieldMaterial = () => {
 	speed.output.connectTo(Multiply5.right);
 	Multiply5.output.connectTo(WaveNoise.inputs[1]); // t (time)
 	WaveNoise.outputs[0].connectTo(VectorSplitter.xyzIn);
-	VectorSplitter.z.connectTo(Multiply4.left);
+	// VectorSplitter.z.connectTo(Multiply4.left);
+	VectorSplitter.z.connectTo(Add1.left);
+	treshold.output.connectTo(Add1.right);
+	Add1.output.connectTo(Multiply4.left);
 	uv.output.connectTo(Multiply3.left);
 	hexagonSize.output.connectTo(Multiply3.right);
 	Multiply3.output.connectTo(Hexagon.inputs[0]); // uv
@@ -487,7 +534,7 @@ export const createShieldMaterial = () => {
 	// Multiply.output.connectTo(Multiply4.right);
 	Multiply1.output.connectTo(Multiply4.right);
 	Multiply4.output.connectTo(Multiply6.left);
-	treshold.output.connectTo(Multiply6.right);
+	endMultiplier.output.connectTo(Multiply6.right);
 	Multiply6.output.connectTo(FragmentOutput.a);
 
 	// Output nodes

@@ -6,7 +6,6 @@ export default function createGoalMaterial(): BABYLON.NodeMaterial {
 	const goalMaterial = createShieldMaterial();
 
 	updateInputBlock(goalMaterial, {
-		baseColor: BABYLON.Color3.FromHexString("#0077ff"),
 		baseColorStrength: 0.75,
 		// bias: 0,
 	});

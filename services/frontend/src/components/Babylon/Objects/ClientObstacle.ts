@@ -33,7 +33,7 @@ export default class ClientObstacle extends AObject {
 			this._physicsBody.position.y
 		);
 
-		this._material =createObstacleMaterial(name + "Mat", this._scene);
+		this._material = createObstacleMaterial(name + "Mat", this._scene);
 		this._mesh.material = this._material;
 	}
 };

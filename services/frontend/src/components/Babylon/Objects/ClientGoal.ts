@@ -10,8 +10,17 @@ import createGoalMaterial from "../Materials/goalMaterial";
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
+function healthToTreshold(health: number): number {
+	// Convert health to a threshold value between 0 and 1
+	const minThreshold = -0.1;
+	const maxThreshold = 0.05;
+	return (health / PONG.K.maxGoalHealth) * (maxThreshold - minThreshold) + minThreshold;
+}
+
 export default class ClientGoal extends AObject {
 	// private override _material: BABYLON.NodeMaterial;
+	private _previousHealth: number;
+	private _colorBlend: number;
 
 	public constructor(scene: Scene, name: string, physicsBody: PONG.Goal) {
 		super(scene, physicsBody);
@@ -19,6 +28,8 @@ export default class ClientGoal extends AObject {
 			this._isEnabled = false;
 			return;
 		}
+		this._previousHealth = physicsBody.health;
+		this._colorBlend = 0;
 		const wallHeight: number = 0.1;
 		const faceUVs = [
 			new BABYLON.Vector4(0, 0, physicsBody.width, wallHeight), // Rear
@@ -47,9 +58,9 @@ export default class ClientGoal extends AObject {
 		this._material = createGoalMaterial();
 		this._mesh.material = this._material;
 		addGlow(this._scene, this._mesh);
-		// updateInputBlock(this._material, {
-		// 	hexagonSize: new BABYLON.Vector2(physicsBody.height, 1),
-		// });
+		updateInputBlock(this._material, {
+			colorBlend: this._colorBlend,
+		});
 	}
 
 	public enable(): void {
@@ -61,5 +72,37 @@ export default class ClientGoal extends AObject {
 
 	public dispose() {
 		this._mesh?.dispose();
+	}
+
+	public override update(dt: number, interpolation: number): void {
+		const body = this._physicsBody as PONG.Goal;
+		if (this._colorBlend > 0) {
+			this._colorBlend -= dt;
+			if (this._colorBlend < 0) {
+				this._colorBlend = 0;
+			}
+			updateInputBlock(this._material, {
+				colorBlend: this._colorBlend,
+			});
+		}
+		if (this._isEnabled && body.health <= 0) {
+			this._isEnabled = false;
+			this._mesh?.setEnabled(false);
+		} else if (!this._isEnabled && body.health > 0) {
+			this._isEnabled = true;
+			this._mesh?.setEnabled(true);
+		}
+		if (this._previousHealth !== body.health) {
+			console.log("goal hit (client)", body.id, body.health);
+			this._previousHealth = body.health;
+			if (body.health < PONG.K.maxGoalHealth) {
+				this._colorBlend = 1;
+			}
+			updateInputBlock(this._material, {
+				treshold: healthToTreshold(body.health),
+				colorBlend: this._colorBlend,
+			});
+		}
+		super.update(dt, interpolation);
 	}
 };

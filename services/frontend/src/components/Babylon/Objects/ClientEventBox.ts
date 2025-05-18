@@ -33,14 +33,14 @@ export default class ClientEventBox extends AObject {
 		this._mesh.material = this._material;
 	}
 
-	public update(dt: number): void {
+	public update(dt: number, interpolation: number): void {
 		const physicsBody = this._physicsBody as PONG.EventBox;
 		if (physicsBody.active) {
 			this.enable();
 		} else {
 			this.disable();
 		}
-		super.update(dt);
+		super.update(dt, interpolation);
 	}
 
 	public enable(): void {
