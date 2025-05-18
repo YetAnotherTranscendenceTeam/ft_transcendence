@@ -42,7 +42,7 @@ export default abstract class AObject {
 		// this._probe.refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
 	}
 
-	public addToProbe(object: AObject | Mesh): void {
+	public addToProbe(object: AObject | Mesh | AObject[] | Mesh[]): void {
 		if (!this._mesh || !(this._mesh.material instanceof PBRMaterial)) {
 			return;
 		}
@@ -51,8 +51,21 @@ export default abstract class AObject {
 		}
 		if (object instanceof AObject) {
 			this._probe.renderList.push(object.mesh);
-		} else {
+		} else if (object instanceof Mesh) {
 			this._probe.renderList.push(object);
+		} else if (Array.isArray(object)) {
+			if (object.length <= 0) {
+				return;
+			}
+			if (object[0] instanceof AObject) {
+				for (const obj of object) {
+					this._probe.renderList.push((obj as AObject).mesh);
+				}
+			} else if (object[0] instanceof Mesh) {
+				for (const obj of object) {
+					this._probe.renderList.push(obj as Mesh);
+				}
+			}
 		}
 	}
 

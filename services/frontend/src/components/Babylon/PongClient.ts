@@ -1,14 +1,14 @@
 
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
-import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
+import { Engine, WebGPUEngine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import { GameMode, GameModeType, IGameMode, IPlayer, IMatchParameters, PongEventType } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientGoal, ClientEventBox, ClientObstacle } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep, PaddleSync, PaddleSyncs } from "./types";
+import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep, PaddleSync, PaddleSyncs, GraphicsQuality } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
 import config from "../../config";
@@ -81,11 +81,29 @@ export default class PongClient extends PONG.Pong {
 		this._keyboard = new Keyboard();
 
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+
+		// Hardware check
+		let quality: GraphicsQuality = GraphicsQuality.LOW;
+		const gl = this._canvas.getContext("webgl2");
+		if (gl) {
+			const info = gl.getExtension("WEBGL_debug_renderer_info");
+			if (info) {
+				const vendor = gl.getParameter(info.UNMASKED_VENDOR_WEBGL);
+				const renderer = gl.getParameter(info.UNMASKED_RENDERER_WEBGL);
+				if (vendor.includes("NVIDIA") || vendor.includes("AMD")) {
+					quality = GraphicsQuality.HIGH;
+				} else if (vendor.includes("Intel")) {
+					quality = GraphicsQuality.MEDIUM;
+				}
+			}
+		}
+		quality = GraphicsQuality.LOW; // DEBUG
+
 		this._engine = new Engine(this._canvas, true);
 		// this._engine = new BABYLON.WebGPUEngine(this._canvas);
 		// this._engine.initAsync();
 
-		this._babylonScene = new PongScene(this._canvas, this._engine, this);
+		this._babylonScene = new PongScene(this._canvas, this._engine, this, quality);
 		
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
@@ -208,6 +226,7 @@ export default class PongClient extends PONG.Pong {
 				}
 				this._ballSteps.push(serverStep);
 				this._paddleSteps.push(serverStep.paddles);
+				this.goalsSync(serverStep.goals);
 				this.eventBoxSync(msg.data.event_boxes as PONG.IEventBoxSync[]);
 				this.eventSync(msg.data.activeEvents as PONG.IEventSync[]);
 			}
@@ -230,6 +249,7 @@ export default class PongClient extends PONG.Pong {
 					this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				}
 				this._babylonScene.switchCamera();
+				this.goalsSync(msg.data.match.goals);
 				this.eventBoxSync(msg.data.match.event_boxes as PONG.IEventBoxSync[]);
 				this.eventSync(msg.data.match.activeEvents as PONG.IEventSync[]);
 				this.updateOverlay();
@@ -474,6 +494,16 @@ export default class PongClient extends PONG.Pong {
 		}
 	}
 
+	private goalsSync(goals: PONG.IGoalSyncs) {
+		this._goals.forEach((goal: PONG.Goal, side: PONG.MapSide) => {
+			const goalSync = goals[side];
+			if (goalSync) {
+				goal.sync(goalSync);
+			}
+		}
+		);
+	}
+
 	private eventSync(eventSyncs: PONG.IEventSync[]) {
 		for (let i = this._activeEvents.length - 1; i >= 0; i--) {
 			const event = this._activeEvents[i];
@@ -503,22 +533,6 @@ export default class PongClient extends PONG.Pong {
 			ball.addEventListener("collision", PONG.ballCollision.bind(this));
 		}
 		this._balls.push(ball);
-		// const ballInstance: ClientBall = new ClientBall(this._babylonScene.scene, "ball", ball);
-		// this._babylonScene.ballInstances.push(ballInstance);
-		// // ballInstance.addToProbe(this._skybox);
-		// // ballInstance.addToProbe(this._ground);
-		// // this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-		// // 	ballInstance.addToProbe(object);
-		// // });
-		// // this._ballInstances.forEach((otherBall: ClientBall) => {
-		// // 	if (ballInstance !== otherBall) {
-		// // 		ballInstance.addToProbe(otherBall);
-		// // 		console.log("adding to probe: " + ballInstance.mesh.name + " -> " + otherBall.mesh.name);
-		// // 		otherBall.addToProbe(ballInstance);
-		// // 		console.log("adding to probe: " + otherBall.mesh.name + " -> " + ballInstance.mesh.name);
-		// // 	}
-		// // }
-		// // );
 		this._babylonScene.addBall(ball);
 	}
 

@@ -1,7 +1,7 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
 import { bounceMaterial, maxGoalHealth } from "./constants.js";
-import { MapSide } from "./types.js";
+import { IGoalSync, MapSide } from "./types.js";
 import Ball from "./Ball.js";
 
 export default class Goal extends PH2D.Body {
@@ -90,5 +90,9 @@ export default class Goal extends PH2D.Body {
 
 	public resetScore(): void {
 		this._scored = false;
+	}
+
+	public sync(other: IGoalSync): void {
+		this._health = other.health;
 	}
 }

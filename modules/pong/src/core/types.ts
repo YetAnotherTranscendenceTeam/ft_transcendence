@@ -169,6 +169,14 @@ export interface IEventBoxSync {
 	active: boolean;
 }
 
+export interface IGoalSync {
+	health: number;
+}
+
+export type IGoalSyncs = {
+	[key: number]: IGoalSync;
+}
+
 export interface IEventSync {
 	type: PongEventType;
 	playerId: PlayerID;

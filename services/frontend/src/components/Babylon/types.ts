@@ -1,5 +1,11 @@
-import { IBall, PlayerMovement } from "pong";
+import { IBall, IGoalSyncs, PlayerMovement } from "pong";
 import { PongEventType } from 'yatt-lobbies'
+
+export enum GraphicsQuality {
+	LOW = 0,
+	MEDIUM,
+	HIGH,
+}
 
 export enum KeyState {
 	IDLE = 0,
@@ -32,5 +38,6 @@ export interface IServerStep {
 	collisions: number;
 	balls: Array<IBall>;
 	paddles: PaddleSyncs;
+	goals: IGoalSyncs;
 	tick: number;
 }

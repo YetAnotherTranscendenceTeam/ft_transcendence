@@ -93,7 +93,6 @@ export default class ClientGoal extends AObject {
 			this._mesh?.setEnabled(true);
 		}
 		if (this._previousHealth !== body.health) {
-			console.log("goal hit (client)", body.id, body.health);
 			this._previousHealth = body.health;
 			if (body.health < PONG.K.maxGoalHealth) {
 				this._colorBlend = 1;
