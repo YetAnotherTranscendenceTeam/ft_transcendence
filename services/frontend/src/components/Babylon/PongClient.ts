@@ -504,7 +504,10 @@ export default class PongClient extends PONG.Pong {
 				this._ballSteps = this._ballSteps.slice(1);
 				lastStep = step;
 			}
-			this._tick = lastStep ? lastStep.tick : this._tick; 
+			if (this._ballSteps.length > 3)
+				this._tick = this._ballSteps.at(-1).tick;
+			else
+				this._tick = lastStep ? lastStep.tick : this._tick; 
 			for (let paddleStep of this._paddleSteps) {
 				this.paddleSync(paddleStep);
 			}
