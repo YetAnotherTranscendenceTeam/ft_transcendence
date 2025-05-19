@@ -213,6 +213,33 @@ export class Pong {
 		this.setup();
 	}
 
+	protected preloadSetup() {
+		this.cleanUp();
+
+		this._gameMode = new GameMode("preload", {
+			type: null,
+			team_size: 0,
+			team_count: 0,
+		});
+		this._matchParameters = {
+			obstacles: false,
+			events: [],
+			ball_speed: K.defaultBallSpeed,
+			point_to_win: K.defaultPointsToWin,
+		}
+		this._matchId = -1;
+		
+		this.switchMap(MapID.FAKE);
+
+		this.addBall(new Ball(new Vec2(0, 1)));
+		this.addBall(new Ball(new Vec2(0, -1)));
+		this.addBall(new Ball(new Vec2(1, 0)));
+		this.addBall(new Ball(new Vec2(-1, 0)));
+		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
+		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this._stats);
+		this._activeEvents = [];
+	}
+
 	protected start() {
 		this._tick = 0;
 		this._accumulator = 0;

@@ -116,29 +116,57 @@ export default class PongClient extends PONG.Pong {
 		this._engine.runRenderLoop(this.loop);
 
 		this._state = PONG.PongState.RESERVED.clone();
+
+		this.setGameScene(GameScene.PRELOAD);
 	}
 
 	public load() {
 		console.log("load");
-		const testBall1 = new PONG.Ball(new Vec2(0, 1), new Vec2(0, 0), 0);
-		const testBall2 = new PONG.Ball(new Vec2(0, -1), new Vec2(0, 0), 0);
-		const testBall3 = new PONG.Ball(new Vec2(1, 0), new Vec2(0, 0), 0);
-		const testBall4 = new PONG.Ball(new Vec2(-1, 0), new Vec2(0, 0), 0);
-		this.addBall(testBall1);
-		this.addBall(testBall2);
-		this.addBall(testBall3);
-		this.addBall(testBall4);
-		this._babylonScene.ballInstances.forEach((ball: ClientBall) => {
-			ball.mesh.render(ball.mesh.subMeshes[0], true);
-			// ball.mesh.render(ball.mesh.subMeshes[1], true);
+		
+		// const testBall1 = new PONG.Ball(new Vec2(0, 1), new Vec2(0, 0), 0);
+		// const testBall2 = new PONG.Ball(new Vec2(0, -1), new Vec2(0, 0), 0);
+		// const testBall3 = new PONG.Ball(new Vec2(1, 0), new Vec2(0, 0), 0);
+		// const testBall4 = new PONG.Ball(new Vec2(-1, 0), new Vec2(0, 0), 0);
+		// this.addBall(testBall1);
+		// this.addBall(testBall2);
+		// this.addBall(testBall3);
+		// this.addBall(testBall4);
+		// this._babylonScene.scene.onReadyObservable.addOnce(async () => {
+		// 	// Pre-bake RTs
+
+		// 	this._babylonScene.ballInstances.forEach((ball: ClientBall) => {
+		// 		this._babylonScene.scene.customRenderTargets.push(ball.probe.cubeTexture);
+		// 		// this._babylonScene.scene.customRenderTargets.push(sg.getShadowMap());
+		// 	});
+		// 	this._babylonScene.stadiumShadowGenerator.forEach((sg: BABYLON.ShadowGenerator) => {
+		// 		this._babylonScene.scene.customRenderTargets.push(sg.getShadowMap());
+		// 	});
+
+		// thing to do after rendering
+		
+		this._babylonScene.scene.render();
+		this._babylonScene.scene.onAfterRenderObservable.addOnce(() => {
+			console.log("loading complete");
+			this.callbacks.loadingComplete();
 		});
-		this._babylonScene.render();
-		this._engine._renderLoop();
-		this.removeBall(testBall1);
-		this.removeBall(testBall2);
-		this.removeBall(testBall3);
-		this.removeBall(testBall4);
-		this.callbacks.loadingComplete();
+		  
+		//   });
+		// this._babylonScene.ballInstances.forEach((ball: ClientBall) => {
+		// 	ball.mesh.render(ball.mesh.subMeshes[0], true);
+		// 	// ball.mesh.render(ball.mesh.subMeshes[1], true);
+		// });
+		// this._babylonScene.render();
+		// this._engine._renderLoop();
+		// this._babylonScene.scene.onReadyObservable.addOnce(() => {
+		// 	this._engine.prep
+		//   });
+		// this._babylonScene.ballInstances.forEach((ball: ClientBall) => {
+		// 	ball.probeRender();
+		// });
+		// this.removeBall(testBall1);
+		// this.removeBall(testBall2);
+		// this.removeBall(testBall3);
+		// this.removeBall(testBall4);
 	}
 
 	private updateOverlay() {
@@ -200,6 +228,8 @@ export default class PongClient extends PONG.Pong {
 			this.menuScene();
 		} else if (this._gameScene === GameScene.LOCAL) {
 			this.localScene();
+		} else if (this._gameScene === GameScene.PRELOAD) {
+			this.preloadScene();
 		}
 		if (this._gameScene !== GameScene.ONLINE && this._websocket) {
 			this._websocket.onclose = undefined;
@@ -342,6 +372,17 @@ export default class PongClient extends PONG.Pong {
 			}
 		});
 		// this._babylonScene.shadowGenerator.getShadowMap().resetRefreshCounter();
+	}
+
+	private preloadScene() {
+		this.preloadSetup();
+
+		this._babylonScene.enableMap(this._currentMap.mapId);
+
+		this._player = undefined;
+		this.bindPaddles();
+		this._babylonScene.updateMeshes(0);
+		this._babylonScene.switchCamera();
 	}
 
 	private menuScene() {
@@ -551,6 +592,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	public addBall(ball: PONG.Ball) {
+		console.log("addBall", ball);
 		if (this._gameScene !== GameScene.ONLINE) {
 			this._physicsScene.addBody(ball);
 			ball.addEventListener("collision", PONG.ballCollision.bind(this));

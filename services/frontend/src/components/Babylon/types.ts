@@ -15,6 +15,7 @@ export enum KeyState {
 }
 
 export enum GameScene {
+	PRELOAD,
 	MENU,
 	ONLINE,
 	LOCAL,

@@ -89,11 +89,25 @@ export default abstract class AObject {
 		return this._physicsBody;
 	}
 
+	public get probe(): ReflectionProbe {
+		return this._probe;
+	}
+
+	public get material(): PBRMaterial | BABYLON.NodeMaterial {
+		return this._material;
+	}
+
 	public dispose() {
 		this._mesh?.dispose();
 	}
 
 	public updateBodyReference(physicsBody: PH2D.Body) {
 		this._physicsBody = physicsBody;
+	}
+
+	public probeRender() {
+		if (this._probe) {
+			this._probe.cubeTexture.render();
+		}
 	}
 };
