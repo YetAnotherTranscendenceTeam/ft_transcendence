@@ -198,6 +198,7 @@ export class Tournament {
   teams = [];
   matches = [];
   subscribers = new Set();
+  stageCount;
   gamemode;
   lobbyConnection;
 
@@ -206,13 +207,45 @@ export class Tournament {
       team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
     this.teams = teams.sort(
-      (a, b) => a.players.reduce((a, b) => a + b.rating, 0) - b.players.reduce((a, b) => a + b.rating, 0)
+      (a, b) => b.players.reduce((a, b) => a + b.rating, 0) - a.players.reduce((a, b) => a + b.rating, 0)
     );
+    this.stageCount = Math.ceil(Math.log2(this.teams.length));
+    const goodHalf = Tournament.sortGoodHalf(
+      this.teams
+      .slice(0, Math.pow(2, this.stageCount - 1))
+    );
+    const badHalf = this.teams
+      .slice(goodHalf.length)
+      .sort(
+        () => Math.random() - 0.5
+      );
+    this.teams = goodHalf.concat(badHalf);
+    
     this.gamemode = gamemode;
     this.manager = manager;
     this.match_parameters = match_parameters;
     this.lobbyConnection = lobbyConnection;
     this.lobbySecret = lobbySecret;
+  }
+
+  // sorts the good half of the teams
+  // the 2 best teams will play against each other in the final
+  static sortGoodHalf(goodHalf) {
+    if (goodHalf.length < 4)
+      return goodHalf;
+    let newGoodHalf = [];
+
+    const firstHalf = goodHalf.slice(0, 4);
+    const secondHalf = goodHalf.slice(4);
+    const fourth = Math.ceil(secondHalf.length / 2);
+
+    newGoodHalf.push(firstHalf[0]);
+    newGoodHalf = newGoodHalf.concat(secondHalf.slice(0, fourth));
+    newGoodHalf.push(firstHalf[3]);
+    newGoodHalf.push(firstHalf[2]);
+    newGoodHalf = newGoodHalf.concat(secondHalf.slice(fourth));
+    newGoodHalf.push(firstHalf[1]);
+    return newGoodHalf.filter((team) => team !== undefined);
   }
 
   async insert() {
@@ -243,12 +276,11 @@ export class Tournament {
   }
 
   async createMatches() {
-    const stageCount = Math.ceil(Math.log2(this.teams.length));
     let stageMatchCount = 1;
     const stages = [];
     let previousStage = null;
     // create stages as if there were enough teams to fill all matches
-    for (let stage = 0; stage < stageCount; stage++) {
+    for (let stage = 0; stage < this.stageCount; stage++) {
       const stageMatches = [];
       for (let i = 0; i < stageMatchCount; i++) {
         const match = new TournamentMatch(
