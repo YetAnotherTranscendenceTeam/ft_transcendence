@@ -446,10 +446,6 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 			createToast(message, ToastType.INFO, 0);
 	};
 
-	const onConnect = () => {
-		console.log('Connected to Social WebSocket');
-	};
-
 	const ws = useWebSocket({
 		onEvent: {
 			'welcome': onWelcome,
@@ -463,7 +459,6 @@ export default function useSocial(setMeStatus: (status: FriendStatus) => void, g
 			'recv_lobby_invite': onLobbyInvite,
 			'recv_lobby_request': onLobbyRequest,
 		},
-		onOpen: onConnect,
 	});
 
 	const connect = () => {
