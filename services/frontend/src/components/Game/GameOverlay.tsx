@@ -9,6 +9,7 @@ import WinnerMatchOverlay from './WinnerMatchOverlay';
 import WaitingPlayerOverlay from './WaitingPlayerOverlay';
 import PowerUpIcon from './PowerUpIcon';
 import Card from '../../ui/Card';
+import KeyHint from './KeyHint';
 
 export default function GameOverlay({
 		onResume,
@@ -64,6 +65,32 @@ export default function GameOverlay({
 					{globalEvents.map((p) => <PowerUpIcon powerUp={p} key={p.type} />)}
 				</div>
 			}
+			{ overlay.local && (overlay.gameStatus.name === PongState.RESERVED.name || overlay.local && overlay.gameStatus.name === PongState.PAUSED.name) && <div className='game-overlay-local-keyhint flex w-full align-center'>
+				<KeyHint
+					keybinds={[{
+						keybind: 'W',
+						description: 'Move Up'
+					}, {
+						keybind: 'S',
+						description: 'Move Down'
+					}]}
+					title='Left Player'
+					team={0}
+				/>
+				<KeyHint
+					keybinds={[{
+						keybind: 'ArrowUp',
+						icon: <i className="fa-solid fa-arrow-up"></i>,
+						description: 'Move Up'
+					}, {
+						keybind: 'ArrowDown',
+						icon: <i className="fa-solid fa-arrow-down"></i>,
+						description: 'Move Down'
+					}]}
+					title='Right Player'
+					team={1}
+				/>
+			</div>}
 		</div>
 	</div>
 

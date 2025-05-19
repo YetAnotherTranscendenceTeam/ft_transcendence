@@ -129,31 +129,20 @@
 
 /* Player hint */
 
-.player-hint {
-	position: absolute;
+.key-hint {
 	background-color: var(--bg-2);
 	padding: 16px;
 	box-sizing: border-box;
 	border-radius: 8px;
-	top: 50%;
 	width: fit-content;
-	transform: translateY(-50%);
 }
 
-.player-hint:nth-child(1) {
-	left: 32px;
-}
-
-.player-hint:nth-child(2) {
-	right: 32px;
-}
-
-.player-hint h2 {
+.key-hint h2 {
 	font-size: medium;
 	font-weight: bold;
 }
 
-.player-hint p {
+.key-hint p {
 	display: flex;
 	align-items: center;
 	gap: 4px;
@@ -277,4 +266,22 @@
 	background-color: var(--bg-1);
 	padding: 8px;
 	box-shadow: 0px 0px 20px 0px var(--ingame-color);
+}
+
+/* Local Key hint */
+
+.game-overlay-local-keyhint {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+	z-index: 2;
+	pointer-events: none;
+	padding: 128px;
+	box-sizing: border-box;
 }
