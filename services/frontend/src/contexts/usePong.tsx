@@ -49,13 +49,7 @@ export const PongProvider = ({ children } : {children?: any}) => {
 					navigate('/');
 				},
 				loadingComplete: () => {
-					const loading = document.getElementById('loading');
-					if (loading) {
-						loading.classList.add('open');
-						setTimeout(() => {
-							loading.remove();
-						}, 500);
-					}
+					// called when the game is loaded
 				}
 			}
 		);
