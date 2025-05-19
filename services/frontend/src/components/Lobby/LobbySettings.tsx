@@ -46,8 +46,7 @@ export default function LobbySettings({
 	]
 
 	const currentGameMode = lobby.mode.name.slice(-3);
-	
-	console.log('lobby', lobby);
+
 	const [pointToWin, setPointToWin] = Babact.useState(lobby.match_parameters.point_to_win);
 	const [ballSpeedValue, setBallSpeedValue] = Babact.useState(lobby.match_parameters.ball_speed.toString());
 	const [obstacles, setObstacles] = Babact.useState(lobby.match_parameters.obstacles);
@@ -138,7 +137,6 @@ export default function LobbySettings({
 						value={pointToWin}
 						onChange={(value) => {
 							setPointToWin(value);
-							console.log(value);
 						}}
 						min={2}
 						max={10}

@@ -78,7 +78,6 @@ export default function useUser(account_id: number) {
 				'1v1': ranked1v1 ?? [],
 				'2v2': ranked2v2 ?? [],
 			}
-			console.log('elos', elos);
 			setElos(elos);
 		}
 	}
