@@ -1,18 +1,58 @@
-# Yet Another Transcendence
-This project is a web application in which you can play the simple and famous game `pong`.
+# ft_transcendence - Yet Another Pong
+This project is a web application offering a multiplayer online version of Atari's arcade game `Pong` (1972), integrated as modern video game plateform.
 
+## Features
 
-Compete with others in a competitive ranked experience, climb up the ladder and get displayed in the home page or defeat all your friends with our very flexible tournament system!
+- Pong game
+	- Local gameplay
+	- Advanced 3D Graphics
 
-## Pong
+- User account
+	-	Remote authentication
+		- Google Sign in
+		- 42Intra
+	- Two factor authentication
+	- Unique username
+	- Avatar upload
 
-This project implements a heavily modified and customizable game based on pong that includes:
-- powerups
-- 2v2
-- obstacles
+- Online gameplay
+	- 1v1 / 2v2
+	- Obstacles
+	- Power-ups
+		- Multiball
+		- Magnet
+		- Ice rink
+	- Spectating mode
 
+- Ranked games
+	- Matchmaking rating
+	- Matchmaking queue
+	- Leaderboard
 
-## Setup
+- Custom games
+	- Points to win
+	- Ball speed
+	- Obscacles on/off
+	- Power-ups selection
+
+- Clashes
+	- 3-16 teams competition
+	- Dynamic tournament tree
+	- All game modes
+	- All game customizations
+	- Confettis
+
+- Social pannel
+	- Friend system
+	- Live activity status
+	- Lobby invitations
+
+- User profile
+	- Game history
+	- MMR evoluation graph
+	- Game mode pie chart
+
+# Setup
 
 **This project requires the docker engine to be running, make sure you have it correctly setup before trying to deploy this project.**
 
@@ -44,7 +84,7 @@ make dev
 Setup your environment, you can use the environment generation tool with:
 
 ```sh
-bash env-generator.sh <DOMAIN_NAME>
+bash ./env-generator.sh <DOMAIN_NAME>
 ```
 
 <!--
