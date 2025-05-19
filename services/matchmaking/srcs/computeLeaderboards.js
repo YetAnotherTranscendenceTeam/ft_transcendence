@@ -9,6 +9,7 @@ const selectModeRankings = db.prepare(`
   SELECT account_id, rating
   FROM matchmaking_users
   WHERE gamemode = ?
+    AND match_count != 0
   ORDER BY rating DESC
   LIMIT ${LEADERBOARD_SIZE}
 `);

@@ -7,6 +7,7 @@ export interface ImatchmakingUser {
   account_id: number,
   gamemode: string,
   rating: number,
+  match_count: number,
   created_at: string,
   updated_at: string,
 };
