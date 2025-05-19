@@ -44,7 +44,7 @@ export default function ModeButton({
 		onClick={() => onSelect(gamemode.name)}
 	>
 		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 items-center justify-center h-full'>
-			<h3>{Math.floor(rating) || "unranked"}</h3>
+			<h3>{rating !== undefined ? Math.floor(rating) : "unranked"}</h3>
 			<PopHover
 				content="Matchmaking Rating is a score that reflects your skill level in the game. It's used to match you with players of similar ability."
 				>
