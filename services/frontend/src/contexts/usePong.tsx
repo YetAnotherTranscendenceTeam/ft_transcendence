@@ -53,7 +53,6 @@ export const PongProvider = ({ children } : {children?: any}) => {
 				}
 			}
 		);
-		appRef.current.load();
 
         return () => {
             appRef.current.destroy();

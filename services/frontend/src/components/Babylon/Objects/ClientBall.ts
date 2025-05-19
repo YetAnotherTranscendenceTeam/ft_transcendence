@@ -40,7 +40,6 @@ export default class ClientBall extends AObject {
 	}
 	
 	public disable(): void {
-		console.log("disable");
 		this._mesh?.setEnabled(false);
 		this._isEnabled = false;
 		if (this._physicsBody) {
@@ -49,7 +48,6 @@ export default class ClientBall extends AObject {
 	}
 	
 	public enable(): void {
-		console.log("enable");
 		this._mesh?.setEnabled(true);
 		this._isEnabled = true;
 		if (this._physicsBody) {
