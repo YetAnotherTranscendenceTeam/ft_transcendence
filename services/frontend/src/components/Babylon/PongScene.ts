@@ -266,11 +266,11 @@ export default class PongScene {
 
 
 		// // // Test Sphere
-		// const sphere = MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this._scene);
+		// const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 1 }, this._scene);
 		// sphere.position = new BABYLON.Vector3(0, 1, 0);
 
 		// const pbr = new BABYLON.PBRMaterial("pbr", this._scene);
-		// pbr.albedoColor = new BABYLON.BABYLON.Color3(0.7, 0.8, 0.3);
+		// pbr.albedoColor = new BABYLON.Color3(0.7, 0.8, 0.3);
 		// pbr.metallic = 0.0;
 		// pbr.roughness = 1.0;
 		// sphere.material = pbr;
@@ -288,17 +288,15 @@ export default class PongScene {
 			});
 		}
 
-		// this.ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30, subdivisions: 50 }, this._scene);
-		// const groundMaterial = new BABYLON.PBRMaterial("groundMaterial", this._scene);
-		// groundMaterial.metallic = 0;
-		// groundMaterial.roughness = 0.5;
-		// groundMaterial.albedoColor = new BABYLON.Color3(0.7, 0.55, 0.3);
-		// groundMaterial.ambientColor = new BABYLON.Color3(1, 1, 1);
-		// this.ground.material = groundMaterial;
-		// this.ground.receiveShadows = true;
-
-
-
+		this.ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30, subdivisions: 50 }, this._scene);
+		const groundMaterial = new BABYLON.PBRMaterial("groundMaterial", this._scene);
+		groundMaterial.metallic = 0;
+		groundMaterial.roughness = 0.5;
+		groundMaterial.albedoColor = new BABYLON.Color3(0.7, 0.55, 0.3);
+		groundMaterial.ambientColor = new BABYLON.Color3(1, 1, 1);
+		this.ground.material = groundMaterial;
+		this.ground.receiveShadows = true;
+		this.ground.position.y = 0.01;
 
 		// Preload the ball (PONG.K.maxBallAmount)
 		for (let i = 0; i < PONG.K.maxBallAmount; i++) {
@@ -324,7 +322,7 @@ export default class PongScene {
 					clientBall.addToProbe(ball);
 					ball.addToProbe(clientBall);
 				});
-				// ball.addToProbe(this.ground);
+				ball.addToProbe(this.ground);
 				ball.addToProbe(this.skybox);
 			}
 
@@ -345,6 +343,22 @@ export default class PongScene {
 		// 		testLight.position = this.ballInstances[0].mesh.position;
 		// 	}
 		// });
+
+		// this._scene.materials.forEach((material: BABYLON.Material) => {
+		// 	if (material instanceof BABYLON.PBRMaterial) {
+		// 		console.log("PBRMaterial", material.name);
+		// 		material.maxSimultaneousLights = 8;
+		// 	}
+		// });
+		this._scene.meshes.forEach((mesh: BABYLON.AbstractMesh) => {
+			if (mesh instanceof BABYLON.Mesh) {
+				console.log("Mesh", mesh.name);
+				if (mesh.material instanceof BABYLON.PBRMaterial) {
+					console.log("PBRMaterial", mesh.material.name);
+					mesh.material.maxSimultaneousLights = 8;
+				}
+			}
+		});
 
 		console.log("PongScene created");
 	}

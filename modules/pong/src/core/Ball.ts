@@ -1,6 +1,6 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { DT, bounceMaterial, ballShape, defaultBallSpeed, maxBallSpeed } from "./constants.js";
+import { DT, bounceMaterial, ballShape, defaultBallSpeed, maxBallSpeed, fireBallMaxDamage, ballMaxBounce } from "./constants.js";
 import { IBall } from "./types.js"
 import trunc from "./trunc.js";
 
@@ -16,7 +16,7 @@ export default class Ball extends PH2D.Body {
 		this._speed = speed;
 		this.velocity = Vec2.normalize(Vec2.create(), direction) as Vec2;
 		Vec2.scale(this.velocity, this.velocity, this._speed);
-		this._bounceCount = 0;
+		this._bounceCount = -1;
 		this.playerId = -1;
 	}
 
@@ -78,13 +78,21 @@ export default class Ball extends PH2D.Body {
 	public resetDamage() {
 		this._bounceCount = 0;
 	}
-
+	
+	public getDamage(): number {
+		// return 1 / (1 + Math.exp(-this._bounceCount/1.5 + 4.2)) * 8 + 1;
+		if (this._bounceCount >= fireBallMaxDamage) {
+			return fireBallMaxDamage;
+		}
+		return this._bounceCount + 1;
+	}
+	
 	public disableDamage() {
 		this._bounceCount = -1;
 	}
-
+	
 	public increaseDamage() {
-		if (this._bounceCount !== -1) {
+		if (this._bounceCount !== -1 && this._bounceCount < ballMaxBounce) {
 			this._bounceCount++;
 		}
 	}

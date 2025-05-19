@@ -2,18 +2,18 @@ import * as BABYLON from "@babylonjs/core";
 
 export const createShieldMaterial = () => {
 
-	var nodeMaterial = new BABYLON.NodeMaterial("node");
+	const nodeMaterial = new BABYLON.NodeMaterial("node");
 	nodeMaterial.mode = BABYLON.NodeMaterialModes.Material;
 
 	// InputBlock
-	var position = new BABYLON.InputBlock("position");
+	const position = new BABYLON.InputBlock("position");
 	position.visibleInInspector = false;
 	position.visibleOnFrame = false;
 	position.target = 1;
 	position.setAsAttribute("position");
 
 	// TransformBlock
-	var WorldPos = new BABYLON.TransformBlock("WorldPos");
+	const WorldPos = new BABYLON.TransformBlock("WorldPos");
 	WorldPos.visibleInInspector = false;
 	WorldPos.visibleOnFrame = false;
 	WorldPos.target = 1;
@@ -21,14 +21,14 @@ export const createShieldMaterial = () => {
 	WorldPos.complementW = 1;
 
 	// InputBlock
-	var World = new BABYLON.InputBlock("World");
+	const World = new BABYLON.InputBlock("World");
 	World.visibleInInspector = false;
 	World.visibleOnFrame = false;
 	World.target = 1;
 	World.setAsSystemValue(BABYLON.NodeMaterialSystemValues.World);
 
 	// TransformBlock
-	var Worldnormal = new BABYLON.TransformBlock("World normal");
+	const Worldnormal = new BABYLON.TransformBlock("World normal");
 	Worldnormal.visibleInInspector = false;
 	Worldnormal.visibleOnFrame = false;
 	Worldnormal.target = 1;
@@ -36,33 +36,33 @@ export const createShieldMaterial = () => {
 	Worldnormal.complementW = 0;
 
 	// InputBlock
-	var normal = new BABYLON.InputBlock("normal");
+	const normal = new BABYLON.InputBlock("normal");
 	normal.visibleInInspector = false;
 	normal.visibleOnFrame = false;
 	normal.target = 1;
 	normal.setAsAttribute("normal");
 
 	// FresnelBlock
-	var Fresnel = new BABYLON.FresnelBlock("Fresnel");
+	const Fresnel = new BABYLON.FresnelBlock("Fresnel");
 	Fresnel.visibleInInspector = false;
 	Fresnel.visibleOnFrame = false;
 	Fresnel.target = 4;
 
 	// ViewDirectionBlock
-	var Viewdirection = new BABYLON.ViewDirectionBlock("View direction");
+	const Viewdirection = new BABYLON.ViewDirectionBlock("View direction");
 	Viewdirection.visibleInInspector = false;
 	Viewdirection.visibleOnFrame = false;
 	Viewdirection.target = 4;
 
 	// InputBlock
-	var cameraPosition = new BABYLON.InputBlock("cameraPosition");
+	const cameraPosition = new BABYLON.InputBlock("cameraPosition");
 	cameraPosition.visibleInInspector = false;
 	cameraPosition.visibleOnFrame = false;
 	cameraPosition.target = 1;
 	cameraPosition.setAsSystemValue(BABYLON.NodeMaterialSystemValues.CameraPosition);
 
 	// InputBlock
-	var bias = new BABYLON.InputBlock("bias");
+	const bias = new BABYLON.InputBlock("bias");
 	bias.visibleInInspector = false;
 	bias.visibleOnFrame = false;
 	bias.target = 1;
@@ -75,7 +75,7 @@ export const createShieldMaterial = () => {
 	bias.isConstant = false;
 
 	// InputBlock
-	var power = new BABYLON.InputBlock("power");
+	const power = new BABYLON.InputBlock("power");
 	power.visibleInInspector = false;
 	power.visibleOnFrame = false;
 	power.target = 1;
@@ -88,57 +88,57 @@ export const createShieldMaterial = () => {
 	power.isConstant = false;
 
 	// OneMinusBlock
-	var Oneminus = new BABYLON.OneMinusBlock("One minus");
+	const Oneminus = new BABYLON.OneMinusBlock("One minus");
 	Oneminus.visibleInInspector = false;
 	Oneminus.visibleOnFrame = false;
 	Oneminus.target = 4;
 
 	// MultiplyBlock
-	var Multiply = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply = new BABYLON.MultiplyBlock("Multiply");
 	Multiply.visibleInInspector = false;
 	Multiply.visibleOnFrame = false;
 	Multiply.target = 4;
 
 	// MultiplyBlock
-	var Multiply1 = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply1 = new BABYLON.MultiplyBlock("Multiply");
 	Multiply1.visibleInInspector = false;
 	Multiply1.visibleOnFrame = false;
 	Multiply1.target = 4;
 
 	// OneMinusBlock
-	var Oneminus1 = new BABYLON.OneMinusBlock("One minus");
+	const Oneminus1 = new BABYLON.OneMinusBlock("One minus");
 	Oneminus1.visibleInInspector = false;
 	Oneminus1.visibleOnFrame = false;
 	Oneminus1.target = 4;
 
 	// MultiplyBlock
-	var Multiply2 = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply2 = new BABYLON.MultiplyBlock("Multiply");
 	Multiply2.visibleInInspector = false;
 	Multiply2.visibleOnFrame = false;
 	Multiply2.target = 4;
 
 	// CustomBlock
-	var Hexagon = new BABYLON.CustomBlock("Hexagon");
+	const Hexagon = new BABYLON.CustomBlock("Hexagon");
 	Hexagon.visibleInInspector = false;
 	Hexagon.visibleOnFrame = false;
 	Hexagon.target = 4;
 	Hexagon.options = {"name":"Hexagon","comments":"Create hexagon shapes","target":"Neutral","inParameters":[{"name":"uv","type":"Vector2"}],"outParameters":[{"name":"output","type":"Float"}],"functionName":"hexagon","code":["#define S(r,v) smoothstep(9./iResolution.y,0.,abs(v-(r)))","const vec2 s = vec2(1, 1.7320508); // 1.7320508 = sqrt(3)","const float borderThickness = 0.05;","float calcHexDistance(vec2 p)","{","    p = abs(p);","    return max(dot(p, s * .5), p.x);","}","float random(vec2 co)","{","    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);","}","vec4 calcHexInfo(vec2 uv)","{","    vec4 hexCenter = round(vec4(uv, uv - vec2(.5, 1.)) / s.xyxy);","    vec4 offset = vec4(uv - hexCenter.xy * s, uv - (hexCenter.zw + .5) * s);","    return dot(offset.xy, offset.xy) < dot(offset.zw, offset.zw) ? vec4(offset.xy, hexCenter.xy) : vec4(offset.zw, hexCenter.zw);","}","void hexagon(in vec2 uv, out float result )","{","    vec4 hexInfo = calcHexInfo(uv);","    float totalDist = calcHexDistance(hexInfo.xy) + borderThickness;","    result = (","        smoothstep(.51, .51 - 0.01, totalDist) ","        //pow(1. - max(0., .5 - totalDist), 20.) * 1.","    );","}"]};
 
 	// MultiplyBlock
-	var Multiply3 = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply3 = new BABYLON.MultiplyBlock("Multiply");
 	Multiply3.visibleInInspector = false;
 	Multiply3.visibleOnFrame = false;
 	Multiply3.target = 4;
 
 	// InputBlock
-	var uv = new BABYLON.InputBlock("uv");
+	const uv = new BABYLON.InputBlock("uv");
 	uv.visibleInInspector = false;
 	uv.visibleOnFrame = false;
 	uv.target = 1;
 	uv.setAsAttribute("uv");
 
 	// InputBlock
-	var hexagonSize = new BABYLON.InputBlock("hexagonSize");
+	const hexagonSize = new BABYLON.InputBlock("hexagonSize");
 	hexagonSize.visibleInInspector = false;
 	hexagonSize.visibleOnFrame = false;
 	hexagonSize.target = 1;
@@ -146,14 +146,14 @@ export const createShieldMaterial = () => {
 	hexagonSize.isConstant = false;
 
 	// CustomBlock
-	var Hexagon1 = new BABYLON.CustomBlock("Hexagon");
+	const Hexagon1 = new BABYLON.CustomBlock("Hexagon");
 	Hexagon1.visibleInInspector = false;
 	Hexagon1.visibleOnFrame = false;
 	Hexagon1.target = 4;
 	Hexagon1.options = {"name":"Hexagon","comments":"Create hexagon shapes","target":"Neutral","inParameters":[{"name":"u","type":"Vector2"}],"outParameters":[{"name":"result","type":"Float"}],"functionName":"hexagon","code":["void hexagon( in vec2 u, out float result ){","    vec2 s = vec2(1., 1.732);","    vec2 a = s-2.*mod(u,s);","    vec2 b = s-2.*mod(u+s*vec2(0.5,0.5),s);","    result = (0.7+0.2*sin(1.1)-0.5*min(dot(a,a),dot(b,b)));","}"]};
 
 	// InputBlock
-	var hexagonStrengh = new BABYLON.InputBlock("hexagonStrengh");
+	const hexagonStrengh = new BABYLON.InputBlock("hexagonStrengh");
 	hexagonStrengh.visibleInInspector = false;
 	hexagonStrengh.visibleOnFrame = false;
 	hexagonStrengh.target = 1;
@@ -166,7 +166,7 @@ export const createShieldMaterial = () => {
 	hexagonStrengh.isConstant = false;
 
 	// InputBlock
-	var InputBlock_39 = new BABYLON.InputBlock("");
+	const InputBlock_39 = new BABYLON.InputBlock("");
 	InputBlock_39.visibleInInspector = false;
 	InputBlock_39.visibleOnFrame = false;
 	InputBlock_39.target = 1;
@@ -179,32 +179,32 @@ export const createShieldMaterial = () => {
 	InputBlock_39.isConstant = false;
 
 	// MultiplyBlock
-	var Multiply4 = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply4 = new BABYLON.MultiplyBlock("Multiply");
 	Multiply4.visibleInInspector = false;
 	Multiply4.visibleOnFrame = false;
 	Multiply4.target = 4;
 
 	// VectorSplitterBlock
-	var VectorSplitter = new BABYLON.VectorSplitterBlock("VectorSplitter");
+	const VectorSplitter = new BABYLON.VectorSplitterBlock("VectorSplitter");
 	VectorSplitter.visibleInInspector = false;
 	VectorSplitter.visibleOnFrame = false;
 	VectorSplitter.target = 4;
 
 	// CustomBlock
-	var WaveNoise = new BABYLON.CustomBlock("WaveNoise");
+	const WaveNoise = new BABYLON.CustomBlock("WaveNoise");
 	WaveNoise.visibleInInspector = false;
 	WaveNoise.visibleOnFrame = false;
 	WaveNoise.target = 4;
 	WaveNoise.options = {"name":"WaveNoise","comments":"Create a type of wave noise","target":"Neutral","inParameters":[{"name":"p","type":"Vector3"},{"name":"t","type":"Float"}],"outParameters":[{"name":"output","type":"Vector3"}],"functionName":"waveNoise","code":["uint hash(uint x)","{","    x = ((x >> 16u) ^ x) * 0x45d9f3bu;","    x = ((x >> 16u) ^ x) * 0x45d9f3bu;","    x = (x >> 16u) ^ x;","    return x;","}","uint combine(uint v, uint seed)","{","    return seed ^ (v + 0x9e3779b9u + (seed << 6) + (seed >> 2));","}","float uniformFloat(uint h)","{","    return uintBitsToFloat(h & 0x007FFFFFu | 0x3F800000u) - 1.0;","}","vec3 normal(vec3 p, uint seed)","{","    uvec3 u = floatBitsToUint(p);","    seed = combine(hash(u.x), seed);","    seed = combine(hash(u.y), seed);","    seed = combine(hash(u.z), seed);","    float a = uniformFloat(seed);","    seed = combine(0x6d04955du, seed);","    float z = uniformFloat(seed) * 2.0 - 1.0;","    float s = sqrt(1.0 - z * z);","    return vec3(s * cos(a * 6.2831853 + vec2(0.0, -1.570796)), z);","}","vec3 ss(vec3 x)","{","    return x * x * (3.0 - 2.0 * x);","}","float gnoise(vec3 p, uint seed)","{","    vec3 i = floor(p);","    vec3 f = fract(p);","    vec3 a = ss(f);","    float n000 = dot(normal(i, seed), f);","    float n100 = dot(normal(i + vec3(1.0, 0.0, 0.0), seed), f - vec3(1.0, 0.0, 0.0));","    float n010 = dot(normal(i + vec3(0.0, 1.0, 0.0), seed), f - vec3(0.0, 1.0, 0.0));","    float n110 = dot(normal(i + vec3(1.0, 1.0, 0.0), seed), f - vec3(1.0, 1.0, 0.0));","    float n001 = dot(normal(i + vec3(0.0, 0.0, 1.0), seed), f - vec3(0.0, 0.0, 1.0));","    float n101 = dot(normal(i + vec3(1.0, 0.0, 1.0), seed), f - vec3(1.0, 0.0, 1.0));","    float n011 = dot(normal(i + vec3(0.0, 1.0, 1.0), seed), f - vec3(0.0, 1.0, 1.0));","    float n111 = dot(normal(i + vec3(1.0, 1.0, 1.0), seed), f - vec3(1.0, 1.0, 1.0));","    return mix(","        mix(mix(n000, n100, a.x), mix(n010, n110, a.x), a.y),","        mix(mix(n001, n101, a.x), mix(n011, n111, a.x), a.y), a.z);","}","vec3 gnoise3(vec3 p, uvec3 seed)","{","    return vec3(gnoise(p, seed.x), gnoise(p, seed.y), gnoise(p, seed.z));","}","vec3 n(vec3 p, uvec3 seed)","{ ","    return max(1.0 - abs(gnoise3(p, seed) * 1.5), vec3(0.0));","}","vec3 q(vec3 v)","{","    return pow(v, vec3(1.0, 1.0, 3.5));","}","vec3 r(vec3 n)","{","    return pow(n, vec3(6.0, 9.0, 9.0));","}","void waveNoise(vec3 p, float t, out vec3 result)","{","    vec3 n0 = n(p * 1.0 + t, uvec3(0xa7886e74u, 0x4433f369u, 0x5842edddu));","    vec3 n1 = n(p * 2.0 + t, uvec3(0x41a2b27au, 0x14dede03u, 0x509a02aau));","    vec3 n2 = n(p * 4.0 + t, uvec3(0xd5bf21b3u, 0x1d6adb70u, 0xc47ed64cu));","    vec3 n3 = n(p * 8.0 + t, uvec3(0x7279fef1u, 0x120a704eu, 0x845b7178u));","    vec3 n4 = n(p * 16.0 + t, uvec3(0xace62131u, 0x7e861b25u, 0x9f51d60cu));","    result = (","        n1 * r(n0) * 0.25 +","        q(n0) * r(n1) * vec3(0.25, 0.25, 0.5) +","        q(n0 * n1) * r(n2) * vec3(0.125, 0.125, 0.5) +","        q(n0 * n1 * n2) * r(n3) * vec3(0.0625, 0.0625, 0.5) +","        q(n0 * n1 * n2 * n3) * r(n4) * vec3(0.03125, 0.03125, 0.5)","    ) * 0.5;","}"]};
 
 	// MultiplyBlock
-	var Multiply5 = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply5 = new BABYLON.MultiplyBlock("Multiply");
 	Multiply5.visibleInInspector = false;
 	Multiply5.visibleOnFrame = false;
 	Multiply5.target = 4;
 
 	// InputBlock
-	var Time = new BABYLON.InputBlock("Time");
+	const Time = new BABYLON.InputBlock("Time");
 	Time.visibleInInspector = false;
 	Time.visibleOnFrame = false;
 	Time.target = 1;
@@ -217,7 +217,7 @@ export const createShieldMaterial = () => {
 	Time.isConstant = false;
 
 	// InputBlock
-	var speed = new BABYLON.InputBlock("speed");
+	const speed = new BABYLON.InputBlock("speed");
 	speed.visibleInInspector = false;
 	speed.visibleOnFrame = false;
 	speed.target = 1;
@@ -230,26 +230,26 @@ export const createShieldMaterial = () => {
 	speed.isConstant = false;
 
 	// TrigonometryBlock
-	var Sin = new BABYLON.TrigonometryBlock("Sin");
+	const Sin = new BABYLON.TrigonometryBlock("Sin");
 	Sin.visibleInInspector = false;
 	Sin.visibleOnFrame = false;
 	Sin.target = 4;
 	Sin.operation = BABYLON.TrigonometryBlockOperations.Sin;
 
 	// AddBlock
-	var Add = new BABYLON.AddBlock("Add");
+	const Add = new BABYLON.AddBlock("Add");
 	Add.visibleInInspector = false;
 	Add.visibleOnFrame = false;
 	Add.target = 4;
 
 	// AddBlock
-	var Add1 = new BABYLON.AddBlock("Add");
+	const Add1 = new BABYLON.AddBlock("Add");
 	Add1.visibleInInspector = false;
 	Add1.visibleOnFrame = false;
 	Add1.target = 4;
 
 	// InputBlock
-	var treshold = new BABYLON.InputBlock("treshold");
+	const treshold = new BABYLON.InputBlock("treshold");
 	treshold.visibleInInspector = false;
 	treshold.visibleOnFrame = false;
 	treshold.target = 1;
@@ -262,7 +262,7 @@ export const createShieldMaterial = () => {
 	treshold.isConstant = false;
 
 	// InputBlock
-	var Float = new BABYLON.InputBlock("Float");
+	const Float = new BABYLON.InputBlock("Float");
 	Float.visibleInInspector = false;
 	Float.visibleOnFrame = false;
 	Float.target = 1;
@@ -275,13 +275,13 @@ export const createShieldMaterial = () => {
 	Float.isConstant = false;
 
 	// DivideBlock
-	var Divide = new BABYLON.DivideBlock("Divide");
+	const Divide = new BABYLON.DivideBlock("Divide");
 	Divide.visibleInInspector = false;
 	Divide.visibleOnFrame = false;
 	Divide.target = 4;
 
 	// InputBlock
-	var Float1 = new BABYLON.InputBlock("Float");
+	const Float1 = new BABYLON.InputBlock("Float");
 	Float1.visibleInInspector = false;
 	Float1.visibleOnFrame = false;
 	Float1.target = 1;
@@ -294,13 +294,13 @@ export const createShieldMaterial = () => {
 	Float1.isConstant = false;
 
 	// MultiplyBlock
-	var Multiply6 = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply6 = new BABYLON.MultiplyBlock("Multiply");
 	Multiply6.visibleInInspector = false;
 	Multiply6.visibleOnFrame = false;
 	Multiply6.target = 4;
 
 	// InputBlock
-	var endMultiplier = new BABYLON.InputBlock("endMultiplier");
+	const endMultiplier = new BABYLON.InputBlock("endMultiplier");
 	endMultiplier.visibleInInspector = false;
 	endMultiplier.visibleOnFrame = false;
 	endMultiplier.target = 1;
@@ -313,7 +313,7 @@ export const createShieldMaterial = () => {
 	endMultiplier.isConstant = false;
 
 	// FragmentOutputBlock
-	var FragmentOutput = new BABYLON.FragmentOutputBlock("FragmentOutput");
+	const FragmentOutput = new BABYLON.FragmentOutputBlock("FragmentOutput");
 	FragmentOutput.visibleInInspector = false;
 	FragmentOutput.visibleOnFrame = false;
 	FragmentOutput.target = 2;
@@ -322,19 +322,19 @@ export const createShieldMaterial = () => {
 	FragmentOutput.useLogarithmicDepth = false;
 
 	// MultiplyBlock
-	var Multiply7 = new BABYLON.MultiplyBlock("Multiply");
+	const Multiply7 = new BABYLON.MultiplyBlock("Multiply");
 	Multiply7.visibleInInspector = false;
 	Multiply7.visibleOnFrame = false;
 	Multiply7.target = 4;
 
 	// PowBlock
-	var Pow = new BABYLON.PowBlock("Pow");
+	const Pow = new BABYLON.PowBlock("Pow");
 	Pow.visibleInInspector = false;
 	Pow.visibleOnFrame = false;
 	Pow.target = 4;
 
 	// // InputBlock
-	// var baseColor = new BABYLON.InputBlock("baseColor");
+	// const baseColor = new BABYLON.InputBlock("baseColor");
 	// baseColor.visibleInInspector = false;
 	// baseColor.visibleOnFrame = false;
 	// baseColor.target = 1;
@@ -342,7 +342,7 @@ export const createShieldMaterial = () => {
 	// baseColor.isConstant = false;
 
 	// GradientBlock
-	var Gradient = new BABYLON.GradientBlock("Gradient");
+	const Gradient = new BABYLON.GradientBlock("Gradient");
 	Gradient.visibleInInspector = false;
 	Gradient.visibleOnFrame = false;
 	Gradient.target = 4;
@@ -351,7 +351,7 @@ export const createShieldMaterial = () => {
 	Gradient.colorSteps.push(new BABYLON.GradientBlockColorStep(1, new BABYLON.Color3(1, 0, 0)));
 
 	// InputBlock
-	var colorBlend = new BABYLON.InputBlock("colorBlend");
+	const colorBlend = new BABYLON.InputBlock("colorBlend");
 	colorBlend.visibleInInspector = false;
 	colorBlend.visibleOnFrame = false;
 	colorBlend.target = 1;
@@ -364,13 +364,13 @@ export const createShieldMaterial = () => {
 	colorBlend.isConstant = false;
 
 	// ScaleBlock
-	var Scale = new BABYLON.ScaleBlock("Scale");
+	const Scale = new BABYLON.ScaleBlock("Scale");
 	Scale.visibleInInspector = false;
 	Scale.visibleOnFrame = false;
 	Scale.target = 4;
 
 	// InputBlock
-	var emisiveStrength = new BABYLON.InputBlock("emisiveStrength");
+	const emisiveStrength = new BABYLON.InputBlock("emisiveStrength");
 	emisiveStrength.visibleInInspector = true;
 	emisiveStrength.visibleOnFrame = false;
 	emisiveStrength.target = 1;
@@ -383,13 +383,13 @@ export const createShieldMaterial = () => {
 	emisiveStrength.isConstant = false;
 
 	// LerpBlock
-	var Lerp = new BABYLON.LerpBlock("Lerp");
+	const Lerp = new BABYLON.LerpBlock("Lerp");
 	Lerp.visibleInInspector = false;
 	Lerp.visibleOnFrame = false;
 	Lerp.target = 4;
 
 	// InputBlock
-	var glowColor = new BABYLON.InputBlock("glowColor");
+	const glowColor = new BABYLON.InputBlock("glowColor");
 	glowColor.visibleInInspector = false;
 	glowColor.visibleOnFrame = false;
 	glowColor.target = 1;
@@ -397,19 +397,19 @@ export const createShieldMaterial = () => {
 	glowColor.isConstant = true;
 
 	// StepBlock
-	var Step = new BABYLON.StepBlock("Step");
+	const Step = new BABYLON.StepBlock("Step");
 	Step.visibleInInspector = false;
 	Step.visibleOnFrame = false;
 	Step.target = 4;
 
 	// OneMinusBlock
-	var Oneminus2 = new BABYLON.OneMinusBlock("One minus");
+	const Oneminus2 = new BABYLON.OneMinusBlock("One minus");
 	Oneminus2.visibleInInspector = false;
 	Oneminus2.visibleOnFrame = false;
 	Oneminus2.target = 4;
 
 	// InputBlock
-	var glowMask = new BABYLON.InputBlock("glowMask");
+	const glowMask = new BABYLON.InputBlock("glowMask");
 	glowMask.visibleInInspector = true;
 	glowMask.visibleOnFrame = false;
 	glowMask.target = 1;
@@ -422,7 +422,7 @@ export const createShieldMaterial = () => {
 	glowMask.isConstant = false;
 
 	// InputBlock
-	var Float2 = new BABYLON.InputBlock("Float");
+	const Float2 = new BABYLON.InputBlock("Float");
 	Float2.visibleInInspector = false;
 	Float2.visibleOnFrame = false;
 	Float2.target = 1;
@@ -435,7 +435,7 @@ export const createShieldMaterial = () => {
 	Float2.isConstant = true;
 
 	// VectorMergerBlock
-	var VectorMerger = new BABYLON.VectorMergerBlock("VectorMerger");
+	const VectorMerger = new BABYLON.VectorMergerBlock("VectorMerger");
 	VectorMerger.visibleInInspector = false;
 	VectorMerger.visibleOnFrame = false;
 	VectorMerger.target = 4;
@@ -445,7 +445,7 @@ export const createShieldMaterial = () => {
 	VectorMerger.wSwizzle = "w";
 
 	// InputBlock
-	var baseColorStrength = new BABYLON.InputBlock("baseColorStrength");
+	const baseColorStrength = new BABYLON.InputBlock("baseColorStrength");
 	baseColorStrength.visibleInInspector = false;
 	baseColorStrength.visibleOnFrame = false;
 	baseColorStrength.target = 1;
@@ -458,7 +458,7 @@ export const createShieldMaterial = () => {
 	baseColorStrength.isConstant = false;
 
 	// TransformBlock
-	var WorldPosViewProjectionTransform = new BABYLON.TransformBlock("WorldPos * ViewProjectionTransform");
+	const WorldPosViewProjectionTransform = new BABYLON.TransformBlock("WorldPos * ViewProjectionTransform");
 	WorldPosViewProjectionTransform.visibleInInspector = false;
 	WorldPosViewProjectionTransform.visibleOnFrame = false;
 	WorldPosViewProjectionTransform.target = 1;
@@ -466,14 +466,14 @@ export const createShieldMaterial = () => {
 	WorldPosViewProjectionTransform.complementW = 1;
 
 	// InputBlock
-	var ViewProjection = new BABYLON.InputBlock("ViewProjection");
+	const ViewProjection = new BABYLON.InputBlock("ViewProjection");
 	ViewProjection.visibleInInspector = false;
 	ViewProjection.visibleOnFrame = false;
 	ViewProjection.target = 1;
 	ViewProjection.setAsSystemValue(BABYLON.NodeMaterialSystemValues.ViewProjection);
 
 	// VertexOutputBlock
-	var VertexOutput = new BABYLON.VertexOutputBlock("VertexOutput");
+	const VertexOutput = new BABYLON.VertexOutputBlock("VertexOutput");
 	VertexOutput.visibleInInspector = false;
 	VertexOutput.visibleOnFrame = false;
 	VertexOutput.target = 1;

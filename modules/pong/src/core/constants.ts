@@ -30,7 +30,9 @@ export const paddleSpeed = 4;
 export const defaultPointsToWin = 5;
 export const eventboxRadius = 0.3;
 export const maxBallAmount = 4;
-export const maxGoalHealth = 20;
+export const maxGoalHealth = 50;
+export const fireBallMaxDamage = 10;
+export const ballMaxBounce = 10;
 
 export const ballShape: PH2D.CircleShape = new PH2D.CircleShape(ballRadius);
 export const paddleShape: PH2D.PolygonShape = new PH2D.PolygonShape(paddleSize[0] / 2, paddleSize[1] / 2);

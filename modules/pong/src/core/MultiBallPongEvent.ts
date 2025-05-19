@@ -14,13 +14,15 @@ export default class MultiBallPongEvent extends PongEvent {
 
 	public override activate(game: Pong, playerId: PlayerID): void {
 		const isFirstMultiBall = game.activeEvents.find((event) => event instanceof MultiBallPongEvent) === undefined;
+		const ball = game.balls[0];
+		ball.enableDamage();
 		for (let i = 0; i < K.maxBallAmount - 1; i++) {
-			const ball = game.balls[Math.floor(Math.random() * game.balls.length)];
+			// const ball = game.balls[Math.floor(Math.random() * game.balls.length)];
 			const newBall: Ball = new Ball(
 				ball.position,
 				Vec2.rotate(
 					Vec2.create(),
-					ball.velocity,
+					Vec2.rotate(Vec2.create(), ball.velocity, Vec2.create(), Math.PI / 2 * i),
 					Vec2.create(),
 					Math.PI / 2
 				) as Vec2,
@@ -28,7 +30,6 @@ export default class MultiBallPongEvent extends PongEvent {
 			);
 			newBall.enableDamage();
 			game.addBall(newBall);
-			ball.enableDamage();
 		}
 		super.activate(game, playerId);
 		if (isFirstMultiBall) {

@@ -18,7 +18,7 @@ export const updateInputBlock = function(mat, config) {
     const keys = Object.keys(config);
 
     keys.forEach((key) => {
-    const targetBlock = mat.getInputBlockByPredicate(b => b.name === key);
-    targetBlock.value = config[key];
+        const targetBlock = mat.getInputBlockByPredicate(b => b.name === key);
+        targetBlock.value = config[key];
     });
 }
