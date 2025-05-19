@@ -371,8 +371,8 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.305882353, 0.384313725, 0.521568627));
 		
 		this.loadBalls();
-		this.bindPaddles();
 		this.updateMeshes();
+		this.launchBall();
 	}
 	
 	private localScene() {
@@ -428,7 +428,11 @@ export default class PongClient extends PONG.Pong {
 				this.updateLocal();
 			}
 		}
-		// this.update();
+		else if (this._currentMap) {
+			let dt: number = this._engine.getDeltaTime() / 1000;
+			dt = this.physicsUpdate(dt);
+			this.updateMeshes(dt, dt);
+		}
 		this._babylonScene.render();
 	}
 

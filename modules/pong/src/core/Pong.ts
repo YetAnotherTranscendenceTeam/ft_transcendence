@@ -202,7 +202,7 @@ export class Pong {
 			team_count: 0,
 		});
 		this._matchParameters = {
-			obstacles: false,
+			obstacles: true,
 			events: [],
 			ball_speed: K.defaultBallSpeed,
 			point_to_win: K.defaultPointsToWin,
@@ -279,7 +279,7 @@ export class Pong {
 		return scored;
 	}
 
-	private launchBall() {
+	protected launchBall() {
 		this._balls.forEach((ball: Ball) => {
 			ball.position[0] = 0;
 			ball.position[1] = 0;
