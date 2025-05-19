@@ -60,10 +60,59 @@ make prod
 
 ## Services
 
-<!-- TODO: Insert the service communication schema image here! -->
+![Services Communications Graph](./documentation/services-communications.png "Services Communications Graph")
 
+### API Nginx
 
-<!-- TODO: Complete these  -->
+This service is a webserver acting as the API gateway. Every request received is forwarded to the appropriate service based on the requested URL.
+
+### Credentials
+
+This service manages the account database, holding every account credentials secure on an internal network. Other services use it to validate an account creation or an authentication request from the client.
+
+### Registration
+
+This service handles password based account creation.
+
+### Password-auth
+
+This service handles authentication requests using a password based account.
+
+### Google-auth
+
+This service handles authentication requests using the Google Sign in.
+
+### Fortytwo-auth
+
+This service handles authentication requests using the Google Sign in.
+
+### 2FA
+
+This service handles multi authentication verification
+
+### Token-manager
+
+This service delivers and refresh `Json Web Tokens` to authenticated users, providing them a way to proove their identity to other services.
+
+### Profiles
+
+This service manages the profile database. Other services use it to resolve public profile information associated with an account.
+
+### Settings
+
+This service handles every account modification request, making sure requested changes are forwarded to the associated service.
+
+### Avatars
+
+This service handles users profile pictures, allowing them to retreive all pictures available to them and to upload custom ones.
+
+### Social
+
+This service handles users relationships. It broadcast live activity status to users friends and allow them to send/receive game invitations through notifications.
+
+### Spectator
+
+This service allows users to spectate online games.
 
 ### Matchmaking
 
@@ -78,4 +127,10 @@ This is also the only entrypoint to the matchmaking queue.
 
 This is the game server, it receives game reservations from the matchmaking service, players connect to this service to play the game. It also sends the match results back to matchmaking to update the backend match entries and tournaments.
 
+### CDN Nginx
 
+This service is a webserver serving assets.
+
+### CDN API
+
+This service handles the `CDN` content. It allows other services to upload or delete ressources.
