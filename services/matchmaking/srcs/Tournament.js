@@ -111,6 +111,7 @@ class TournamentMatch {
     if (state === TournamentMatchState.PLAYING) {
       await this.createInternalMatch();
     }
+    // createInternalMatch will set the state to cancelled if it fails
     if (this.state === TournamentMatchState.CANCELLED) {
       this.updateDB();
       this.tournament.cancel();
@@ -363,7 +364,6 @@ export class Tournament {
         active
       },
     })
-    
   }
 
   finish() {
@@ -389,7 +389,6 @@ export class Tournament {
         subscriber.raw.end();
       }
     );
-    console.log(`Tournament ${this.id} finished`);
     this.updateToLobbyConnection(false);
   }
 

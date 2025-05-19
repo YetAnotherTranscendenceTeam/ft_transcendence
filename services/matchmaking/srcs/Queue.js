@@ -138,6 +138,7 @@ export class Queue {
             })
           });
           tournament.delete();
+          return;
         }
         this.fastify.tournaments.registerTournament(tournament);
         this.lobbyConnection.send({
