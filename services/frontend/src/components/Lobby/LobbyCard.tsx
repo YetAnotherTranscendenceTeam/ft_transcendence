@@ -21,7 +21,7 @@ export default function LobbyCard() {
 	const navigate = useNavigate();
 	const { tournament_id } = useRTTournament();
 	const [queueSince, setQueueSince] = Babact.useState<number>(0);
-	const [queueTime, setQueueTime] = Babact.useState<number>(0);
+	const [queueTime, setQueueTime] = Babact.useState<number>(null);
 
 	Babact.useEffect(() => {
 		if (lobby && lobby.state.type === 'queued') {
