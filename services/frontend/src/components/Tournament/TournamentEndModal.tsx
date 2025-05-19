@@ -39,7 +39,7 @@ export default function TournamentEndModal({
 			{winningTeam.players.map((player) => (
 				<div key={player.account_id} className='flex items-center gap-2'>
 					<Avatar src={player.profile.avatar} name={player.profile.username}  />
-					{finalMatch.teams[0].players.length > 1 && <p>{player.profile.username}</p>}
+					{finalMatch?.teams[0]?.players?.length > 1 && <p>{player.profile.username}</p>}
 				</div>
 			))}
 		</div>
