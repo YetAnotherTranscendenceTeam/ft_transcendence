@@ -27,6 +27,8 @@ db.exec(`
   END;
 `);
 
+db.exec(`CREATE INDEX IF NOT EXISTS idx_accounts_auth_method ON accounts (auth_method)`);
+
 // Password authentication
 db.exec(`
   CREATE TABLE IF NOT EXISTS password_auth (
@@ -66,5 +68,7 @@ db.exec(`
   FOREIGN KEY (account_id) REFERENCES accounts(account_id) ON DELETE CASCADE
   )
 `)
+
+db.exec(`CREATE INDEX IF NOT EXISTS idx_otp_methods_account_id ON otp_methods (account_id)`);
 
 export default db;
