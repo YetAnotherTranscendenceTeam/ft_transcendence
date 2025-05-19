@@ -139,16 +139,15 @@
 }
 
 .mode-button-mmr {
-	align-self: center;
-	width: fit-content;
-	position: relative;
-	height: 100%;
+	width: 100%;
+	/* background-color: aqua; */
 }
 
 .mode-button-mmr h3 {
 	font-weight: bold;
-	font-size: 5rem;
+	font-size: xx-large;
 	color: var(--fg-2);
+	text-transform: capitalize;
 }
 
 .mode-button-mmr .pop-hover{
@@ -159,9 +158,5 @@
 
 .mode-button-mmr .pop-hover-container {
 	font-size: small;
-	position: absolute;
-	left: 50%;
-	transform: translateX(-50%);
-	bottom: 0px;
 	color: var(--fg-3);
 }

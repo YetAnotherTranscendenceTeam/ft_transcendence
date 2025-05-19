@@ -43,18 +43,18 @@ export default function ModeButton({
 		className={`mode-button flex flex-col justify-end gap-2 ${gamemode.type} ${disabled ? 'disabled' : ''} ${selected ? 'selected' : ''}`}
 		onClick={() => onSelect(gamemode.name)}
 	>
-		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 justify-center'>
+		{gamemode.type === GameModeType.RANKED && <div className='mode-button-mmr flex gap-1 items-center justify-center h-full'>
 			<h3>{Math.floor(rating) || "unranked"}</h3>
 			<PopHover
 				content="Matchmaking Rating is a score that reflects your skill level in the game. It's used to match you with players of similar ability."
-			>
+				>
 				<i className="fa-solid fa-circle-info"></i>
 			</PopHover>
 		</div>}
 		<div className='flex gap-1 items-end'>
 			<h1>{getIcon()} {gamemode.getDisplayTypeName()}</h1>
 			{(gamemode.type === GameModeType.RANKED || gamemode.type === GameModeType.UNRANKED) && <h2>{gamemode.getDisplayName()}</h2>}
-		</div>
+			</div>
 		<p>{getDescription()}</p>
 	</div>
 }
