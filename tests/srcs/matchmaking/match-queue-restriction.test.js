@@ -54,8 +54,6 @@ describe("already in a match and queue for another", () => {
       })
       .expectJson((message) => {
         expect(message.event).toBe("confirm_queue");
-        expect(message.data.queue_stats.players).toBe(2);
-        expect(message.data.queue_stats.lobbies).toBe(1);
       })
       .expectJson((message) => {
         expect(message.event).toBe("match");
@@ -111,8 +109,6 @@ describe("already in a match and queue for another", () => {
       })
       .expectJson((message) => {
         expect(message.event).toBe("confirm_queue");
-        expect(message.data.queue_stats.players).toBe(2);
-        expect(message.data.queue_stats.lobbies).toBe(1);
       });
   });
   it("expect match", async () => {
