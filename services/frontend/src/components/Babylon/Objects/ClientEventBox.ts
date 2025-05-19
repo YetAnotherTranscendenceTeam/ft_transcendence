@@ -26,7 +26,7 @@ export default class ClientEventBox extends AObject {
 		)
 		this._mesh.position = new BABYLON.Vector3(
 			this._physicsBody.position.x,
-			0.05,
+			0.051,
 			this._physicsBody.position.y
 		);
 		this._material = createEventBoxMaterial(name + "Mat", this._scene);

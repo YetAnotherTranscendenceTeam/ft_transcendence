@@ -304,6 +304,7 @@ export default class PongScene {
 		for (let i = 0; i < PONG.K.maxBallAmount; i++) {
 			const ball = new ClientBall(this._scene, "ball" + i, undefined);
 			// ball.disable();
+			ball.enable();
 
 
 			// shadow

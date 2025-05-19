@@ -116,8 +116,29 @@ export default class PongClient extends PONG.Pong {
 		this._engine.runRenderLoop(this.loop);
 
 		this._state = PONG.PongState.RESERVED.clone();
-		
-		//this.setGameScene(GameScene.ONLINE);
+	}
+
+	public load() {
+		console.log("load");
+		const testBall1 = new PONG.Ball(new Vec2(0, 1), new Vec2(0, 0), 0);
+		const testBall2 = new PONG.Ball(new Vec2(0, -1), new Vec2(0, 0), 0);
+		const testBall3 = new PONG.Ball(new Vec2(1, 0), new Vec2(0, 0), 0);
+		const testBall4 = new PONG.Ball(new Vec2(-1, 0), new Vec2(0, 0), 0);
+		this.addBall(testBall1);
+		this.addBall(testBall2);
+		this.addBall(testBall3);
+		this.addBall(testBall4);
+		this._babylonScene.ballInstances.forEach((ball: ClientBall) => {
+			ball.mesh.render(ball.mesh.subMeshes[0], true);
+			// ball.mesh.render(ball.mesh.subMeshes[1], true);
+		});
+		this._babylonScene.render();
+		this._engine._renderLoop();
+		this.removeBall(testBall1);
+		this.removeBall(testBall2);
+		this.removeBall(testBall3);
+		this.removeBall(testBall4);
+		this.callbacks.loadingComplete();
 	}
 
 	private updateOverlay() {
