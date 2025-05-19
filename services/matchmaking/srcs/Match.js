@@ -13,6 +13,12 @@ export const MatchState = {
 };
 
 export class Match {
+  static deleteMatch = db.prepare(
+    `
+    DELETE FROM matches WHERE match_id = ?
+    `
+  )
+  
   static fromQueryResult(qresult) {
     return new Match(qresult);
   }
@@ -136,8 +142,12 @@ export class Match {
     this.state = MatchState.CANCELLED;
   }
 
+  delete() {
+    Match.deleteMatch.run(this.match_id);
+    this.state = MatchState.CANCELLED;
+  }
+
   async reserve(lobbyConnection, lobbies) {
-    this.fastify.matches.addMatch(this, lobbies, lobbyConnection);
     await YATT.fetch(`http://pong:3000/matches`, {
       method: "POST",
       headers: {
@@ -154,6 +164,7 @@ export class Match {
         match_parameters: this.match_parameters
       })
     });
+    this.fastify.matches.addMatch(this, lobbies, lobbyConnection);
     console.log("Reserved match for matchid", this.match_id);
   }
 }

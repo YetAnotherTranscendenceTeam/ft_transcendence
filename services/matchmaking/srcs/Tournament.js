@@ -111,6 +111,12 @@ class TournamentMatch {
     if (state === TournamentMatchState.PLAYING) {
       await this.createInternalMatch();
     }
+    // createInternalMatch will set the state to cancelled if it fails
+    if (this.state === TournamentMatchState.CANCELLED) {
+      this.updateDB();
+      this.tournament.cancel();
+      return;
+    }
     this.state = state;
     this.tournament.broadcast("match_update", {
       match: this,
@@ -130,9 +136,17 @@ class TournamentMatch {
     );
     this.internal_match.match_parameters = this.tournament.match_parameters;
     this.internal_match.insert();
-    await this.internal_match.reserve(this.tournament.lobbyConnection, []);
-    this.tournament.manager.registerTournamentMatch(this);
-    return this.internal_match;
+    try {
+      await this.internal_match.reserve(this.tournament.lobbyConnection, []);
+      this.tournament.manager.registerTournamentMatch(this);
+      return this.internal_match;
+    }
+    catch(e) {
+      this.internal_match.delete();
+      this.internal_match = null;
+      this.state = TournamentMatchState.CANCELLED;
+      return null;
+    }
   }
 
   async updateMatch({ state, score_0, score_1 }) {
@@ -168,7 +182,8 @@ class TournamentMatch {
         return;
       }
       this.nextMatch.team_ids[this.nextMatchTeamIndex] = this.team_ids[winner_team];
-      if (this.nextMatch.shouldStart()) await this.nextMatch.setState(TournamentMatchState.PLAYING);
+      if (this.nextMatch.shouldStart())
+          await this.nextMatch.setState(TournamentMatchState.PLAYING);
       else {
         this.nextMatch.updateDB();
         this.tournament.broadcast("match_update", {
@@ -249,7 +264,7 @@ export class Tournament {
   }
 
   async insert() {
-    await db.transaction(async () => {
+    db.transaction(async () => {
       let obj = db
         .prepare(
           `
@@ -271,8 +286,8 @@ export class Tournament {
           player.insert();
         }
       }
-      await this.createMatches();
     })();
+    return await this.createMatches();
   }
 
   async createMatches() {
@@ -326,7 +341,11 @@ export class Tournament {
     });
     for (let match of toStart) {
       await match.setState(TournamentMatchState.PLAYING);
+      if (match.state === TournamentMatchState.CANCELLED) {
+        return false;
+      }
     };
+    return true;
   }
 
   toJSON() {
@@ -353,6 +372,16 @@ export class Tournament {
     this.finish();
   }
 
+  delete() {
+    db.prepare(
+      `
+      DELETE FROM tournaments
+      WHERE tournament_id = ?
+      `
+    ).run(this.id);
+    this.manager.unregisterTournament(this);
+  }
+
   updateToLobbyConnection(active=true) {
     this.lobbyConnection.send({
       event: "tournament_update",
@@ -367,7 +396,6 @@ export class Tournament {
         active
       },
     })
-    
   }
 
   finish() {
@@ -378,6 +406,11 @@ export class Tournament {
       WHERE tournament_id = ?
       `
     ).run(0, this.id);
+    for (let match of this.matches) {
+      if (match.internal_match) {
+        this.manager.unregisterTournamentMatch(match);
+      }
+    }
     this.manager.unregisterTournament(this);
     this.broadcast(
       "finish",
