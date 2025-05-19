@@ -68,11 +68,13 @@ export default class PongClient extends PONG.Pong {
 	public callbacks: {
 		onConnectionError?: (this: WebSocket, error: CloseEvent) => void,
 		updateOverlay: (params: IPongOverlay) => void,
+		loadingComplete: () => void,
 	};
 
 	public constructor(callbacks: {
 		onConnectionError?: (this: WebSocket, error: CloseEvent) => void,
 		updateOverlay: (params: IPongOverlay) => void,
+		loadingComplete: () => void,
 	}) {
 		super();
 		this._spectatorCount = null;
@@ -97,7 +99,7 @@ export default class PongClient extends PONG.Pong {
 				}
 			}
 		}
-		quality = GraphicsQuality.LOW; // DEBUG
+		// quality = GraphicsQuality.LOW; // DEBUG
 
 		this._engine = new Engine(this._canvas, true);
 		// this._engine = new BABYLON.WebGPUEngine(this._canvas);

@@ -303,7 +303,7 @@ export default class PongScene {
 		// Preload the ball (PONG.K.maxBallAmount)
 		for (let i = 0; i < PONG.K.maxBallAmount; i++) {
 			const ball = new ClientBall(this._scene, "ball" + i, undefined);
-			ball.disable();
+			// ball.disable();
 
 
 			// shadow
@@ -452,7 +452,7 @@ export default class PongScene {
 			return;
 		}
 		if (this._pong.currentMap.mapId === PONG.MapID.FAKE) { // Camera rotation
-			if (this.cameraInertia < 3) {
+			if (this.cameraInertia < 2) {
 				this.cameraInertia += dt;
 			}
 			const tmp = this.cameraInertia / 6;

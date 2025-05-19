@@ -13,3 +13,15 @@ export default function createBallMaterial(name: string, scene: BABYLON.Scene): 
 	// ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
 	return ballMaterial;
 }
+
+export function createGlassBallMaterial(name: string, scene: BABYLON.Scene): BABYLON.PBRMaterial {
+	const ballMaterial = new BABYLON.PBRMaterial(name, scene);
+	ballMaterial.metallic = 0;
+	ballMaterial.roughness = 0;
+	ballMaterial.albedoColor = new BABYLON.Color3(1, 1, 1);
+	ballMaterial.subSurface.isRefractionEnabled = true;
+	// ballMaterial.subSurface.indexOfRefraction = 0.5;
+	// ballMaterial.subSurface.isScatteringEnabled = true;
+	// ballMaterial.subSurface.isTranslucencyEnabled = true;
+	return ballMaterial;
+}

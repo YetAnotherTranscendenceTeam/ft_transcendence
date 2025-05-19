@@ -47,6 +47,9 @@ export const PongProvider = ({ children } : {children?: any}) => {
 					if (errors[error.reason])
 						createToast(errors[error.reason], ToastType.DANGER);
 					navigate('/');
+				},
+				loadingComplete: () => {
+					// called when the game is loaded
 				}
 			}
 		);
