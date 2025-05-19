@@ -34,13 +34,12 @@ export default function Scores() {
 		}
 	}, [overlay.scores[0], overlay.scores[1]]);
 
-	const leftEvent = overlay.activeEvents.filter(e => e.team === MapSide.LEFT && !e.isGlobal);
-	const rightEvent = overlay.activeEvents.filter(e => e.team === MapSide.RIGHT && !e.isGlobal);
+	const leftEvent = overlay.activeEvents.filter(e => !e.isGlobal).sort((a, b) => b.team - a.team);
+	const rightEvent = overlay.activeEvents.filter(e => !e.isGlobal).sort((a, b) => a.team - b.team).reverse();
 
 	return <div className='scores-container flex items-center justify-center gap-4'>
-		<div className='score-events left flex items-center justify-center gap-2'>
-			{leftEvent.map((event) => <PowerUpIcon powerUp={event}/>)}
-			{rightEvent.map((event) => <PowerUpIcon powerUp={event} hidden/>)}
+		<div className='score-events left flex items-center justify-end gap-2'>
+			{leftEvent.map((event) => <PowerUpIcon powerUp={event} hidden={event.team === MapSide.RIGHT}/>)}
 		</div>
 		<Card className='scores'>
 		<div className="flex flex-row gap-2 items-center flex-1">
@@ -92,9 +91,8 @@ export default function Scores() {
 			{Math.round(overlay.time / 60).toString().padStart(2, '0')} : {Math.round(overlay.time % 60).toString().padStart(2, '0')}
 		</Card>
 	</Card>
-		<div className='score-events right flex items-center justify-center gap-2'>
-			{rightEvent.map((event) => <PowerUpIcon powerUp={event}/>)}
-			{leftEvent.map((event) => <PowerUpIcon powerUp={event} hidden/>)}
+		<div className='score-events right flex items-center justify-start gap-2'>
+			{rightEvent.map((event) => <PowerUpIcon powerUp={event} hidden={event.team === MapSide.LEFT}/>)}
 		</div>
 	</div>
 }

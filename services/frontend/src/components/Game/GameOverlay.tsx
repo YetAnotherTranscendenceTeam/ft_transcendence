@@ -54,16 +54,10 @@ export default function GameOverlay({
 					<i className="fa-solid fa-play"></i> Start Game
 				</Button>
 			}
-			{
-				overlay.local && overlay.gameStatus.name === PongState.PAUSED.name &&
+			{ overlay.local && overlay.gameStatus.name === PongState.PAUSED.name &&
 				<Button className="primary" onClick={() => onResume()}>
 					<i className="fa-solid fa-play"></i> Resume
 				</Button>
-			}
-			{globalEvents.length > 0 &&
-				<div className='game-overlay-powerups flex items-center justify-center gap-2'>
-					{globalEvents.map((p) => <PowerUpIcon powerUp={p} key={p.type} />)}
-				</div>
 			}
 			{ overlay.local && (overlay.gameStatus.name === PongState.RESERVED.name || overlay.local && overlay.gameStatus.name === PongState.PAUSED.name) && <div className='game-overlay-local-keyhint flex w-full align-center'>
 				<KeyHint

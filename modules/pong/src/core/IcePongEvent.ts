@@ -13,17 +13,26 @@ const ICE_INERTIA_PREV = 0.95;
 const ICE_INERTIA = 0.3;
 
 export default class IcePongEvent extends PongEvent {
-	private _moveBackup: ((direction: number) => void)[];
+	private _moveBackup: ((direction: number) => void);
 
 	constructor() {
 		super(PongEventType.ICE, PongEventActivationSide.BOTH);
-		this._moveBackup = [];
 	}
 
 	public override activate(game: Pong, playerId: PlayerID): void {
-		super.activate(game, playerId, ICE_TIME);
-		game.paddles.forEach((paddle: Paddle) => {
-			this._moveBackup.push(paddle.move);
+		let target = playerId;
+		if (game.isServer()) {
+			if (target < PlayerID.RIGHT_BACK)
+				target += 2;
+			else
+				target -= 2;
+		}
+		super.activate(game, target, ICE_TIME);
+		game.paddles.forEach((paddle: Paddle, idx: number) => {
+			if (idx !== target) {
+				return;
+			}
+			this._moveBackup = paddle.move;
 			// paddle.changeType(PH2D.PhysicsType.DYNAMIC);
 			paddle.move = (direction: number): void => {
 				// paddle.velocity = new Vec2(0, direction * paddle.speed);
@@ -48,8 +57,11 @@ export default class IcePongEvent extends PongEvent {
 
 	public override deactivate(game: Pong): void {
 		super.deactivate(game);
-		game.paddles.forEach((paddle: Paddle) => {
-			paddle.move = this._moveBackup.shift();
+		game.paddles.forEach((paddle: Paddle, idx) => {
+			if (idx !== this._playerId) {
+				return;
+			}
+			paddle.move = this._moveBackup;
 			if (paddle.move === undefined) {
 				console.error('move function is undefined');
 				paddle.move = (direction: number): void => {
@@ -61,6 +73,6 @@ export default class IcePongEvent extends PongEvent {
 	}
 
 	public override isGlobal(): boolean {
-		return true;
+		return false;
 	}
 }
