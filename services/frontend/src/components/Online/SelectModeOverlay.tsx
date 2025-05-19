@@ -42,7 +42,7 @@ export default function SelectModeOverlay({
 		}
 	  }, [isOpen]);
 
-	if (!gamemodes) return <div>Loading...</div>;
+	if (!gamemodes) return;
 
 	const [mode, setMode] = Babact.useState<string>('1v1');
 
