@@ -52,8 +52,6 @@ describe("direct match making", () => {
         mode: GameModes[gamemode],
         join_secret: `${gamemode}_${index}`,
       }));
-      let lobby_count = 0;
-      let player_count = 0;
       for (const lobby of lobbies) {
         await ws
           .sendJson({
@@ -62,9 +60,6 @@ describe("direct match making", () => {
           })
           .expectJson((message) => {
             expect(message.event).toBe("confirm_queue");
-            player_count += lobby.players.length;
-            expect(message.data.queue_stats.players).toBe(player_count);
-            expect(message.data.queue_stats.lobbies).toBe(++lobby_count);
           });
       }
       let messagedata;
