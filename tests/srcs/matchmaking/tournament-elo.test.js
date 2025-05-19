@@ -65,7 +65,7 @@ it("connect to matchmaking websocket", async () => {
     });
 });
 
-const MATCH_COUNT = 64;
+const MATCH_COUNT = 80;
 describe.each(new Array(MATCH_COUNT).fill(null).map((_, i) => i))(
   `Create math data for match %d`,
   () => {
@@ -216,7 +216,6 @@ describe.each(Array.from({ length: 14 }, (_, i) => i + 3))("elo based tournament
       expect(message.data.match.tournament.id).toBeDefined();
       expect(message.data.match.tournament.teams.length).toBe(player_count);
       tournament = message.data.match.tournament;
-      console.log("Tournament id", tournament.id);
       for (let player of tournament.teams.map((team) => team.players).flat()) {
         expect(player.rating).toBe(
           results.find((p) => users[p.og_index].account_id == player.account_id).rating
@@ -230,11 +229,6 @@ describe.each(Array.from({ length: 14 }, (_, i) => i + 3))("elo based tournament
       if (stages[match.stage]) stages[match.stage].push(match);
       else stages[match.stage] = [match];
     }
-    console.log({
-      sorted_teams: tournament.teams
-        .toSorted((a, b) => b.players[0].rating - a.players[0].rating)
-        .map((team) => team.players[0]),
-    });
     stages.reverse();
   });
   it.each(Array.from({ length: Math.ceil(Math.log2(player_count)) }, (_, index) => index))(
@@ -253,11 +247,9 @@ describe.each(Array.from({ length: 14 }, (_, i) => i + 3))("elo based tournament
         match.match_id = updated_match.match_id;
         match.state = updated_match.state;
         match.team_ids = updated_match.team_ids;
-        console.log({match})
         expect(match.state).toBe("playing")
         const teams = match.team_ids.map((id) => tournament.teams[id]);
         const ratings = teams.map((team) => team.players[0].rating);
-        console.log({ players: teams.map((team) => team.players[0]), stageIndex, team_ids: match.team_ids });
         const winner = ratings.indexOf(Math.max(...ratings));
         await finishMatch(app, match.match_id, winner);
         await ws.expectJson((message) => {
