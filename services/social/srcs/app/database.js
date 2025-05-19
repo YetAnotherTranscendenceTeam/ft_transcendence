@@ -45,6 +45,8 @@ db.exec(`
   )
 `);
 
+db.exec(`CREATE INDEX IF NOT EXISTS idx_friendships_user2 ON friendships (user2)`);
+
 // blocks table
 db.exec(`
   CREATE TABLE IF NOT EXISTS blocks (

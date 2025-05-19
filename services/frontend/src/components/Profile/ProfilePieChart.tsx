@@ -19,13 +19,6 @@ export default function ProfilePieChart({
 	};
 
 	Babact.useEffect(() => {
-		console.log('chart mounted');
-		return () => {
-			console.log('chart unmounted');
-		}
-	}, []);
-
-	Babact.useEffect(() => {
 
 		const canvas = document.getElementById('gamemode-chart') as HTMLCanvasElement;
 		const chart = new Chart(
@@ -45,7 +38,6 @@ export default function ProfilePieChart({
 				}
 			}
 		);
-		console.log('chart', chart);
 		return () => {
 			chart.destroy();
 		}

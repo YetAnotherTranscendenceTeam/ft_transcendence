@@ -70,7 +70,11 @@ export default function SelectModeOverlay({
 					className="w-fit"
 				/>
 				<div className='flex flex-row gap-4'>
-					{ranked && <ModeButton gamemode={ranked} onSelect={onSelect} rating={matchmakingUsers.find((mu) => mu.gamemode === ranked.name)?.rating} />}
+					{ranked && <ModeButton 
+						gamemode={ranked} 
+						onSelect={onSelect} 
+						rating={matchmakingUsers.find((mu) => mu.gamemode === ranked.name && mu.match_count !== 0)?.rating}
+					/>}
 					{unranked && <ModeButton gamemode={unranked} onSelect={onSelect} />}
 				</div>
 			</div>
