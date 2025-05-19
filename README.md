@@ -67,7 +67,7 @@ make prod
 
 ### Matchmaking
 
-This services handles matching lobbies with similar skill levels, it uses a custom rating to evaluate a player's skills. It also handles tournaments and makes automatically balances tournaments using player rating. The match history is also stored here. 
+This services handles matching lobbies with similar skill levels, it uses a custom rating to evaluate a player's skills. It also handles tournaments and automatically balances tournaments using player rating. The match history is also stored here. 
 
 ### Lobbies
 
@@ -76,6 +76,6 @@ This is also the only entrypoint to the matchmaking queue.
 
 ### Pong
 
-This is the game server, it receives game reservations from the matchmaking service, players connect to this service to play the game. It also sends the match results back to matchmaking to update the backend match entries and tournaments.
+This is the game server, it receives game reservations from the matchmaking service, players connect here to play the game. It also sends the match results back to matchmaking to update the backend match entries and tournaments.
 
 
