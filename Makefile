@@ -46,7 +46,7 @@ $(SSL_CERTIFICATE):
 		-keyout secrets/localhost.key \
 		-subj "/C=FR/ST=Rhone-Alpes/L=Lyon/O=YATT/OU=IT Department/CN=www.localhost.com"
 
-test:
+test: $(SERVICES_DEPS)
 	(cd ./tests && npm i)
 	npm --prefix ./tests run test
 
