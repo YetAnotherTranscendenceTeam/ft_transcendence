@@ -2,7 +2,7 @@ import * as PH2D from "physics-engine";
 import * as PONG from "pong";
 import * as BABYLON from "@babylonjs/core";
 import AObject from "./Objects/AObject";
-import { GraphicsQuality, IServerStep, PaddleSyncs } from "./types";
+import { ClientMap, GraphicsQuality, IServerStep, PaddleSyncs } from "./types";
 import ClientBall from "./Objects/ClientBall";
 import ClientPaddle from "./Objects/ClientPaddle";
 import ClientWall from "./Objects/ClientWall";
@@ -42,12 +42,12 @@ export default class PongScene {
 	public camera: BABYLON.ArcRotateCamera;
 	private cameraInertia: number;
 	public stadiumLights: BABYLON.DirectionalLight[]; // 4 lights
-	public lightGizmo: BABYLON.LightGizmo;
+	// public lightGizmo: BABYLON.LightGizmo;
 
-	public meshMap: Map<PONG.MapID, Array<AObject>>;
+	// public meshMap: Map<PONG.MapID, Array<AObject>>;
+	public meshMap: Map<PONG.MapID, ClientMap>;
 	// public shadowGenerator: BABYLON.ShadowGenerator;
 	public stadiumShadowGenerator: BABYLON.ShadowGenerator[];
-	public ground: BABYLON.Mesh; // TEST
 
 	public ballInstances: Array<ClientBall>;
 	private _ballUsed: number;
@@ -57,7 +57,7 @@ export default class PongScene {
 		this._canvas = canvas;
 		this._engine = engine;
 		this._pong = pong;
-		this.meshMap = new Map<PONG.MapID, Array<AObject>>();
+		this.meshMap = new Map<PONG.MapID, ClientMap>();
 		this.ballInstances = [];
 		this.paddleInstance = new Map<number, ClientPaddle>();
 		this._ballUsed = 0;
@@ -156,8 +156,8 @@ export default class PongScene {
 			this.stadiumShadowGenerator[i].blurKernel = 32;
 			// this.stadiumShadowGenerator[i].getShadowMap().refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
 
-			const lightGizmo = new BABYLON.LightGizmo();
-			lightGizmo.light = light;
+			// const lightGizmo = new BABYLON.LightGizmo();
+			// lightGizmo.light = light;
 
 			// dlh.push(new DirectionalLightHelper(light, lightGizmo));
 		}
@@ -166,58 +166,9 @@ export default class PongScene {
 		// testLight.intensity = 1;
 		// testLight.diffuse = new BABYLON.Color3(1, 0, 0);
 		// testLight.specular = new BABYLON.Color3(1, 0, 0);
-
-
-
-		// const shieldMat: BABYLON.NodeMaterial = createShieldMaterial(this._scene);
-
-		// // addGlow(this._scene, cube);
-		// updateInputBlock(shieldMat, {
-		// 	baseColor: BABYLON.Color3.FromHexString("#0077ff"),
-		// 	baseColorStrength: 0.75,
-		// 	bias: 0,
-		// });
-
-		// const ballMaterial = new BABYLON.PBRMaterial("ballMaterial", this._scene);
-		// ballMaterial.metallic = 1;
-		// ballMaterial.roughness = 1;
-		// ballMaterial.albedoTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._scene);
-		// ballMaterial.metallicTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_metallic.png", this._scene);
-		// ballMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_roughness.png", this._scene);
-		// ballMaterial.bumpTexture = new BABYLON.Texture("/assets/images/TCom_Metal_StainlessClean_1K_normal.png", this._scene);
-		// // ballMaterial.reflectionTexture = hdrTexture;
-		// // ballMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.PLANAR_MODE;
-		// ClientBall.template = ballMaterial;
-
-		// const obstacleMaterial = new BABYLON.PBRMaterial("obstacleMaterial", this._scene);
-		// obstacleMaterial.metallic = 0;
-		// obstacleMaterial.roughness = 0.5;
-		// obstacleMaterial.albedoColor = new BABYLON.Color3(0.25, 0.5, 0.62);
-		// // obstacleMaterial.alpha = 0.5;
-		// ClientObstacle.template = obstacleMaterial;
-
-		// const paddleMaterial = new BABYLON.PBRMaterial("paddleMaterial", this._scene);
-		// paddleMaterial.metallic = 0;
-		// paddleMaterial.roughness = 0.5;
-		// paddleMaterial.albedoColor = BABYLON.Color3.White();
-		// ClientPaddle.template = paddleMaterial;
-
-		// const goalMaterial = new BABYLON.PBRMaterial("goalMaterial", this._scene);
-		// goalMaterial.metallic = 0;
-		// goalMaterial.roughness = 0.5;
-		// goalMaterial.albedoColor = BABYLON.Color3.Red();
-		// goalMaterial.alpha = 0.5;
-		// ClientGoal.template = shieldMat.clone("goalMaterial");
-
-		// const eventBoxMaterial = new BABYLON.PBRMaterial("eventBoxMaterial", this._scene);
-		// eventBoxMaterial.metallic = 0;
-		// eventBoxMaterial.roughness = 0.5;
-		// eventBoxMaterial.albedoColor = BABYLON.Color3.Green();
-		// eventBoxMaterial.alpha = 0.5;
-		// ClientEventBox.template = eventBoxMaterial;
 		
 		pong.maps.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
-			const mapMesh: Array<AObject> = [];
+			const mapObject: Array<AObject> = [];
 			let counter: number = 0;
 
 			const objects: PH2D.Body[] = map.getObjects();
@@ -236,12 +187,60 @@ export default class PongScene {
 				}
 				if (clientObject !== undefined) {
 					clientObject.disable();
-					mapMesh.push(clientObject);
+					mapObject.push(clientObject);
 				}
 				counter++;
 			});
+
+			// const ground: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround("ground" + mapId, { width: map.width, height: map.height}, this._scene);
+			// const groundMaterial = new BABYLON.PBRMaterial("groundMaterial" + mapId, this._scene);
+			// groundMaterial.albedoTexture = new BABYLON.Texture("/assets/images/asphalt/asphalt_diff.png", this._scene);
+			// groundMaterial.bumpTexture = new BABYLON.Texture("/assets/images/asphalt/asphalt_nor_dx.png", this._scene);
+			// // groundMaterial.microSurfaceTexture = new BABYLON.Texture("/assets/images/asphalt/asphalt_rough.png", this._scene);
+			// // groundMaterial.ambientTexture = new BABYLON.Texture("/assets/images/asphalt/asphalt_ao.png", this._scene);
+			// groundMaterial.metallicTexture = new BABYLON.Texture("/assets/images/asphalt/asphalt_arm.png", this._scene);
+			// groundMaterial.useAmbientOcclusionFromMetallicTextureRed = true;
+			// groundMaterial.useRoughnessFromMetallicTextureGreen = true;
+			// groundMaterial.useMetallnessFromMetallicTextureBlue = true;
+			// // groundMaterial.albedoTexture.
+
+			// // strength of the normal map
+
+			// ground.material = groundMaterial;
+			// ground.position.y = 0.01;
+			// ground.setEnabled(false);
+
+			const iceLeft: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround("iceLeft" + mapId, { width: map.width / 2, height: map.height }, this._scene);
+			const iceRight: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround("iceRight" + mapId, { width: map.width / 2, height: map.height }, this._scene);
+			iceLeft.position.x = -map.width / 4;
+			iceRight.position.x = map.width / 4;
+			iceLeft.position.y = 0.01;
+			iceRight.position.y = 0.01;
+
+			const iceMaterial = new BABYLON.PBRMaterial("iceLeftMaterial", this._scene);
+			iceMaterial.metallic = 0;
+			iceMaterial.roughness = 0.2;
+			iceMaterial.albedoColor = BABYLON.Color3.FromHexString("#9deef2");
+			// iceMaterial.ambientColor = new BABYLON.Color3(1, 1, 1);
+			iceMaterial.alpha = 0.2;
+			// iceMaterial.subSurface.isTranslucencyEnabled = true;
+			iceLeft.material = iceMaterial;
+			iceRight.material = iceMaterial.clone("iceRightMaterial");
+			iceLeft.receiveShadows = true;
+			iceRight.receiveShadows = true;
+
+			// iceLeft.setEnabled(false);
+			// iceRight.setEnabled(false);
 			
-			this.meshMap.set(mapId, mapMesh);
+			this.meshMap.set(mapId, {
+				mapId: mapId,
+				objects: mapObject,
+				ground: null,
+				iceRink: {
+					left: iceLeft,
+					right: iceRight,
+				}
+			});
 		});
 
 		// // // Test Cube
@@ -253,16 +252,8 @@ export default class PongScene {
 		// pbr.albedoColor = new BABYLON.BABYLON.Color3(0.7, 0.8, 0.3);
 		// pbr.metallic = 0.0;
 		// pbr.roughness = 1.0;
-		// const shieldMat = createShieldMaterial(this._scene);
-		// cube.material = shieldMat;
+		// cube.material = pbr;
 		// cube.receiveShadows = true;
-
-		// addGlow(this._scene, cube);
-		// updateInputBlock(shieldMat, {
-		// 	baseColor: BABYLON.Color3.FromHexString("#0077ff"),
-		// 	baseColorStrength: 0.75,
-		// 	bias: 0,
-		// });
 
 
 		// // // Test Sphere
@@ -278,25 +269,28 @@ export default class PongScene {
 
 		// Shadow
 		if (quality >= GraphicsQuality.HIGH) {
-			this.meshMap.forEach((map: Array<AObject>, mapID: PONG.MapID) => {
-				map.forEach((object: AObject) => {
+			this.meshMap.forEach((map: ClientMap, mapID: PONG.MapID) => {
+				map.objects.forEach((object: AObject) => {
 					this.stadiumShadowGenerator.forEach((shadowGenerator: BABYLON.ShadowGenerator) => {
 						shadowGenerator.getShadowMap().renderList.push(object.mesh);
 					});
 					object.mesh.receiveShadows = true;
 				});
+				if (map.ground !== null) {
+					map.ground.receiveShadows = true;
+				}
 			});
 		}
 
-		this.ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30, subdivisions: 50 }, this._scene);
-		const groundMaterial = new BABYLON.PBRMaterial("groundMaterial", this._scene);
-		groundMaterial.metallic = 0;
-		groundMaterial.roughness = 0.5;
-		groundMaterial.albedoColor = new BABYLON.Color3(0.7, 0.55, 0.3);
-		groundMaterial.ambientColor = new BABYLON.Color3(1, 1, 1);
-		this.ground.material = groundMaterial;
-		this.ground.receiveShadows = true;
-		this.ground.position.y = 0.01;
+		// this.ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 30, height: 30, subdivisions: 50 }, this._scene);
+		// const groundMaterial = new BABYLON.PBRMaterial("groundMaterial", this._scene);
+		// groundMaterial.metallic = 0;
+		// groundMaterial.roughness = 0.5;
+		// groundMaterial.albedoColor = new BABYLON.Color3(0.7, 0.55, 0.3);
+		// groundMaterial.ambientColor = new BABYLON.Color3(1, 1, 1);
+		// this.ground.material = groundMaterial;
+		// this.ground.receiveShadows = true;
+		// this.ground.position.y = 0.01;
 
 		// Preload the ball (PONG.K.maxBallAmount)
 		for (let i = 0; i < PONG.K.maxBallAmount; i++) {
@@ -315,19 +309,47 @@ export default class PongScene {
 
 			// reflection
 			if (quality >= GraphicsQuality.HIGH) {
-				this.meshMap.forEach((map: Array<AObject>, mapID: PONG.MapID) => {
-					ball.addToProbe(map);
+				this.meshMap.forEach((map: ClientMap, mapID: PONG.MapID) => {
+					ball.addToProbe(map.objects);
+					if (map.ground !== null) {
+						ball.addToProbe(map.ground);
+					}
 				});
 				this.ballInstances.forEach((clientBall: ClientBall) => {
 					clientBall.addToProbe(ball);
-					ball.addToProbe(clientBall);
+					ball.addToProbe(clientBall.meshes());
 				});
-				ball.addToProbe(this.ground);
+				// ball.addToProbe(this.ground);
 				ball.addToProbe(this.skybox);
 			}
 
 			this.ballInstances.push(ball);
 		}
+
+		// const iceProbe = new BABYLON.ReflectionProbe("iceProbe", 512, this._scene);
+		// iceProbe.renderList.push(this.skybox);
+		// this.ballInstances.forEach((clientBall: ClientBall) => {
+		// 	iceProbe.renderList.push(clientBall.mesh);
+		// });
+		// this.meshMap.forEach((map: ClientMap, mapID: PONG.MapID) => {
+		// 	map.objects.forEach((object: AObject) => {
+		// 		iceProbe.renderList.push(object.mesh);
+		// 	});
+		// });
+
+		// this.ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 8, height: 10, subdivisions: 50 }, this._scene);
+		// const iceMaterial = new BABYLON.PBRMaterial("groundMaterial", this._scene);
+		// iceMaterial.metallic = 0;
+		// iceMaterial.roughness = 0.2;
+		// iceMaterial.albedoColor = BABYLON.Color3.FromHexString("#9deef2");
+		// // iceMaterial.ambientColor = new BABYLON.Color3(1, 1, 1);
+		// iceMaterial.alpha = 0.2;
+		// iceMaterial.reflectionTexture = iceProbe.cubeTexture;
+		// // iceMaterial.subSurface.isTranslucencyEnabled = true;
+		// this.ground.material = iceMaterial;	
+		// this.ground.receiveShadows = true;
+		// this.ground.position.y = 0.01;
+		// this.ground.position.x = 4;
 
 		console.log("All ClientBall instances", this.ballInstances);
 
@@ -404,7 +426,7 @@ export default class PongScene {
 		this.ballInstances.forEach((ball: ClientBall) => {
 			ball.update(dt, ball_interp);
 		});
-		this.meshMap.get(this._pong.currentMap.mapId)?.forEach((object: AObject) => {
+		this.meshMap.get(this._pong.currentMap.mapId)?.objects.forEach((object: AObject) => {
 			object.update(dt, interpolation);
 		});
 	}
@@ -413,18 +435,26 @@ export default class PongScene {
 		if (mapId === undefined) {
 			return;
 		}
-		this.meshMap.get(mapId)?.forEach((object: AObject) => {
+		this.meshMap.get(mapId)?.objects.forEach((object: AObject) => {
 			object.disable();
 		});
+		if (this.meshMap.get(mapId)?.ground !== null) {
+			this.meshMap.get(mapId)?.ground.setEnabled(false);
+		}
+		this.meshMap.get(mapId)?.iceRink.left.setEnabled(false);
+		this.meshMap.get(mapId)?.iceRink.right.setEnabled(false);
 	}
 
 	public enableMap(mapId: PONG.MapID): void {
 		if (mapId === undefined) {
 			return;
 		}
-		this.meshMap.get(mapId)?.forEach((object: AObject) => {
+		this.meshMap.get(mapId)?.objects.forEach((object: AObject) => {
 			object.enable();
 		});
+		if (this.meshMap.get(mapId)?.ground !== null) {
+			this.meshMap.get(mapId)?.ground.setEnabled(true);
+		}
 	}
 
 	public switchCamera(): void {

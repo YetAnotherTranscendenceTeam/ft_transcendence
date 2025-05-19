@@ -118,4 +118,8 @@ export default class ClientBall extends AObject {
 		this._used = true;
 		this._physicsBody = physicsBody;
 	}
+
+	public meshes(): Mesh[] {
+		return [this._mesh, this._damageMesh];
+	}
 };

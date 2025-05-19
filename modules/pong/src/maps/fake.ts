@@ -34,6 +34,8 @@ export const wallShape: PH2D.PolygonShape = new PH2D.PolygonShape(wallSize[0] / 
 export function createMap(): IPongMap {
 	return {
 		mapId: MapID.FAKE,
+		width: playGround.width,
+		height: playGround.height,
 		wallTop: new Wall(wallShape, wallTopPosition, wallSize),
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: null,

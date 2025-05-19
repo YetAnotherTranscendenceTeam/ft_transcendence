@@ -1,5 +1,7 @@
 import { IBall, IGoalSyncs, PlayerMovement } from "pong";
 import { PongEventType } from 'yatt-lobbies'
+import AObject from "./Objects/AObject";
+import { Mesh } from "@babylonjs/core";
 
 export enum GraphicsQuality {
 	LOW = 0,
@@ -41,4 +43,14 @@ export interface IServerStep {
 	paddles: PaddleSyncs;
 	goals: IGoalSyncs;
 	tick: number;
+}
+
+export interface ClientMap {
+	mapId: number;
+	objects: Array<AObject>;
+	ground: Mesh;
+	iceRink: {
+		left: Mesh;
+		right: Mesh;
+	}
 }

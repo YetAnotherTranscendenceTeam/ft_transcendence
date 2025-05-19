@@ -316,7 +316,7 @@ export default class PongClient extends PONG.Pong {
 	protected switchMap(mapId: PONG.MapID) {
 		super.switchMap(mapId);
 		const objects: PH2D.Body[] = this._currentMap.getObjects();
-		this._babylonScene.meshMap.get(this._currentMap.mapId)?.forEach((object: AObject, index: number) => {
+		this._babylonScene.meshMap.get(this._currentMap.mapId)?.objects.forEach((object: AObject, index: number) => {
 			object.updateBodyReference(objects[index]);
 			object.enable();
 			if (object instanceof ClientEventBox) {
@@ -374,7 +374,7 @@ export default class PongClient extends PONG.Pong {
 	
 	private bindPaddles() {
 		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-			const paddleInstance: ClientPaddle | undefined = this._babylonScene.meshMap.get(this._currentMap.mapId)?.find((object: AObject) => {
+			const paddleInstance: ClientPaddle | undefined = this._babylonScene.meshMap.get(this._currentMap.mapId)?.objects.find((object: AObject) => {
 				if (object instanceof ClientPaddle) {
 					return object.physicsBody === paddle;
 				}

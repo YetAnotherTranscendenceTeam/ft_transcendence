@@ -32,7 +32,7 @@ export default abstract class AObject {
 			return;
 		}
 
-		this._probe = new ReflectionProbe("probe" + this._mesh.name, 512, this._scene);
+		this._probe = new ReflectionProbe("probe" + this._mesh.name, 256, this._scene);
 		(this._material as PBRMaterial).reflectionTexture = this._probe.cubeTexture;
 		this._probe.attachToMesh(this._mesh);
 		// this._probe.cubeTexture.onBeforeRenderObservable.add(() => {

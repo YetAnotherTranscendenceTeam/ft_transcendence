@@ -128,6 +128,8 @@ export enum PongEventActivationSide {
 
 export interface IPongMap {
 	mapId: MapID;
+	width: number;
+	height: number;
 
 	wallTop: Wall;
 	wallBottom: Wall;
