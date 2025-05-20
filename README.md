@@ -33,7 +33,7 @@ This project is a web application offering a multiplayer online version of Atari
 - Custom games
 	- Points to win
 	- Ball speed
-	- Obscacles on/off
+	- Obstacles on/off
 	- Power-ups selection
 
 - Clashes
@@ -43,14 +43,14 @@ This project is a web application offering a multiplayer online version of Atari
 	- All game customizations
 	- Confettis
 
-- Social pannel
+- Social panel
 	- Friend system
 	- Live activity status
 	- Lobby invitations
 
 - User profile
 	- Game history
-	- MMR evoluation graph
+	- MMR evolution graph
 	- Game mode pie chart
 
 # Setup
@@ -102,7 +102,7 @@ make prod
 
 ## `.env` file configuration
 
-A `.env` file is required at the projet's root, which should contain:
+A `.env` file is required at the project's root, which should contain:
 
 #### secrets `REQUIRED!`
 
@@ -146,7 +146,7 @@ if you are not planning on using `Docker Hub` to push and pull `Docker` images, 
 GOOGLE_CLIENT_ID="your-google-client-id"
 ```
 
-Visite the [Google Console](https://console.cloud.google.com/) to create your own client
+Visit the [Google Console](https://console.cloud.google.com/) to create your own client
 
 ###### 42 Intra
 ```sh
@@ -191,7 +191,7 @@ This service handles multi authentication verification
 
 ### Token-manager
 
-This service delivers and refresh `Json Web Tokens` to authenticated users, providing them a way to proove their identity to other services.
+This service delivers and refresh `JSON Web Tokens` to authenticated users, providing them a way to prove their identity to other services.
 
 ### Profiles
 
@@ -232,4 +232,4 @@ This service is a webserver serving assets.
 
 ### CDN API
 
-This service handles the `CDN` content. It allows other services to upload or delete ressources.
+This service handles the `CDN` content. It allows other services to upload or delete resources.
