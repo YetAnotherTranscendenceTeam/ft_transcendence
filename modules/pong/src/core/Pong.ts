@@ -129,7 +129,7 @@ export class Pong {
 		}
 		this.addBall(new Ball());
 		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
-		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this._stats);
+		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this, this._stats);
 		this._activeEvents = [];
 	}
 

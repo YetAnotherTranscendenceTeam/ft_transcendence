@@ -72,12 +72,7 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		ballEmitter.playerId !== -1) {
 		if (other.active) {
 			console.log(other.event);
-			const event: PongEvent = this._activeEvents.find((e: PongEvent) => e.type === other.eventType);
-			if (event !== undefined) {
-				event.resetTimer();
-			} else {
-				other.event?.activate(this, ballEmitter.playerId);
-			}
+			other.event?.activate(this, ballEmitter.playerId);
 			other.deactivate();
 		}
 	}

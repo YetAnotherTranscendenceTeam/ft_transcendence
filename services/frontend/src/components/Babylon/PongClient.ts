@@ -561,6 +561,7 @@ export default class PongClient extends PONG.Pong {
 				}
 				else
 					this._activeEvents.splice(i, 1);
+				this.updateOverlay();
 			}
 		}
 		for (let i = 0; i < eventSyncs.length; i++) {
@@ -570,6 +571,9 @@ export default class PongClient extends PONG.Pong {
 				event = PONG.EventBox.pongEvents[eventSync.type].clone();
 				if (event.activationSide === PONG.PongEventActivationSide.BOTH)
 					event.activate(this, eventSync.playerId);
+				else
+					this._activeEvents.push(event);
+				this.updateOverlay();
 			}
 			event.sync(eventSync);
 		}

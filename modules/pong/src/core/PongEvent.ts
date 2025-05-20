@@ -31,6 +31,13 @@ export default class PongEvent {
 	}
 
 	public activate(game: Pong, playerID: PlayerID, time?: number): void {
+		if (!this.isGlobal()) {
+			const existingEvent = game.activeEvents.find(event => event.type === this.type && event.playerId === playerID);
+			if (existingEvent) {
+				existingEvent.resetTimer();
+				return;
+			}
+		}
 		game.activeEvents.push(this);
 		this._playerId = playerID;
 		this._time = time ?? -1;
@@ -58,6 +65,12 @@ export default class PongEvent {
 		return false;
 	}
 
+	public shouldSpawn(game: Pong): boolean {
+		if (this.isGlobal())
+			return !game.activeEvents.some(event => event.type === this.type);
+		return true;
+	}
+
 	public update(game: Pong): void {
 	}
 
@@ -65,7 +78,6 @@ export default class PongEvent {
 		const clone = new (this.constructor as any)();
 		clone._time = this._time;
 		clone._playerId = this._playerId;
-		clone._id = this._id;
 		return clone;
 	}
 

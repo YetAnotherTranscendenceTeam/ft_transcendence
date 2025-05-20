@@ -167,12 +167,6 @@ export default function LobbySettings({
 						field="ice"
 						onChange={(e) => handlePowerUpChange('ice', e)}
 					/>
-					<Checkbox
-						value={powerUps.includes(PongEventType.SMALLPADDLE)}
-						label="Small paddle"
-						field="small-paddle"
-						onChange={(e) => handlePowerUpChange('small-paddle', e)}
-					/>
 				</Form>
 			</div>
 		</div>

@@ -48,6 +48,10 @@ export default class MultiBallPongEvent extends PongEvent {
 		});
 	}
 
+	public override shouldSpawn(game: Pong): boolean {
+		return !game.activeEvents.some((event) => event instanceof MultiBallPongEvent);
+	}
+
 	public override isGlobal(): boolean {
 		return true;
 	}
