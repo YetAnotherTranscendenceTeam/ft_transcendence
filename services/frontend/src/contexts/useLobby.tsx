@@ -226,7 +226,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			4001: 'The lobby you tried to join is currently full',
 			4002: 'The lobby you tried to join is currently locked',
 			4003: 'Your account has joined a lobby from another location',
-			4006: 'Your have been kicked out of the lobby'
+			4006: 'You have been kicked out of the lobby'
 		};
 		if (e.code === 1000)
 			createToast(errorMessages[e.code], ToastType.SUCCESS);
