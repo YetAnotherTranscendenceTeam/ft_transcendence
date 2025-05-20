@@ -1,4 +1,4 @@
-# [ft_transcendence - Yet Another Pong](https://github.com/YetAnotherTranscendenceTeam/ft_transcendence, "Goto Github repository")
+# [ft_transcendence - Yet Another Pong](https://github.com/YetAnotherTranscendenceTeam/ft_transcendence "Goto Github repository")
 
 This project is a web application offering a multiplayer online version of Atari's arcade game `Pong` (1972), integrated as modern video game plateform.
 
