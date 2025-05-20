@@ -181,7 +181,7 @@ export class PongServer extends Pong {
 		const event_boxes = this._currentMap.getEventBoxes().map((box) => {
 			return {
 				active: box.active,
-				type: box.type,
+				eventType: box.eventType,
 			}
 		});
 		return event_boxes;
