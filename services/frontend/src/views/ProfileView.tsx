@@ -33,6 +33,9 @@ export default function ProfileView() {
 	const { matches, isLoading, page, setPage, totalPages } = useMatches(userId, 10, filter);
 	const [selectedMatch, setSelectedMatch] = Babact.useState<number>(null);
 	
+	if (!user) {
+		return <ErrorView errorMessage="User not found" errorCode={404} />
+	}
 
   	return <div>
 		<div className='profile-view'>
