@@ -1,11 +1,12 @@
 import Babact from "babact";
-import { MapSide } from "pong";
+import { MapSide, PongEventScope } from "pong";
 import { PongEventType } from "yatt-lobbies";
 
 export interface PowerUp {
 	type: PongEventType,
 	time: number,
 	isGlobal: boolean,
+	scope: PongEventScope
 	team: MapSide,
 }
 
@@ -17,8 +18,6 @@ export default function PowerUpIcon({ powerUp, hidden }: { powerUp: PowerUp, [ke
 				return <i>⚾️</i>;
 			case PongEventType.ATTRACTOR:
 				return <i>🧲</i>;
-			case PongEventType.SMALLPADDLE:
-				return <i>🔽</i>;
 			case PongEventType.ICE:
 				return <i>❄️</i>;
 			default:
@@ -28,7 +27,7 @@ export default function PowerUpIcon({ powerUp, hidden }: { powerUp: PowerUp, [ke
 
 	const warning = powerUp.time < 5 && powerUp.time >= 0;
 
-	return <div className={`powerup flex items-center justify-center ${hidden ? 'hidden' : ''} ${powerUp.isGlobal ? 'global' : ''} ${powerUp.team === MapSide.LEFT ? 'left' : 'right'} ${warning ? 'warning' : ''}`}>
+	return <div className={`powerup flex items-center justify-center ${hidden ? 'hidden' : ''} ${powerUp.isGlobal ? 'global' : ''} ${powerUp.team === MapSide.LEFT ? 'left' : 'right'} ${warning ? 'warning' : ''} ${powerUp.scope}`}>
 		{getPowerUpIcon()}
 	</div>
 }

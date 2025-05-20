@@ -216,10 +216,10 @@
 
 .powerup {
 	aspect-ratio: 1;
-	width: 64px;
+	width: 48px;
 	border-radius: 8px;
 	background-color: var(--bg-1);
-	font-size: x-large;
+	font-size: large;
 }
 
 .powerup.hidden {
@@ -244,6 +244,20 @@
 	100% {
 		opacity: 0;
 	}
+}
+
+.powerup.positive {
+	background-color: var(--success-color);
+	background: radial-gradient(circle,var(--success-color-active) 0%, var(--success-color) 100%);
+	box-shadow: 0px 0px 10px 0px var(--success-color);
+	border-color: transparent;
+}
+
+.powerup.negative {
+	background-color: var(--danger-color);
+	background: radial-gradient(circle,var(--danger-color-active) 0%, var(--danger-color) 100%);
+	box-shadow: 0px 0px 10px 0px var(--danger-color);
+	border-color: transparent;
 }
 
 .game-overlay-powerups {

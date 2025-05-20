@@ -40,7 +40,7 @@ export default class EventBoxManager {
 			return;
 		}
 		this._nextEventIn -= 1;
-		if (this._nextEventIn == 0) {
+		if (this._nextEventIn <= 0) {
 			const eventBoxIndex: number = Math.floor(Math.random() * availableEventBoxes.length);
 			const eventBox: EventBox = availableEventBoxes[eventBoxIndex];
 			const availableEvents: PongEventType[] = this._events.filter((event: PongEventType) => EventBox.pongEvents[event].shouldSpawn(this._game) && !this._eventBoxes.some((eventbox: EventBox) => eventbox.eventType === event));
