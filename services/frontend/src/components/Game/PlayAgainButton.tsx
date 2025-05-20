@@ -43,7 +43,7 @@ export default function PlayAgainButton() {
 			return 'Leave spectator mode';
 		}
 		if (disabled) {
-			return 'waiting for lobby leader...';
+			return 'Waiting for lobby leader...';
 		}
 		return 'Play again';
 	}

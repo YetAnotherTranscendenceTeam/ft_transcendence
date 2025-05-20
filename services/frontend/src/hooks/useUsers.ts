@@ -27,12 +27,12 @@ export class User implements IUser {
 			method: 'POST',
 		}, {
 			error_messages: {
-				409: 'Already requested',
+				409: 'Friend request pending',
 				404: 'User not found',
-				'MAX_FRIENDS': 'Max friends reached',
-				'IS_BLOCKED': 'You cannot request a blocked user',
+				'MAX_FRIENDS': 'Friends limit reached',
+				'IS_BLOCKED': 'User blocked',
 				'IS_FRIEND': 'Already friends',
-				'SELF_REQUEST': 'You cannot request yourself',
+				'SELF_REQUEST': "Can't friend yourself",
 			}
 		});
 		return response;
@@ -45,8 +45,8 @@ export class User implements IUser {
 			error_messages: {
 				404: 'User not found',
 				409: 'Already blocked',
-				'MAX_BLOCKS': 'Max blocks reached',
-				'SELF_BLOCK': 'You cannot block yourself',
+				'MAX_BLOCKS': 'Block limit reached',
+				'SELF_BLOCK': "Can't block yourself",
 			}
 		});
 		return response;
