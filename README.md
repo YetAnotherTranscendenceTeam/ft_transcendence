@@ -67,11 +67,9 @@ Navigate into it
 cd ft_transcendence
 ```
 
-### Developper setup
+## Development environment
 
 This environment allows for easy modifications to the project, any modification to any file **that is not a module** will cause the dependant services to restart automatically.
-
-
 
 Start the project
 
@@ -79,7 +77,11 @@ Start the project
 make dev
 ```
 
-### Production setup
+### Documentation 
+
+In development mode, the API documentation is hosted at localhost http://localhost:42000
+
+## Production environment
 
 Setup your environment, you can use the environment generation tool with:
 
@@ -97,8 +99,64 @@ Start the project
 make prod
 ```
 
+## `.env` file configuration
 
-## Services
+A `.env` file is required at the projet's root, which should contain:
+
+#### secrets `REQUIRED!`
+
+```sh
+PASSWORD_PEPPER="a-random-secret"
+AUTHENTICATION_SECRET="a-random-secret"
+REFRESH_TOKEN_SECRET="a-random-secret"
+TOKEN_MANAGER_SECRET="a-random-secret"
+CDN_SECRET="a-random-secret"
+MATCHMAKING_SECRET="a-random-secret"
+PONG_SECRET="a-random-secret"
+MATCH_MANAGEMENT_SECRET="a-random-secret"
+TWO_FA_SECRET="a-random-secret"
+AUTH_2FA_SECRET="a-random-secret"
+ACTIVITY_SSE_SECRET="a-random-secret"
+SPECTATOR_SECRET="a-random-secret"
+```
+These variable are secret keys used for authentication across various services. Do not share them!
+
+This shell command can be used to generate strong random secrets
+```sh
+echo $(openssl rand -base64  64 | tr -d '\n')
+```
+
+#### Deployment `REQUIRED!`
+
+```sh
+DOMAIN_NAME="the-domain-name-of-the-website"
+BACKEND_URL="the-full-backend-url"
+WS_URL="the-full-websocket-url"
+FRONTEND_URL="the-full-frontend-url"
+IMAGE_PREFIX="your-docker-hub-username"
+```
+
+if you are not planning on using `Docker Hub` to push and pull `Docker` images, `IMAGE_PREFIX` can be set to any string (ex: `prod`)
+
+#### Remote clients
+
+###### Google Sign In
+```sh
+GOOGLE_CLIENT_ID="your-google-client-id"
+```
+
+Visite the [Google Console](https://console.cloud.google.com/) to create your own client
+
+###### 42 Intra
+```sh
+API42_CLIENT_ID="your-42api-client-id"
+API42_SECRET="your-42api-secret"
+API42_REDIRECT_URI="${BACKEND_URL}/auth/fortytwo/callback"
+```
+
+Visit the [42 Intranet ](https://profile.intra.42.fr/oauth/applications) to create your own client
+
+## Microservice architecture
 
 ![Services Communications Graph](./documentation/services-communications.png "Services Communications Graph")
 
