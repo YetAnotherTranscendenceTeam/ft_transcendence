@@ -111,6 +111,12 @@ class TournamentMatch {
     if (state === TournamentMatchState.PLAYING) {
       await this.createInternalMatch();
     }
+    // createInternalMatch will set the state to cancelled if it fails
+    if (this.state === TournamentMatchState.CANCELLED) {
+      this.updateDB();
+      this.tournament.cancel();
+      return;
+    }
     this.state = state;
     this.tournament.broadcast("match_update", {
       match: this,
@@ -130,9 +136,17 @@ class TournamentMatch {
     );
     this.internal_match.match_parameters = this.tournament.match_parameters;
     this.internal_match.insert();
-    await this.internal_match.reserve(this.tournament.lobbyConnection, []);
-    this.tournament.manager.registerTournamentMatch(this);
-    return this.internal_match;
+    try {
+      await this.internal_match.reserve(this.tournament.lobbyConnection, []);
+      this.tournament.manager.registerTournamentMatch(this);
+      return this.internal_match;
+    }
+    catch(e) {
+      this.internal_match.delete();
+      this.internal_match = null;
+      this.state = TournamentMatchState.CANCELLED;
+      return null;
+    }
   }
 
   async updateMatch({ state, score_0, score_1 }) {
@@ -168,7 +182,8 @@ class TournamentMatch {
         return;
       }
       this.nextMatch.team_ids[this.nextMatchTeamIndex] = this.team_ids[winner_team];
-      if (this.nextMatch.shouldStart()) await this.nextMatch.setState(TournamentMatchState.PLAYING);
+      if (this.nextMatch.shouldStart())
+          await this.nextMatch.setState(TournamentMatchState.PLAYING);
       else {
         this.nextMatch.updateDB();
         this.tournament.broadcast("match_update", {
@@ -198,6 +213,7 @@ export class Tournament {
   teams = [];
   matches = [];
   subscribers = new Set();
+  stageCount;
   gamemode;
   lobbyConnection;
 
@@ -206,8 +222,20 @@ export class Tournament {
       team.players = team.players.map((player, pindex) => new TournamentPlayer(player, this, index, pindex));
     });
     this.teams = teams.sort(
-      (a, b) => a.players.reduce((a, b) => a + b.rating, 0) - b.players.reduce((a, b) => a + b.rating, 0)
+      (a, b) => b.players.reduce((a, b) => a + b.rating, 0) - a.players.reduce((a, b) => a + b.rating, 0)
     );
+    this.stageCount = Math.ceil(Math.log2(this.teams.length));
+    const goodHalf = Tournament.sortGoodHalf(
+      this.teams
+      .slice(0, Math.pow(2, this.stageCount - 1))
+    );
+    const badHalf = this.teams
+      .slice(goodHalf.length)
+      .sort(
+        () => Math.random() - 0.5
+      );
+    this.teams = goodHalf.concat(badHalf);
+    
     this.gamemode = gamemode;
     this.manager = manager;
     this.match_parameters = match_parameters;
@@ -215,8 +243,28 @@ export class Tournament {
     this.lobbySecret = lobbySecret;
   }
 
+  // sorts the good half of the teams
+  // the 2 best teams will play against each other in the final
+  static sortGoodHalf(goodHalf) {
+    if (goodHalf.length < 4)
+      return goodHalf;
+    let newGoodHalf = [];
+
+    const firstHalf = goodHalf.slice(0, 4);
+    const secondHalf = goodHalf.slice(4);
+    const fourth = Math.ceil(secondHalf.length / 2);
+
+    newGoodHalf.push(firstHalf[0]);
+    newGoodHalf = newGoodHalf.concat(secondHalf.slice(0, fourth));
+    newGoodHalf.push(firstHalf[3]);
+    newGoodHalf.push(firstHalf[2]);
+    newGoodHalf = newGoodHalf.concat(secondHalf.slice(fourth));
+    newGoodHalf.push(firstHalf[1]);
+    return newGoodHalf.filter((team) => team !== undefined);
+  }
+
   async insert() {
-    await db.transaction(async () => {
+    db.transaction(async () => {
       let obj = db
         .prepare(
           `
@@ -238,17 +286,16 @@ export class Tournament {
           player.insert();
         }
       }
-      await this.createMatches();
     })();
+    return await this.createMatches();
   }
 
   async createMatches() {
-    const stageCount = Math.ceil(Math.log2(this.teams.length));
     let stageMatchCount = 1;
     const stages = [];
     let previousStage = null;
     // create stages as if there were enough teams to fill all matches
-    for (let stage = 0; stage < stageCount; stage++) {
+    for (let stage = 0; stage < this.stageCount; stage++) {
       const stageMatches = [];
       for (let i = 0; i < stageMatchCount; i++) {
         const match = new TournamentMatch(
@@ -294,7 +341,11 @@ export class Tournament {
     });
     for (let match of toStart) {
       await match.setState(TournamentMatchState.PLAYING);
+      if (match.state === TournamentMatchState.CANCELLED) {
+        return false;
+      }
     };
+    return true;
   }
 
   toJSON() {
@@ -321,6 +372,16 @@ export class Tournament {
     this.finish();
   }
 
+  delete() {
+    db.prepare(
+      `
+      DELETE FROM tournaments
+      WHERE tournament_id = ?
+      `
+    ).run(this.id);
+    this.manager.unregisterTournament(this);
+  }
+
   updateToLobbyConnection(active=true) {
     this.lobbyConnection.send({
       event: "tournament_update",
@@ -335,7 +396,6 @@ export class Tournament {
         active
       },
     })
-    
   }
 
   finish() {
@@ -346,6 +406,11 @@ export class Tournament {
       WHERE tournament_id = ?
       `
     ).run(0, this.id);
+    for (let match of this.matches) {
+      if (match.internal_match) {
+        this.manager.unregisterTournamentMatch(match);
+      }
+    }
     this.manager.unregisterTournament(this);
     this.broadcast(
       "finish",

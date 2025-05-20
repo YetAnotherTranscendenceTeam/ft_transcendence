@@ -50,3 +50,18 @@
 	font-size: x-large;
 	font-weight: bold;
 }
+
+.error-view {
+	background-color: color-mix(in srgb, var(--bg-2), transparent 50%);
+	color: var(--fg-1);
+}
+
+.error-view h1 {
+	font-size: 7em;
+	font-weight: bold;
+}
+
+.error-view p {
+	font-size: x-large;
+}
+

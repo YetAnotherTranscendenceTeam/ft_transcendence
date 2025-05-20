@@ -158,11 +158,6 @@
 	transition: background-color 0.2s ease-in-out;
 }
 
-/* .match-card.playing:hover .match-card-team {
-	cursor: pointer;
-	background-color: var(--ingame-color-active);
-} */
-
 .match-card-team:nth-child(odd) {
 	border-right: 2px solid var(--team-1-color);
 }
@@ -173,10 +168,6 @@
 
 .match-card-team.playing {
 	animation: background-color-change 2s infinite;
-}
-
-.match-card.playing:hover .match-card-team.playing {
-	
 }
 
 @keyframes background-color-change {
@@ -199,7 +190,11 @@
 }
 
 .tournament-end-modal .button {
-	margin-top: 64px;
+	margin-top: 16px;
+}
+
+.tournament-end-modal h1 {
+	font-size: xx-large;
 }
 
 .tournament-end-modal h2 {

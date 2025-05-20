@@ -22,10 +22,10 @@ export default function LobbyView() {
 	}, [])
 
 	Babact.useEffect(() => {
-		if (code && lobby === null && me && window.location.pathname === `/lobby/${code}`) {
+		if (code && lobby === null && me && window.location.pathname.startsWith(`/lobby/${code}`)) {
 			join(code);
 		}
-	}, [me, lobby])
+	}, [me?.account_id, lobby])
 
 	Babact.useEffect(() => {
 		if (lobby && lobby.join_secret !== code) {

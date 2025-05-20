@@ -127,7 +127,19 @@ export class Queue {
       if (lobby.getTeamCount() > 2) {
         const teams = lobby.getTeams();
         const tournament = new Tournament(teams, this.gamemode, this.fastify.tournaments, lobby.match_parameters, this.lobbyConnection, lobby.join_secret);
-        await tournament.insert();
+        if (!await tournament.insert()) {
+          lobbies.forEach((lobby) => {
+            this.lobbyConnection.send({
+              event: "confirm_unqueue",
+              data: {
+                lobby,
+                reason: "Match reservation failed."
+              },
+            })
+          });
+          tournament.delete();
+          return;
+        }
         this.fastify.tournaments.registerTournament(tournament);
         this.lobbyConnection.send({
           event: "match",
@@ -141,13 +153,27 @@ export class Queue {
     }
     const match = new Match(teams, this.gamemode, null, this.fastify);
     match.insert();
-    await match.reserve(this.lobbyConnection, lobbies);
-    this.lobbyConnection.send({
-        event: "match",
-        data: {
-          lobbies,
-          match: {type: "match", match},
-        },
-    });
+    try {
+      await match.reserve(this.lobbyConnection, lobbies);
+      this.lobbyConnection.send({
+          event: "match",
+          data: {
+            lobbies,
+            match: {type: "match", match},
+          },
+      });
+    }
+    catch(e) {
+      match.delete();
+      lobbies.forEach((lobby) => {
+        this.lobbyConnection.send({
+          event: "confirm_unqueue",
+          data: {
+            lobby,
+            reason: "Match reservation failed."
+          },
+        })
+      });
+    }
   }
 }

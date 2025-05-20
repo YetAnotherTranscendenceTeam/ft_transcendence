@@ -1,17 +1,20 @@
 import { PongEventType } from "yatt-lobbies";
 import EventBox from "./EventBox.js"
 import Stats from "./Stats.js";
+import { Pong } from "./Pong.js";
 
 export default class EventBoxManager {
 	private _eventBoxes: EventBox[];
 	private _events: PongEventType[];
 	private _nextEventIn: number;
 	private _stats: Stats;
+	private _game: Pong;
 
-	constructor(boxes: EventBox[], events: PongEventType[], stats: Stats) {
+	constructor(boxes: EventBox[], events: PongEventType[], game: Pong, stats: Stats) {
 		this._eventBoxes = boxes;
 		this._events = events;
 		this._stats = stats;
+		this._game = game;
 		this._resetNextEventIn();
 	}
 
@@ -37,12 +40,15 @@ export default class EventBoxManager {
 			return;
 		}
 		this._nextEventIn -= 1;
-		if (this._nextEventIn == 0) {
+		if (this._nextEventIn <= 0) {
 			const eventBoxIndex: number = Math.floor(Math.random() * availableEventBoxes.length);
 			const eventBox: EventBox = availableEventBoxes[eventBoxIndex];
-			const availableEvents: PongEventType[] = this._events.filter((event: PongEventType) => !this._eventBoxes.some((eventbox: EventBox) => eventbox.eventType === event));
+			const availableEvents: PongEventType[] = this._events.filter((event: PongEventType) => EventBox.pongEvents[event].shouldSpawn(this._game) && !this._eventBoxes.some((eventbox: EventBox) => eventbox.eventType === event));
 			const randomEventIndex = Math.floor(Math.random() * availableEvents.length);
 			const event = availableEvents[randomEventIndex];
+			if (!event) {
+				return;
+			}
 			eventBox.activate(event);
 			this._resetNextEventIn();
 		}

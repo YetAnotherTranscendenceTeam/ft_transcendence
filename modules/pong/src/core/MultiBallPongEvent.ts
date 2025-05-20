@@ -1,6 +1,6 @@
 import { PongEventType } from 'yatt-lobbies'
 import { Pong } from './Pong.js';
-import PongEvent from './PongEvent.js';
+import PongEvent, { PongEventScope } from './PongEvent.js';
 import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
@@ -9,10 +9,10 @@ import * as K from './constants.js';
 
 export default class MultiBallPongEvent extends PongEvent {
 	constructor() {
-		super(PongEventType.MULTIBALL);
+		super(PongEventType.MULTIBALL, PongEventScope.GLOBAL);
 	}
 
-	public override activate(game: Pong, playerId: PlayerID): void {
+	public override activate(game: Pong, playerId: PlayerID): boolean {
 		const isFirstMultiBall = game.activeEvents.find((event) => event instanceof MultiBallPongEvent) === undefined;
 		const ball = game.balls[0];
 		ball.enableDamage();
@@ -37,6 +37,7 @@ export default class MultiBallPongEvent extends PongEvent {
 				goal.heal();
 			});
 		}
+		return true;
 	}
 
 	public override deactivate(game: Pong): void {
@@ -50,7 +51,7 @@ export default class MultiBallPongEvent extends PongEvent {
 		});
 	}
 
-	public override isGlobal(): boolean {
-		return true;
+	public override shouldSpawn(game: Pong): boolean {
+		return !game.activeEvents.some((event) => event instanceof MultiBallPongEvent);
 	}
 }

@@ -130,7 +130,7 @@ export class Pong {
 		}
 		this.addBall(new Ball());
 		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
-		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this._stats);
+		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this, this._stats);
 		this._activeEvents = [];
 	}
 
@@ -203,7 +203,7 @@ export class Pong {
 			team_count: 0,
 		});
 		this._matchParameters = {
-			obstacles: false,
+			obstacles: true,
 			events: [],
 			ball_speed: K.defaultBallSpeed,
 			point_to_win: K.defaultPointsToWin,
@@ -236,7 +236,7 @@ export class Pong {
 		this.addBall(new Ball(new Vec2(1, 0)));
 		this.addBall(new Ball(new Vec2(-1, 0)));
 		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
-		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this._stats);
+		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this, this._stats);
 		this._activeEvents = [];
 	}
 
@@ -307,7 +307,7 @@ export class Pong {
 		return scored;
 	}
 
-	private launchBall() {
+	protected launchBall() {
 		this._balls.forEach((ball: Ball) => {
 			ball.position[0] = 0;
 			ball.position[1] = 0;

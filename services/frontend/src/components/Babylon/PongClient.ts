@@ -38,6 +38,7 @@ export interface IPongOverlay {
 		time: number,
 		isGlobal: boolean,
 		team: PONG.MapSide,
+		scope: PONG.PongEventScope
 	}[],
 	goals: {
 		[key: number]: {
@@ -155,6 +156,7 @@ export default class PongClient extends PONG.Pong {
 					time: event.time,
 					isGlobal: event.isGlobal(),
 					team: (event.playerId < 2 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT),
+					scope: event.scope
 				}
 			}) ?? [],
 			goals: {
@@ -346,9 +348,9 @@ export default class PongClient extends PONG.Pong {
 		this._babylonScene.enableMap(this._currentMap.mapId);
 		
 		this._player = undefined;
-		this.bindPaddles();
 		this._babylonScene.updateMeshes(0);
 		this._babylonScene.switchCamera();
+		this.launchBall();
 	}
 	
 	private localScene() {
@@ -398,11 +400,14 @@ export default class PongClient extends PONG.Pong {
 		if (this._gameScene && temporary_falg) {
 			if (this._gameScene === GameScene.ONLINE) {
 				this.updateOnline(dt);
-			} else {
+			} else if (this._gameScene === GameScene.LOCAL) {
 				this.updateLocal(dt);
+			} else {
+				let dt: number = this._engine.getDeltaTime() / 1000;
+				const interpolation = this.physicsUpdate(dt);
+				this._babylonScene.updateMeshes(dt, interpolation, interpolation);
 			}
 		}
-		// this.update();
 		this._babylonScene.render();
 	}
 
@@ -477,7 +482,10 @@ export default class PongClient extends PONG.Pong {
 				this._ballSteps = this._ballSteps.slice(1);
 				lastStep = step;
 			}
-			this._tick = lastStep ? lastStep.tick : this._tick; 
+			if (this._ballSteps.length > 3)
+				this._tick = this._ballSteps.at(-1).tick;
+			else
+				this._tick = lastStep ? lastStep.tick : this._tick; 
 			for (let paddleStep of this._paddleSteps) {
 				this.paddleSync(paddleStep);
 			}
@@ -532,6 +540,7 @@ export default class PongClient extends PONG.Pong {
 				}
 				else
 					this._activeEvents.splice(i, 1);
+				this.updateOverlay();
 			}
 		}
 		for (let i = 0; i < eventSyncs.length; i++) {
@@ -541,8 +550,13 @@ export default class PongClient extends PONG.Pong {
 				event = PONG.EventBox.pongEvents[eventSync.type].clone();
 				if (event.activationSide === PONG.PongEventActivationSide.BOTH)
 					event.activate(this, eventSync.playerId);
+				else
+					this._activeEvents.push(event);
+				event.sync(eventSync);
+				this.updateOverlay();
 			}
-			event.sync(eventSync);
+			else
+				event.sync(eventSync);
 		}
 	}
 

@@ -1,6 +1,6 @@
 import { PongEventType } from 'yatt-lobbies'
 import { Pong } from './Pong.js';
-import PongEvent from './PongEvent.js';
+import PongEvent, { PongEventScope } from './PongEvent.js';
 import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
@@ -15,15 +15,16 @@ export default class AttractorPongEvent extends PongEvent {
 	private _target: PH2D.Body;
 
 	constructor() {
-		super(PongEventType.ATTRACTOR);
+		super(PongEventType.ATTRACTOR, PongEventScope.POSITIVE);
 	}
 
-	public override activate(game: Pong, playerId: PlayerID): void {
+	public override activate(game: Pong, playerId: PlayerID): boolean {
 		super.activate(game, playerId, ATTRACTION_TIME);
 		this._target = game.paddles.get(playerId);
 		if (!this._target) {
 			throw new Error('Player not found');
 		}
+		return true;
 	}
 
 	public override deactivate(game: Pong): void {

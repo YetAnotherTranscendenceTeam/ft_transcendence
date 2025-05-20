@@ -1,6 +1,6 @@
 import { PongEventType } from 'yatt-lobbies'
 import { Pong } from './Pong.js';
-import PongEvent from './PongEvent.js';
+import PongEvent, { PongEventScope } from './PongEvent.js';
 import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
@@ -16,13 +16,25 @@ export default class IcePongEvent extends PongEvent {
 	private _moveBackup: ((direction: number) => void)[];
 
 	constructor() {
-		super(PongEventType.ICE, PongEventActivationSide.BOTH);
+		super(PongEventType.ICE, PongEventScope.NEGATIVE, PongEventActivationSide.BOTH);
 		this._moveBackup = [];
 	}
 
-	public override activate(game: Pong, playerId: PlayerID): void {
-		super.activate(game, playerId, ICE_TIME);
-		game.paddles.forEach((paddle: Paddle) => {
+	public override activate(game: Pong, playerId: PlayerID): boolean {
+		let target = playerId;
+		if (game.isServer()) {
+			if (target < PlayerID.RIGHT_BACK)
+				target = PlayerID.RIGHT_BACK;
+			else
+				target = PlayerID.LEFT_BACK;
+		}
+		const target_team = Math.floor(target / 2);
+		if (!super.activate(game, target_team + 1, ICE_TIME))
+			return false;
+		game.paddles.forEach((paddle: Paddle, idx: number) => {
+			if (Math.floor(idx / 2) !== target_team) {
+				return;
+			}
 			this._moveBackup.push(paddle.move);
 			// paddle.changeType(PH2D.PhysicsType.DYNAMIC);
 			paddle.move = (direction: number): void => {
@@ -44,11 +56,16 @@ export default class IcePongEvent extends PongEvent {
 				}
 			}
 		});
+		return true;
 	}
 
 	public override deactivate(game: Pong): void {
 		super.deactivate(game);
-		game.paddles.forEach((paddle: Paddle) => {
+		const target_team = this._playerId - 1;
+		game.paddles.forEach((paddle: Paddle, idx) => {
+			if (Math.floor(idx / 2) !== target_team) {
+				return;
+			}
 			paddle.move = this._moveBackup.shift();
 			if (paddle.move === undefined) {
 				console.error('move function is undefined');
@@ -61,6 +78,6 @@ export default class IcePongEvent extends PongEvent {
 	}
 
 	public override isGlobal(): boolean {
-		return true;
+		return false;
 	}
 }

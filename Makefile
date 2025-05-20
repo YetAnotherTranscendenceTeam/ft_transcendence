@@ -55,6 +55,10 @@ evaluation:
 	(cd modules && docker compose build)
 	docker compose -f docker-compose.yaml -f docker-compose.eval.yaml up -d --build --wait
 
+prod:
+	(cd modules && docker compose build)
+	docker compose -f docker-compose.yaml up -d --build --wait
+
 cert: $(SSL_CERTIFICATE)
 
 deps: $(MODULES_DEPS) $(TS_MODULES_DEPS) $(SERVICES_DEPS)

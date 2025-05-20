@@ -37,12 +37,12 @@ export const PongProvider = ({ children } : {children?: any}) => {
 				},
 				onConnectionError: (error) => {
 					let errors = {
-						'UNAUTHORIZED': 'You are not authorized to join this game',
-						'NOT_FOUND': 'Game not found',
-						'FORBIDDEN': 'You are not allowed to join this game',
-						'OTHER_LOCATION': 'This game is being played in another location',
-						'BAD_GATEWAY': 'Spectator mode is unavailable',
-						'CONNECTION_LOST': 'Connection lost with spectator service',
+						'UNAUTHORIZED': 'You are not authorized to join this match',
+						'NOT_FOUND': 'The match you tried to join does not exist',
+						'FORBIDDEN': 'You are not allowed to join this match',
+						'OTHER_LOCATION': 'Your account has joined a match from another location',
+						'BAD_GATEWAY': 'Spectator mode is temporarily unavailable',
+						'CONNECTION_LOST': 'Connection to the spectator service was lost',
 					}
 					if (errors[error.reason])
 						createToast(errors[error.reason], ToastType.DANGER);
