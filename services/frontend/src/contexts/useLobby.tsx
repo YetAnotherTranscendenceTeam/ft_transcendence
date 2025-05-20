@@ -220,13 +220,13 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			navigate('/');
 		setLobby(null);
 		const errorMessages = {
-			1000: 'Disconnected from lobby',
-			3000: 'Unauthorized to join lobby',
-			4000: 'Lobby not found',
-			4001: 'Lobby is full',
-			4002: 'Lobby is locked',
-			4003: 'Connected from another location',
-			4006: 'Kicked from the lobby'
+			1000: 'You have been disconnected from the lobby',
+			3000: 'You are not authorized to join this lobby',
+			4000: 'The lobby you tried to join does not exist',
+			4001: 'The lobby you tried to join is currently full',
+			4002: 'The lobby you tried to join is currently locked',
+			4003: 'Your account has joined a lobby from another location',
+			4006: 'Your have been kicked out of the lobby'
 		};
 		if (e.code === 1000)
 			createToast(errorMessages[e.code], ToastType.SUCCESS);
