@@ -25,11 +25,14 @@ export const OverlayProvider = ({ children } : {children?: any}) => {
 				toggleOverlay: () => setIsForcedOpen(prev => !prev),
 			}}
 		>
-			<Overlay
-				hidden={hidden}
-			>
-				{children}
-			</Overlay>
+			{
+				location.pathname.startsWith('/fortytwo') ? children :
+				<Overlay
+					hidden={hidden}
+				>
+					{children}
+				</Overlay>
+			}
 		</OverlayContext.Provider>
 	);
 };
