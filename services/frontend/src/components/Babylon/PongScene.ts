@@ -13,6 +13,7 @@ import DirectionalLightHelper from "./DirectionalLightHelper";
 import PongClient from "./PongClient";
 import { createShieldMaterial } from "./Materials/createShieldMaterial";
 import { addGlow, updateInputBlock } from "./Materials/utils";
+import { PongEventType } from "yatt-lobbies";
 
 
 const spinTo = function (camera: BABYLON.ArcRotateCamera, whichprop: string, targetval: number, speed: number) {
@@ -211,7 +212,6 @@ export default class PongScene {
 			groundMaterial.useMetallnessFromMetallicTextureBlue = true;
 
 			ground.material = groundMaterial;
-			ground.position.y += 0.01;
 			ground.setEnabled(false);
 
 			const iceLeft: BABYLON.Mesh = BABYLON.MeshBuilder.CreateGround("iceLeft" + mapId, { width: map.width / 2, height: map.height }, this._scene);
@@ -389,6 +389,20 @@ export default class PongScene {
 		this.meshMap.get(this._pong.currentMap.mapId)?.objects.forEach((object: AObject) => {
 			object.update(dt, interpolation);
 		});
+		let iceLeft = false;
+		let iceRight = false;
+		this._pong.activeEvents.forEach((event: PONG.PongEvent) => {
+			if (event.type === PongEventType.ICE) {
+				const side = event.playerId <= 1 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT;
+				if (side === PONG.MapSide.LEFT) {
+					iceLeft = true;
+				} else if (side === PONG.MapSide.RIGHT) {
+					iceRight = true;
+				}
+			}
+		});
+		this.meshMap.get(this._pong.currentMap.mapId)?.iceRink.left.setEnabled(iceLeft);
+		this.meshMap.get(this._pong.currentMap.mapId)?.iceRink.right.setEnabled(iceRight);
 	}
 
 	public disableMap(mapId: PONG.MapID): void {
