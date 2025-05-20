@@ -187,7 +187,6 @@ export default function useMatches(account_id: number, pageSize: number = 10, fi
 			params.append('filter[gamemode]', filter+'_1v1');
 		}
 		const response = await ft_fetch(`${config.API_URL}/matchmaking/users/${account_id}/matches?${params.toString()}`, {}, {
-			show_error: true,
 			setTotal: setTotalCount,
 		});
 		if (response) {
