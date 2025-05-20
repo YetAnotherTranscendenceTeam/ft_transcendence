@@ -21,9 +21,9 @@ export default abstract class AObject {
 
 	public update(dt: number, interpolation: number): void {
 		if (!this._isEnabled) return;
-		const wallPos = this._physicsBody.interpolatePosition(interpolation) as Vec2;
-		this._mesh.position.x = wallPos.x;
-		this._mesh.position.z = wallPos.y;
+		const pos = this._physicsBody.interpolatePosition(interpolation) as Vec2;
+		this._mesh.position.x = pos.x;
+		this._mesh.position.z = pos.y;
 		this._mesh.rotation.y = this._physicsBody.orientation;
 	}
 
