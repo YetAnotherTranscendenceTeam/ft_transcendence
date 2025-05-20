@@ -476,11 +476,13 @@ export default class PongScene {
 			}
 			const tmp = this.cameraInertia / 6;
 			this.camera.alpha += dt * (tmp * tmp);
-			if (this.camera.alpha > Math.PI / 2) {
-				this.camera.alpha -= Math.PI * 2;
-			}
 		} else {
 			this.cameraInertia = 0;
+		}
+		if (this.camera.alpha > Math.PI / 2) {
+			this.camera.alpha -= Math.PI * 2;
+		} else if (this.camera.alpha < -Math.PI / 2) {
+			this.camera.alpha += Math.PI * 2;
 		}
 	}
 
