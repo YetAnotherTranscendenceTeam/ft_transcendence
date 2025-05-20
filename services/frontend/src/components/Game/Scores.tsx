@@ -38,7 +38,7 @@ export default function Scores() {
 
 	return <div className='scores-container flex items-center justify-center gap-4'>
 		<div className='score-events left flex items-center justify-end gap-2'>
-			{events.map((event) => <PowerUpIcon powerUp={event} hidden={event.team === MapSide.RIGHT} scope={event.scope}/>)}
+			{events.map((event) => <PowerUpIcon powerUp={event} hidden={event.team === MapSide.RIGHT} key={event.type + '-' + event.team}/>)}
 		</div>
 		<Card className='scores'>
 		<div className="flex flex-row gap-2 items-center flex-1">
@@ -91,7 +91,7 @@ export default function Scores() {
 		</Card>
 	</Card>
 		<div className='score-events right flex items-center justify-start gap-2'>
-			{events.map((event) => <PowerUpIcon powerUp={event} hidden={event.team === MapSide.LEFT}  scope={event.scope}/>)}
+			{events.map((event) => <PowerUpIcon powerUp={event} hidden={event.team === MapSide.LEFT}  key={event.type + '-' + event.team}/>)}
 		</div>
 	</div>
 }

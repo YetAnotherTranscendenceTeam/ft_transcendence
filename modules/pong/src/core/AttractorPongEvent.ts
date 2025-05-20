@@ -19,11 +19,11 @@ export default class AttractorPongEvent extends PongEvent {
 	}
 
 	public override activate(game: Pong, playerId: PlayerID): boolean {
-		super.activate(game, playerId, ATTRACTION_TIME);
 		this._target = game.paddles.get(playerId);
 		if (!this._target) {
 			throw new Error('Player not found');
 		}
+		super.activate(game, playerId, ATTRACTION_TIME);
 		return true;
 	}
 

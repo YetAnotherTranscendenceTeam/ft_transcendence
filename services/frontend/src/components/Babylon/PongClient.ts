@@ -34,7 +34,8 @@ export interface IPongOverlay {
 		time: number,
 		isGlobal: boolean,
 		team: PONG.MapSide,
-		scope: PONG.PongEventScope
+		scope: PONG.PongEventScope,
+		duration: number,
 	}[],
 	goals: {
 		[key: number]: {
@@ -145,7 +146,8 @@ export default class PongClient extends PONG.Pong {
 					time: event.time,
 					isGlobal: event.isGlobal(),
 					team: (event.playerId < 2 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT),
-					scope: event.scope
+					scope: event.scope,
+					duration: event.duration
 				}
 			}) ?? [],
 			goals: {

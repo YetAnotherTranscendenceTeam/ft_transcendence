@@ -4,11 +4,11 @@ import PongEvent, { PongEventScope } from './PongEvent.js';
 import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
-import { PlayerID } from './types.js';
+import { PlayerID, PongEventActivationSide } from './types.js';
 
 export default class MultiBallPongEvent extends PongEvent {
 	constructor() {
-		super(PongEventType.MULTIBALL, PongEventScope.GLOBAL);
+		super(PongEventType.MULTIBALL, PongEventScope.GLOBAL, PongEventActivationSide.BOTH, 2);	
 	}
 
 	public override activate(game: Pong, playerId: PlayerID): boolean {
