@@ -1,6 +1,6 @@
 import { PongEventType } from 'yatt-lobbies'
 import { Pong } from './Pong.js';
-import PongEvent from './PongEvent.js';
+import PongEvent, { PongEventScope } from './PongEvent.js';
 import Ball from './Ball.js';
 import Goal from './Goal.js';
 import { Vec2 } from "gl-matrix";
@@ -13,26 +13,29 @@ const ICE_INERTIA_PREV = 0.95;
 const ICE_INERTIA = 0.3;
 
 export default class IcePongEvent extends PongEvent {
-	private _moveBackup: ((direction: number) => void);
+	private _moveBackup: ((direction: number) => void)[];
 
 	constructor() {
-		super(PongEventType.ICE, PongEventActivationSide.BOTH);
+		super(PongEventType.ICE, PongEventScope.NEGATIVE, PongEventActivationSide.BOTH);
+		this._moveBackup = [];
 	}
 
-	public override activate(game: Pong, playerId: PlayerID): void {
+	public override activate(game: Pong, playerId: PlayerID): boolean {
 		let target = playerId;
 		if (game.isServer()) {
 			if (target < PlayerID.RIGHT_BACK)
-				target += 2;
+				target = PlayerID.RIGHT_BACK;
 			else
-				target -= 2;
+				target = PlayerID.LEFT_BACK;
 		}
-		super.activate(game, target, ICE_TIME);
+		const target_team = Math.floor(target / 2);
+		if (!super.activate(game, target_team + 1, ICE_TIME))
+			return false;
 		game.paddles.forEach((paddle: Paddle, idx: number) => {
-			if (idx !== target) {
+			if (Math.floor(idx / 2) !== target_team) {
 				return;
 			}
-			this._moveBackup = paddle.move;
+			this._moveBackup.push(paddle.move);
 			// paddle.changeType(PH2D.PhysicsType.DYNAMIC);
 			paddle.move = (direction: number): void => {
 				// paddle.velocity = new Vec2(0, direction * paddle.speed);
@@ -53,15 +56,17 @@ export default class IcePongEvent extends PongEvent {
 				}
 			}
 		});
+		return true;
 	}
 
 	public override deactivate(game: Pong): void {
 		super.deactivate(game);
+		const target_team = this._playerId - 1;
 		game.paddles.forEach((paddle: Paddle, idx) => {
-			if (idx !== this._playerId) {
+			if (Math.floor(idx / 2) !== target_team) {
 				return;
 			}
-			paddle.move = this._moveBackup;
+			paddle.move = this._moveBackup.shift();
 			if (paddle.move === undefined) {
 				console.error('move function is undefined');
 				paddle.move = (direction: number): void => {

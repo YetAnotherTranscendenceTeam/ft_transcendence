@@ -34,6 +34,7 @@ export interface IPongOverlay {
 		time: number,
 		isGlobal: boolean,
 		team: PONG.MapSide,
+		scope: PONG.PongEventScope
 	}[],
 	goals: {
 		[key: number]: {
@@ -144,6 +145,7 @@ export default class PongClient extends PONG.Pong {
 					time: event.time,
 					isGlobal: event.isGlobal(),
 					team: (event.playerId < 2 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT),
+					scope: event.scope
 				}
 			}) ?? [],
 			goals: {
@@ -388,7 +390,7 @@ export default class PongClient extends PONG.Pong {
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, matchParameters, state);
 		
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.FromInts(0, 255, 255)); // debug
+		this._babylonScene.clearColor = Color4.FromColor3(Color3.FromInts(30, 30, 30)); // debug
 		
 		this.loadBalls();
 		this.bindPaddles();
@@ -577,9 +579,11 @@ export default class PongClient extends PONG.Pong {
 					event.activate(this, eventSync.playerId);
 				else
 					this._activeEvents.push(event);
+				event.sync(eventSync);
 				this.updateOverlay();
 			}
-			event.sync(eventSync);
+			else
+				event.sync(eventSync);
 		}
 	}
 

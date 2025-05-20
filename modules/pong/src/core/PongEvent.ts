@@ -3,6 +3,12 @@ import { Pong } from './Pong.js';
 import * as K from './constants.js';
 import { IEventSync, PlayerID, PongEventActivationSide } from './types.js';
 
+export enum PongEventScope {
+	GLOBAL = 'global',
+	POSITIVE = 'positive',
+	NEGATIVE = 'negative',
+}
+
 export default class PongEvent {
 	private static counter = 0;
 	
@@ -12,12 +18,14 @@ export default class PongEvent {
 	protected _startTime: number;
 	protected _playerId: PlayerID;
 	protected _id: number;
+	protected _scope: PongEventScope;
 
-	protected constructor(type?: PongEventType, activationSide: PongEventActivationSide = PongEventActivationSide.SERVER) {
+	protected constructor(type?: PongEventType, scope: PongEventScope = PongEventScope.GLOBAL, activationSide: PongEventActivationSide = PongEventActivationSide.SERVER) {
 		this.type = type;
 		this._time = -1;
 		this._startTime = -1;
 		this.activationSide = activationSide;
+		this._scope = scope;
 		this._id = PongEvent.counter++;
 	}
 
@@ -30,18 +38,19 @@ export default class PongEvent {
 		}
 	}
 
-	public activate(game: Pong, playerID: PlayerID, time?: number): void {
+	public activate(game: Pong, playerID: PlayerID, time?: number): boolean {
 		if (!this.isGlobal()) {
 			const existingEvent = game.activeEvents.find(event => event.type === this.type && event.playerId === playerID);
 			if (existingEvent) {
 				existingEvent.resetTimer();
-				return;
+				return false;
 			}
 		}
 		game.activeEvents.push(this);
 		this._playerId = playerID;
 		this._time = time ?? -1;
 		this._startTime = this._time;
+		return true;
 		// Override in subclasses
 	}
 
@@ -68,6 +77,8 @@ export default class PongEvent {
 	public shouldSpawn(game: Pong): boolean {
 		if (this.isGlobal())
 			return !game.activeEvents.some(event => event.type === this.type);
+		else if (game.activeEvents.some(event => event.type === PongEventType.MULTIBALL))
+			return false;
 		return true;
 	}
 
@@ -103,7 +114,11 @@ export default class PongEvent {
 		return this._playerId;
 	}
 
+	public get scope(): PongEventScope {
+		return this._scope;
+	}
+
 	public isGlobal(): boolean {
-		return false;
+		return this._scope === PongEventScope.GLOBAL;
 	}
 }
