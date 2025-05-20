@@ -183,7 +183,7 @@ This service handles authentication requests using the Google Sign in.
 
 ### Fortytwo-auth
 
-This service handles authentication requests using the Google Sign in.
+This service handles authentication requests using the 42Intra 0Auth.
 
 ### 2FA
 
@@ -215,11 +215,11 @@ This service allows users to spectate online games.
 
 ### Matchmaking
 
-This services handles matching lobbies with similar skill levels, it uses a custom rating to evaluate a player's skills. It also handles tournaments and automatically balances tournaments using player rating. The match history is also stored here. 
+This service handles matching lobbies with similar skill levels, it uses a custom rating to evaluate a player's skills. It also handles tournaments and automatically balances tournaments using player rating. The match history is also stored here. 
 
 ### Lobbies
 
-This services allows player to play with their friends by inviting them to their lobby.
+This service allows player to play with their friends by inviting them to their lobby.
 This is also the only entrypoint to the matchmaking queue.
 
 ### Pong
