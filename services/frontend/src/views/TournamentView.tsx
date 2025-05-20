@@ -15,7 +15,7 @@ export default function TournamentView() {
 	const { id } = useParams();
 	const { me } = useAuth();
 	if (!me) {
-		return <ErrorView errorMessage="You need to be logged in to view this page" errorCode={401} />
+		return <ErrorView errorMessage="You must be logged in" errorCode={401} />
 	}
 
 	const { matches } = useTournament(id);
