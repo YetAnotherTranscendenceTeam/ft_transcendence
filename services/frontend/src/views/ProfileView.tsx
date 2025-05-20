@@ -10,13 +10,19 @@ import ProfileLineChart from "../components/Profile/ProfileLineChart";
 import useMatches from "../hooks/useMatches";
 import ProfileHeader from "../components/Profile/ProfileHeader";
 import ProfileGameDrawer from "../components/Profile/ProfileGameDrawer";
+import { useAuth } from "../contexts/useAuth";
+import ErrorView from "./ErrorView";
 
 export default function ProfileView() {
 
 	const { id: userId } = useParams();
 
-	const { user, gamemodes, elos } = useUser(userId);
+	const { me } = useAuth();
+	if (!me) {
+		return <ErrorView errorMessage="You must be logged in" errorCode={401} />
+	}
 
+	const { user, gamemodes, elos } = useUser(userId);
 	const { app } = usePong();
 
 	Babact.useEffect(() => {
@@ -27,6 +33,10 @@ export default function ProfileView() {
 	const { matches, isLoading, page, setPage, totalPages } = useMatches(userId, 10, filter);
 	const [selectedMatch, setSelectedMatch] = Babact.useState<number>(null);
 	
+	if (!user) {
+		return <ErrorView errorMessage="User not found" errorCode={404} />
+	}
+
   	return <div>
 		<div className='profile-view'>
 			{user && <ProfileHeader user={user} />}

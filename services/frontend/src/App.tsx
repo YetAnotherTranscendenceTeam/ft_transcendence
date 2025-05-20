@@ -14,6 +14,7 @@ import OnlineView from "./views/OnlineView";
 import { OverlayProvider } from "./contexts/useOverlay";
 import { RTTournamentProvider } from "./contexts/useRTTournament";
 import SpectatorView from "./views/SpectatorView";
+import ErrorView from "./views/ErrorView";
 
 export default function App() {
 
@@ -33,8 +34,6 @@ export default function App() {
 		}
 	}, []);
 
-	//TODO /matches/:id/spectate route configuration
-
 	return <Router>
 		<UiProvider>
 		<PongProvider>
@@ -43,14 +42,15 @@ export default function App() {
 		<LobbyProvider>
 		<OverlayProvider>
 		<Routes>
+			<Route path="/" element={<Home />} />
+			<Route path='/local' element={<LocalView />} />
 			<Route path="/fortytwo" element={<FortytwoView />} />
 			<Route path='/lobby/:code' element={<LobbyView />} />
 			<Route path='/profiles/:id' element={<ProfileView />} />
-			<Route path='/local' element={<LocalView />} />
 			<Route path='/spectate/:id' element={<SpectatorView />} />
 			<Route path='/matches/:id' element={<OnlineView />} />
 			<Route path='/tournaments/:id' element={<TournamentView />} />
-			<Route path="/*" element={<Home />} />
+			<Route path='/*' element={<ErrorView errorMessage="Page not found" errorCode={404}/>} />
 		</Routes>
 		</OverlayProvider>
 		</LobbyProvider>
