@@ -50,7 +50,7 @@ export default function App() {
 			<Route path='/spectate/:id' element={<SpectatorView />} />
 			<Route path='/matches/:id' element={<OnlineView />} />
 			<Route path='/tournaments/:id' element={<TournamentView />} />
-			<Route path='/*' element={<ErrorView errorMessage="Page Not Found" errorCode={404}/>} />
+			<Route path='/*' element={<ErrorView errorMessage="Page not found" errorCode={404}/>} />
 		</Routes>
 		</OverlayProvider>
 		</LobbyProvider>
