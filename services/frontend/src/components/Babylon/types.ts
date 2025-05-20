@@ -26,8 +26,12 @@ export enum GameScene {
 export enum KeyName {
 	W = "w",
 	S = "s",
+	A = "a",
+	D = "d",
 	ArrowUp = "arrowup",
 	ArrowDown = "arrowdown",
+	ArrowLeft = "arrowleft",
+	ArrowRight = "arrowright",
 }
 
 export interface ScoredEvent {

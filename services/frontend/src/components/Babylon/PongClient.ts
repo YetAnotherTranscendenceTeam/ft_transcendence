@@ -601,15 +601,17 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private playerUpdateOnline() {
-
 		const paddle: ClientPaddle | undefined = this._babylonScene.paddleInstance.get(this._player?.playerId);
 		if (paddle) {
+			const side: number = this._player.playerId < 2 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT;
 			let moveDirection: number = 0;
-			if (this._keyboard.isDown(KeyName.ArrowUp)) {
-				moveDirection += 1;
+			if (this._keyboard.isDown(KeyName.ArrowLeft) ||
+				this._keyboard.isDown(KeyName.A)) {
+				moveDirection += side === PONG.MapSide.LEFT ? 1 : -1;
 			}
-			if (this._keyboard.isDown(KeyName.ArrowDown)) {
-				moveDirection -= 1;
+			if (this._keyboard.isDown(KeyName.ArrowRight) ||
+				this._keyboard.isDown(KeyName.D)) {
+				moveDirection += side === PONG.MapSide.LEFT ? -1 : 1;
 			}
 			paddle.move(moveDirection);
 			if (moveDirection !== this._player.movement) {
