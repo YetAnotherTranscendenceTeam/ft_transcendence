@@ -625,7 +625,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	public destroy() {
-		// this._babylonScene.dispose();
+		this._babylonScene.dispose();
 		this._engine.dispose();
 		window.removeEventListener("keydown", this.handleKeyDown);
 		window.removeEventListener("keyup", this.handleKeyUp);
