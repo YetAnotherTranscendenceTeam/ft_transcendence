@@ -45,7 +45,6 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		} else {
 			ballEmitter.correctSpeed();
 		}
-		// console.log("ball speed: " + ballEmitter.velocity.magnitude);
 
 		// register the hit
 		const playerId: PlayerID = this.getPlayerIdFromBodyId(other.id);
@@ -69,7 +68,6 @@ export function ballCollision(event: CustomEventInit<{emitter: PH2D.Body, other:
 		ballEmitter.playerId !== undefined &&
 		ballEmitter.playerId !== -1) {
 		if (other.active) {
-			console.log(other.event);
 			other.event?.activate(this, ballEmitter.playerId);
 			other.deactivate();
 		}

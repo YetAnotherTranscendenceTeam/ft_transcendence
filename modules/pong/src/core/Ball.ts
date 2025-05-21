@@ -51,12 +51,10 @@ export default class Ball extends PH2D.Body {
 	public limitSpeed() {
 		const speed = this.velocity.squaredMagnitude;
 		if (speed > ballSpeedMax * ballSpeedMax) {
-			console.log("ball high speed limit");
 			Vec2.normalize(this.velocity, this.velocity);
 			Vec2.scale(this.velocity, this.velocity, ballSpeedMax);
 		}
 		if (speed < ballSpeedMin * ballSpeedMin) {
-			console.log("ball low speed limit");
 			Vec2.normalize(this.velocity, this.velocity);
 			Vec2.scale(this.velocity, this.velocity, ballSpeedMin);
 		}
@@ -116,7 +114,6 @@ export default class Ball extends PH2D.Body {
 		if (angle > Math.PI / 2) {
 			angle = Math.PI - angle;
 		}
-		console.log("angleR: " + angle, "angleD: " + angle * 180 / Math.PI);
 		if (angle <= ballBounceStuckAngle) {
 			this._stuckCount++;
 		}
@@ -124,7 +121,6 @@ export default class Ball extends PH2D.Body {
 			this._stuckCount = 0;
 		}
 		if (this._stuckCount > ballBounceStuckLimit) {
-			console.log("ball stuck");
 			this._stuckCount = 0;
 			let direction; // 1 = trigonometric, -1 = anti-trigonometric
 			if (this.velocity[0] > 0) {

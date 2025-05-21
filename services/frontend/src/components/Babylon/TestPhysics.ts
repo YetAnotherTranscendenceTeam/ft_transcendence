@@ -66,7 +66,6 @@ export default class TestPhysics {
 		};
 
 		const circle: PH2D.CircleShape = new PH2D.CircleShape(ballRadius);
-		console.log(circle);
 
 		this._physicalBall = new PH2D.Body(
 			PH2D.PhysicsType.DYNAMIC,
@@ -75,10 +74,8 @@ export default class TestPhysics {
 			ballPos,
 			ballVel,
 		);
-		console.log(this._physicalBall);
 
 		const rectangle: PH2D.PolygonShape = new PH2D.PolygonShape(wallHalfSize.x, wallHalfSize.y);
-		console.log(rectangle);
 
 		this._physicalWall = new PH2D.Body(
 			PH2D.PhysicsType.TRIGGER,
@@ -87,7 +84,6 @@ export default class TestPhysics {
 			wallPos,
 			Vec2.create(),
 		);
-		console.log(this._physicalWall);
 
 		this._physicsScene.addBody(this._physicalBall);
 		this._physicsScene.addBody(this._physicalWall);
@@ -97,11 +93,7 @@ export default class TestPhysics {
 
 		this._physicalBall.addEventListener("collision", (event: CustomEventInit<{emitter: PH2D.Body, other: PH2D.Body, manifold: PH2D.Manifold}>) => {
 			const { emitter, other, manifold } = event.detail;
-			console.log("collision " + emitter.id + "-" + other.id);
-			// console.log(emitter, other, manifold);
 		});
-
-		console.log(this._physicsScene);
 
 		// end test physics
 
@@ -126,10 +118,6 @@ export default class TestPhysics {
 	}
 
 	private loop = () => {
-		// if (this._updateFlag) {
-		// 	console.log("o pos", oldPos);
-		// 	console.log("o vel", this._physicalBall.velocity);
-		// }
 		const dt = this._engine.getDeltaTime() / 1000;
 		this._accumulator += dt;
 		if (this._accumulator > 0.2) {
@@ -143,17 +131,9 @@ export default class TestPhysics {
 		}
 		if (this._updateFlag) {
 			oldPos = this._physicalBall.interpolatePosition(this._accumulator / (1 / 10)) as Vec2;
-			// oldPos = this._physicalBall.position;
-			console.log("n pos", oldPos);
-			// console.log("n vel", this._physicalBall.velocity);
-			// console.log("");
 			this._visualBall.position.x = oldPos.x;
 			this._visualBall.position.z = oldPos.y;
 		}
-		// this._visualBall.position.x = this._physicalBall.position.x;
-		// this._visualBall.position.z = this._physicalBall.position.y;
-		// this._visualWall.position.x = this._physicalWall.position.x;
-		// this._visualWall.position.z = this._physicalWall.position.y;
 		this._scene.render();
 	}
 

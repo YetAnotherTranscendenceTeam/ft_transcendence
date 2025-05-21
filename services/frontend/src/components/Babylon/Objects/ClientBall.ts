@@ -62,7 +62,6 @@ export default class ClientBall extends AObject {
 		this._pointLight.intensity = 0;
 		this._pointLight.excludedMeshes = [this._mesh, this._damageMesh];
 		// this._pointLight.setEnabled(false);
-		console.log("ClientBall", this._used);
 	}
 
 	public update(dt: number, interpolation: number): void {
