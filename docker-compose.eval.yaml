@@ -14,6 +14,10 @@ services:
       - ssl-crt
       - ssl-key
   
+  avatars:
+    environment:
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+  
 secrets:
   ssl-crt: 
     file: ./secrets/localhost.crt
