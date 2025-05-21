@@ -21,7 +21,7 @@ export default class PongEvent {
 	protected _scope: PongEventScope;
 	protected _weight: number;
 
-	protected constructor(type?: PongEventType, scope: PongEventScope = PongEventScope.GLOBAL, activationSide: PongEventActivationSide = PongEventActivationSide.SERVER, weight: number = 20) {
+	protected constructor(type?: PongEventType, scope: PongEventScope = PongEventScope.GLOBAL, activationSide: PongEventActivationSide = PongEventActivationSide.SERVER, weight: number = 450) {
 		this.type = type;
 		this._time = -1;
 		this._duration = -1;
