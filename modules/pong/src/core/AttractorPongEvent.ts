@@ -9,7 +9,7 @@ import * as PH2D from "physics-engine";
 
 const ATTRACTION_FORCE = 2;
 const ATTRACTION_RADIUS = 10;
-const ATTRACTION_TIME = 20;
+const ATTRACTION_TIME = 10;
 
 export default class AttractorPongEvent extends PongEvent {
 	private _target: PH2D.Body;
