@@ -8,8 +8,6 @@ import { Vec2 } from "gl-matrix";
 import { addGlow, updateInputBlock } from "../Materials/utils";
 import createGoalMaterial from "../Materials/goalMaterial";
 
-const isDevelopment = process.env.NODE_ENV !== "production";
-
 function healthToTreshold(health: number): number {
 	// Convert health to a threshold value between 0 and 1
 	const minThreshold = -0.1;
@@ -24,10 +22,6 @@ export default class ClientGoal extends AObject {
 
 	public constructor(scene: Scene, name: string, physicsBody: PONG.Goal) {
 		super(scene, physicsBody);
-		if (!isDevelopment) {
-			this._isEnabled = false;
-			return;
-		}
 		this._previousHealth = physicsBody.health;
 		this._colorBlend = 0;
 		const wallHeight: number = 0.1;
@@ -64,9 +58,6 @@ export default class ClientGoal extends AObject {
 	}
 
 	public enable(): void {
-		if (!isDevelopment) {
-			return;
-		}
 		super.enable();
 	}
 
