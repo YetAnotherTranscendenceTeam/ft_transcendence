@@ -36,7 +36,8 @@ export default function router(fastify, opts, done) {
         data: {match, player}
       }));
       socket.on("close", () => {
-        player.socket = null;
+        if (player.socket == socket)
+          player.socket = null;
       });
       socket.on("message", (message) => {
         try {
