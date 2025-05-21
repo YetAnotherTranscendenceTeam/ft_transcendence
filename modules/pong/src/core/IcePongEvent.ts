@@ -8,7 +8,7 @@ import { PlayerID, IPongPlayer, PongEventActivationSide } from './types.js';
 import * as PH2D from "physics-engine";
 import Paddle from './Paddle.js';
 
-const ICE_TIME = 30;
+const ICE_TIME = 15;
 const ICE_INERTIA_PREV = 0.95;
 const ICE_INERTIA = 0.3;
 
