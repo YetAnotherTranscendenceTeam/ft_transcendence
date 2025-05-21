@@ -56,5 +56,8 @@ export default {
   devServer: {
     historyApiFallback: true,
     allowedHosts: 'all',
+    client: {
+      overlay: isDevelopment,
+    },
   },
 };
