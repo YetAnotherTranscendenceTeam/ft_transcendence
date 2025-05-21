@@ -406,6 +406,10 @@ export class Pong {
 	public get matchParameters(): IMatchParameters {
 		return this._matchParameters;
 	}
+
+	public get gameMode(): GameMode {
+		return this._gameMode;
+	}
 }
 
 

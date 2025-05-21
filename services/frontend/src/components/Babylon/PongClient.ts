@@ -395,11 +395,8 @@ export default class PongClient extends PONG.Pong {
 	private loop = () => {
 		let dt: number = this._engine.getDeltaTime() / 1000;
 		this._keyboard.update();
-		if (this._keyboard.isPressed(" ")) {
-			temporary_falg = !temporary_falg;
-		}
 		this._babylonScene.updateCamera(dt);
-		if (this._gameScene && temporary_falg) {
+		if (this._gameScene) {
 			if (this._gameScene === GameScene.ONLINE) {
 				this.updateOnline(dt);
 			} else if (this._gameScene === GameScene.LOCAL) {
