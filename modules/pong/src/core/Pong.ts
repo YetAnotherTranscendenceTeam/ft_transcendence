@@ -186,7 +186,7 @@ export class Pong {
 				PongEventType.ATTRACTOR,
 				PongEventType.ICE,
 			],
-			ball_speed: K.defaultBallSpeed,
+			ball_speed: K.ballSpeedDefault,
 			point_to_win: K.defaultPointsToWin,
 		}
 		this._matchId = -1;
@@ -205,7 +205,7 @@ export class Pong {
 		this._matchParameters = {
 			obstacles: true,
 			events: [],
-			ball_speed: K.defaultBallSpeed,
+			ball_speed: K.ballSpeedDefault,
 			point_to_win: K.defaultPointsToWin,
 		}
 		this._matchId = -1;
@@ -224,7 +224,7 @@ export class Pong {
 		this._matchParameters = {
 			obstacles: false,
 			events: [],
-			ball_speed: K.defaultBallSpeed,
+			ball_speed: K.ballSpeedDefault,
 			point_to_win: K.defaultPointsToWin,
 		}
 		this._matchId = -1;
@@ -323,7 +323,7 @@ export class Pong {
 			const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
 			const y: number = Math.sin(angle); // vertical component of the ball's velocity
 			const ballVelocity: Vec2 = new Vec2(x, y);
-			ball.speed = K.defaultBallSpeed;
+			ball.speed = K.ballSpeedDefault;
 			ball.setDirection(ballVelocity);
 		});
 	}

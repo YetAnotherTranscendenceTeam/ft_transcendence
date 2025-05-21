@@ -14,7 +14,7 @@ function healthToTreshold(health: number): number {
 	// Convert health to a threshold value between 0 and 1
 	const minThreshold = -0.1;
 	const maxThreshold = 0.05;
-	return (health / PONG.K.maxGoalHealth) * (maxThreshold - minThreshold) + minThreshold;
+	return (health / PONG.K.goalHealthMax) * (maxThreshold - minThreshold) + minThreshold;
 }
 
 export default class ClientGoal extends AObject {
@@ -94,7 +94,7 @@ export default class ClientGoal extends AObject {
 		}
 		if (this._previousHealth !== body.health) {
 			this._previousHealth = body.health;
-			if (body.health < PONG.K.maxGoalHealth) {
+			if (body.health < PONG.K.goalHealthMax) {
 				this._colorBlend = 1;
 			}
 			updateInputBlock(this._material, {

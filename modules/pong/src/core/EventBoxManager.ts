@@ -19,8 +19,7 @@ export default class EventBoxManager {
 	}
 
 	private _resetNextEventIn(): void {
-		this._nextEventIn = 1;
-		// this._nextEventIn = Math.floor(Math.random() * 3) + 3;
+		this._nextEventIn = Math.floor(Math.random() * 6) + 6;
 	}
 
 	canCreateEvent(availableEventBoxes: EventBox[]): boolean {

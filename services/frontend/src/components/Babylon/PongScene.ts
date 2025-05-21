@@ -286,8 +286,8 @@ export default class PongScene {
 			});
 		}
 
-		// Preload the ball (PONG.K.maxBallAmount)
-		for (let i = 0; i < PONG.K.maxBallAmount; i++) {
+		// Preload the ball (PONG.K.ballAmountMax)
+		for (let i = 0; i < PONG.K.ballAmountMax; i++) {
 			const ball = new ClientBall(this._scene, "ball" + i, undefined);
 			// ball.disable();
 			ball.enable();
@@ -358,7 +358,7 @@ export default class PongScene {
 	 * 
 	 */
 	public addBall(ball: PONG.Ball): void {
-		if (this._ballUsed >= PONG.K.maxBallAmount) {
+		if (this._ballUsed >= PONG.K.ballAmountMax) {
 			throw new Error("No more balls available");
 		}
 		const clientBall: ClientBall = this.ballInstances[this._ballUsed];

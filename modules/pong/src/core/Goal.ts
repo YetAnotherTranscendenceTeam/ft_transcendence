@@ -1,6 +1,6 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { bounceMaterial, maxGoalHealth } from "./constants.js";
+import { bounceMaterial, goalHealthMax } from "./constants.js";
 import { IGoalSync, MapSide } from "./types.js";
 import Ball from "./Ball.js";
 
@@ -59,7 +59,7 @@ export default class Goal extends PH2D.Body {
 	}
 
 	public heal() {
-		this._health = maxGoalHealth;
+		this._health = goalHealthMax;
 	}
 
 	public destroyWall() {

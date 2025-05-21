@@ -13,7 +13,7 @@ function bounceToTreshold(bounce: number): number {
 	// Convert health to a threshold value between 0 and 1
 	const minThreshold = -0.15;
 	const maxThreshold = 0.01;
-	return (bounce / PONG.K.ballMaxBounce) * (maxThreshold - minThreshold) + minThreshold;
+	return (bounce / PONG.K.ballBounceMax) * (maxThreshold - minThreshold) + minThreshold;
 }
 
 export default class ClientBall extends AObject {
