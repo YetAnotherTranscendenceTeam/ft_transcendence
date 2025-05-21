@@ -78,7 +78,12 @@ export default function useWebSocket({
 	};
 
 	const send = (message: string | object) => {
-		ws.current.send(JSON.stringify(message));
+		try {
+			ws.current.send(JSON.stringify(message));
+		}
+		catch (error) {
+			console.error("Error sending message:", error);
+		}
 	};
 
 	return {
