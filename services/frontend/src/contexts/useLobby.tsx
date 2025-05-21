@@ -272,7 +272,7 @@ export const LobbyProvider = ({ children } : { children?: any }) => {
 			<ConfirmLobbyLeaveModal
 				isOpen={!!onLeave}
 				onClose={() => setOnLeave(null)}
-				onConfirm={() => onLeave()}
+				onConfirm={() => onLeave && onLeave()}
 				lobby={lobby}
 				key={'lobby-leave-modal'}
 			/>
