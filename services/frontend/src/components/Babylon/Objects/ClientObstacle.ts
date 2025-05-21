@@ -7,6 +7,7 @@ import AObject from "./AObject";
 import { Vec2 } from "gl-matrix";
 import { glV2ArrayToBabylonV3Array } from "../vectorUtils";
 import earcut from "earcut";
+import createObstacleMaterial from "../Materials/obstacleMaterial";
 
 export default class ClientObstacle extends AObject {
 	public constructor(scene: Scene, name: string, physicsBody: PONG.Obstacle) {
@@ -28,13 +29,11 @@ export default class ClientObstacle extends AObject {
 
 		this._mesh.position = new BABYLON.Vector3(
 			this._physicsBody.position.x,
-			0.25,
+			0.5,
 			this._physicsBody.position.y
 		);
 
-		const material = new StandardMaterial("wallMaterial", this._scene);
-		material.diffuseColor = new Color3(0.25, 0.5, 0.62);
-		material.specularColor = new Color3(0, 0, 0);
-		this._mesh.material = material;
+		this._material = createObstacleMaterial(name + "Mat", this._scene);
+		this._mesh.material = this._material;
 	}
 };
