@@ -35,7 +35,7 @@ export default function ConfirmLobbyLeaveModal({
 			<Button
 				className="danger"
 				onClick={() => {
-					lobby.leave();
+					lobby?.leave();
 					onConfirm();
 					onClose();
 				}}
