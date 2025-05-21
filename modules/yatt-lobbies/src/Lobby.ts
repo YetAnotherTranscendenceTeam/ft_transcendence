@@ -83,7 +83,7 @@ export const defaultMatchParameters: IMatchParameters = {
   obstacles: true,
   events: [
     PongEventType.MULTIBALL,
-    // PongEventType.ATTRACTOR,
+    PongEventType.ATTRACTOR,
     PongEventType.ICE,
     // PongEventType.BIGPADDLE,
     // PongEventType.SMALLPADDLE,
