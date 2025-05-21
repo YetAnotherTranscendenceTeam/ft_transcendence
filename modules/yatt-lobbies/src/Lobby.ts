@@ -85,8 +85,6 @@ export const defaultMatchParameters: IMatchParameters = {
     PongEventType.MULTIBALL,
     PongEventType.ATTRACTOR,
     PongEventType.ICE,
-    // PongEventType.BIGPADDLE,
-    // PongEventType.SMALLPADDLE,
   ],
   ball_speed: 1,
   point_to_win: 3
