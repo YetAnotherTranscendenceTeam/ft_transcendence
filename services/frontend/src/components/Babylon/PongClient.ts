@@ -1,18 +1,22 @@
 
 import "@babylonjs/core/Debug/debugLayer";
 import "@babylonjs/inspector";
-import { Engine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
+import { Engine, WebGPUEngine, Scene, ArcRotateCamera, Vector2, Vector3, HemisphericLight, Mesh, MeshBuilder, Color3, Color4, StandardMaterial } from "@babylonjs/core";
 import * as BABYLON from "@babylonjs/core";
 import { GameMode, GameModeType, IGameMode, IPlayer, IMatchParameters, PongEventType } from 'yatt-lobbies'
 import { ClientBall, ClientPaddle, ClientWall, ClientGoal, ClientEventBox, ClientObstacle } from "./Objects/objects";
 // import * as GLMATH from "gl-matrix";
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep, PaddleSync, PaddleSyncs } from "./types";
+import { KeyState, GameScene, KeyName, ScoredEvent, IServerStep, PaddleSync, PaddleSyncs, GraphicsQuality } from "./types";
 import * as PONG from "pong";
 import AObject from "./Objects/AObject";
 import config from "../../config";
 import Keyboard from "./Keyboard";
+import DirectionalLightHelper from "./DirectionalLightHelper";
+import PongScene from "./PongScene";
+
+let temporary_falg: boolean = true;
 
 export interface IPongOverlay {
 	scores: number[],
@@ -49,22 +53,14 @@ export default class PongClient extends PONG.Pong {
 	private _websocket?: WebSocket;
 	private _engine: Engine;
 	private _keyboard: Keyboard;
-	private _babylonScene: Scene;
 	private _gameScene: GameScene;
-
-	private _camera: ArcRotateCamera;
-	private _light: HemisphericLight;
-
-	private _meshMap: Map<PONG.MapID, Array<AObject>>;
+	private _babylonScene: PongScene;
 
 	private _ballSteps: Array<IServerStep>;
 	private _paddleSteps: Array<PaddleSyncs>;
 
-	private _ballInstances: Array<ClientBall>;
-	private _paddleInstance: Map<number, ClientPaddle>;
 
 	private _time: number;
-	private _interpolation: number;
 
 	private _player: PONG.IPongPlayer;
 
@@ -74,33 +70,44 @@ export default class PongClient extends PONG.Pong {
 	public callbacks: {
 		onConnectionError?: (this: WebSocket, error: CloseEvent) => void,
 		updateOverlay: (params: IPongOverlay) => void,
+		loadingComplete: () => void,
 	};
 
 	public constructor(callbacks: {
 		onConnectionError?: (this: WebSocket, error: CloseEvent) => void,
 		updateOverlay: (params: IPongOverlay) => void,
+		loadingComplete: () => void,
 	}) {
 		super();
 		this._spectatorCount = null;
 		this.callbacks = callbacks;
 		this._time = 0;
-		this._interpolation = 0;
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
-		this._meshMap = new Map<PONG.MapID, Array<AObject>>();
 		this._keyboard = new Keyboard();
 
 		this._canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
+
+		// Hardware check
+		let quality: GraphicsQuality = GraphicsQuality.LOW;
+		const gl = this._canvas.getContext("webgl2");
+		if (gl) {
+			const info = gl.getExtension("WEBGL_debug_renderer_info");
+			if (info) {
+				const vendor = gl.getParameter(info.UNMASKED_VENDOR_WEBGL);
+				const renderer = gl.getParameter(info.UNMASKED_RENDERER_WEBGL);
+				if (vendor.includes("NVIDIA") || vendor.includes("AMD")) {
+					quality = GraphicsQuality.HIGH;
+				} else if (vendor.includes("Intel")) {
+					quality = GraphicsQuality.MEDIUM;
+				}
+			}
+		}
+		// quality = GraphicsQuality.LOW; // DEBUG
+
 		this._engine = new Engine(this._canvas, true);
-		
-		this._babylonScene = new Scene(this._engine);
-		// Optimize for performance
-		// this._babylonScene.performancePriority = BABYLON.ScenePerformancePriority.Intermediate;
-		// this._babylonScene.collisionsEnabled = false;
-		this._babylonScene.autoClear = true;
-		// this._babylonScene.autoClearDepthAndStencil = false;
-		
-		this.sceneSetup();
+		// this._engine = new BABYLON.WebGPUEngine(this._canvas);
+		// this._engine.initAsync();
+
+		this._babylonScene = new PongScene(this._canvas, this._engine, this, quality);
 		
 		window.addEventListener("keydown", this.handleKeyDown);
 		window.addEventListener("keyup", this.handleKeyUp);
@@ -111,8 +118,12 @@ export default class PongClient extends PONG.Pong {
 		this._engine.runRenderLoop(this.loop);
 
 		this._state = PONG.PongState.RESERVED.clone();
-		
-		//this.setGameScene(GameScene.ONLINE);
+
+		this.setGameScene(GameScene.PRELOAD);
+		this._babylonScene.scene.render();
+		this._babylonScene.scene.onAfterRenderObservable.addOnce(() => {
+			this.callbacks.loadingComplete();
+		});
 	}
 
 	private updateOverlay() {
@@ -166,22 +177,18 @@ export default class PongClient extends PONG.Pong {
 		if (this._gameScene === scene) {
 			return;
 		}
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.dispose();
-		});
-		this._ballInstances = [];
-		this._paddleInstance = new Map<number, ClientPaddle>();
+		this._babylonScene.removeAllBalls();
+		this._babylonScene.paddleInstance = new Map<number, ClientPaddle>();
 		// disable active map
-		if (this._currentMap) {
-			this._meshMap.get(this._currentMap.mapId)?.forEach((map: AObject) => {
-				map.disable();
-			});
-		}
+		this._babylonScene.disableMap(this._currentMap?.mapId);
+	
 		this._gameScene = scene;
 		if (this._gameScene === GameScene.MENU) {
 			this.menuScene();
 		} else if (this._gameScene === GameScene.LOCAL) {
 			this.localScene();
+		} else if (this._gameScene === GameScene.PRELOAD) {
+			this.preloadScene();
 		}
 		if (this._gameScene !== GameScene.ONLINE && this._websocket) {
 			this._websocket.onclose = undefined;
@@ -194,7 +201,6 @@ export default class PongClient extends PONG.Pong {
 		this._state = PONG.PongState.FREEZE.clone();
 		this.start();
 		this._time = 0;
-		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
 	public restartGame() {
@@ -202,7 +208,6 @@ export default class PongClient extends PONG.Pong {
 		this._stats = new PONG.Stats(0, PONG.K.defaultPointsToWin);
 		this.start();
 		this._time = 0;
-		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.57, 0.67, 0.41));
 	}
 
 	public connect(match_id: number, spectate: boolean = false) {
@@ -233,6 +238,7 @@ export default class PongClient extends PONG.Pong {
 				}
 				this._ballSteps.push(serverStep);
 				this._paddleSteps.push(serverStep.paddles);
+				this.goalsSync(serverStep.goals);
 				this.eventBoxSync(msg.data.event_boxes as PONG.IEventBoxSync[]);
 				this.eventSync(msg.data.activeEvents as PONG.IEventSync[]);
 			}
@@ -254,6 +260,8 @@ export default class PongClient extends PONG.Pong {
 				if (msg.data.player) {
 					this._player = this._players.find((player: PONG.IPongPlayer) => player.account_id === msg.data.player.account_id) as PONG.IPongPlayer;
 				}
+				this._babylonScene.switchCamera();
+				this.goalsSync(msg.data.match.goals);
 				this.eventBoxSync(msg.data.match.event_boxes as PONG.IEventBoxSync[]);
 				this.eventSync(msg.data.match.activeEvents as PONG.IEventSync[]);
 				this.updateOverlay();
@@ -296,68 +304,23 @@ export default class PongClient extends PONG.Pong {
 
 	public pauseGame() {
 		this._state = PONG.PongState.PAUSED.clone();
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Yellow());
 		this.updateOverlay();
 	}
 
 	public resumeGame() {
 		this.setState(PONG.PongState.FREEZE.clone());
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Gray());
-	}
-
-	private sceneSetup() {
-		// scene.clearColor = Color4.FromColor3(Color3.Black());
-		// scene.createDefaultEnvironment();
-		const camera = new ArcRotateCamera("CameraTopDown", -Math.PI / 2, 0, 20, Vector3.Zero(), this._babylonScene);
-		camera.attachControl(this._canvas, true);
-		camera.lowerRadiusLimit = 1.5;
-		camera.upperRadiusLimit = 30;
-		camera.wheelPrecision = 50;
-		
-		const light = new HemisphericLight("light1", new Vector3(0, 1, 0), this._babylonScene);
-		
-		PONG.Pong._map.forEach((map: PONG.IPongMap, mapId: PONG.MapID) => {
-			const mapMesh: Array<AObject> = [];
-			let counter: number = 0;
-
-			const objects: PH2D.Body[] = map.getObjects();
-			objects.forEach((object: PH2D.Body) => {
-				let clientObject: AObject | undefined;
-				if (object instanceof PONG.Wall) {
-					clientObject = new ClientWall(this._babylonScene, ("wall" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.Goal) {
-					clientObject = new ClientGoal(this._babylonScene, ("goal" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.Paddle) {
-					clientObject = new ClientPaddle(this._babylonScene, ("paddle" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.Obstacle) {
-					clientObject = new ClientObstacle(this._babylonScene, ("obstacle" + map.mapId.toString() + counter.toPrecision(2)), object);
-				} else if (object instanceof PONG.EventBox) {
-					clientObject = new ClientEventBox(this._babylonScene, ("eventbox" + map.mapId.toString() + counter.toPrecision(2)), object);
-				}
-				if (clientObject !== undefined) {
-					clientObject.disable();
-					mapMesh.push(clientObject);
-				}
-				counter++;
-			});
-			
-			this._meshMap.set(mapId, mapMesh);
-		});
 	}
 
 	public cleanUp(): void {
 		super.cleanUp();
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.dispose();
-		});
-		this._ballInstances = [];
+		this._babylonScene.removeAllBalls();
 		this._spectatorCount = null;
 	}
 	
 	protected switchMap(mapId: PONG.MapID) {
 		super.switchMap(mapId);
 		const objects: PH2D.Body[] = this._currentMap.getObjects();
-		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject, index: number) => {
+		this._babylonScene.meshMap.get(this._currentMap.mapId)?.objects.forEach((object: AObject, index: number) => {
 			object.updateBodyReference(objects[index]);
 			object.enable();
 			if (object instanceof ClientEventBox) {
@@ -367,49 +330,55 @@ export default class PongClient extends PONG.Pong {
 				object.disable();
 			}
 		});
-		
+		// this._babylonScene.shadowGenerator.getShadowMap().resetRefreshCounter();
 	}
-	
+
+	private preloadScene() {
+		this.preloadSetup();
+
+		this._babylonScene.enableMap(this._currentMap.mapId);
+
+		this._player = undefined;
+		this.bindPaddles();
+		this._babylonScene.updateMeshes(0);
+		this._babylonScene.switchCamera();
+	}
+
 	private menuScene() {
 		this.menuSetup();
-		this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.305882353, 0.384313725, 0.521568627));
 		
-		this.loadBalls();
-		this.updateMeshes();
+		this._babylonScene.enableMap(this._currentMap.mapId);
+		
+		this._player = undefined;
+		this._babylonScene.updateMeshes(0);
+		this._babylonScene.switchCamera();
 		this.launchBall();
 	}
 	
 	private localScene() {
 		this.localSetup();
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.Black()); // debug
-		
-		this.loadBalls();
+
+		this._babylonScene.enableMap(this._currentMap.mapId);
+
+		this._player = undefined;
 		this.bindPaddles();
-		this.updateMeshes();
+		this._babylonScene.updateMeshes(0);
+		this._babylonScene.switchCamera();
 		this.updateOverlay();
 	}
 	
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, matchParameters, state);
-		
-		this._babylonScene.clearColor = Color4.FromColor3(Color3.FromInts(30, 30, 30)); // debug
-		
-		this.loadBalls();
-		this.bindPaddles();
-		this._physicsScene.removeBody(this._ballInstances[0].physicsBody);
-		this.updateMeshes();
-	}	
+
+		this._babylonScene.enableMap(this._currentMap.mapId);
 	
-	private loadBalls() {
-		this._balls.forEach((ball: PH2D.Body) => {
-			const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
-			this._ballInstances.push(ballInstance);
-		});
+		this.bindPaddles();
+		this._babylonScene.updateMeshes(0);
 	}
 	
 	private bindPaddles() {
 		this._paddles.forEach((paddle: PH2D.Body, playerId: number) => {
-			const paddleInstance: ClientPaddle | undefined = this._meshMap.get(this._currentMap.mapId)?.find((object: AObject) => {
+			const paddleInstance: ClientPaddle | undefined = this._babylonScene.meshMap.get(this._currentMap.mapId)?.objects.find((object: AObject) => {
 				if (object instanceof ClientPaddle) {
 					return object.physicsBody === paddle;
 				}
@@ -417,25 +386,29 @@ export default class PongClient extends PONG.Pong {
 			}
 			) as ClientPaddle;
 			if (paddleInstance) {
-				this._paddleInstance.set(playerId, paddleInstance);
-				paddleInstance.update(1);
+				this._babylonScene.paddleInstance.set(playerId, paddleInstance);
+				paddleInstance.update(1, 1);
 			}
 		});
 	}
 
 	private loop = () => {
+		let dt: number = this._engine.getDeltaTime() / 1000;
 		this._keyboard.update();
-		if (this._gameScene) {
-			if (this._gameScene === GameScene.ONLINE) {
-				this.updateOnline();
-			} else {
-				this.updateLocal();
-			}
+		if (this._keyboard.isPressed(" ")) {
+			temporary_falg = !temporary_falg;
 		}
-		else if (this._currentMap) {
-			let dt: number = this._engine.getDeltaTime() / 1000;
-			dt = this.physicsUpdate(dt);
-			this.updateMeshes(dt, dt);
+		this._babylonScene.updateCamera(dt);
+		if (this._gameScene && temporary_falg) {
+			if (this._gameScene === GameScene.ONLINE) {
+				this.updateOnline(dt);
+			} else if (this._gameScene === GameScene.LOCAL) {
+				this.updateLocal(dt);
+			} else {
+				let dt: number = this._engine.getDeltaTime() / 1000;
+				const interpolation = this.physicsUpdate(dt);
+				this._babylonScene.updateMeshes(dt, interpolation, interpolation);
+			}
 		}
 		this._babylonScene.render();
 	}
@@ -453,8 +426,8 @@ export default class PongClient extends PONG.Pong {
 			this.updateOverlay();
 	}
 
-	private updateLocal() {
-		let dt: number = this._engine.getDeltaTime() / 1000;
+	private updateLocal(dt: number) {
+		// let dt: number = this._engine.getDeltaTime() / 1000;
 		const oldFreeze = this._state.frozen_until;
 		if (this._state.tick(dt, this)) {
 			if (this._state.frozen_until != -1 && Math.floor(this._state.frozen_until) !== Math.floor(oldFreeze))
@@ -473,12 +446,11 @@ export default class PongClient extends PONG.Pong {
 		this._time += dt;
 		const oldTick = this._tick;
 		this.playerUpdateLocal();
-		dt = this.physicsUpdate(dt);
-		this.updateMeshes(dt, dt);
+		const interpolation = this.physicsUpdate(dt);
+		this._babylonScene.updateMeshes(dt, interpolation, interpolation);
 		if (this.scoreUpdate()) {
 			console.log("score: " + this._stats.score[0] + "-" + this._stats.score[1]);
 			if (this._stats.winner !== undefined) {
-				this._babylonScene.clearColor = Color4.FromColor3(new Color3(0.56, 0.19, 0.19));
 				this.setState(PONG.PongState.ENDED.clone());
 				this.updateOverlay();
 			} else {
@@ -491,8 +463,8 @@ export default class PongClient extends PONG.Pong {
 		}
 	}
 
-	private updateOnline() {
-		let dt: number = this._engine.getDeltaTime() / 1000;
+	private updateOnline(dt: number) {
+		// let dt: number = this._engine.getDeltaTime() / 1000;
 		let ball_interp = dt / PONG.K.DT;
 		let interpolation = 1;
 
@@ -529,16 +501,7 @@ export default class PongClient extends PONG.Pong {
 			ball_interp = 1;
 		}
 
-		this.updateMeshes(ball_interp, interpolation);
-	}
-
-	private updateMeshes(ball_interp: number = 1, interpolation: number = 1) {
-		this._ballInstances.forEach((ball: ClientBall) => {
-			ball.update(ball_interp);
-		});
-		this._meshMap.get(this._currentMap.mapId)?.forEach((object: AObject) => {
-			object.update(interpolation);
-		});
+		this._babylonScene.updateMeshes(dt, ball_interp, interpolation);
 	}
 
 	private serverStep(data: IServerStep, dt: number, forced: boolean = false) {
@@ -547,7 +510,7 @@ export default class PongClient extends PONG.Pong {
 
 	private paddleSync(paddles: PaddleSyncs) {
 		for (let paddlesync of Object.values(paddles)) {
-			const paddle = this._paddleInstance.get(paddlesync.id);
+			const paddle = this._babylonScene.paddleInstance.get(paddlesync.id);
 			paddle.sync(paddlesync);
 		}
 	}
@@ -558,6 +521,16 @@ export default class PongClient extends PONG.Pong {
 			const eventBox = this._currentMap.eventboxes[i];
 			eventBox.sync(eventBoxSync);
 		}
+	}
+
+	private goalsSync(goals: PONG.IGoalSyncs) {
+		this._goals.forEach((goal: PONG.Goal, side: PONG.MapSide) => {
+			const goalSync = goals[side];
+			if (goalSync) {
+				goal.sync(goalSync);
+			}
+		}
+		);
 	}
 
 	private eventSync(eventSyncs: PONG.IEventSync[]) {
@@ -595,21 +568,16 @@ export default class PongClient extends PONG.Pong {
 			ball.addEventListener("collision", PONG.ballCollision.bind(this));
 		}
 		this._balls.push(ball);
-		const ballInstance: ClientBall = new ClientBall(this._babylonScene, ball);
-		this._ballInstances.push(ballInstance);
+		this._babylonScene.addBall(ball);
 	}
 
 	public removeBall(ball: PONG.Ball) {
 		super.removeBall(ball);
-		const ballInstance: ClientBall | undefined = this._ballInstances.find((b: ClientBall) => b.physicsBody === ball);
-		if (ballInstance) {
-			ballInstance.dispose();
-			this._ballInstances = this._ballInstances.filter((b: ClientBall) => b !== ballInstance);
-		}
+		this._babylonScene.removeBall(ball);
 	}
 
 	private playerUpdateLocal() {
-		let paddle: ClientPaddle | undefined = this._paddleInstance.get(PONG.PlayerID.RIGHT_BACK);
+		let paddle: ClientPaddle | undefined = this._babylonScene.paddleInstance.get(PONG.PlayerID.RIGHT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.ArrowUp)) {
@@ -621,7 +589,7 @@ export default class PongClient extends PONG.Pong {
 			paddle.move(moveDirection);
 		}
 
-		paddle = this._paddleInstance.get(PONG.PlayerID.LEFT_BACK);
+		paddle = this._babylonScene.paddleInstance.get(PONG.PlayerID.LEFT_BACK);
 		if (paddle) {
 			let moveDirection: number = 0;
 			if (this._keyboard.isDown(KeyName.W)) {
@@ -635,15 +603,17 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private playerUpdateOnline() {
-
-		const paddle: ClientPaddle | undefined = this._paddleInstance.get(this._player?.playerId);
+		const paddle: ClientPaddle | undefined = this._babylonScene.paddleInstance.get(this._player?.playerId);
 		if (paddle) {
+			const side: number = this._player.playerId < 2 ? PONG.MapSide.LEFT : PONG.MapSide.RIGHT;
 			let moveDirection: number = 0;
-			if (this._keyboard.isDown(KeyName.ArrowUp)) {
-				moveDirection += 1;
+			if (this._keyboard.isDown(KeyName.ArrowLeft) ||
+				this._keyboard.isDown(KeyName.A)) {
+				moveDirection += side === PONG.MapSide.LEFT ? 1 : -1;
 			}
-			if (this._keyboard.isDown(KeyName.ArrowDown)) {
-				moveDirection -= 1;
+			if (this._keyboard.isDown(KeyName.ArrowRight) ||
+				this._keyboard.isDown(KeyName.D)) {
+				moveDirection += side === PONG.MapSide.LEFT ? -1 : 1;
 			}
 			paddle.move(moveDirection);
 			if (moveDirection !== this._player.movement) {
@@ -661,13 +631,9 @@ export default class PongClient extends PONG.Pong {
 
 	private handleKeyDown = (ev: KeyboardEvent) => {
 		// Shift+Ctrl+Alt+I
-		// if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
-		// 	if (this._babylonScene.debugLayer.isVisible()) {
-		// 		this._babylonScene.debugLayer.hide();
-		// 	} else {500
-		// 		this._babylonScene.debugLayer.show();
-		// 	}
-		// }
+		if (ev.shiftKey && ev.ctrlKey && ev.altKey && (ev.key === "I" || ev.key === "i")) {
+			this._babylonScene.toogleDebug();
+		}
 
 		this._keyboard.keyDown(ev.key);
 	}
@@ -677,7 +643,7 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	public destroy() {
-		// this._babylonScene.dispose();
+		this._babylonScene.dispose();
 		this._engine.dispose();
 		window.removeEventListener("keydown", this.handleKeyDown);
 		window.removeEventListener("keyup", this.handleKeyUp);

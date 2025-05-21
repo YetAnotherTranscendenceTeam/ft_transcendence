@@ -1,7 +1,7 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { bounceMaterial } from "./constants.js";
-import { MapSide } from "./types.js";
+import { bounceMaterial, goalHealthMax } from "./constants.js";
+import { IGoalSync, MapSide } from "./types.js";
 import Ball from "./Ball.js";
 
 export default class Goal extends PH2D.Body {
@@ -59,15 +59,11 @@ export default class Goal extends PH2D.Body {
 	}
 
 	public heal() {
-		this._health = 20;
+		this._health = goalHealthMax;
 	}
 
 	public destroyWall() {
 		this._health = 0;
-	}
-
-	public getDamage(bounce_coun: number): number {
-		return 1 / (1 + Math.exp(-bounce_coun/1.5 + 4.2)) * 8;
 	}
 
 	public score(ball: Ball): boolean {
@@ -75,20 +71,24 @@ export default class Goal extends PH2D.Body {
 			this._scored = true;
 			return true;
 		}
-		if (ball.bounceCount > 0) {
-			const damage = this.getDamage(ball.bounceCount);
+		// if (ball.bounceCount > 0) {
+			const damage = ball.getDamage();
 			this._health -= damage;
 			// console.log('goal damage', ball.bounceCount, damage);
 			ball.resetDamage();
 			if (this._health <= 0) {
 				this._health = 0;
 			}
-		}
+		// }
 		// console.log('goal health', this.id, this._health);
 		return false;
 	}
 
 	public resetScore(): void {
 		this._scored = false;
+	}
+
+	public sync(other: IGoalSync): void {
+		this._health = other.health;
 	}
 }

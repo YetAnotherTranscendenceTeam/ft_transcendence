@@ -61,7 +61,9 @@ const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape, rotation: numbe
 		shape: new PH2D.PolygonShape([
 			Vec2.fromValues(-playGround.width / 8, 0),
 			Vec2.fromValues(0, playGround.height * 0.1),
-			Vec2.fromValues(playGround.width / 8, 0)
+			Vec2.fromValues(playGround.width / 8, 0),
+			// Vec2.fromValues(playGround.width / 8, -0.1),
+			// Vec2.fromValues(-playGround.width / 8, -0.1)
 		]),
 		rotation: 0
 	},
@@ -70,7 +72,9 @@ const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape, rotation: numbe
 		shape: new PH2D.PolygonShape([
 			Vec2.fromValues(-playGround.width / 8, 0),
 			Vec2.fromValues(0, -playGround.height * 0.1),
-			Vec2.fromValues(playGround.width / 8, 0)
+			Vec2.fromValues(playGround.width / 8, 0),
+			// Vec2.fromValues(playGround.width / 8, 0.1),
+			// Vec2.fromValues(-playGround.width / 8, 0.1)
 		]),
 		rotation: 0
 	},
@@ -120,6 +124,8 @@ const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape, rotation: numbe
 export function createMap(): IPongMap {
 	return {
 		mapId: MapID.SMALL,
+		width: playGround.width,
+		height: playGround.height,
 		wallTop: new Wall(wallShape, wallTopPosition, wallSize),
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),

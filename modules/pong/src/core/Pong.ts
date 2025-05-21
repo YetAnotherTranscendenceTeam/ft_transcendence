@@ -123,6 +123,7 @@ export class Pong {
 		if (this._gameMode.team_size === 2) {
 			this.switchMap(MapID.BIG);
 		} else if (this._gameMode.team_size === 1) {
+			// this.switchMap(MapID.BIG);
 			this.switchMap(MapID.SMALL);
 		} else {
 			this.switchMap(MapID.FAKE);
@@ -185,7 +186,7 @@ export class Pong {
 				PongEventType.ATTRACTOR,
 				PongEventType.ICE,
 			],
-			ball_speed: K.defaultBallSpeed,
+			ball_speed: K.ballSpeedDefault,
 			point_to_win: K.defaultPointsToWin,
 		}
 		this._matchId = -1;
@@ -204,12 +205,39 @@ export class Pong {
 		this._matchParameters = {
 			obstacles: true,
 			events: [],
-			ball_speed: K.defaultBallSpeed,
+			ball_speed: K.ballSpeedDefault,
 			point_to_win: K.defaultPointsToWin,
 		}
 		this._matchId = -1;
 
 		this.setup();
+	}
+
+	protected preloadSetup() {
+		this.cleanUp();
+
+		this._gameMode = new GameMode("preload", {
+			type: null,
+			team_size: 0,
+			team_count: 0,
+		});
+		this._matchParameters = {
+			obstacles: false,
+			events: [],
+			ball_speed: K.ballSpeedDefault,
+			point_to_win: K.defaultPointsToWin,
+		}
+		this._matchId = -1;
+		
+		this.switchMap(MapID.FAKE);
+
+		this.addBall(new Ball(new Vec2(0, 1)));
+		this.addBall(new Ball(new Vec2(0, -1)));
+		this.addBall(new Ball(new Vec2(1, 0)));
+		this.addBall(new Ball(new Vec2(-1, 0)));
+		this._stats = new Stats(this._gameMode.team_size, this._matchParameters.point_to_win);
+		this._eventBoxManager = new EventBoxManager(this._currentMap.eventboxes, this._matchParameters.events, this, this._stats);
+		this._activeEvents = [];
 	}
 
 	protected start() {
@@ -295,7 +323,7 @@ export class Pong {
 			const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
 			const y: number = Math.sin(angle); // vertical component of the ball's velocity
 			const ballVelocity: Vec2 = new Vec2(x, y);
-			ball.speed = K.defaultBallSpeed;
+			ball.speed = K.ballSpeedDefault;
 			ball.setDirection(ballVelocity);
 		});
 	}
@@ -374,6 +402,18 @@ export class Pong {
 
 	public get goals(): Map<number, Goal> {
 		return this._goals;
+	}
+
+	public get maps(): Map<MapID, IPongMap> {
+		return Pong._map;
+	}
+
+	public get currentMap(): IPongMap {
+		return this._currentMap;
+	}
+
+	public get matchParameters(): IMatchParameters {
+		return this._matchParameters;
 	}
 }
 

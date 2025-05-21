@@ -91,6 +91,8 @@ const obstacleShape: Array<{pos: Vec2, shape: PH2D.PolygonShape, rotation: numbe
 export function createMap(): IPongMap {
 	return {
 		mapId: MapID.BIG,
+		width: playGround.width,
+		height: playGround.height,
 		wallTop: new Wall(wallShape, wallTopPosition, wallSize),
 		wallBottom: new Wall(wallShape, wallBottomPosition, wallSize),
 		goalLeft: new Goal(goalShape, goalLeftPosition, goalSize),

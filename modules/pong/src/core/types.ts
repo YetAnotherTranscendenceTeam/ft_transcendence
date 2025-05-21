@@ -128,6 +128,8 @@ export enum PongEventActivationSide {
 
 export interface IPongMap {
 	mapId: MapID;
+	width: number;
+	height: number;
 
 	wallTop: Wall;
 	wallBottom: Wall;
@@ -167,6 +169,14 @@ export interface IPaddle {
 export interface IEventBoxSync {
 	eventType: PongEventType;
 	active: boolean;
+}
+
+export interface IGoalSync {
+	health: number;
+}
+
+export type IGoalSyncs = {
+	[key: number]: IGoalSync;
 }
 
 export interface IEventSync {

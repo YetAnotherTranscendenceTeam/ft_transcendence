@@ -47,6 +47,7 @@ export class PongServer extends Pong {
 			lastSide: this._stats.lastSideToScore,
 			state: this._state,
 			score: this._stats.score,
+			goals: this.getGoals(),
 			event_boxes: this.getEventBoxes(),
 			paddles: this.getPaddlePositions(),
 			balls: this._balls,
@@ -111,6 +112,16 @@ export class PongServer extends Pong {
 		return paddle_positions;
 	}
 
+	getGoals() {
+		const goals = {};
+		this._goals.forEach((goal, index) => {
+			goals[index] = {
+				health: goal.health,
+			};
+		});
+		return goals;
+	}
+
 	getPlayer(account_id) {
 		return this._players.find(player => player.account_id === account_id);
 	}
@@ -170,7 +181,7 @@ export class PongServer extends Pong {
 		const event_boxes = this._currentMap.getEventBoxes().map((box) => {
 			return {
 				active: box.active,
-				type: box.type,
+				eventType: box.eventType,
 			}
 		});
 		return event_boxes;
@@ -214,6 +225,7 @@ export class PongServer extends Pong {
 				collisions: this.collisions.length,
 				balls: this._balls,
 				paddles: this.getPaddlePositions(),
+				goals: this.getGoals(),
 				activeEvents: this._activeEvents,
 				tick: this.tick,
 			}

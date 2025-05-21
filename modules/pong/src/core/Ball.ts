@@ -1,14 +1,12 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { DT, bounceMaterial, ballShape, defaultBallSpeed, maxBallSpeed } from "./constants.js";
+import { bounceMaterial, ballShape, ballSpeedControl, ballDamageMax, ballBounceMax, ballBounceStuckAngle, ballBounceStuckLimit, ballSpeedMin, ballSpeedMax, ballAcceleration } from "./constants.js";
 import { IBall } from "./types.js"
-import trunc from "./trunc.js";
-
-
 
 export default class Ball extends PH2D.Body {
 	private _speed: number;
 	private _bounceCount: number;
+	private _stuckCount: number;
 	public playerId: number;
 
 	public constructor(position: Vec2 = Vec2.create(), direction: Vec2 = Vec2.create(), speed: number = 0) {
@@ -16,7 +14,8 @@ export default class Ball extends PH2D.Body {
 		this._speed = speed;
 		this.velocity = Vec2.normalize(Vec2.create(), direction) as Vec2;
 		Vec2.scale(this.velocity, this.velocity, this._speed);
-		this._bounceCount = 0;
+		this._bounceCount = -1;
+		this._stuckCount = 0;
 		this.playerId = -1;
 	}
 
@@ -36,8 +35,8 @@ export default class Ball extends PH2D.Body {
 	}
 
 	public faster() {
-		if (this._speed < maxBallSpeed) {
-			this._speed += 0.5;
+		if (this._speed < ballSpeedControl) {
+			this._speed += ballAcceleration;
 		}
 		this.correctSpeed();
 	}
@@ -46,6 +45,20 @@ export default class Ball extends PH2D.Body {
 		if (this.velocity.squaredMagnitude != this._speed * this._speed) {
 			Vec2.normalize(this.velocity, this.velocity);
 			Vec2.scale(this.velocity, this.velocity, this._speed);
+		}
+	}
+
+	public limitSpeed() {
+		const speed = this.velocity.squaredMagnitude;
+		if (speed > ballSpeedMax * ballSpeedMax) {
+			console.log("ball high speed limit");
+			Vec2.normalize(this.velocity, this.velocity);
+			Vec2.scale(this.velocity, this.velocity, ballSpeedMax);
+		}
+		if (speed < ballSpeedMin * ballSpeedMin) {
+			console.log("ball low speed limit");
+			Vec2.normalize(this.velocity, this.velocity);
+			Vec2.scale(this.velocity, this.velocity, ballSpeedMin);
 		}
 	}
 
@@ -78,14 +91,56 @@ export default class Ball extends PH2D.Body {
 	public resetDamage() {
 		this._bounceCount = 0;
 	}
-
+	
+	public getDamage(): number {
+		// return 1 / (1 + Math.exp(-this._bounceCount/1.5 + 4.2)) * 8 + 1;
+		if (this._bounceCount >= ballDamageMax) {
+			return ballDamageMax;
+		}
+		return this._bounceCount + 1;
+	}
+	
 	public disableDamage() {
 		this._bounceCount = -1;
 	}
-
+	
 	public increaseDamage() {
-		if (this._bounceCount !== -1) {
+		if (this._bounceCount !== -1 && this._bounceCount < ballBounceMax) {
 			this._bounceCount++;
+		}
+	}
+
+	public stuckUpdate() {
+		// absolute angle relative to Y axis
+		let angle = Math.abs(Math.atan2(this.velocity[0], this.velocity[1]));
+		if (angle > Math.PI / 2) {
+			angle = Math.PI - angle;
+		}
+		console.log("angleR: " + angle, "angleD: " + angle * 180 / Math.PI);
+		if (angle <= ballBounceStuckAngle) {
+			this._stuckCount++;
+		}
+		else {
+			this._stuckCount = 0;
+		}
+		if (this._stuckCount > ballBounceStuckLimit) {
+			console.log("ball stuck");
+			this._stuckCount = 0;
+			let direction; // 1 = trigonometric, -1 = anti-trigonometric
+			if (this.velocity[0] > 0) {
+				if (this.velocity[1] > 0) {
+					direction = -1;
+				} else {
+					direction = 1;
+				}
+			} else {
+				if (this.velocity[1] > 0) {
+					direction = 1;
+				} else {
+					direction = -1;
+				}
+			}
+			Vec2.rotate(this.velocity, this.velocity, Vec2.create(), direction * ballBounceStuckAngle);
 		}
 	}
 

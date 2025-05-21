@@ -38,6 +38,9 @@ export default class EventBox extends PH2D.Body {
 	public sync(other: IEventBoxSync): void {
 		this._active = other.active;
 		this._event = EventBox.pongEvents[other.eventType];
+		if (this._event) {
+			this._event.clone();
+		}
 		this.filter = this._active ? 0 : 1;
 	}
 
