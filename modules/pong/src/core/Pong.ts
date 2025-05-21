@@ -1,6 +1,6 @@
 import * as PH2D from "physics-engine";
 import { Vec2 } from "gl-matrix";
-import { GameMode, IPlayer, IMatchParameters, PongEventType } from 'yatt-lobbies'
+import { GameMode, IPlayer, IMatchParameters, defaultMatchParameters } from 'yatt-lobbies'
 import * as K from "./constants.js";
 import Ball from "./Ball.js";
 import Paddle from "./Paddle.js";
@@ -179,16 +179,7 @@ export class Pong {
 			team_size: 1,
 			team_count: 2
 		});
-		this._matchParameters = {
-			obstacles: true,
-			events: [
-				PongEventType.MULTIBALL,
-				PongEventType.ATTRACTOR,
-				PongEventType.ICE,
-			],
-			ball_speed: K.ballSpeedDefault,
-			point_to_win: K.defaultPointsToWin,
-		}
+		this._matchParameters = defaultMatchParameters;
 		this._matchId = -1;
 
 		this.setup();
@@ -205,7 +196,7 @@ export class Pong {
 		this._matchParameters = {
 			obstacles: true,
 			events: [],
-			ball_speed: K.ballSpeedDefault,
+			ball_speed: 1,
 			point_to_win: K.defaultPointsToWin,
 		}
 		this._matchId = -1;
@@ -224,7 +215,7 @@ export class Pong {
 		this._matchParameters = {
 			obstacles: false,
 			events: [],
-			ball_speed: K.ballSpeedDefault,
+			ball_speed: 1,
 			point_to_win: K.defaultPointsToWin,
 		}
 		this._matchId = -1;
@@ -323,7 +314,7 @@ export class Pong {
 			const x: number = dir === 0 ? -1 : 1; // horizontal component of the ball's velocity
 			const y: number = Math.sin(angle); // vertical component of the ball's velocity
 			const ballVelocity: Vec2 = new Vec2(x, y);
-			ball.speed = K.ballSpeedDefault;
+			ball.speed = K.ballSpeedDefault * this._matchParameters.ball_speed;
 			ball.setDirection(ballVelocity);
 		});
 	}
