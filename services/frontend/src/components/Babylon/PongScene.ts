@@ -93,7 +93,7 @@ export default class PongScene {
 		this.camera.minZ = 0.1;
 
 		const hdrTexture = new BABYLON.CubeTexture(
-			"/assets/images/disco_4k.env",
+			"/assets/images/adams_place_bridge_4k.env",
 			this._scene,
 			null,
 			false,
@@ -103,6 +103,7 @@ export default class PongScene {
 		// Skybox
 		this.skybox = BABYLON.MeshBuilder.CreateBox('skyBox', { size: 500.0, sideOrientation: BABYLON.Mesh.BACKSIDE }, this._scene);
 		this.skybox.infiniteDistance = true;
+		this.skybox.rotation.y = 0.8;
 
 		// Skybox material
 		const skyboxMaterial = new BABYLON.PBRMaterial('skyBox', this._scene);
