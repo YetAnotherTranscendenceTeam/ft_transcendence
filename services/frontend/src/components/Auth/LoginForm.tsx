@@ -43,7 +43,6 @@ export default function LoginForm({
 
 		if (response && response.statusCode === 202 && response.code === '2FA_VERIFICATION') {
 			const { payload_token } = response;
-			console.log('payload_token', payload_token);
 			setPayload(payload_token);
 		}
 		else if (response) {

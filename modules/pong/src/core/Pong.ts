@@ -138,8 +138,6 @@ export class Pong {
 		this.cleanUp();
 		this._matchId = match_id;
 		this._gameMode = gamemode;
-		console.log("Game mode", this._gameMode);
-		console.log({matchParameters});
 		this._matchParameters = matchParameters;
 		if (state instanceof PongState)
 			this._state = state;

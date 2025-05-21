@@ -17,7 +17,6 @@ import { PongEventType } from "yatt-lobbies";
 
 
 const spinTo = function (camera: BABYLON.ArcRotateCamera, whichprop: string, targetval: number, speed: number) {
-	console.log("spinTo", whichprop, targetval, speed);
     var ease = new BABYLON.CubicEase();
     ease.setEasingMode(BABYLON.EasingFunction.EASINGMODE_EASEINOUT);
 	BABYLON.Animation.CreateAndStartAnimation(
@@ -66,13 +65,9 @@ export default class PongScene {
 		this.stadiumShadowGenerator = [];
 		this.stadiumLights = [];
 
-		console.log("GRAPHICS");
 		const gl = canvas.getContext("webgl2");
-		console.log("gl:", gl);
 		if (gl) {
 			const info = gl.getExtension('WEBGL_debug_renderer_info');
-			console.log('Vendor:  ', gl.getParameter(info.UNMASKED_VENDOR_WEBGL));
-			console.log('Renderer:', gl.getParameter(info.UNMASKED_RENDERER_WEBGL));
 		}
 
 		this._scene = new BABYLON.Scene(this._engine);
@@ -320,29 +315,11 @@ export default class PongScene {
 			this.ballInstances.push(ball);
 		}
 
-		console.log("All ClientBall instances", this.ballInstances);
-
-		// window.setTimeout(() => {
-		// 	this._scene.onAfterRenderObservable.add(() => dlh.forEach((dlh: DirectionalLightHelper) => {
-		// 		dlh.buildLightHelper();
-		// 	}));
-		// }, 500);
-
-		// this._scene.registerBeforeRender(() => {
-		// 	// console.log("light shadow", light.shadowMinZ, light.shadowMaxZ);
-		// 	if (this.ballInstances.length > 0) {
-		// 		testLight.position = this.ballInstances[0].mesh.position;
-		// 	}
-		// });
-
 		this._scene.materials.forEach((material: BABYLON.Material) => {
 			if (material instanceof BABYLON.PBRMaterial) {
-				console.log("PBRMaterial", material.name);
 				material.maxSimultaneousLights = 8;
 			}
 		});
-
-		console.log("PongScene created");
 	}
 
 	public render(): void {
@@ -434,11 +411,9 @@ export default class PongScene {
 	public switchCamera(): void {
 		const client: PongClient = this._pong as PongClient;
 		if (this._pong.currentMap.mapId === PONG.MapID.FAKE) {
-			console.log("Fake map");
 			spinTo(this.camera, "beta", Math.PI / 3, 90);
 			spinTo(this.camera, "radius", 15, 90);
 		} else if (this._pong.currentMap.mapId === PONG.MapID.SMALL) {
-			console.log("Small map");
 			if (client.player === undefined) {
 				spinTo(this.camera, "alpha", -Math.PI / 2, 90);
 				spinTo(this.camera, "beta", 0, 90);
@@ -451,7 +426,6 @@ export default class PongScene {
 			}
 			spinTo(this.camera, "radius", 20, 90);
 		} else if (this._pong.currentMap.mapId === PONG.MapID.BIG) {
-			console.log("Big map");
 			if (client.player === undefined) {
 				spinTo(this.camera, "alpha", -Math.PI / 2, 90);
 				spinTo(this.camera, "beta", 0, 90);
@@ -501,7 +475,6 @@ export default class PongScene {
 		this.meshMap.clear();
 		this.ballInstances.length = 0;
 		this.paddleInstance.clear();
-		console.log("PongScene disposed");
 		this.skybox.dispose();
 		this.stadiumLights.forEach((light: BABYLON.DirectionalLight) => {
 			light.dispose();

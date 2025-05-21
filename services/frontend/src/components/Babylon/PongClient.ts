@@ -243,7 +243,6 @@ export default class PongClient extends PONG.Pong {
 				this.eventSync(msg.data.activeEvents as PONG.IEventSync[]);
 			}
 			else if (msg.event === "sync") {
-				console.log("sync", msg.data);
 				this._tick = msg.data.tick;
 				this.setGameScene(GameScene.ONLINE);
 				this.onlineScene(msg.data.match.match_id as number, 
@@ -293,7 +292,6 @@ export default class PongClient extends PONG.Pong {
 			}
 		}
 		this._websocket.onopen = (ev) => {
-			console.log(ev);
 		}
 		this._websocket.onclose = this.callbacks.onConnectionError;
 	}
@@ -449,7 +447,6 @@ export default class PongClient extends PONG.Pong {
 		const interpolation = this.physicsUpdate(dt);
 		this._babylonScene.updateMeshes(dt, interpolation, interpolation);
 		if (this.scoreUpdate()) {
-			console.log("score: " + this._stats.score[0] + "-" + this._stats.score[1]);
 			if (this._stats.winner !== undefined) {
 				this.setState(PONG.PongState.ENDED.clone());
 				this.updateOverlay();

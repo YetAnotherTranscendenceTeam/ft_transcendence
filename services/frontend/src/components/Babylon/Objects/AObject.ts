@@ -35,11 +35,6 @@ export default abstract class AObject {
 		this._probe = new ReflectionProbe("probe" + this._mesh.name, 256, this._scene);
 		(this._material as PBRMaterial).reflectionTexture = this._probe.cubeTexture;
 		this._probe.attachToMesh(this._mesh);
-		// this._probe.cubeTexture.onBeforeRenderObservable.add(() => {
-		// 	this._scene.activeCamera.minZ = 0.1;
-		// 	console.log("probe", this._scene.activeCamera.minZ);
-		// });
-		// this._probe.refreshRate = BABYLON.RenderTargetTexture.REFRESHRATE_RENDER_ONCE;
 	}
 
 	public addToProbe(object: AObject | Mesh | AObject[] | Mesh[]): void {

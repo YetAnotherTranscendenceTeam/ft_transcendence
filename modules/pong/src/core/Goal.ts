@@ -74,13 +74,11 @@ export default class Goal extends PH2D.Body {
 		// if (ball.bounceCount > 0) {
 			const damage = ball.getDamage();
 			this._health -= damage;
-			// console.log('goal damage', ball.bounceCount, damage);
 			ball.resetDamage();
 			if (this._health <= 0) {
 				this._health = 0;
 			}
 		// }
-		// console.log('goal health', this.id, this._health);
 		return false;
 	}
 
