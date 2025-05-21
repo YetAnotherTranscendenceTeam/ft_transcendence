@@ -183,5 +183,6 @@ export interface IEventSync {
 	type: PongEventType;
 	playerId: PlayerID;
 	time: number;
+	duration: number;
 	id: number;
 }

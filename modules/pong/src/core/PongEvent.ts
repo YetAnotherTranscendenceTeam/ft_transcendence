@@ -15,18 +15,20 @@ export default class PongEvent {
 	public readonly type: PongEventType;
 	public readonly activationSide: PongEventActivationSide;
 	protected _time: number;
-	protected _startTime: number;
+	protected _duration: number;
 	protected _playerId: PlayerID;
 	protected _id: number;
 	protected _scope: PongEventScope;
+	protected _weight: number;
 
-	protected constructor(type?: PongEventType, scope: PongEventScope = PongEventScope.GLOBAL, activationSide: PongEventActivationSide = PongEventActivationSide.SERVER) {
+	protected constructor(type?: PongEventType, scope: PongEventScope = PongEventScope.GLOBAL, activationSide: PongEventActivationSide = PongEventActivationSide.SERVER, weight: number = 20) {
 		this.type = type;
 		this._time = -1;
-		this._startTime = -1;
+		this._duration = -1;
 		this.activationSide = activationSide;
 		this._scope = scope;
 		this._id = PongEvent.counter++;
+		this._weight = weight;
 	}
 
 	public toJSON(): IEventSync {
@@ -34,7 +36,8 @@ export default class PongEvent {
 			type: this.type,
 			time: this._time,
 			playerId: this._playerId,
-			id: this._id
+			id: this._id,
+			duration: this._duration,
 		}
 	}
 
@@ -49,7 +52,7 @@ export default class PongEvent {
 		game.activeEvents.push(this);
 		this._playerId = playerID;
 		this._time = time ?? -1;
-		this._startTime = this._time;
+		this._duration = this._time;
 		return true;
 		// Override in subclasses
 	}
@@ -95,11 +98,20 @@ export default class PongEvent {
 	public sync(other: IEventSync): void {
 		this._time = other.time;
 		this._playerId = other.playerId;
+		this._duration = other.duration;
 		this._id = other.id;
 	}
 
 	public resetTimer(): void {
-		this._time = this._startTime;
+		this._time = this._duration;
+	}
+
+	public get duration(): number {
+		return this._duration;
+	}
+
+	public get weight(): number {
+		return this._weight;
 	}
 
 	public get id(): number {

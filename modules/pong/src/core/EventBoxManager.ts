@@ -43,7 +43,21 @@ export default class EventBoxManager {
 			const eventBoxIndex: number = Math.floor(Math.random() * availableEventBoxes.length);
 			const eventBox: EventBox = availableEventBoxes[eventBoxIndex];
 			const availableEvents: PongEventType[] = this._events.filter((event: PongEventType) => EventBox.pongEvents[event].shouldSpawn(this._game) && !this._eventBoxes.some((eventbox: EventBox) => eventbox.eventType === event));
-			const randomEventIndex = Math.floor(Math.random() * availableEvents.length);
+			
+			const totalWeight = availableEvents.reduce((acc: number, event: PongEventType) => acc + EventBox.pongEvents[event].weight, 0);
+			
+			const randomEventWeight = Math.floor(Math.random() * totalWeight);
+
+
+			let randomEventIndex = -1;
+			let cumulativeWeight = 0;
+			for (let i = 0; i < availableEvents.length; i++) {
+				cumulativeWeight += EventBox.pongEvents[availableEvents[i]].weight;
+				if (randomEventWeight <= cumulativeWeight) {
+					randomEventIndex = i;
+					break;
+				}
+			}
 			const event = availableEvents[randomEventIndex];
 			if (!event) {
 				return;

@@ -8,6 +8,7 @@ export interface PowerUp {
 	isGlobal: boolean,
 	scope: PongEventScope
 	team: MapSide,
+	duration: number,
 }
 
 export default function PowerUpIcon({ powerUp, hidden }: { powerUp: PowerUp, [key: string]: any }) {
@@ -27,7 +28,10 @@ export default function PowerUpIcon({ powerUp, hidden }: { powerUp: PowerUp, [ke
 
 	const warning = powerUp.time < 5 && powerUp.time >= 0;
 
-	return <div className={`powerup flex items-center justify-center ${hidden ? 'hidden' : ''} ${powerUp.isGlobal ? 'global' : ''} ${powerUp.team === MapSide.LEFT ? 'left' : 'right'} ${warning ? 'warning' : ''} ${powerUp.scope}`}>
+	return <div
+		className={`powerup flex items-center justify-center ${hidden ? 'hidden' : ''} ${powerUp.isGlobal ? 'global' : ''} ${powerUp.team === MapSide.LEFT ? 'left' : 'right'} ${warning ? 'warning' : ''} ${powerUp.scope}`}
+		style={`--height: ${100 - powerUp.time / powerUp.duration * 100}%;`}
+	>
 		{getPowerUpIcon()}
 	</div>
 }
