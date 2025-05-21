@@ -112,6 +112,7 @@
 .lobby-invite-modal {
 	max-width: 368px;
 	height: 50vh;
+	backdrop-filter: none;
 }
 
 .lobby-invite-modal h1 {
