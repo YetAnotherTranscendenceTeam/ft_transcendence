@@ -78,17 +78,17 @@ export function createDamageMaterial(name: string, scene: BABYLON.Scene): BABYLO
 	Add.target = 4;
 
 	// InputBlock
-	var treshold = new BABYLON.InputBlock("treshold");
-	treshold.visibleInInspector = false;
-	treshold.visibleOnFrame = false;
-	treshold.target = 1;
-	treshold.value = 0;
-	treshold.min = -0.2;
-	treshold.max = 0.1;
-	treshold.isBoolean = false;
-	treshold.matrixMode = 0;
-	treshold.animationType = BABYLON.AnimatedInputBlockTypes.None;
-	treshold.isConstant = false;
+	var threshold = new BABYLON.InputBlock("threshold");
+	threshold.visibleInInspector = false;
+	threshold.visibleOnFrame = false;
+	threshold.target = 1;
+	threshold.value = 0;
+	threshold.min = -0.2;
+	threshold.max = 0.1;
+	threshold.isBoolean = false;
+	threshold.matrixMode = 0;
+	threshold.animationType = BABYLON.AnimatedInputBlockTypes.None;
+	threshold.isConstant = false;
 
 	// MultiplyBlock
 	var Multiply1 = new BABYLON.MultiplyBlock("Multiply");
@@ -165,17 +165,17 @@ export function createDamageMaterial(name: string, scene: BABYLON.Scene): BABYLO
 	Scale.target = 4;
 
 	// InputBlock
-	var emisiveStrength = new BABYLON.InputBlock("emisiveStrength");
-	emisiveStrength.visibleInInspector = true;
-	emisiveStrength.visibleOnFrame = false;
-	emisiveStrength.target = 1;
-	emisiveStrength.value = 1;
-	emisiveStrength.min = 0;
-	emisiveStrength.max = 0;
-	emisiveStrength.isBoolean = false;
-	emisiveStrength.matrixMode = 0;
-	emisiveStrength.animationType = BABYLON.AnimatedInputBlockTypes.None;
-	emisiveStrength.isConstant = false;
+	var emissiveStrength = new BABYLON.InputBlock("emissiveStrength");
+	emissiveStrength.visibleInInspector = true;
+	emissiveStrength.visibleOnFrame = false;
+	emissiveStrength.target = 1;
+	emissiveStrength.value = 1;
+	emissiveStrength.min = 0;
+	emissiveStrength.max = 0;
+	emissiveStrength.isBoolean = false;
+	emissiveStrength.matrixMode = 0;
+	emissiveStrength.animationType = BABYLON.AnimatedInputBlockTypes.None;
+	emissiveStrength.isConstant = false;
 
 	// LerpBlock
 	var Lerp = new BABYLON.LerpBlock("Lerp");

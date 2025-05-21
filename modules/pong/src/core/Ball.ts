@@ -53,7 +53,7 @@ export default class Ball extends PH2D.Body {
 		if (speed > ballSpeedMax * ballSpeedMax) {
 			console.log("ball high speed limit");
 			Vec2.normalize(this.velocity, this.velocity);
-			Vec2.scale(this.velocity, this.velocity, ballSpeedControl);
+			Vec2.scale(this.velocity, this.velocity, ballSpeedMax);
 		}
 		if (speed < ballSpeedMin * ballSpeedMin) {
 			console.log("ball low speed limit");
