@@ -81,6 +81,7 @@ export default class PongScene {
 		this.camera.inputs.addMouseWheel();
 		this.camera.inputs.addPointers();
 		this.camera.attachControl(this._canvas, true);
+		this.camera.panningSensibility = 0;
 		this.camera.upperBetaLimit = 85 * Math.PI / 180;
 		this.camera.lowerRadiusLimit = 10;
 		this.camera.upperRadiusLimit = 30;
@@ -444,7 +445,8 @@ export default class PongScene {
 			this.camera.inputs.addMouseWheel();
 			this.camera.inputs.addPointers();
 			this.camera.attachControl(this._canvas, true);
-		} else { // loose camera control
+			this.camera.panningSensibility = 0;
+		} else { // lose camera control
 			this.camera.detachControl();
 		}
 	}
