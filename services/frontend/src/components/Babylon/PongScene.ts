@@ -85,10 +85,10 @@ export default class PongScene {
 		this.camera.inputs.clear();
 		this.camera.inputs.addMouseWheel();
 		this.camera.inputs.addPointers();
-		// this.camera.inputs.attached.pointers.buttons = [0, 1];
 		this.camera.attachControl(this._canvas, true);
-		this.camera.lowerRadiusLimit = 1.5;
-		this.camera.upperRadiusLimit = 300;
+		this.camera.upperBetaLimit = 85 * Math.PI / 180;
+		this.camera.lowerRadiusLimit = 10;
+		this.camera.upperRadiusLimit = 30;
 		this.camera.wheelPrecision = 50;
 		this.camera.minZ = 0.1;
 
@@ -464,6 +464,14 @@ export default class PongScene {
 				spinTo(this.camera, "beta", Math.PI / 4, 90);
 			}
 			spinTo(this.camera, "radius", 25, 90);
+		}
+		if (client.player === undefined && client.gameMode.name !== "local") { // gain control
+			this.camera.inputs.clear();
+			this.camera.inputs.addMouseWheel();
+			this.camera.inputs.addPointers();
+			this.camera.attachControl(this._canvas, true);
+		} else { // loose camera control
+			this.camera.detachControl();
 		}
 	}
 
