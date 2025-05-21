@@ -391,6 +391,9 @@ export default class PongClient extends PONG.Pong {
 	}
 
 	private loop = () => {
+		this._canvas.width = 1920;
+		this._canvas.height = this._canvas.width / (this._babylonScene.scene.getEngine().getAspectRatio(this._babylonScene.camera));
+		this._babylonScene.scene.getEngine().resize();
 		let dt: number = this._engine.getDeltaTime() / 1000;
 		this._keyboard.update();
 		this._babylonScene.updateCamera(dt);
