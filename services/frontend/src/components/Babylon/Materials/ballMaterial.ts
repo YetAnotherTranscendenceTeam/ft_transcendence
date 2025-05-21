@@ -300,7 +300,7 @@ export function createDamageMaterial(name: string, scene: BABYLON.Scene): BABYLO
 	Multiply.output.connectTo(WaveNoise.inputs[1]); // t (time)
 	WaveNoise.outputs[0].connectTo(VectorSplitter.xyzIn);
 	VectorSplitter.z.connectTo(Add.left);
-	treshold.output.connectTo(Add.right);
+	threshold.output.connectTo(Add.right);
 	Add.output.connectTo(Multiply3.left);
 	gradientControl.output.connectTo(Multiply3.right);
 	Multiply3.output.connectTo(Gradient.gradient);
@@ -311,7 +311,7 @@ export function createDamageMaterial(name: string, scene: BABYLON.Scene): BABYLO
 	VectorMerger.xyz.connectTo(Pow.power);
 	Pow.output.connectTo(Multiply2.left);
 	Gradient.output.connectTo(Scale.input);
-	emisiveStrength.output.connectTo(Scale.factor);
+	emissiveStrength.output.connectTo(Scale.factor);
 	Scale.output.connectTo(Lerp.left);
 	glowColor.output.connectTo(Lerp.right);
 	glowMask.output.connectTo(Oneminus.input);

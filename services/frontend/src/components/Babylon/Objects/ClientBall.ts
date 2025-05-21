@@ -80,7 +80,7 @@ export default class ClientBall extends AObject {
 		}
 		if (this._damageMesh.isEnabled()) {
 			updateInputBlock(this._damageMaterial, {
-				treshold: bounceToTreshold(ball.bounceCount),
+				threshold: bounceToTreshold(ball.bounceCount),
 			});
 			this._pointLight.intensity = ball.bounceCount / 10;
 		}
