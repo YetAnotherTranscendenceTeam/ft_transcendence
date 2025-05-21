@@ -157,13 +157,13 @@ export default function LobbySettings({
 					/>
 					<Checkbox
 						value={powerUps.includes(PongEventType.ATTRACTOR)}
-						label="Attractor"
+						label="Magnet"
 						field="attractor"
 						onChange={(e) => handlePowerUpChange('attractor', e)}
 					/>
 					<Checkbox
 						value={powerUps.includes(PongEventType.ICE)}
-						label="Ice"
+						label="Ice rink"
 						field="ice"
 						onChange={(e) => handlePowerUpChange('ice', e)}
 					/>

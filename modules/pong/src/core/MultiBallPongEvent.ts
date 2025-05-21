@@ -9,7 +9,7 @@ import * as K from './constants.js';
 
 export default class MultiBallPongEvent extends PongEvent {
 	constructor() {
-		super(PongEventType.MULTIBALL, PongEventScope.GLOBAL, PongEventActivationSide.BOTH, 2);	
+		super(PongEventType.MULTIBALL, PongEventScope.GLOBAL, PongEventActivationSide.BOTH, 100);	
 	}
 
 	public override activate(game: Pong, playerId: PlayerID): boolean {
