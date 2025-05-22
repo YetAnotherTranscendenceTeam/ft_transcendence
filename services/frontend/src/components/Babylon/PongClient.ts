@@ -328,13 +328,14 @@ export default class PongClient extends PONG.Pong {
 				object.disable();
 			}
 		});
+		if (this._babylonScene.meshMap.get(mapId)?.ground !== null) {
+			this._babylonScene.meshMap.get(mapId)?.ground.setEnabled(true);
+		}
 		// this._babylonScene.shadowGenerator.getShadowMap().resetRefreshCounter();
 	}
 
 	private preloadScene() {
 		this.preloadSetup();
-
-		this._babylonScene.enableMap(this._currentMap.mapId);
 
 		this._player = undefined;
 		this.bindPaddles();
@@ -345,8 +346,6 @@ export default class PongClient extends PONG.Pong {
 	private menuScene() {
 		this.menuSetup();
 		
-		this._babylonScene.enableMap(this._currentMap.mapId);
-		
 		this._player = undefined;
 		this._babylonScene.updateMeshes(0);
 		this._babylonScene.switchCamera();
@@ -355,8 +354,6 @@ export default class PongClient extends PONG.Pong {
 	
 	private localScene() {
 		this.localSetup();
-
-		this._babylonScene.enableMap(this._currentMap.mapId);
 
 		this._player = undefined;
 		this.bindPaddles();
@@ -367,8 +364,6 @@ export default class PongClient extends PONG.Pong {
 	
 	private onlineScene(match_id: number, gamemode: GameMode, players: IPlayer[], matchParameters: IMatchParameters, state?: PONG.PongState) {
 		this.onlineSetup(match_id, gamemode, players, matchParameters, state);
-
-		this._babylonScene.enableMap(this._currentMap.mapId);
 	
 		this.bindPaddles();
 		this._babylonScene.updateMeshes(0);
